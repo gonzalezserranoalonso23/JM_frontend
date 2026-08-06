@@ -1,4 +1,4 @@
-import { Spinner } from "react-bootstrap";
+import { Spinner } from 'react-bootstrap'
 
 const Loading = () => {
   return (
@@ -10,7 +10,7 @@ const Loading = () => {
         />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Loading;
+export default Loading

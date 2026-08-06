@@ -1,13 +1,13 @@
-import Navigate from "../../ui/Navigate";
-import { Container } from "react-bootstrap";
+import Navigate from '../../ui/Navigate'
+import { Container } from 'react-bootstrap'
 
 const ReportDetails = () => {
   return (
     <>
       <Navigate />
-      <Container fluid className="p-0"></Container>
+      <Container fluid className="p-0" />
     </>
-  );
-};
+  )
+}
 
-export default ReportDetails;
+export default ReportDetails

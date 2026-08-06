@@ -1,7 +1,7 @@
 import Navigate from '../../ui/Navigate'
 import { Container } from 'react-bootstrap'
 
-const EntryDetails = () => {
+const Products = () => {
   return (
     <>
       <Navigate />
@@ -10,4 +10,4 @@ const EntryDetails = () => {
   )
 }
 
-export default EntryDetails
+export default Products

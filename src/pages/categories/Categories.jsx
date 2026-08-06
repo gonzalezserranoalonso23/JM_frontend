@@ -1,15 +1,15 @@
 import Navigate from '../../ui/Navigate'
 import { Container, Row, Col } from 'react-bootstrap'
-import TableCatalogs from './components/TableCatalogs'
+import SectionCategories from './components/SectionCategories'
 
-const Catalogs = () => {
+const Categories = () => {
   return (
     <>
       <Navigate />
       <Container fluid className="p-0 ">
         <Row className="my-2 mx-auto">
-          <Col xs={12} lg={8} className=" mx-auto my-1">
-            <TableCatalogs />
+          <Col xs={12} lg={8} className="mx-auto my-1">
+            <SectionCategories />
           </Col>
         </Row>
       </Container>
@@ -17,4 +17,4 @@ const Catalogs = () => {
   )
 }
 
-export default Catalogs
+export default Categories

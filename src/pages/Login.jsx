@@ -1,23 +1,23 @@
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
-import { useFormik } from "formik";
-import { verifyLogin } from "../helpers/validations";
-import { useLogin } from "../features/users.features";
+import { Form, Button, Container, Row, Col } from 'react-bootstrap'
+import { useFormik } from 'formik'
+import { verifyLogin } from '../helpers/validations'
+import { useLogin } from '../features/users.features'
 
 const Login = () => {
-  const login = useLogin();
+  const login = useLogin()
 
   const formik = useFormik({
     initialValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: ''
     },
     validate: verifyLogin,
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: (values) => {
-      login.mutate(values);
-    },
-  });
+      login.mutate(values)
+    }
+  })
 
   return (
     <>
@@ -25,7 +25,7 @@ const Login = () => {
         <Row className=" my-5 vh-50 vw-50">
           <Col xs={12} className="bg-dark text-light  mx-auto p-3 rounded ">
             <div className="d-flex justify-content-center">
-              <div className="mt-2"></div>
+              <div className="mt-2" />
               <div className="mt-5 mx-3">
                 <h1 className="text-center">Mini Super JM</h1>
               </div>
@@ -35,7 +35,7 @@ const Login = () => {
               <Form.Group>
                 <Form.Label htmlFor="username">Usuario: </Form.Label>
                 <Form.Control
-                  {...formik.getFieldProps("username")}
+                  {...formik.getFieldProps('username')}
                   type="text"
                   name="username"
                   id="username"
@@ -45,7 +45,7 @@ const Login = () => {
               <Form.Group>
                 <Form.Label htmlFor="password">Contraseña: </Form.Label>
                 <Form.Control
-                  {...formik.getFieldProps("password")}
+                  {...formik.getFieldProps('password')}
                   type="password"
                   name="password"
                   id="password"
@@ -61,6 +61,6 @@ const Login = () => {
         </Row>
       </Container>
     </>
-  );
-};
-export default Login;
+  )
+}
+export default Login
