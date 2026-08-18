@@ -2,7 +2,7 @@ import { Modal, Form, Button } from 'react-bootstrap'
 import { useFormik } from 'formik'
 import { validateCategory } from '../../../helpers/validations'
 
-const ModalCreateCategories = ({
+const ModalCategory = ({
   category,
   modalShow,
   handleClose,
@@ -70,4 +70,4 @@ const ModalCreateCategories = ({
   )
 }
 
-export default ModalCreateCategories
+export default ModalCategory

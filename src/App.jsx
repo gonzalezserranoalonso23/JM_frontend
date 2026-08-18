@@ -22,7 +22,6 @@ import Catalog from './pages/catalogs/Catalogs'
 import Users from './pages/users/Users'
 import UserDetails from './pages/users/UserDetails'
 import Products from './pages/products/Products'
-import ProductDetails from './pages/products/ProductDetails'
 import Suppliers from './pages/suppliers/Suppliers'
 import SupplierDetails from './pages/suppliers/SupplierDetails'
 import Categories from './pages/categories/Categories'
@@ -58,7 +57,7 @@ const App = () => {
             <Route path="/users" element={<Users />} />
             <Route path="/users/:id" element={<UserDetails />} />
             <Route path="/products" element={<Products />} />
-            <Route path="/products/:id" element={<ProductDetails />} />
+
             <Route path="/suppliers" element={<Suppliers />} />
             <Route path="/suppliers/:id" element={<SupplierDetails />} />
             <Route path="/categories" element={<Categories />} />

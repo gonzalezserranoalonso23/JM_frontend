@@ -1,25 +1,25 @@
 import { useState } from 'react'
 import {
-  useCreateSupplier,
-  useDeleteSupplier,
-  useUpdateSupplier,
-  useGetSuppliers
-} from '../../../features/suppliers.features'
+  useGetProducts,
+  useDeleteProduct,
+  useCreateProduct,
+  useUpdateProduct
+} from '../../../features/products.features'
 import { Button, Alert } from 'react-bootstrap'
 import { toast } from 'react-hot-toast'
-import ModalSuppliers from './ModalSuppliers'
+import ModalProducts from './ModalProducts'
 import Loading from '../../../ui/Loading'
-import TableSuppliers from './TableSuppliers'
+import TableProducts from './TableProducts'
 
-const SectionSuppliers = () => {
-  const { data: suppliers, isLoading, isError } = useGetSuppliers()
+const SectionProducts = () => {
+  const { data: products, isLoading, isError } = useGetProducts()
 
-  const createSupplier = useCreateSupplier()
-  const updateSupplier = useUpdateSupplier()
-  const deleteSupplier = useDeleteSupplier()
+  const createProduct = useCreateProduct()
+  const updateProduct = useUpdateProduct()
+  const deleteProduct = useDeleteProduct()
 
   const [modalShow, setModalShow] = useState(false)
-  const [supplier, setSupplier] = useState([])
+  const [product, setProduct] = useState([])
   const [update, setUpdate] = useState(false)
 
   const handleClose = () => setModalShow(false)
@@ -27,58 +27,58 @@ const SectionSuppliers = () => {
 
   const handleDelete = (id) => {
     const sure = window.confirm('Esta seguro que desea borrar?')
-    if (sure) return deleteSupplier.mutate(id)
+    if (sure) return deleteProduct.mutate(id)
   }
 
   const handleUpdate = (data) => {
     handleShow()
-    setSupplier(data)
+    setProduct(data)
     setUpdate(true)
   }
 
   if (isLoading) return <Loading />
-  if (isError) return toast.error('Hubo un error al cargar los proveedores!')
+  if (isError) return toast.error('Hubo un error al cargar los productos!')
 
   return (
     <>
       <section>
         <h5>
-          Proveedores
+          Productos
           <Button variant="warning mx-1 btn-sm my-1 " onClick={handleShow}>
-            Crear Proveedor
+            Crear Producto
           </Button>
         </h5>
         {!update ? (
-          <ModalSuppliers
+          <ModalProducts
             modalShow={modalShow}
             handleClose={handleClose}
-            action={createSupplier}
+            action={createProduct}
             type="Crear"
             setUpdate={setUpdate}
           />
         ) : (
-          <ModalSuppliers
-            supplier={supplier}
+          <ModalProducts
+            product={product}
             modalShow={modalShow}
             handleClose={handleClose}
-            action={updateSupplier}
+            action={updateProduct}
             type="Editar"
             setUpdate={setUpdate}
           />
         )}
 
-        {suppliers?.length > 0 ? (
-          <TableSuppliers
-            suppliers={suppliers}
+        {products?.length > 0 ? (
+          <TableProducts
+            products={products}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
           />
         ) : (
-          <Alert variant="warning">No hay proveedores para mostrar!</Alert>
+          <Alert variant="warning">No hay productos para mostrar!</Alert>
         )}
       </section>
     </>
   )
 }
 
-export default SectionSuppliers
+export default SectionProducts

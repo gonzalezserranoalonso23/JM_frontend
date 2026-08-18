@@ -26,7 +26,7 @@ const SectionCategories = () => {
   const handleShow = () => setModalShow(true)
 
   const handleDelete = (id) => {
-    const sure = confirm('Esta seguro que desea borrar?')
+    const sure = window.confirm('Esta seguro que desea borrar?')
     if (sure) return deleteCategory.mutate(id)
   }
 

@@ -14,6 +14,44 @@ export const verifyLogin = (values) => {
 
 export const validateCategory = (values) => {
   if (!values.categories) return toast.error('La categoría es requerida')
-  if (values.categories.length < 6)
-    return toast.error('La categoría debe contener al menos 6 caracteres')
+  if (values.categories.length < 4)
+    return toast.error('La categoría debe contener al menos 4 caracteres')
+}
+
+export const validateSupplier = (values) => {
+  if (!values.suppliersName)
+    return toast.error('El nombre del proveedor es requerido')
+  if (values.suppliersName.length < 4)
+    return toast.error(
+      'El nombre del proveedor debe contener al menos 4 caracteres'
+    )
+}
+
+export const validateProduct = (values) => {
+  if (!values.productName)
+    return toast.error('El nombre del producto es requerido')
+  if (values.productName.length < 4)
+    return toast.error(
+      'El nombre del producto debe contener al menos 4 caracteres'
+    )
+  if (!values.productDescription)
+    return toast.error('La descripción del producto es requerida')
+  if (values.productDescription.length < 4)
+    return toast.error(
+      'La descripción del producto debe contener al menos 4 caracteres'
+    )
+  if (!values.productPrice)
+    return toast.error('El precio del producto es requerido')
+  if (values.productPrice < 0)
+    return toast.error('El precio del producto no puede ser negativo')
+  if (!values.productStock)
+    return toast.error('El stock del producto es requerido')
+
+  if (!values.minimumProductStock)
+    return toast.error('El stock mínimo del producto es requerido')
+
+  if (!values.supplier)
+    return toast.error('El proveedor del producto es requerido')
+  if (!values.category)
+    return toast.error('La categoría del producto es requerida')
 }
