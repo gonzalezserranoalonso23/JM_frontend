@@ -119,20 +119,22 @@ const SectionOrders = () => {
                     <small>{new Date(order.date).toLocaleDateString()}</small>
                   </td>
                   <td style={{ textAlign: 'center' }}>
-                    <button
-                      className="btn-action btn-info-sm"
-                      onClick={() => handleViewSolped(order)}
-                      title="Ver SOLPED"
-                    >
-                      🖨️
-                    </button>
-                    <button
-                      className="btn-action btn-danger-sm"
-                      onClick={() => handleDelete(order._id)}
-                      title="Eliminar"
-                    >
-                      ✕
-                    </button>
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                      <button
+                        className="btn-action btn-info-sm w-full sm:w-auto"
+                        onClick={() => handleViewSolped(order)}
+                        title="Ver SOLPED"
+                      >
+                        🖨️
+                      </button>
+                      <button
+                        className="btn-action btn-danger-sm w-full sm:w-auto"
+                        onClick={() => handleDelete(order._id)}
+                        title="Eliminar"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -1,15 +1,21 @@
 /* TodoList Styles */
 
 .todolist-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
   min-height: 100vh;
-  background: #f5f6f7;
-  padding-top: 60px;
+  background: transparent;
+  padding: 72px 1rem 2rem;
+}
+
+.todolist-shell {
+  border-radius: 10px;
 }
 
 .todolist-form-section {
   background: white;
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
@@ -95,7 +101,7 @@ textarea.form-control {
 /* Content */
 .todolist-content {
   background: white;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
@@ -112,7 +118,7 @@ textarea.form-control {
   background: #fafbfc;
   border: 1px solid #ecf0f1;
   border-left: 4px solid #3498db;
-  border-radius: 6px;
+  border-radius: 10px;
   padding: 1.25rem;
   transition: all 0.3s ease;
 }
@@ -267,6 +273,7 @@ textarea.form-control {
   text-align: center;
   padding: 3rem 1.5rem;
   color: #7f8c8d;
+  border-radius: 10px;
 }
 
 .empty-state p {

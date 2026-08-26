@@ -129,19 +129,20 @@ const SectionUsers = () => {
                     </span>
                   </td>
                   <td className="text-center">
-                    <button
-                      className="btn-action btn-info-sm"
-                      style={{ marginRight: '0.4rem' }}
-                      onClick={() => handleShowEdit(user)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="btn-action btn-danger-sm"
-                      onClick={() => handleDelete(user._id)}
-                    >
-                      Borrar
-                    </button>
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                      <button
+                        className="btn-action btn-info-sm w-full sm:w-auto"
+                        onClick={() => handleShowEdit(user)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="btn-action btn-danger-sm w-full sm:w-auto"
+                        onClick={() => handleDelete(user._id)}
+                      >
+                        Borrar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

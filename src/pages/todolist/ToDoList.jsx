@@ -75,7 +75,7 @@ const ToDoList = () => {
     <>
       <Navigate />
       <div className="todolist-wrapper">
-        <div className="section-container">
+        <div className="section-container todolist-shell">
           {/* Header */}
           <div className="section-header">
             <div>

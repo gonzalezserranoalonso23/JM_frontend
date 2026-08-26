@@ -51,7 +51,7 @@ const SectionCategories = () => {
         <div className="section-header">
           <h4 className="section-title">Categorías</h4>
           <button
-            className="btn-custom btn-warning-custom"
+            className="btn-custom btn-primary-custom"
             onClick={handleShow}
           >
             + Crear Categoría

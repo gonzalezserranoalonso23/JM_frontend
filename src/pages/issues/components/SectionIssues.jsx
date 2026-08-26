@@ -158,21 +158,22 @@ const SectionIssues = () => {
                     </small>
                   </td>
                   <td style={{ textAlign: 'center' }}>
-                    <button
-                      className="btn-action btn-info-sm"
-                      style={{ marginRight: '0.4rem' }}
-                      onClick={() => handleShowEdit(record)}
-                      title="Editar"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="btn-action btn-danger-sm"
-                      onClick={() => handleDelete(record._id)}
-                      title="Eliminar"
-                    >
-                      ✕
-                    </button>
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                      <button
+                        className="btn-action btn-info-sm w-full sm:w-auto"
+                        onClick={() => handleShowEdit(record)}
+                        title="Editar"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="btn-action btn-danger-sm w-full sm:w-auto"
+                        onClick={() => handleDelete(record._id)}
+                        title="Eliminar"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

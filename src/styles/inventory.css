@@ -1,13 +1,13 @@
 /* Estilos Globales Minimalistas para Inventario */
 
 :root {
-  --color-primary: #3498db;
-  --color-success: #27ae60;
-  --color-warning: #f39c12;
-  --color-danger: #e74c3c;
-  --color-light: #ecf0f1;
-  --color-text: #2c3e50;
-  --color-text-muted: #7f8c8d;
+  --color-primary: #111827;
+  --color-success: #374151;
+  --color-warning: #9ca3af;
+  --color-danger: #4b5563;
+  --color-light: #f3f4f6;
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -76,7 +76,7 @@
 .filter-group select:focus {
   border-color: var(--color-primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
 }
 
 /* Tabla Minimalista */
@@ -92,28 +92,33 @@
 }
 
 .table-minimal thead {
-  background: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
+  background: #111827;
+  border-bottom: 1px solid #1f2937;
 }
 
 .table-minimal th {
   padding: 1rem 0.75rem;
-  font-weight: 600;
-  color: var(--color-text);
+  font-weight: 700;
+  color: #f9fafb;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   border: none;
 }
 
 .table-minimal td {
   padding: 1rem 0.75rem;
-  border-bottom: 1px solid #ecf0f1;
-  color: var(--color-text);
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+  background: #ffffff;
+}
+
+.table-minimal tbody tr:nth-child(even) {
+  background: #f8fafc;
 }
 
 .table-minimal tbody tr:hover {
-  background: #f8f9fa;
+  background: #eef2f7;
 }
 
 .table-minimal tbody tr:last-child td {
@@ -136,21 +141,21 @@
 }
 
 .btn-info-sm {
-  background: #ecf0f1;
+  background: #f3f4f6;
   color: var(--color-primary);
 }
 
 .btn-info-sm:hover {
-  background: #d5dbdb;
+  background: #d1d5db;
 }
 
 .btn-danger-sm {
-  background: #fadbd8;
+  background: #e5e7eb;
   color: var(--color-danger);
 }
 
 .btn-danger-sm:hover {
-  background: #f5b7b1;
+  background: #d1d5db;
 }
 
 /* Modal Minimalista */
@@ -208,7 +213,7 @@
 .form-select:focus {
   border-color: var(--color-primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
 }
 
 .form-control::placeholder {
@@ -231,33 +236,33 @@
 
 .btn-primary-custom {
   background: var(--color-primary);
-  color: white;
+  color: #ffffff;
 }
 
 .btn-primary-custom:hover {
-  background: #2980b9;
+  background: #1f2937;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
 .btn-success-custom {
   background: var(--color-success);
-  color: white;
+  color: #ffffff;
 }
 
 .btn-success-custom:hover {
-  background: #229954;
+  background: #4b5563;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
 .btn-danger-custom {
   background: var(--color-danger);
-  color: white;
+  color: #ffffff;
 }
 
 .btn-danger-custom:hover {
-  background: #c0392b;
+  background: #374151;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -282,25 +287,25 @@
 }
 
 .alert-info-minimal {
-  background: #ecf7ff;
+  background: #f3f4f6;
   border-left-color: var(--color-primary);
   color: var(--color-primary);
 }
 
 .alert-success-minimal {
-  background: #f0fdf4;
+  background: #e5e7eb;
   border-left-color: var(--color-success);
   color: var(--color-success);
 }
 
 .alert-warning-minimal {
-  background: #fef9e7;
+  background: #f3f4f6;
   border-left-color: var(--color-warning);
-  color: #b8860b;
+  color: #374151;
 }
 
 .alert-danger-minimal {
-  background: #fadbd8;
+  background: #e5e7eb;
   border-left-color: var(--color-danger);
   color: var(--color-danger);
 }
@@ -315,18 +320,18 @@
 }
 
 .badge-success {
-  background: #d4edda;
-  color: #155724;
+  background: #e5e7eb;
+  color: #111827;
 }
 
 .badge-warning {
-  background: #fff3cd;
-  color: #856404;
+  background: #d1d5db;
+  color: #374151;
 }
 
 .badge-danger {
-  background: #f8d7da;
-  color: #721c24;
+  background: #9ca3af;
+  color: #111827;
 }
 
 /* Responsive */

@@ -16,7 +16,7 @@ const TaskWidget = () => {
 
   return (
     <Link to="/todolist" className="task-widget-link">
-      <div className="task-widget-container">
+      <div className="task-widget-container home-task-widget">
         <div className="widget-header">
           <h6 className="widget-title">Tareas Pendientes</h6>
           <span className="task-count-badge">{pendingTasks.length}</span>

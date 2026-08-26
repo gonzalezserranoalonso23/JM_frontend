@@ -7,16 +7,21 @@
 }
 
 .task-widget-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  min-height: 220px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
   padding: 1.5rem;
   transition: all 0.3s ease;
-  border-left: 4px solid #e74c3c;
+  border-left: 4px solid #f59e0b;
+  display: flex;
+  flex-direction: column;
 }
 
 .task-widget-container:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
   transform: translateY(-2px);
 }
 
@@ -30,17 +35,17 @@
 .widget-title {
   margin: 0;
   font-size: 0.95rem;
-  font-weight: 600;
-  color: #2c3e50;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .task-count-badge {
-  background: #e74c3c;
-  color: white;
+  background: #f59e0b;
+  color: #111827;
   padding: 0.3rem 0.7rem;
   border-radius: 20px;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .widget-content {
@@ -48,28 +53,30 @@
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 1rem;
+  flex: 1;
 }
 
 .widget-section {
   padding: 0.75rem;
-  background: #f8f9fa;
-  border-radius: 6px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .widget-section-title {
   margin: 0 0 0.5rem 0;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .widget-section-title.priority-high {
-  color: #c0392b;
+  color: #fca5a5;
 }
 
 .widget-section-title.priority-medium {
-  color: #d68910;
+  color: #fcd34d;
 }
 
 .widget-task {
@@ -78,7 +85,7 @@
   gap: 0.5rem;
   padding: 0.5rem 0;
   font-size: 0.85rem;
-  color: #2c3e50;
+  color: #0f172a;
   overflow: hidden;
 }
 
@@ -91,15 +98,15 @@
 }
 
 .priority-dot.priority-high {
-  background: #e74c3c;
+  background: #f87171;
 }
 
 .priority-dot.priority-medium {
-  background: #f39c12;
+  background: #fbbf24;
 }
 
 .priority-dot.priority-low {
-  background: #95a5a6;
+  background: #94a3b8;
 }
 
 .task-text {
@@ -110,11 +117,11 @@
 
 .widget-footer {
   font-size: 0.8rem;
-  color: #3498db;
-  font-weight: 600;
+  color: var(--text-secondary);
+  font-weight: 700;
   text-align: center;
-  padding-top: 0.5rem;
-  border-top: 1px solid #ecf0f1;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
 }
 
 @media (max-width: 768px) {

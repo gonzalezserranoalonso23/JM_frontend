@@ -51,7 +51,7 @@ const SectionSuppliers = () => {
         <div className="section-header">
           <h4 className="section-title">Proveedores</h4>
           <button
-            className="btn-custom btn-warning-custom"
+            className="btn-custom btn-primary-custom"
             onClick={handleShow}
           >
             + Crear Proveedor
