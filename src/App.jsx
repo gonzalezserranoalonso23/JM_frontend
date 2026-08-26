@@ -29,9 +29,19 @@ import Categories from './pages/categories/Categories'
 // Store
 import { useAuthStore } from './store/auth'
 import { Toaster } from 'react-hot-toast'
+import Loading from './ui/Loading'
 
 const App = () => {
-  const isLogged = useAuthStore((state) => state.isLogged)
+  const hydrated = useAuthStore((state) => state.hydrated)
+
+  if (!hydrated) {
+    return (
+      <>
+        <Toaster position="top-center" reverseOrder={false} />
+        <Loading />
+      </>
+    )
+  }
 
   return (
     <>
@@ -40,7 +50,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Login />} />
 
-          <Route element={<Protected isLogged={isLogged} />}>
+          <Route element={<Protected />}>
             <Route path="/home" element={<Home />} />
             <Route path="/entries" element={<Entries />} />
             <Route path="/entries/:id" element={<EntryDetails />} />

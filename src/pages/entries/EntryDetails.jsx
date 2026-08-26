@@ -1,11 +1,10 @@
 import Navigate from '../../ui/Navigate'
-import { Container } from 'react-bootstrap'
 
 const EntryDetails = () => {
   return (
     <>
       <Navigate />
-      <Container fluid className="p-0" />
+      <div className="min-h-screen bg-light pt-20" />
     </>
   )
 }

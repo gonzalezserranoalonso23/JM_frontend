@@ -1,17 +1,17 @@
 import Navigate from '../../ui/Navigate'
-import { Container, Row, Col } from 'react-bootstrap'
 import SectionSuppliers from './components/SectionSuppliers'
 
 const Suppliers = () => {
   return (
     <>
       <Navigate />
-      <Container fluid className="p-0">
-        <Row className="my-2 mx-auto">
-          <Col xs={12} lg={8} className="mx-auto my-1" />
-          <SectionSuppliers />
-        </Row>
-      </Container>
+      <div className="min-h-screen bg-light pt-20">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="mb-6">
+            <SectionSuppliers />
+          </div>
+        </div>
+      </div>
     </>
   )
 }

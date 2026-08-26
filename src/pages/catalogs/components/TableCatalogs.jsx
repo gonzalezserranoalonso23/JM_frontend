@@ -1,62 +1,38 @@
 import { Link } from 'react-router-dom'
-import { Table, Button } from 'react-bootstrap'
 
 const TableCatalogs = () => {
+  const items = [
+    { name: 'Productos', path: '../products' },
+    { name: 'Proveedores', path: '../suppliers' },
+    { name: 'Categorías', path: '../categories' },
+    { name: 'Usuarios', path: '../users' }
+  ]
+
   return (
-    <>
-      <section className="mx-1 my-4">
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Productos</td>
+    <div className="table-wrapper">
+      <table className="table-minimal">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th className="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={item.name}>
               <td>
-                <Link to="../products">
-                  <Button size="sm" variant="info">
-                    Ver
-                  </Button>
+                <strong>{item.name}</strong>
+              </td>
+              <td className="text-center">
+                <Link to={item.path} className="btn-action btn-info-sm">
+                  Ver
                 </Link>
               </td>
             </tr>
-            <tr>
-              <td>Proveedores</td>
-              <td>
-                <Link to="../suppliers">
-                  <Button size="sm" variant="info">
-                    Ver
-                  </Button>
-                </Link>
-              </td>
-            </tr>
-            <tr>
-              <td>Categorías</td>
-              <td>
-                <Link to="../categories">
-                  <Button size="sm" variant="info">
-                    Ver
-                  </Button>
-                </Link>
-              </td>
-            </tr>
-            <tr>
-              <td>Usuarios</td>
-              <td>
-                <Link to="../users">
-                  <Button size="sm" variant="info">
-                    Ver
-                  </Button>
-                </Link>
-              </td>
-            </tr>
-          </tbody>
-        </Table>
-      </section>
-    </>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

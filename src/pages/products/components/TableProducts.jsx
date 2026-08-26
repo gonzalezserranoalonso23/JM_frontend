@@ -1,64 +1,73 @@
-import { Table, Button, Alert, ButtonGroup } from 'react-bootstrap'
-
 const TableProducts = ({ products, handleUpdate, handleDelete }) => {
   return (
-    <>
-      {products?.length > 0 ? (
-        <div className="data-tables bg-light rounded p-1 my-1">
-          <Table responsive size="sm" borderless variant="light" hover>
-            <thead className="border-bottom">
-              <tr>
-                <th>Producto</th>
-                <th>Descripción</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Stock mínimo</th>
-                <th>Proveedor</th>
-                <th>Categoría</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products?.map((product) => (
-                <tr key={product?._id}>
-                  <td>{product?.productName}</td>
-                  <td>{product?.productDescription}</td>
-                  <td>{product?.productPrice}</td>
-                  <td>{product?.productStock}</td>
-                  <td>{product?.minimumProductStock}</td>
-                  <td>{product?.supplier?.suppliersName}</td>
-                  <td>{product?.category?.categories}</td>
-
-                  <td>
-                    <ButtonGroup>
-                      <Button
-                        className="btn btn-warning btn-sm mx-1 rounded"
-                        data={product?._id}
-                        onClick={() => handleUpdate(product)}
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        className="btn btn-danger btn-sm  mx-1 rounded"
-                        data={product?._id}
-                        onClick={() => handleDelete(product?._id)}
-                      >
-                        Borrar
-                      </Button>
-                    </ButtonGroup>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <caption className="mx-1 text-dark">
-              Total de productos {products?.length}
-            </caption>
-          </Table>
-        </div>
-      ) : (
-        <Alert variant="warning">No hay prdoductos para mostrar!</Alert>
-      )}
-    </>
+    <div className="table-wrapper">
+      <table className="table-minimal">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Compra</th>
+            <th>Venta</th>
+            <th>Stock</th>
+            <th>Stock mín.</th>
+            <th>Proveedor</th>
+            <th>Categoría</th>
+            <th className="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products?.map((product) => (
+            <tr key={product?._id}>
+              <td>
+                <strong>{product?.productName}</strong>
+              </td>
+              <td>
+                <small>{product?.productDescription}</small>
+              </td>
+              <td>${product?.purchasePrice ?? 0}</td>
+              <td>${product?.productPrice ?? 0}</td>
+              <td>
+                <span
+                  className={`badge-minimal ${
+                    product?.productStock === 0
+                      ? 'badge-danger'
+                      : product?.productStock <= product?.minimumProductStock
+                        ? 'badge-warning'
+                        : 'badge-success'
+                  }`}
+                >
+                  {product?.productStock}
+                </span>
+              </td>
+              <td>{product?.minimumProductStock}</td>
+              <td>
+                <small>{product?.supplier?.suppliersName}</small>
+              </td>
+              <td>
+                <small>{product?.category?.categories}</small>
+              </td>
+              <td className="text-center">
+                <button
+                  className="btn-action btn-info-sm mr-2"
+                  onClick={() => handleUpdate(product)}
+                >
+                  Editar
+                </button>
+                <button
+                  className="btn-action btn-danger-sm"
+                  onClick={() => handleDelete(product?._id)}
+                >
+                  Borrar
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <caption className="text-sm text-gray-500 mt-2">
+          Total: {products?.length} productos
+        </caption>
+      </table>
+    </div>
   )
 }
 

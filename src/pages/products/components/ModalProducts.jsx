@@ -1,4 +1,12 @@
-import { Modal, Form, Button } from 'react-bootstrap'
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  TextInput,
+  Select
+} from 'flowbite-react'
 import { useFormik } from 'formik'
 import { validateProduct } from '../../../helpers/validations'
 import { useGetCategories } from '../../../features/categories.features'
@@ -20,6 +28,7 @@ const ModalProducts = ({
     initialValues: {
       productName: product?.productName || '',
       productDescription: product?.productDescription || '',
+      purchasePrice: product?.purchasePrice || '',
       productPrice: product?.productPrice || '',
       minimumProductStock: product?.minimumProductStock || '',
       productStock: product?.productStock || '',
@@ -43,103 +52,154 @@ const ModalProducts = ({
   }
 
   return (
-    <>
-      <Modal
-        className="text-dark"
-        show={modalShow}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-      >
-        <Modal.Header>
-          <Modal.Title>{type} producto</Modal.Title>
-        </Modal.Header>
-        <Form onSubmit={formik.handleSubmit}>
-          <Modal.Body>
-            <Form.Group>
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control
+    <Modal
+      show={modalShow}
+      onClose={handleCloseUpdate}
+      size="lg"
+      className="z-[9999]"
+    >
+      <ModalHeader>{type} producto</ModalHeader>
+      <form onSubmit={formik.handleSubmit}>
+        <ModalBody>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label
+                htmlFor="productName"
+                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Nombre
+              </label>
+              <TextInput
                 {...formik.getFieldProps('productName')}
+                id="productName"
                 type="text"
                 name="productName"
               />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Descripción</Form.Label>
-              <Form.Control
+            </div>
+            <div>
+              <label
+                htmlFor="productDescription"
+                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Descripción
+              </label>
+              <TextInput
                 {...formik.getFieldProps('productDescription')}
+                id="productDescription"
                 type="text"
                 name="productDescription"
               />
-              <Form.Label>Precio</Form.Label>
-              <Form.Control
-                {...formik.getFieldProps('productPrice')}
-                type="number"
-                name="productPrice"
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Stock mínimo</Form.Label>
-              <Form.Control
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="purchasePrice"
+                  className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
+                  Precio de compra
+                </label>
+                <TextInput
+                  {...formik.getFieldProps('purchasePrice')}
+                  id="purchasePrice"
+                  type="number"
+                  name="purchasePrice"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="productPrice"
+                  className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+                >
+                  Precio de venta
+                </label>
+                <TextInput
+                  {...formik.getFieldProps('productPrice')}
+                  id="productPrice"
+                  type="number"
+                  name="productPrice"
+                />
+              </div>
+            </div>
+            <div>
+              <label
+                htmlFor="minimumProductStock"
+                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Stock mínimo
+              </label>
+              <TextInput
                 {...formik.getFieldProps('minimumProductStock')}
+                id="minimumProductStock"
                 type="number"
                 name="minimumProductStock"
               />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Stock actual</Form.Label>
-              <Form.Control
+            </div>
+            <div>
+              <label
+                htmlFor="productStock"
+                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Stock actual
+              </label>
+              <TextInput
                 {...formik.getFieldProps('productStock')}
+                id="productStock"
                 type="number"
                 name="productStock"
               />
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Proveedor:</Form.Label>
-              <Form.Select
+            </div>
+            <div>
+              <label
+                htmlFor="supplier"
+                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Proveedor
+              </label>
+              <Select
                 id="supplier"
                 name="supplier"
                 {...formik.getFieldProps('supplier')}
               >
-                <option value={false}>
-                  Selecciona el proveedor al que pertenece
-                </option>
-                {suppliers?.map((supplier) => (
-                  <option key={supplier?._id} value={supplier?._id}>
-                    {supplier?.suppliersName}
+                <option value="">Selecciona el proveedor</option>
+                {suppliers?.map((s) => (
+                  <option key={s?._id} value={s?._id}>
+                    {s?.suppliersName}
                   </option>
                 ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Categoria:</Form.Label>
-              <Form.Select
+              </Select>
+            </div>
+            <div>
+              <label
+                htmlFor="category"
+                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Categoría
+              </label>
+              <Select
                 id="category"
                 name="category"
                 {...formik.getFieldProps('category')}
               >
-                <option value={false}>
-                  Selecciona la categoría a la que pertenece
-                </option>
-                {categories?.map((category) => (
-                  <option key={category?._id} value={category?._id}>
-                    {category?.categories}
+                <option value="">Selecciona la categoría</option>
+                {categories?.map((c) => (
+                  <option key={c?._id} value={c?._id}>
+                    {c?.categories}
                   </option>
                 ))}
-              </Form.Select>
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="dark" onClick={handleCloseUpdate}>
-              Cerrar
-            </Button>
-            <Button variant="warning" type="submit">
-              {type} producto
-            </Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
-    </>
+              </Select>
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button type="button" color="dark" onClick={handleCloseUpdate}>
+            Cerrar
+          </Button>
+          <Button color="warning" type="submit">
+            {type} producto
+          </Button>
+        </ModalFooter>
+      </form>
+    </Modal>
   )
 }
 

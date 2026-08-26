@@ -1,11 +1,15 @@
 import Navigate from '../../ui/Navigate'
-import { Container } from 'react-bootstrap'
+import ReportsSalesAndMovements from './components/ReportsSalesAndMovements'
 
 const Reports = () => {
   return (
     <>
       <Navigate />
-      <Container fluid className="p-0" />
+      <div className="min-h-screen bg-light pt-20">
+        <div className="max-w-6xl mx-auto px-4">
+          <ReportsSalesAndMovements />
+        </div>
+      </div>
     </>
   )
 }

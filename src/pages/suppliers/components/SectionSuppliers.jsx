@@ -5,8 +5,6 @@ import {
   useUpdateSupplier,
   useGetSuppliers
 } from '../../../features/suppliers.features'
-import { Button, Alert } from 'react-bootstrap'
-import { toast } from 'react-hot-toast'
 import ModalSuppliers from './ModalSuppliers'
 import Loading from '../../../ui/Loading'
 import TableSuppliers from './TableSuppliers'
@@ -37,17 +35,28 @@ const SectionSuppliers = () => {
   }
 
   if (isLoading) return <Loading />
-  if (isError) return toast.error('Hubo un error al cargar los proveedores!')
+  if (isError)
+    return (
+      <div
+        className="alert-minimal alert-danger-minimal"
+        style={{ margin: '2rem' }}
+      >
+        Error al cargar los proveedores
+      </div>
+    )
 
   return (
     <>
       <section>
-        <h5>
-          Proveedores
-          <Button variant="warning mx-1 btn-sm my-1 " onClick={handleShow}>
-            Crear Proveedor
-          </Button>
-        </h5>
+        <div className="section-header">
+          <h4 className="section-title">Proveedores</h4>
+          <button
+            className="btn-custom btn-warning-custom"
+            onClick={handleShow}
+          >
+            + Crear Proveedor
+          </button>
+        </div>
         {!update ? (
           <ModalSuppliers
             modalShow={modalShow}
@@ -74,7 +83,9 @@ const SectionSuppliers = () => {
             handleDelete={handleDelete}
           />
         ) : (
-          <Alert variant="warning">No hay proveedores para mostrar!</Alert>
+          <div className="alert-minimal alert-warning-minimal">
+            No hay proveedores para mostrar
+          </div>
         )}
       </section>
     </>

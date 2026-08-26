@@ -1,7 +1,13 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '../store/auth'
-import { login } from '../services/users.services'
+import {
+  login,
+  getUsers,
+  registerUser,
+  updateUser,
+  deleteUser
+} from '../services/users.services'
 import { useNavigate } from 'react-router-dom'
 
 export const useLogin = () => {
@@ -22,4 +28,59 @@ export const useLogin = () => {
     onError: () => toast.error('Error al iniciar sesión!')
   })
   return mutationLogin
+}
+
+export const useGetUsers = () => {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers
+  })
+}
+
+export const useRegisterUser = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: registerUser,
+    onSuccess: () => {
+      toast.success('Usuario registrado exitosamente')
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || 'Error al registrar el usuario'
+      )
+    }
+  })
+}
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }) => updateUser(id, data),
+    onSuccess: () => {
+      toast.success('Usuario actualizado exitosamente')
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || 'Error al actualizar el usuario'
+      )
+    }
+  })
+}
+
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      toast.success('Usuario eliminado exitosamente')
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || 'Error al eliminar el usuario'
+      )
+    }
+  })
 }

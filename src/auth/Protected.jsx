@@ -3,16 +3,24 @@ import { useAuthStore } from '../store/auth'
 import { decodedValid } from '../utils/formatedDate'
 import { jwtDecode } from 'jwt-decode'
 
-const Protected = ({ isLogged }) => {
+const Protected = () => {
   const auth = useAuthStore((state) => state.auth)
   const logOut = useAuthStore((state) => state.logOut)
 
-  if (!isLogged) {
+  if (!auth) {
     return <Navigate to="/" />
-  } else if (auth && decodedValid() >= jwtDecode(auth).exp * 1000) {
-    logOut()
-  } else {
+  }
+
+  try {
+    const isExpired = decodedValid() >= jwtDecode(auth).exp * 1000
+    if (isExpired) {
+      logOut()
+      return <Navigate to="/" replace />
+    }
     return <Outlet />
+  } catch {
+    logOut()
+    return <Navigate to="/" replace />
   }
 }
 

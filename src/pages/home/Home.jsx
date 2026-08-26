@@ -1,11 +1,11 @@
 import Navigate from '../../ui/Navigate'
-import { Container } from 'react-bootstrap'
+import StockDashboard from './components/StockDashboard'
 
 const Home = () => {
   return (
     <>
       <Navigate />
-      <Container fluid className="p-0" />
+      <StockDashboard />
     </>
   )
 }

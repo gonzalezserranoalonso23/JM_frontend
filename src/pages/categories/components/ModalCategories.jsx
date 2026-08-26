@@ -1,4 +1,11 @@
-import { Modal, Form, Button } from 'react-bootstrap'
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  TextInput
+} from 'flowbite-react'
 import { useFormik } from 'formik'
 import { validateCategory } from '../../../helpers/validations'
 
@@ -34,39 +41,43 @@ const ModalCategory = ({
   }
 
   return (
-    <>
-      <Modal
-        className="text-dark"
-        show={modalShow}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-      >
-        <Modal.Header>
-          <Modal.Title>{type} categoría</Modal.Title>
-        </Modal.Header>
-        <Form onSubmit={formik.handleSubmit}>
-          <Modal.Body>
-            <Form.Group>
-              <Form.Label>Categoría</Form.Label>
-              <Form.Control
+    <Modal
+      show={modalShow}
+      onClose={handleCloseUpdate}
+      size="md"
+      className="z-[9999]"
+    >
+      <ModalHeader>{type} categoría</ModalHeader>
+      <form onSubmit={formik.handleSubmit}>
+        <ModalBody>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label
+                htmlFor="categories"
+                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Categoría
+              </label>
+              <TextInput
                 {...formik.getFieldProps('categories')}
+                id="categories"
                 type="text"
                 name="categories"
+                placeholder="Nombre de la categoría"
               />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="dark" onClick={handleCloseUpdate}>
-              Cerrar
-            </Button>
-            <Button variant="warning" type="submit">
-              {type} categoría
-            </Button>
-          </Modal.Footer>
-        </Form>
-      </Modal>
-    </>
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button type="button" color="dark" onClick={handleCloseUpdate}>
+            Cerrar
+          </Button>
+          <Button color="warning" type="submit">
+            {type} categoría
+          </Button>
+        </ModalFooter>
+      </form>
+    </Modal>
   )
 }
 

@@ -5,8 +5,6 @@ import {
   useUpdateCategory,
   useGetCategories
 } from '../../../features/categories.features'
-import { Button, Alert } from 'react-bootstrap'
-import { toast } from 'react-hot-toast'
 import ModalCategories from './ModalCategories'
 import Loading from '../../../ui/Loading'
 import TableCategories from './TableCategories'
@@ -37,17 +35,28 @@ const SectionCategories = () => {
   }
 
   if (isLoading) return <Loading />
-  if (isError) return toast.error('Hubo un error al cargar las categorías!')
+  if (isError)
+    return (
+      <div
+        className="alert-minimal alert-danger-minimal"
+        style={{ margin: '2rem' }}
+      >
+        Error al cargar las categorías
+      </div>
+    )
 
   return (
     <>
       <section>
-        <h5>
-          Categorías
-          <Button variant="warning mx-1 btn-sm my-1 " onClick={handleShow}>
-            Crear Categoría
-          </Button>
-        </h5>
+        <div className="section-header">
+          <h4 className="section-title">Categorías</h4>
+          <button
+            className="btn-custom btn-warning-custom"
+            onClick={handleShow}
+          >
+            + Crear Categoría
+          </button>
+        </div>
         {!update ? (
           <ModalCategories
             modalShow={modalShow}
@@ -74,7 +83,9 @@ const SectionCategories = () => {
             handleDelete={handleDelete}
           />
         ) : (
-          <Alert variant="warning">No hay categorías para mostrar!</Alert>
+          <div className="alert-minimal alert-warning-minimal">
+            No hay categorías para mostrar
+          </div>
         )}
       </section>
     </>

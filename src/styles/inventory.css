@@ -1,0 +1,396 @@
+/* Estilos Globales Minimalistas para Inventario */
+
+:root {
+  --color-primary: #3498db;
+  --color-success: #27ae60;
+  --color-warning: #f39c12;
+  --color-danger: #e74c3c;
+  --color-light: #ecf0f1;
+  --color-text: #2c3e50;
+  --color-text-muted: #7f8c8d;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor General */
+.section-container {
+  padding: 1.5rem;
+  background: #fafbfc;
+  min-height: calc(100vh - 80px);
+}
+
+/* Header de Sección */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.section-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--color-text);
+}
+
+.section-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Filtro */
+.filter-section {
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.filter-group input,
+.filter-group select {
+  width: 100%;
+  padding: 0.65rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Tabla Minimalista */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-minimal {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.table-minimal thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table-minimal th {
+  padding: 1rem 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+  border: none;
+}
+
+.table-minimal td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #ecf0f1;
+  color: var(--color-text);
+}
+
+.table-minimal tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.table-minimal tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Botones en Tabla */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-action {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-info-sm {
+  background: #ecf0f1;
+  color: var(--color-primary);
+}
+
+.btn-info-sm:hover {
+  background: #d5dbdb;
+}
+
+.btn-danger-sm {
+  background: #fadbd8;
+  color: var(--color-danger);
+}
+
+.btn-danger-sm:hover {
+  background: #f5b7b1;
+}
+
+/* Modal Minimalista */
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-bottom: 1px solid #ecf0f1;
+  background: #fafbfc;
+  padding: 1.5rem;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #ecf0f1;
+  background: #fafbfc;
+  padding: 1rem 1.5rem;
+}
+
+/* Form Minimalista */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.form-control,
+.form-select {
+  padding: 0.65rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  background: white;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-control::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Botones */
+.btn-custom {
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary-custom {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn-primary-custom:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-success-custom {
+  background: var(--color-success);
+  color: white;
+}
+
+.btn-success-custom:hover {
+  background: #229954;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-danger-custom {
+  background: var(--color-danger);
+  color: white;
+}
+
+.btn-danger-custom:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+  background: white;
+  border: 1px solid #ddd;
+  color: var(--color-text);
+}
+
+.btn-outline:hover {
+  background: #f8f9fa;
+  border-color: var(--color-text);
+}
+
+/* Alert Minimalista */
+.alert-minimal {
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  border: none;
+  border-left: 4px solid transparent;
+}
+
+.alert-info-minimal {
+  background: #ecf7ff;
+  border-left-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.alert-success-minimal {
+  background: #f0fdf4;
+  border-left-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.alert-warning-minimal {
+  background: #fef9e7;
+  border-left-color: var(--color-warning);
+  color: #b8860b;
+}
+
+.alert-danger-minimal {
+  background: #fadbd8;
+  border-left-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* Badges */
+.badge-minimal {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge-danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .section-container {
+    padding: 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-section {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    min-width: 100%;
+  }
+
+  .table-minimal {
+    font-size: 0.85rem;
+  }
+
+  .table-minimal th,
+  .table-minimal td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .btn-action {
+    width: 100%;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-container {
+    padding: 0.75rem;
+  }
+
+  .table-minimal th,
+  .table-minimal td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-custom {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+}

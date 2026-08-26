@@ -1,11 +1,17 @@
 import Navigate from '../../ui/Navigate'
-import { Container } from 'react-bootstrap'
+import SectionEntries from './components/SectionEntries'
 
 const Entries = () => {
   return (
     <>
       <Navigate />
-      <Container fluid className="p-0" />
+      <div className="min-h-screen bg-light pt-20">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="mb-6">
+            <SectionEntries />
+          </div>
+        </div>
+      </div>
     </>
   )
 }
