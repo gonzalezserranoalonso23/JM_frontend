@@ -592,7 +592,8 @@ body {
     [data-testid='modal-overlay'] [role='dialog'] {
       width: calc(100vw - 1rem) !important;
       max-width: calc(100vw - 1rem) !important;
-      max-height: 92vh !important;
+      max-height: calc(100dvh - 0.75rem) !important;
+      min-height: 0 !important;
       border-radius: 0.75rem !important;
     }
 
@@ -603,12 +604,15 @@ body {
     }
 
     [data-testid='modal-overlay'] [class*='overflow-auto'] {
-      max-height: none !important;
+      max-height: calc(100dvh - 12.5rem) !important;
+      min-height: 0 !important;
       padding: 0.75rem 0.875rem 0.5rem !important;
     }
 
     [data-testid='modal-overlay'] [role='dialog'] > form {
       min-height: 0 !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
     }
 
     [data-testid='modal-overlay'] [role='dialog'] > footer,
@@ -621,6 +625,8 @@ body {
       padding: 0.75rem 0.875rem !important;
       position: sticky !important;
       bottom: 0 !important;
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-top: 1px solid var(--border-color) !important;
     }
 
     [data-testid='modal-overlay'] [role='dialog'] > footer button,
@@ -629,9 +635,15 @@ body {
     [data-testid='modal-overlay'] [class*='rounded-b'] .btn,
     [data-testid='modal-overlay'] [class*='rounded-b'] [type='button'],
     [data-testid='modal-overlay'] [class*='rounded-b'] [type='submit'] {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       width: 100% !important;
       min-width: 0 !important;
       min-height: 2.75rem !important;
+      height: auto !important;
+      padding-top: 0.7rem !important;
+      padding-bottom: 0.7rem !important;
     }
   }
 
