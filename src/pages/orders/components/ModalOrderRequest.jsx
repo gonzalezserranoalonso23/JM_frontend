@@ -176,9 +176,6 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
             </div>
 
             <div>
-              <h6 className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Productos
-              </h6>
               <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-[2fr_1fr_1fr_auto]">
                 <div>
                   <label

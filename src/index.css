@@ -522,6 +522,15 @@ body {
     border: 1px solid #e5e7eb !important;
   }
 
+  [data-testid='modal-overlay'] [role='dialog'] > div {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: inherit !important;
+    min-height: 0 !important;
+  }
+
   [data-testid='modal-overlay'] form,
   [data-testid='modal-overlay'] form > div,
   [data-testid='modal-overlay'] .flex,
@@ -551,42 +560,20 @@ body {
     width: 100% !important;
   }
 
-  [data-testid='modal-overlay'].order-request-modal
-    [role='dialog']
-    > div
-    > div:first-child {
-    margin: 1rem 1.25rem 0 !important;
-  }
-
-  [data-testid='modal-overlay'].order-request-modal
-    [role='dialog']
-    > div
-    > form
-    > [class*='rounded-b'] {
-    width: calc(100% - 2.5rem) !important;
-    margin: 1rem 1.25rem !important;
-  }
-
-  [data-testid='modal-overlay'].order-request-modal [role='dialog'] > div {
-    display: flex !important;
-    flex-direction: column !important;
-    min-height: 0 !important;
-  }
-
-  [data-testid='modal-overlay'].order-request-modal
-    [role='dialog']
-    > div
-    > form {
+  [data-testid='modal-overlay'] [role='dialog'] > div > form {
     display: flex !important;
     flex: 1 1 auto !important;
     flex-direction: column !important;
     min-height: 0 !important;
   }
 
-  [data-testid='modal-overlay'].order-request-modal .order-request-actions {
-    flex: 0 0 auto !important;
-    position: relative !important;
-    bottom: auto !important;
+  [data-testid='modal-overlay']
+    [role='dialog']
+    > div
+    > form
+    > [class*='overflow-auto'] {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
   }
 
   [data-testid='modal-overlay'] [role='dialog'] > footer,
@@ -657,6 +644,31 @@ body {
       overflow: hidden !important;
     }
 
+    [data-testid='modal-overlay'] [role='dialog'] > div {
+      display: flex !important;
+      flex: 1 1 auto !important;
+      flex-direction: column !important;
+      min-height: 0 !important;
+      max-height: calc(100dvh - 1rem) !important;
+    }
+
+    [data-testid='modal-overlay'] [role='dialog'] > div > form {
+      display: flex !important;
+      flex: 1 1 auto !important;
+      flex-direction: column !important;
+      min-height: 0 !important;
+    }
+
+    [data-testid='modal-overlay']
+      [role='dialog']
+      > div
+      > form
+      > [class*='overflow-auto'] {
+      flex: 1 1 auto !important;
+      max-height: none !important;
+      min-height: 0 !important;
+    }
+
     [data-testid='modal-overlay'] [role='dialog'] > footer,
     [data-testid='modal-overlay'] [class*='rounded-b'] {
       flex-direction: column-reverse !important;
@@ -664,8 +676,9 @@ body {
       justify-content: stretch !important;
       gap: 0.625rem !important;
       padding: 0.875rem 1rem !important;
-      position: sticky !important;
-      bottom: 0 !important;
+      margin-top: 0 !important;
+      position: relative !important;
+      bottom: auto !important;
       background: rgba(255, 255, 255, 0.98) !important;
       border-top: 1px solid var(--border-color) !important;
     }
@@ -684,20 +697,6 @@ body {
       height: auto !important;
       padding-top: 0.7rem !important;
       padding-bottom: 0.7rem !important;
-    }
-
-    [data-testid='modal-overlay'].order-request-modal .order-request-actions {
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      position: relative !important;
-      bottom: auto !important;
-    }
-
-    [data-testid='modal-overlay'].order-request-modal
-      .order-request-actions
-      button {
-      width: auto !important;
     }
   }
 
