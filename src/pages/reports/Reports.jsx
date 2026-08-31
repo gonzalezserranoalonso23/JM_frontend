@@ -1,12 +1,10 @@
-import Navigate from '../../ui/Navigate'
 import ReportsSalesAndMovements from './components/ReportsSalesAndMovements'
 
 const Reports = () => {
   return (
     <>
-      <Navigate />
-      <div className="min-h-screen bg-light pt-20">
-        <div className="max-w-6xl mx-auto px-4">
+      <div className="bg-light py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
           <ReportsSalesAndMovements />
         </div>
       </div>

@@ -1,9 +1,30 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { jwtDecode } from 'jwt-decode'
 
 const AUTH_STORAGE_KEY = 'auth'
 const AUTH_COOKIE_NAME = 'jm-auth-backup'
 const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
+
+const clearAuthPersistence = () => {
+  removeCookie(AUTH_COOKIE_NAME)
+  try {
+    localStorage.removeItem(AUTH_STORAGE_KEY)
+  } catch {
+    // no-op
+  }
+}
+
+export const isTokenExpired = (token) => {
+  if (!token) return true
+
+  try {
+    const decoded = jwtDecode(token)
+    return Date.now() >= decoded.exp * 1000
+  } catch {
+    return true
+  }
+}
 
 const readCookie = (name) => {
   if (typeof document === 'undefined') return null
@@ -82,10 +103,18 @@ export const useAuthStore = create(
       isLogged: false,
       profile: '',
       isAdmin: false,
-      hydrated: false,
-      setHydrated: (hydrated) => set(() => ({ hydrated })),
       setAuth: (token) =>
         set((state) => {
+          if (isTokenExpired(token)) {
+            clearAuthPersistence()
+            return {
+              auth: '',
+              isLogged: false,
+              profile: '',
+              isAdmin: false
+            }
+          }
+
           const nextState = { ...state, auth: token, isLogged: true }
           writeAuthBackup({
             token,
@@ -114,12 +143,7 @@ export const useAuthStore = create(
         }),
       logOut: () =>
         set(() => {
-          removeCookie(AUTH_COOKIE_NAME)
-          try {
-            localStorage.removeItem(AUTH_STORAGE_KEY)
-          } catch {
-            // no-op
-          }
+          clearAuthPersistence()
           return {
             auth: '',
             isLogged: false,
@@ -142,18 +166,18 @@ export const useAuthStore = create(
 
         if (!state.auth) {
           const backup = readAuthBackup()
-          if (backup?.token) {
+          if (backup?.token && !isTokenExpired(backup.token)) {
             state.setAuth(backup.token)
             if (backup.profile) state.setProfile(backup.profile)
             if (typeof backup.isAdmin === 'boolean') {
               state.setIsAdmin(backup.isAdmin)
             }
           }
+        } else if (isTokenExpired(state.auth)) {
+          state.logOut()
         } else if (!state.isLogged) {
           state.setAuth(state.auth)
         }
-
-        state?.setHydrated(true)
       }
     }
   )

@@ -17,8 +17,8 @@ const StockDashboard = () => {
   if (statsLoading || lowStockLoading || salesLoading) return <Loading />
 
   return (
-    <div className="min-h-screen bg-[var(--bg-page)] pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-[var(--bg-page)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
         <div className="dashboard-shell home-dashboard-shell mt-6 mb-8">
           {/* Header */}
           <div className="mb-8">

@@ -60,6 +60,9 @@
   --border-input: #9ca3af;
   --shadow-card: 0 2px 8px rgba(17, 24, 39, 0.08);
   --nav-bg: #111111;
+  --app-nav-height: 64px;
+  --app-page-space-y: 1.5rem;
+  --app-panel-min-height: clamp(30rem, 68vh, 44rem);
 }
 
 html,
@@ -69,8 +72,22 @@ body,
   color: var(--text-primary);
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  overflow-y: scroll;
+}
+
 /* ===== Reusable Components ===== */
 @layer components {
+  .page-content-shell {
+    min-height: calc(
+      100dvh - var(--app-nav-height) - (var(--app-page-space-y) * 2)
+    );
+  }
+
   /* Section Container */
   .section-container {
     padding: 1.5rem;
@@ -79,6 +96,7 @@ body,
     border-radius: 10px;
     box-shadow: var(--shadow-card);
     transition: background 0.3s ease;
+    min-height: var(--app-panel-min-height);
   }
 
   .dashboard-shell,
@@ -112,7 +130,7 @@ body,
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
     padding: 1.25rem 1.5rem;
     margin-top: 1.25rem;
-    min-height: 0;
+    min-height: var(--app-panel-min-height);
   }
 
   .dashboard-card,

@@ -26,23 +26,10 @@ import Suppliers from './pages/suppliers/Suppliers'
 import SupplierDetails from './pages/suppliers/SupplierDetails'
 import Categories from './pages/categories/Categories'
 
-// Store
-import { useAuthStore } from './store/auth'
 import { Toaster } from 'react-hot-toast'
-import Loading from './ui/Loading'
+import ProtectedLayout from './layouts/ProtectedLayout'
 
 const App = () => {
-  const hydrated = useAuthStore((state) => state.hydrated)
-
-  if (!hydrated) {
-    return (
-      <>
-        <Toaster position="top-center" reverseOrder={false} />
-        <Loading />
-      </>
-    )
-  }
-
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
@@ -51,26 +38,28 @@ const App = () => {
           <Route path="/" element={<Login />} />
 
           <Route element={<Protected />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/entries" element={<Entries />} />
-            <Route path="/entries/:id" element={<EntryDetails />} />
-            <Route path="/issues" element={<Issues />} />
-            <Route path="/issues/:id" element={<IssueDetails />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/:id" element={<OrderDetails />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/reports/:id" element={<ReportDetails />} />
-            <Route path="/todolist" element={<ToDoList />} />
-            <Route path="/todolist/:id" element={<ToDoListDetails />} />
-            <Route path="/catalogs" element={<Catalog />} />
+            <Route element={<ProtectedLayout />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/entries" element={<Entries />} />
+              <Route path="/entries/:id" element={<EntryDetails />} />
+              <Route path="/issues" element={<Issues />} />
+              <Route path="/issues/:id" element={<IssueDetails />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/orders/:id" element={<OrderDetails />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/reports/:id" element={<ReportDetails />} />
+              <Route path="/todolist" element={<ToDoList />} />
+              <Route path="/todolist/:id" element={<ToDoListDetails />} />
+              <Route path="/catalogs" element={<Catalog />} />
 
-            <Route path="/users" element={<Users />} />
-            <Route path="/users/:id" element={<UserDetails />} />
-            <Route path="/products" element={<Products />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/users/:id" element={<UserDetails />} />
+              <Route path="/products" element={<Products />} />
 
-            <Route path="/suppliers" element={<Suppliers />} />
-            <Route path="/suppliers/:id" element={<SupplierDetails />} />
-            <Route path="/categories" element={<Categories />} />
+              <Route path="/suppliers" element={<Suppliers />} />
+              <Route path="/suppliers/:id" element={<SupplierDetails />} />
+              <Route path="/categories" element={<Categories />} />
+            </Route>
           </Route>
           <Route path="*" element={<h1>Not Found!</h1>} />
         </Routes>
