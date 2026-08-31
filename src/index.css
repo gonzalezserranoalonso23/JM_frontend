@@ -615,6 +615,7 @@ body {
     [data-testid='modal-overlay'] [role='dialog'] {
       width: 100vw !important;
       max-width: 100vw !important;
+      height: calc(100dvh - 0.5rem) !important;
       min-height: 0 !important;
       max-height: calc(100dvh - 0.5rem) !important;
       border-radius: 1rem 1rem 0 0 !important;
@@ -648,8 +649,9 @@ body {
       display: flex !important;
       flex: 1 1 auto !important;
       flex-direction: column !important;
+      height: 100% !important;
       min-height: 0 !important;
-      max-height: calc(100dvh - 1rem) !important;
+      max-height: 100% !important;
     }
 
     [data-testid='modal-overlay'] [role='dialog'] > div > form {
@@ -667,6 +669,25 @@ body {
       flex: 1 1 auto !important;
       max-height: none !important;
       min-height: 0 !important;
+    }
+
+    [data-testid='modal-overlay']
+      [role='dialog']
+      > div
+      > [class*='overflow-auto'] {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+    }
+
+    [data-testid='modal-overlay']
+      [role='dialog']
+      > div
+      > form
+      > [class*='rounded-b'],
+    [data-testid='modal-overlay'] [role='dialog'] > div > [class*='rounded-b'] {
+      flex: 0 0 auto !important;
+      flex-shrink: 0 !important;
     }
 
     [data-testid='modal-overlay'] [role='dialog'] > footer,
