@@ -9,19 +9,12 @@ import {
   Select
 } from 'flowbite-react'
 import { useGetProducts } from '../../../features/products.features'
-import { useQuery } from '@tanstack/react-query'
-import axios from '../../../libs/axios'
+import { useGetSuppliers } from '../../../features/suppliers.features'
 import '../../../styles/inventory.css'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
   const { data: products } = useGetProducts()
-  const { data: suppliers } = useQuery({
-    queryKey: ['Suppliers'],
-    queryFn: async () => {
-      const { data } = await axios.get('/api/suppliers')
-      return data
-    }
-  })
+  const { data: suppliers } = useGetSuppliers()
 
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -35,9 +28,24 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
     price: ''
   })
 
+  const filteredProducts = products?.filter((product) => {
+    if (!formData.supplier) return false
+
+    const supplierValue = product?.supplier
+    if (!supplierValue) return false
+
+    return typeof supplierValue === 'object'
+      ? supplierValue?._id === formData.supplier
+      : supplierValue === formData.supplier
+  })
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+
+    if (name === 'supplier') {
+      setCurrentItem((prev) => ({ ...prev, product: '', price: '' }))
+    }
   }
 
   const handleItemChange = (e) => {
@@ -49,7 +57,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
       if (selected) {
         setCurrentItem((prev) => ({
           ...prev,
-          price: selected.productPrice
+          price: selected.purchasePrice ?? selected.productPrice ?? 0
         }))
       }
     }
@@ -57,7 +65,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
 
   const addItem = () => {
     if (!currentItem.product || !currentItem.quantity || !currentItem.price) {
-      alert('Completa todos los campos')
+      window.alert('Completa todos los campos')
       return
     }
 
@@ -93,7 +101,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
     e.preventDefault()
 
     if (!formData.supplier || formData.items.length === 0) {
-      alert('Selecciona proveedor y agrega productos')
+      window.alert('Selecciona proveedor y agrega productos')
       return
     }
 
@@ -121,7 +129,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
       show={modalShow}
       onClose={handleClose}
       size="lg"
-      className="z-[9999]"
+      className="order-request-modal z-[9999]"
     >
       <ModalHeader>Nueva Solicitud de Pedido</ModalHeader>
       <form onSubmit={handleSubmit}>
@@ -160,7 +168,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
                   <option value="">Selecciona</option>
                   {suppliers?.map((s) => (
                     <option key={s._id} value={s._id}>
-                      {s.name}
+                      {s.suppliersName || s.name}
                     </option>
                   ))}
                 </Select>
@@ -184,9 +192,16 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
                     name="product"
                     value={currentItem.product}
                     onChange={handleItemChange}
+                    disabled={!formData.supplier}
                   >
-                    <option value="">Selecciona</option>
-                    {products?.map((p) => (
+                    <option value="">
+                      {!formData.supplier
+                        ? 'Selecciona un proveedor'
+                        : filteredProducts?.length
+                          ? 'Selecciona'
+                          : 'Sin productos'}
+                    </option>
+                    {filteredProducts?.map((p) => (
                       <option key={p._id} value={p._id}>
                         {p.productName}
                       </option>
@@ -218,48 +233,66 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
                     htmlFor="price"
                     className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
                   >
-                    Precio
+                    Precio compra
                   </label>
                   <TextInput
                     id="price"
                     type="number"
                     name="price"
-                    placeholder="Precio"
+                    placeholder="Precio compra"
                     value={currentItem.price}
                     disabled
                   />
                 </div>
 
-                <Button type="button" onClick={addItem} className="w-full">
-                  +
-                </Button>
+                <div className="mb-4 flex w-full self-end md:mb-0 md:w-auto">
+                  <Button
+                    type="button"
+                    onClick={addItem}
+                    className="min-h-[42px] w-full whitespace-nowrap md:w-auto"
+                  >
+                    Agregar producto
+                  </Button>
+                </div>
               </div>
             </div>
 
             {formData.items.length > 0 && (
-              <div className="flex flex-col gap-2">
-                {formData.items.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800"
-                  >
-                    <div className="flex-1">
-                      <strong className="block">{item.productName}</strong>
-                      <small className="text-gray-500 dark:text-gray-400">
-                        {item.quantity} × ${item.price.toFixed(2)} = $
-                        {item.subtotal.toFixed(2)}
-                      </small>
-                    </div>
-                    <Button
-                      type="button"
-                      color="failure"
-                      size="xs"
-                      onClick={() => removeItem(idx)}
-                    >
-                      ✕
-                    </Button>
-                  </div>
-                ))}
+              <div className="table-wrapper">
+                <table className="table-minimal">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th className="text-center">Cantidad</th>
+                      <th className="text-right">Precio compra</th>
+                      <th className="text-right">Subtotal</th>
+                      <th className="text-center">Opciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formData.items.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>
+                          <strong>{item?.productName}</strong>
+                        </td>
+                        <td className="text-center">{item.quantity}</td>
+                        <td className="text-right">${item.price.toFixed(2)}</td>
+                        <td className="text-right">
+                          ${item.subtotal.toFixed(2)}
+                        </td>
+                        <td className="text-center">
+                          <button
+                            type="button"
+                            onClick={() => removeItem(idx)}
+                            className="btn-action btn-danger-sm"
+                          >
+                            Borrar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
 
@@ -272,7 +305,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
             )}
           </div>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter className="order-request-actions">
           <Button type="button" color="dark" onClick={handleClose}>
             Cancelar
           </Button>
