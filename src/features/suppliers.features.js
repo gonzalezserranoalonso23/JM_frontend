@@ -6,7 +6,7 @@ import {
   createSupplier,
   updateSupplier,
   deleteSupplier
-} from '../services/suppliers.services'
+} from '@/services/suppliers.services'
 
 export const useGetSuppliers = () => {
   const { data, isLoading, isError } = useQuery({

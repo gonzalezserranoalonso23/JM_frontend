@@ -6,7 +6,7 @@ import {
   createOrderRequest,
   updateOrderRequest,
   deleteOrderRequest
-} from '../services/orders.services'
+} from '@/services/orders.services'
 
 export const useGetOrderRequests = () => {
   const { data, isLoading, isError } = useQuery({

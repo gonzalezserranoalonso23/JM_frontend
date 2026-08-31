@@ -29,7 +29,7 @@ const SolpedPrint = ({ order, onClose }) => {
   })
 
   return (
-    <Modal show={true} onClose={onClose} size="4xl">
+    <Modal show onClose={onClose} size="4xl">
       <ModalHeader>Solicitud de Pedido - #{solpedNumber}</ModalHeader>
       <ModalBody className="p-0 bg-white">
         <div className="solped-container">

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useGetSalesByDateRange } from '../../../features/inventory.features'
-import Loading from '../../../ui/Loading'
+import { useGetSalesByDateRange } from '@/features/inventory.features'
+import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
 
 const FILTER_OPTIONS = [

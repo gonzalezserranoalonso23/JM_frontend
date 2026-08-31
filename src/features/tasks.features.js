@@ -7,7 +7,7 @@ import {
   createTask,
   updateTask,
   deleteTask
-} from '../services/tasks.services'
+} from '@/services/tasks.services'
 import toast from 'react-hot-toast'
 
 export const useGetTasks = () => {

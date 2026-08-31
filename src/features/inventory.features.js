@@ -11,7 +11,7 @@ import {
   getSalesByDateRange,
   getInventoryByType,
   getInventoryStats
-} from '../services/inventory.services'
+} from '@/services/inventory.services'
 
 // Registros
 export const useGetInventoryRecords = () => {

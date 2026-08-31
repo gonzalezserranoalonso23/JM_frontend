@@ -7,7 +7,7 @@ import {
   TextInput
 } from 'flowbite-react'
 import { useFormik } from 'formik'
-import { validateCategory } from '../../../helpers/validations'
+import { validateCategory } from '@/helpers/validations'
 
 const ModalCategory = ({
   category,

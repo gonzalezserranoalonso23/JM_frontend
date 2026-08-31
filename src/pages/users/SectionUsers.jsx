@@ -4,8 +4,8 @@ import {
   useRegisterUser,
   useUpdateUser,
   useDeleteUser
-} from '../../features/users.features'
-import Loading from '../../ui/Loading'
+} from '@/features/users.features'
+import Loading from '@/ui/Loading'
 import ModalUsers from './components/ModalUsers'
 
 const SectionUsers = () => {

@@ -8,9 +8,9 @@ import {
   TextInput,
   Select
 } from 'flowbite-react'
-import { useGetProducts } from '../../../features/products.features'
-import { useGetSuppliers } from '../../../features/suppliers.features'
-import '../../../styles/inventory.css'
+import { useGetProducts } from '@/features/products.features'
+import { useGetSuppliers } from '@/features/suppliers.features'
+import '@/styles/inventory.css'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
   const { data: products } = useGetProducts()

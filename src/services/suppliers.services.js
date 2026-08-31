@@ -1,4 +1,4 @@
-import axios from '../libs/axios'
+import axios from '@/libs/axios'
 
 export const getSuppliers = async () => {
   const { data } = await axios.get('/api/suppliers')

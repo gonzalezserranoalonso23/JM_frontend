@@ -1,4 +1,4 @@
-import { useGetPendingTasks } from '../../../features/tasks.features'
+import { useGetPendingTasks } from '@/features/tasks.features'
 import { Link } from 'react-router-dom'
 import './styles/taskWidget.css'
 

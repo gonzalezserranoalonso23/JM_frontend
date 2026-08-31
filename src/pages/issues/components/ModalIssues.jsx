@@ -9,7 +9,7 @@ import {
   Select,
   Textarea
 } from 'flowbite-react'
-import { useGetProducts } from '../../../features/products.features'
+import { useGetProducts } from '@/features/products.features'
 import '../../../styles/inventory.css'
 
 const ISSUE_TYPE = 'ISSUE'

@@ -1,4 +1,4 @@
-import axios from '../libs/axios'
+import axios from '@/libs/axios'
 
 // Registros de inventario
 export const getInventoryRecords = async () => {

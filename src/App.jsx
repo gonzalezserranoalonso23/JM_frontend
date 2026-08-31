@@ -32,7 +32,15 @@ import ProtectedLayout from './layouts/ProtectedLayout'
 const App = () => {
   return (
     <>
-      <Toaster position="top-center" reverseOrder={false} />
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        containerStyle={{
+          position: 'fixed',
+          zIndex: 10000,
+          top: 'max(1rem, env(safe-area-inset-top))'
+        }}
+      />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />

@@ -1,12 +1,13 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import {
   useGetPendingTasks,
   useGetCompletedTasks,
   useCreateTask,
   useUpdateTask,
   useDeleteTask
-} from '../../features/tasks.features'
-import Loading from '../../ui/Loading'
+} from '@/features/tasks.features'
+import Loading from '@/ui/Loading'
 import './styles/todolist.css'
 
 const ToDoList = () => {
@@ -25,7 +26,7 @@ const ToDoList = () => {
   const handleCreateTask = (e) => {
     e.preventDefault()
     if (!title.trim()) {
-      alert('Ingresa un título para la tarea')
+      toast.error('Ingresa un título para la tarea')
       return
     }
 

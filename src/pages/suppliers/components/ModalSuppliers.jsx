@@ -9,7 +9,7 @@ import {
   Select
 } from 'flowbite-react'
 import { useFormik } from 'formik'
-import { validateSupplier } from '../../../helpers/validations'
+import { validateSupplier } from '@/helpers/validations'
 
 const ModalSuppliers = ({
   supplier,

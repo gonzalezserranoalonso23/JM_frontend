@@ -4,9 +4,9 @@ import {
   useDeleteSupplier,
   useUpdateSupplier,
   useGetSuppliers
-} from '../../../features/suppliers.features'
+} from '@/features/suppliers.features'
 import ModalSuppliers from './ModalSuppliers'
-import Loading from '../../../ui/Loading'
+import Loading from '@/ui/Loading'
 import TableSuppliers from './TableSuppliers'
 
 const SectionSuppliers = () => {

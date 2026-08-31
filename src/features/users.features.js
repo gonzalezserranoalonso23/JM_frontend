@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
-import { useAuthStore } from '../store/auth'
+import { useAuthStore } from '@/store/auth'
 import {
   login,
   getUsers,
   registerUser,
   updateUser,
   deleteUser
-} from '../services/users.services'
+} from '@/services/users.services'
 import { useNavigate } from 'react-router-dom'
 
 export const useLogin = () => {

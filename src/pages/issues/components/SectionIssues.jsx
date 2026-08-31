@@ -4,9 +4,9 @@ import {
   useDeleteInventoryRecord,
   useCreateInventoryRecord,
   useUpdateInventoryRecord
-} from '../../../features/inventory.features'
+} from '@/features/inventory.features'
 import ModalIssues from './ModalIssues'
-import Loading from '../../../ui/Loading'
+import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
 
 const getTypeValue = (record) => {

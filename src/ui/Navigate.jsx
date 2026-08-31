@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
-import { useAuthStore } from '../store/auth'
+import { useAuthStore } from '@/store/auth'
 import { useState } from 'react'
 
 const Navigate = () => {

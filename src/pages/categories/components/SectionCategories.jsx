@@ -4,9 +4,9 @@ import {
   useDeleteCategory,
   useUpdateCategory,
   useGetCategories
-} from '../../../features/categories.features'
+} from '@/features/categories.features'
 import ModalCategories from './ModalCategories'
-import Loading from '../../../ui/Loading'
+import Loading from '@/ui/Loading'
 import TableCategories from './TableCategories'
 
 const SectionCategories = () => {

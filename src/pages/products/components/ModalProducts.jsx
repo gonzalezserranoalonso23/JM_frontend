@@ -8,9 +8,9 @@ import {
   Select
 } from 'flowbite-react'
 import { useFormik } from 'formik'
-import { validateProduct } from '../../../helpers/validations'
-import { useGetCategories } from '../../../features/categories.features'
-import { useGetSuppliers } from '../../../features/suppliers.features'
+import { validateProduct } from '@/helpers/validations'
+import { useGetCategories } from '@/features/categories.features'
+import { useGetSuppliers } from '@/features/suppliers.features'
 
 const ModalProducts = ({
   product,

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { isTokenExpired, useAuthStore } from '../store/auth'
+import { isTokenExpired, useAuthStore } from '@/store/auth'
 
 const authApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,

@@ -6,7 +6,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory
-} from '../services/categories.services'
+} from '@/services/categories.services'
 
 export const useGetCategories = () => {
   const { data, isLoading, isError } = useQuery({

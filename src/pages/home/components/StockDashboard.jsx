@@ -2,9 +2,9 @@ import {
   useGetInventoryStats,
   useGetLowStockProducts,
   useGetDailySalesSummary
-} from '../../../features/inventory.features'
+} from '@/features/inventory.features'
 import TaskWidget from './TaskWidget'
-import Loading from '../../../ui/Loading'
+import Loading from '@/ui/Loading'
 
 const StockDashboard = () => {
   const { data: stats, isLoading: statsLoading } = useGetInventoryStats()

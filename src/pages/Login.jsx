@@ -2,9 +2,9 @@ import { useFormik } from 'formik'
 import { Navigate } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
 import { useEffect } from 'react'
-import { verifyLogin } from '../helpers/validations'
-import { useLogin } from '../features/users.features'
-import { useAuthStore } from '../store/auth'
+import { verifyLogin } from '@/helpers/validations'
+import { useLogin } from '@/features/users.features'
+import { useAuthStore } from '@/store/auth'
 
 const Login = () => {
   const login = useLogin()

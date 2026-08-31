@@ -4,10 +4,10 @@ import {
   useDeleteProduct,
   useCreateProduct,
   useUpdateProduct
-} from '../../../features/products.features'
+} from '@/features/products.features'
 import ModalProducts from './ModalProducts'
 import FormFilter from './FormFilter'
-import Loading from '../../../ui/Loading'
+import Loading from '@/ui/Loading'
 import TableProducts from './TableProducts'
 
 const SectionProducts = () => {

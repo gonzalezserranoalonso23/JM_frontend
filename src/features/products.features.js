@@ -6,7 +6,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct
-} from '../services/products.services'
+} from '@/services/products.services'
 
 export const useGetProducts = () => {
   const { data, isLoading, isError } = useQuery({

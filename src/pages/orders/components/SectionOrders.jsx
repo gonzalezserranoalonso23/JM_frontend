@@ -3,10 +3,10 @@ import {
   useGetOrderRequests,
   useDeleteOrderRequest,
   useCreateOrderRequest
-} from '../../../features/orders.features'
+} from '@/features/orders.features'
 import ModalOrderRequest from './ModalOrderRequest'
 import SolpedPrint from './SolpedPrint'
-import Loading from '../../../ui/Loading'
+import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
 
 const SectionOrders = () => {
