@@ -477,13 +477,14 @@ body {
     background: rgba(15, 23, 42, 0.72) !important;
     backdrop-filter: blur(2px);
     overflow-y: auto !important;
-    padding: 1rem !important;
+    padding: clamp(0.5rem, 2vw, 1rem) !important;
   }
 
   [data-testid='modal-overlay'] > div {
     width: 100% !important;
     display: flex !important;
     justify-content: center !important;
+    align-items: flex-start !important;
   }
 
   [data-testid='modal-overlay'] > div > div {
@@ -510,7 +511,7 @@ body {
     display: flex !important;
     flex-direction: column !important;
     width: min(92vw, 720px) !important;
-    max-width: calc(100vw - 2rem) !important;
+    max-width: min(100%, calc(100vw - 1rem)) !important;
     max-height: min(90vh, 760px) !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
@@ -534,7 +535,7 @@ body {
     flex: 1 1 auto !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    max-height: calc(90vh - 150px) !important;
+    max-height: min(72vh, 560px) !important;
     min-height: 0 !important;
     padding: 1rem 1.25rem 0.75rem !important;
     width: 100% !important;
@@ -572,6 +573,44 @@ body {
     padding-left: 1rem !important;
     padding-right: 1rem !important;
     min-width: 7.5rem !important;
+  }
+
+  @media (max-width: 640px) {
+    [data-testid='modal-overlay'] {
+      padding: 0.5rem !important;
+    }
+
+    [data-testid='modal-overlay'] [role='dialog'] {
+      width: calc(100vw - 1rem) !important;
+      max-width: calc(100vw - 1rem) !important;
+      max-height: 92vh !important;
+      border-radius: 0.75rem !important;
+    }
+
+    [data-testid='modal-overlay'] [class*='overflow-auto'] {
+      max-height: calc(92vh - 7rem) !important;
+      padding: 0.875rem 0.875rem 0.5rem !important;
+    }
+
+    [data-testid='modal-overlay'] [role='dialog'] > footer,
+    [data-testid='modal-overlay'] [role='dialog'] > div:last-child,
+    [data-testid='modal-overlay'] [class*='rounded-b'] {
+      flex-direction: column-reverse !important;
+      align-items: stretch !important;
+      justify-content: stretch !important;
+      gap: 0.5rem !important;
+      padding: 0.875rem !important;
+    }
+
+    [data-testid='modal-overlay'] [role='dialog'] > footer button,
+    [data-testid='modal-overlay'] [role='dialog'] > div:last-child button,
+    [data-testid='modal-overlay'] [class*='rounded-b'] button,
+    [data-testid='modal-overlay'] [class*='rounded-b'] .btn,
+    [data-testid='modal-overlay'] [class*='rounded-b'] [type='button'],
+    [data-testid='modal-overlay'] [class*='rounded-b'] [type='submit'] {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
   }
 
   [data-testid='modal-overlay'] h3,
