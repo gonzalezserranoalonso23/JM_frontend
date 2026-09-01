@@ -1,11 +1,14 @@
 import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  TextInput
-} from 'flowbite-react'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useFormik } from 'formik'
 import { validateCategory } from '@/helpers/validations'
 
@@ -41,43 +44,41 @@ const ModalCategory = ({
   }
 
   return (
-    <Modal
-      show={modalShow}
-      onClose={handleCloseUpdate}
-      size="md"
-      className="z-[9999]"
+    <Dialog
+      open={modalShow}
+      onOpenChange={(open) => !open && handleCloseUpdate()}
     >
-      <ModalHeader>{type} categoría</ModalHeader>
-      <form onSubmit={formik.handleSubmit}>
-        <ModalBody>
-          <div className="flex flex-col gap-4">
-            <div>
-              <label
-                htmlFor="categories"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Categoría
-              </label>
-              <TextInput
-                {...formik.getFieldProps('categories')}
-                id="categories"
-                type="text"
-                name="categories"
-                placeholder="Nombre de la categoría"
-              />
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{type} categoría</DialogTitle>
+        </DialogHeader>
+        <form
+          onSubmit={formik.handleSubmit}
+          className="flex flex-1 flex-col overflow-hidden"
+        >
+          <DialogBody>
+            <div className="flex flex-col gap-4">
+              <div>
+                <Label htmlFor="categories">Categoría</Label>
+                <Input
+                  {...formik.getFieldProps('categories')}
+                  id="categories"
+                  type="text"
+                  name="categories"
+                  placeholder="Nombre de la categoría"
+                />
+              </div>
             </div>
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button type="button" color="dark" onClick={handleCloseUpdate}>
-            Cerrar
-          </Button>
-          <Button color="warning" type="submit">
-            {type} categoría
-          </Button>
-        </ModalFooter>
-      </form>
-    </Modal>
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleCloseUpdate}>
+              Cerrar
+            </Button>
+            <Button type="submit">{type} categoría</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

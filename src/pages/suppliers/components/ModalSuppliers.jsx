@@ -1,13 +1,21 @@
-/* eslint-disable react/jsx-boolean-value */
 import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  TextInput,
-  Select
-} from 'flowbite-react'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select'
 import { useFormik } from 'formik'
 import { validateSupplier } from '@/helpers/validations'
 
@@ -48,115 +56,93 @@ const ModalSuppliers = ({
   }
 
   return (
-    <Modal
-      show={modalShow}
-      onClose={handleCloseUpdate}
-      size="lg"
-      className="z-[9999]"
+    <Dialog
+      open={modalShow}
+      onOpenChange={(open) => !open && handleCloseUpdate()}
     >
-      <ModalHeader>{type} proveedor</ModalHeader>
-      <form onSubmit={formik.handleSubmit}>
-        <ModalBody>
-          <div className="flex flex-col gap-4">
-            <div>
-              <label
-                htmlFor="suppliersName"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Nombre del Proveedor
-              </label>
-              <TextInput
-                {...formik.getFieldProps('suppliersName')}
-                id="suppliersName"
-                type="text"
-                name="suppliersName"
-              />
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{type} proveedor</DialogTitle>
+        </DialogHeader>
+        <form
+          onSubmit={formik.handleSubmit}
+          className="flex flex-1 flex-col overflow-hidden"
+        >
+          <DialogBody>
+            <div className="flex flex-col gap-4">
+              <div>
+                <Label htmlFor="suppliersName">Nombre del Proveedor</Label>
+                <Input
+                  {...formik.getFieldProps('suppliersName')}
+                  id="suppliersName"
+                  type="text"
+                  name="suppliersName"
+                />
+              </div>
+              <div>
+                <Label htmlFor="suppliersContact">Contacto</Label>
+                <Input
+                  {...formik.getFieldProps('suppliersContact')}
+                  id="suppliersContact"
+                  type="text"
+                  name="suppliersContact"
+                />
+              </div>
+              <div>
+                <Label htmlFor="supplierPhone">Teléfono</Label>
+                <Input
+                  {...formik.getFieldProps('supplierPhone')}
+                  id="supplierPhone"
+                  type="text"
+                  name="supplierPhone"
+                />
+              </div>
+              <div>
+                <Label htmlFor="raiseOrder">Pedido</Label>
+                <Input
+                  {...formik.getFieldProps('raiseOrder')}
+                  id="raiseOrder"
+                  type="text"
+                  name="raiseOrder"
+                />
+              </div>
+              <div>
+                <Label htmlFor="deliverOrder">Entrega</Label>
+                <Input
+                  {...formik.getFieldProps('deliverOrder')}
+                  id="deliverOrder"
+                  type="text"
+                  name="deliverOrder"
+                />
+              </div>
+              <div>
+                <Label htmlFor="isActive">Estatus</Label>
+                <Select
+                  value={formik.values.isActive?.toString()}
+                  onValueChange={(value) =>
+                    formik.setFieldValue('isActive', value)
+                  }
+                >
+                  <SelectTrigger id="isActive">
+                    <SelectValue placeholder="Selecciona el estatus" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Activo</SelectItem>
+                    <SelectItem value="false">Inactivo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div>
-              <label
-                htmlFor="suppliersContact"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Contacto
-              </label>
-              <TextInput
-                {...formik.getFieldProps('suppliersContact')}
-                id="suppliersContact"
-                type="text"
-                name="suppliersContact"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="supplierPhone"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Teléfono
-              </label>
-              <TextInput
-                {...formik.getFieldProps('supplierPhone')}
-                id="supplierPhone"
-                type="text"
-                name="supplierPhone"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="raiseOrder"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Pedido
-              </label>
-              <TextInput
-                {...formik.getFieldProps('raiseOrder')}
-                id="raiseOrder"
-                type="text"
-                name="raiseOrder"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="deliverOrder"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Entrega
-              </label>
-              <TextInput
-                {...formik.getFieldProps('deliverOrder')}
-                id="deliverOrder"
-                type="text"
-                name="deliverOrder"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="isActive"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Estatus
-              </label>
-              <Select
-                id="isActive"
-                name="isActive"
-                {...formik.getFieldProps('isActive')}
-              >
-                <option value="">Selecciona el estatus</option>
-                <option value={true}>Activo</option>
-                <option value={false}>Inactivo</option>
-              </Select>
-            </div>
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button type="button" color="dark" onClick={handleCloseUpdate}>
-            Cerrar
-          </Button>
-          <Button color="warning" type="submit">
-            {type} proveedor
-          </Button>
-        </ModalFooter>
-      </form>
-    </Modal>
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleCloseUpdate}>
+              Cerrar
+            </Button>
+            <Button type="submit">{type} proveedor</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

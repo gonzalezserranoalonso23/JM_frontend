@@ -1,14 +1,23 @@
 import { useEffect, useState } from 'react'
 import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  TextInput,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
   Select,
-  Textarea
-} from 'flowbite-react'
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select'
 import { useGetProducts } from '@/features/products.features'
 import '../../../styles/inventory.css'
 
@@ -33,8 +42,7 @@ const ModalIssues = ({ modalShow, handleClose, action, record, isEditing }) => {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [error, setError] = useState('')
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const setField = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
     setError('')
 
@@ -64,6 +72,10 @@ const ModalIssues = ({ modalShow, handleClose, action, record, isEditing }) => {
         }))
       }
     }
+  }
+
+  const handleChange = (e) => {
+    setField(e.target.name, e.target.value)
   }
 
   useEffect(() => {
@@ -129,162 +141,133 @@ const ModalIssues = ({ modalShow, handleClose, action, record, isEditing }) => {
   }
 
   return (
-    <Modal
-      show={modalShow}
-      onClose={handleClose}
-      size="md"
-      className="z-[9999]"
-    >
-      <ModalHeader>{isEditing ? 'Editar Salida' : 'Nueva Salida'}</ModalHeader>
-      <form onSubmit={handleSubmit}>
-        <ModalBody className="pb-6">
-          <div className="flex flex-col gap-4">
-            {error && (
-              <div className="alert-minimal alert-danger-minimal">{error}</div>
-            )}
-
-            <div>
-              <label
-                htmlFor="date"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Fecha *
-              </label>
-              <TextInput
-                id="date"
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="typeInventory"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Tipo de Salida *
-              </label>
-              <Select
-                id="typeInventory"
-                name="typeInventory"
-                value={formData.typeInventory}
-                disabled
-                required
-              >
-                <option value={ISSUE_TYPE}>{ISSUE_TYPE}</option>
-              </Select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="productName"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Producto *
-              </label>
-              <Select
-                id="productName"
-                name="productName"
-                value={formData.productName}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Selecciona producto</option>
-                {products?.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.productName} (Stock: {p.productStock})
-                  </option>
-                ))}
-              </Select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="quantity"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Cantidad *
-              </label>
-              <TextInput
-                id="quantity"
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                placeholder="0"
-                step="0.01"
-                min="0"
-                required
-              />
-              {selectedProduct && (
-                <small style={{ color: '#7f8c8d' }}>
-                  Stock disponible: {selectedProduct.productStock}
-                </small>
+    <Dialog open={modalShow} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {isEditing ? 'Editar Salida' : 'Nueva Salida'}
+          </DialogTitle>
+        </DialogHeader>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-1 flex-col overflow-hidden"
+        >
+          <DialogBody>
+            <div className="flex flex-col gap-4">
+              {error && (
+                <div className="alert-minimal alert-danger-minimal">
+                  {error}
+                </div>
               )}
-            </div>
 
-            <div>
-              <label
-                htmlFor="productPrice"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Precio Unitario
-              </label>
-              <TextInput
-                id="productPrice"
-                type="number"
-                name="productPrice"
-                value={formData.productPrice}
-                disabled
-              />
-            </div>
+              <div>
+                <Label htmlFor="date">Fecha *</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-            <div>
-              <label
-                htmlFor="totalAmount"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Total
-              </label>
-              <TextInput
-                id="totalAmount"
-                type="number"
-                value={formData.totalAmount}
-                disabled
-              />
-            </div>
+              <div>
+                <Label htmlFor="typeInventory">Tipo de Salida *</Label>
+                <Select value={formData.typeInventory} disabled>
+                  <SelectTrigger id="typeInventory">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ISSUE_TYPE}>{ISSUE_TYPE}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <label
-                htmlFor="Observations"
-                className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-              >
-                Observaciones
-              </label>
-              <Textarea
-                id="Observations"
-                name="Observations"
-                value={formData.Observations}
-                onChange={handleChange}
-                placeholder="Notas (ej: venta cliente X)..."
-                rows={3}
-              />
+              <div>
+                <Label htmlFor="productName">Producto *</Label>
+                <Select
+                  value={formData.productName}
+                  onValueChange={(value) => setField('productName', value)}
+                >
+                  <SelectTrigger id="productName">
+                    <SelectValue placeholder="Selecciona producto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {products?.map((p) => (
+                      <SelectItem key={p._id} value={p._id}>
+                        {p.productName} (Stock: {p.productStock})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="quantity">Cantidad *</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  placeholder="0"
+                  step="0.01"
+                  min="0"
+                  required
+                />
+                {selectedProduct && (
+                  <small style={{ color: '#7f8c8d' }}>
+                    Stock disponible: {selectedProduct.productStock}
+                  </small>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="productPrice">Precio Unitario</Label>
+                <Input
+                  id="productPrice"
+                  type="number"
+                  name="productPrice"
+                  value={formData.productPrice}
+                  disabled
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="totalAmount">Total</Label>
+                <Input
+                  id="totalAmount"
+                  type="number"
+                  value={formData.totalAmount}
+                  disabled
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="Observations">Observaciones</Label>
+                <Textarea
+                  id="Observations"
+                  name="Observations"
+                  value={formData.Observations}
+                  onChange={handleChange}
+                  placeholder="Notas (ej: venta cliente X)..."
+                  rows={3}
+                />
+              </div>
             </div>
-          </div>
-        </ModalBody>
-        <ModalFooter className="pt-4 pb-6 px-6 gap-3">
-          <Button type="button" color="dark" onClick={handleClose}>
-            Cancelar
-          </Button>
-          <Button type="submit" color="failure">
-            {isEditing ? 'Guardar cambios' : 'Registrar'}
-          </Button>
-        </ModalFooter>
-      </form>
-    </Modal>
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Cancelar
+            </Button>
+            <Button type="submit">
+              {isEditing ? 'Guardar cambios' : 'Registrar'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

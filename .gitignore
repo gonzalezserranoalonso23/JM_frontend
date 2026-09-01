@@ -1,6 +1,7 @@
 # Dependencies
 node_modules
 pnpm-lock.yaml
+.pnpm-store
 
 # Environment variables
 .env
@@ -11,6 +12,13 @@ pnpm-lock.yaml
 dist
 dist-ssr
 *.local
+
+# Deployment
+.vercel
+
+# TypeScript / test artifacts
+*.tsbuildinfo
+coverage
 
 # Logs
 logs

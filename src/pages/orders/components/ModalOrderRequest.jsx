@@ -1,13 +1,22 @@
 import { useState } from 'react'
 import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  TextInput,
-  Select
-} from 'flowbite-react'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select'
 import { useGetProducts } from '@/features/products.features'
 import { useGetSuppliers } from '@/features/suppliers.features'
 import '@/styles/inventory.css'
@@ -61,6 +70,22 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
         }))
       }
     }
+  }
+
+  const setSupplier = (value) => {
+    setFormData((prev) => ({ ...prev, supplier: value }))
+    setCurrentItem((prev) => ({ ...prev, product: '', price: '' }))
+  }
+
+  const setProduct = (value) => {
+    const selected = products?.find((p) => p._id === value)
+    setCurrentItem({
+      product: value,
+      quantity: currentItem.quantity,
+      price: selected
+        ? (selected.purchasePrice ?? selected.productPrice ?? 0)
+        : ''
+    })
   }
 
   const addItem = () => {
@@ -125,193 +150,172 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
   }
 
   return (
-    <Modal
-      show={modalShow}
-      onClose={handleClose}
-      size="lg"
-      className="order-request-modal z-[9999]"
-    >
-      <ModalHeader>Nueva Solicitud de Pedido</ModalHeader>
-      <form onSubmit={handleSubmit}>
-        <ModalBody>
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="date"
-                  className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-                >
-                  Fecha
-                </label>
-                <TextInput
-                  id="date"
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="supplier"
-                  className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-                >
-                  Proveedor *
-                </label>
-                <Select
-                  id="supplier"
-                  name="supplier"
-                  value={formData.supplier}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Selecciona</option>
-                  {suppliers?.map((s) => (
-                    <option key={s._id} value={s._id}>
-                      {s.suppliersName || s.name}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-[2fr_1fr_1fr_auto]">
+    <Dialog open={modalShow} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Nueva Solicitud de Pedido</DialogTitle>
+        </DialogHeader>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-1 flex-col overflow-hidden"
+        >
+          <DialogBody>
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="product"
-                    className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-                  >
-                    Producto
-                  </label>
-                  <Select
-                    id="product"
-                    name="product"
-                    value={currentItem.product}
-                    onChange={handleItemChange}
-                    disabled={!formData.supplier}
-                  >
-                    <option value="">
-                      {!formData.supplier
-                        ? 'Selecciona un proveedor'
-                        : filteredProducts?.length
-                          ? 'Selecciona'
-                          : 'Sin productos'}
-                    </option>
-                    {filteredProducts?.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.productName}
-                      </option>
-                    ))}
+                  <Label htmlFor="date">Fecha</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="supplier">Proveedor *</Label>
+                  <Select value={formData.supplier} onValueChange={setSupplier}>
+                    <SelectTrigger id="supplier">
+                      <SelectValue placeholder="Selecciona" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suppliers?.map((s) => (
+                        <SelectItem key={s._id} value={s._id}>
+                          {s.suppliersName || s.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                <div>
-                  <label
-                    htmlFor="quantity"
-                    className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-                  >
-                    Cantidad
-                  </label>
-                  <TextInput
-                    id="quantity"
-                    type="number"
-                    name="quantity"
-                    placeholder="Cantidad"
-                    value={currentItem.quantity}
-                    onChange={handleItemChange}
-                    min="1"
-                    step="0.01"
-                  />
-                </div>
+              <div>
+                <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-[2fr_1fr_1fr_auto]">
+                  <div>
+                    <Label htmlFor="product">Producto</Label>
+                    <Select
+                      value={currentItem.product}
+                      onValueChange={setProduct}
+                      disabled={!formData.supplier}
+                    >
+                      <SelectTrigger id="product">
+                        <SelectValue
+                          placeholder={
+                            !formData.supplier
+                              ? 'Selecciona un proveedor'
+                              : filteredProducts?.length
+                                ? 'Selecciona'
+                                : 'Sin productos'
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredProducts?.map((p) => (
+                          <SelectItem key={p._id} value={p._id}>
+                            {p.productName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div>
-                  <label
-                    htmlFor="price"
-                    className="mb-1 block text-sm font-medium text-gray-900 dark:text-gray-200"
-                  >
-                    Precio compra
-                  </label>
-                  <TextInput
-                    id="price"
-                    type="number"
-                    name="price"
-                    placeholder="Precio compra"
-                    value={currentItem.price}
-                    disabled
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="quantity">Cantidad</Label>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      name="quantity"
+                      placeholder="Cantidad"
+                      value={currentItem.quantity}
+                      onChange={handleItemChange}
+                      min="1"
+                      step="0.01"
+                    />
+                  </div>
 
-                <div className="mb-4 flex w-full self-end md:mb-0 md:w-auto">
-                  <Button
-                    type="button"
-                    onClick={addItem}
-                    className="min-h-[42px] w-full whitespace-nowrap md:w-auto"
-                  >
-                    Agregar producto
-                  </Button>
+                  <div>
+                    <Label htmlFor="price">Precio compra</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      name="price"
+                      placeholder="Precio compra"
+                      value={currentItem.price}
+                      disabled
+                    />
+                  </div>
+
+                  <div className="mb-4 flex w-full self-end md:mb-0 md:w-auto">
+                    <Button
+                      type="button"
+                      onClick={addItem}
+                      className="min-h-[42px] w-full whitespace-nowrap md:w-auto"
+                    >
+                      Agregar producto
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {formData.items.length > 0 && (
-              <div className="table-wrapper">
-                <table className="table-minimal">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th className="text-center">Cantidad</th>
-                      <th className="text-right">Precio compra</th>
-                      <th className="text-right">Subtotal</th>
-                      <th className="text-center">Opciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {formData.items.map((item, idx) => (
-                      <tr key={idx}>
-                        <td>
-                          <strong>{item?.productName}</strong>
-                        </td>
-                        <td className="text-center">{item.quantity}</td>
-                        <td className="text-right">${item.price.toFixed(2)}</td>
-                        <td className="text-right">
-                          ${item.subtotal.toFixed(2)}
-                        </td>
-                        <td className="text-center">
-                          <button
-                            type="button"
-                            onClick={() => removeItem(idx)}
-                            className="btn-action btn-danger-sm"
-                          >
-                            Borrar
-                          </button>
-                        </td>
+              {formData.items.length > 0 && (
+                <div className="table-wrapper">
+                  <table className="table-minimal">
+                    <thead>
+                      <tr>
+                        <th>Producto</th>
+                        <th className="text-center">Cantidad</th>
+                        <th className="text-right">Precio compra</th>
+                        <th className="text-right">Subtotal</th>
+                        <th className="text-center">Opciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody>
+                      {formData.items.map((item, idx) => (
+                        <tr key={idx}>
+                          <td>
+                            <strong>{item?.productName}</strong>
+                          </td>
+                          <td className="text-center">{item.quantity}</td>
+                          <td className="text-right">
+                            ${item.price.toFixed(2)}
+                          </td>
+                          <td className="text-right">
+                            ${item.subtotal.toFixed(2)}
+                          </td>
+                          <td className="text-center">
+                            <button
+                              type="button"
+                              onClick={() => removeItem(idx)}
+                              className="btn-action btn-danger-sm"
+                            >
+                              Borrar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
-            {formData.items.length > 0 && (
-              <div className="rounded-lg bg-gray-50 p-4 text-right dark:bg-gray-800">
-                <strong className="text-base">
-                  Total: ${getTotalAmount().toFixed(2)}
-                </strong>
-              </div>
-            )}
-          </div>
-        </ModalBody>
-        <ModalFooter className="order-request-actions">
-          <Button type="button" color="dark" onClick={handleClose}>
-            Cancelar
-          </Button>
-          <Button type="submit" color="primary">
-            Crear Solicitud
-          </Button>
-        </ModalFooter>
-      </form>
-    </Modal>
+              {formData.items.length > 0 && (
+                <div className="rounded-lg bg-gray-50 p-4 text-right dark:bg-gray-800">
+                  <strong className="text-base">
+                    Total: ${getTotalAmount().toFixed(2)}
+                  </strong>
+                </div>
+              )}
+            </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Cancelar
+            </Button>
+            <Button type="submit">Crear Solicitud</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

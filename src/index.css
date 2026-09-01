@@ -1,7 +1,6 @@
 @import 'tailwindcss';
-@import 'flowbite-react/plugin/tailwindcss';
-@source '../.flowbite-react/class-list.json';
 @import './styles/inventory.css';
+@plugin 'tailwindcss-animate';
 
 /* ===== Tailwind v4 Theme ===== */
 @theme {
@@ -80,6 +79,18 @@ html {
 
 body {
   overflow-y: scroll;
+}
+
+/* Keep scrolling functional but hide the scrollbar visually across browsers */
+html,
+body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Edge */
 }
 
 /* ===== Reusable Components ===== */
@@ -205,14 +216,6 @@ body {
   .dashboard-card:hover {
     box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
     transform: translateY(-1px);
-  }
-
-  .dashboard-card-wrapper {
-    background: #ffffff;
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    overflow: hidden;
   }
 
   .section-header {
@@ -396,23 +399,6 @@ body {
     background: #1f2937;
   }
 
-  .btn-warning-custom {
-    background: #111827;
-    color: #ffffff;
-  }
-  .btn-warning-custom:hover {
-    background: #1f2937;
-  }
-
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--border-input);
-    color: var(--text-primary);
-  }
-  .btn-outline:hover {
-    background: var(--bg-subtle);
-  }
-
   .btn-action {
     padding: 0.3rem 0.6rem;
     font-size: 0.75rem;
@@ -475,315 +461,6 @@ body {
     color: var(--text-muted);
   }
 
-  /* Flowbite Modal Contrast */
-  [data-testid='modal-overlay'] {
-    background: rgba(15, 23, 42, 0.72) !important;
-    overflow-y: auto !important;
-    padding: clamp(0.5rem, 2vw, 1rem) !important;
-  }
-
-  [data-testid='modal-overlay'] > div {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: flex-start !important;
-  }
-
-  [data-testid='modal-overlay'] > div > div {
-    background: var(--bg-card) !important;
-    color: var(--text-primary) !important;
-    border: 1px solid var(--border-color) !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35) !important;
-    max-height: 90vh !important;
-    overflow: hidden !important;
-  }
-
-  [data-testid='modal-overlay'] [role='dialog'],
-  [data-testid='modal-overlay'] [role='dialog'] > div,
-  [data-testid='modal-overlay'] [role='dialog'] > section,
-  [data-testid='modal-overlay'] [role='dialog'] > form,
-  [data-testid='modal-overlay'] [role='dialog'] .bg-white,
-  [data-testid='modal-overlay'] [role='dialog'] .bg-gray-50,
-  [data-testid='modal-overlay'] [role='dialog'] .bg-gray-100 {
-    background: #ffffff !important;
-    color: #111827 !important;
-  }
-
-  [data-testid='modal-overlay'] [role='dialog'] {
-    display: flex !important;
-    flex-direction: column !important;
-    width: min(92vw, 720px) !important;
-    max-width: min(100%, calc(100vw - 1rem)) !important;
-    max-height: min(90vh, 760px) !important;
-    margin: 0 auto !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    border-radius: 0.75rem !important;
-    background: #ffffff !important;
-    color: #111827 !important;
-    border: 1px solid #e5e7eb !important;
-  }
-
-  [data-testid='modal-overlay'] [role='dialog'] > div {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    height: auto !important;
-    max-height: inherit !important;
-    min-height: 0 !important;
-  }
-
-  [data-testid='modal-overlay'] form,
-  [data-testid='modal-overlay'] form > div,
-  [data-testid='modal-overlay'] .flex,
-  [data-testid='modal-overlay'] .grid {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-
-  [data-testid='modal-overlay'] [class*='overflow-auto'] {
-    flex: 1 1 auto !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    max-height: min(72vh, 560px) !important;
-    min-height: 0 !important;
-    padding: 1rem 1.25rem 0.75rem !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    overscroll-behavior: contain !important;
-  }
-
-  [data-testid='modal-overlay'] [role='dialog'] > form {
-    display: flex !important;
-    flex: 1 1 auto !important;
-    flex-direction: column !important;
-    min-height: 0 !important;
-    width: 100% !important;
-  }
-
-  [data-testid='modal-overlay'] [role='dialog'] > div > form {
-    display: flex !important;
-    flex: 1 1 auto !important;
-    flex-direction: column !important;
-    min-height: 0 !important;
-  }
-
-  [data-testid='modal-overlay']
-    [role='dialog']
-    > div
-    > form
-    > [class*='overflow-auto'] {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-  }
-
-  [data-testid='modal-overlay'] [role='dialog'] > footer,
-  [data-testid='modal-overlay'] [class*='rounded-b'] {
-    flex: 0 0 auto !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 0.875rem !important;
-    padding: 1rem 1.25rem 1.5rem !important;
-    margin-top: 1rem !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    border-top: 1px solid var(--border-color) !important;
-    position: relative !important;
-    z-index: 1 !important;
-    background: #ffffff !important;
-  }
-
-  [data-testid='modal-overlay'] [role='dialog'] > footer button,
-  [data-testid='modal-overlay'] [class*='rounded-b'] button,
-  [data-testid='modal-overlay'] [class*='rounded-b'] .btn,
-  [data-testid='modal-overlay'] [class*='rounded-b'] [type='button'],
-  [data-testid='modal-overlay'] [class*='rounded-b'] [type='submit'] {
-    margin: 0 !important;
-    padding-top: 0.625rem !important;
-    padding-bottom: 0.625rem !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    min-width: 7.5rem !important;
-  }
-
-  @media (max-width: 640px) {
-    [data-testid='modal-overlay'] {
-      padding: 0.5rem !important;
-    }
-
-    [data-testid='modal-overlay'] [role='dialog'] {
-      width: 100vw !important;
-      max-width: 100vw !important;
-      height: auto !important;
-      min-height: 0 !important;
-      max-height: calc((var(--app-vh) * 100) - 0.5rem) !important;
-      border-radius: 1rem 1rem 0 0 !important;
-      margin: auto 0 0 0 !important;
-      position: absolute !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      -webkit-overflow-scrolling: touch !important;
-    }
-
-    [data-testid='modal-overlay'] [role='dialog'] > header,
-    [data-testid='modal-overlay'] [role='dialog'] > div:first-child,
-    [data-testid='modal-overlay'] [role='dialog'] > h3,
-    [data-testid='modal-overlay'] [role='dialog'] > div > div:first-child,
-    [data-testid='modal-overlay'] [role='dialog'] [class*='rounded-t'] {
-      padding: 0.75rem 1rem !important;
-    }
-
-    /* The whole dialog scrolls as one unit (see above), so the form body no
-       longer needs its own nested scroll area — that was what could trap the
-       scroll and leave the footer unreachable on some browsers. */
-    [data-testid='modal-overlay'] [class*='overflow-auto'] {
-      max-height: none !important;
-      overflow: visible !important;
-      min-height: 0 !important;
-      padding: 0.875rem 1rem 0.625rem !important;
-    }
-
-    [data-testid='modal-overlay'] [role='dialog'] > form {
-      min-height: 0 !important;
-      max-height: none !important;
-      overflow: visible !important;
-    }
-
-    [data-testid='modal-overlay'] [role='dialog'] > div {
-      display: block !important;
-      height: auto !important;
-      min-height: 0 !important;
-      max-height: none !important;
-    }
-
-    [data-testid='modal-overlay'] [role='dialog'] > div > form {
-      display: block !important;
-      min-height: 0 !important;
-      max-height: none !important;
-    }
-
-    [data-testid='modal-overlay']
-      [role='dialog']
-      > div
-      > form
-      > [class*='overflow-auto'] {
-      max-height: none !important;
-      min-height: 0 !important;
-      overflow: visible !important;
-    }
-
-    [data-testid='modal-overlay']
-      [role='dialog']
-      > div
-      > [class*='overflow-auto'] {
-      min-height: 0 !important;
-      max-height: none !important;
-      overflow: visible !important;
-    }
-
-    [data-testid='modal-overlay']
-      [role='dialog']
-      > div
-      > form
-      > [class*='rounded-b'],
-    [data-testid='modal-overlay'] [role='dialog'] > div > [class*='rounded-b'] {
-      flex-shrink: 0 !important;
-    }
-
-    [data-testid='modal-overlay'] [role='dialog'] > footer,
-    [data-testid='modal-overlay'] [class*='rounded-b'] {
-      flex-direction: row !important;
-      align-items: stretch !important;
-      justify-content: stretch !important;
-      gap: 0.625rem !important;
-      padding: 0.875rem 1rem !important;
-      margin-top: 0 !important;
-      position: sticky !important;
-      bottom: 0 !important;
-      background: rgba(255, 255, 255, 0.98) !important;
-      border-top: 1px solid var(--border-color) !important;
-    }
-
-    [data-testid='modal-overlay'] [role='dialog'] > footer button,
-    [data-testid='modal-overlay'] [class*='rounded-b'] button,
-    [data-testid='modal-overlay'] [class*='rounded-b'] .btn,
-    [data-testid='modal-overlay'] [class*='rounded-b'] [type='button'],
-    [data-testid='modal-overlay'] [class*='rounded-b'] [type='submit'] {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      flex: 1 1 0 !important;
-      width: auto !important;
-      min-width: 0 !important;
-      min-height: 2.75rem !important;
-      height: auto !important;
-      padding-top: 0.7rem !important;
-      padding-bottom: 0.7rem !important;
-      padding-left: 0.5rem !important;
-      padding-right: 0.5rem !important;
-    }
-  }
-
-  [data-testid='modal-overlay'] h3,
-  [data-testid='modal-overlay'] h4,
-  [data-testid='modal-overlay'] h5,
-  [data-testid='modal-overlay'] h6,
-  [data-testid='modal-overlay'] p,
-  [data-testid='modal-overlay'] label,
-  [data-testid='modal-overlay'] label[for],
-  [data-testid='modal-overlay'] .text-gray-900,
-  [data-testid='modal-overlay'] .text-gray-500,
-  [data-testid='modal-overlay'] .text-gray-600,
-  [data-testid='modal-overlay'] .text-gray-700,
-  [data-testid='modal-overlay'] .text-gray-800,
-  [data-testid='modal-overlay'] small,
-  [data-testid='modal-overlay'] span,
-  [data-testid='modal-overlay'] strong {
-    display: block !important;
-    margin-bottom: 0.5rem !important;
-    font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    line-height: 1.25rem !important;
-    color: var(--text-primary) !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-
-  [data-testid='modal-overlay'] .dark\:text-white,
-  [data-testid='modal-overlay'] .dark\:text-gray-200,
-  [data-testid='modal-overlay'] .dark\:text-gray-300 {
-    color: var(--text-primary) !important;
-  }
-
-  [data-testid='modal-overlay'] input,
-  [data-testid='modal-overlay'] select,
-  [data-testid='modal-overlay'] textarea {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    background: var(--bg-input) !important;
-    color: var(--text-primary) !important;
-    border-color: var(--border-input) !important;
-  }
-
-  [data-testid='modal-overlay'] input::placeholder,
-  [data-testid='modal-overlay'] textarea::placeholder {
-    color: var(--text-muted) !important;
-  }
-
-  [data-testid='modal-overlay'] input:disabled,
-  [data-testid='modal-overlay'] select:disabled,
-  [data-testid='modal-overlay'] textarea:disabled {
-    background: var(--bg-subtle) !important;
-    color: var(--text-muted) !important;
-    opacity: 1;
-  }
-
   .form-select {
     width: 100%;
     padding: 0.5rem 0.75rem;
@@ -832,12 +509,6 @@ body {
     background: #f3f4f6;
     border-color: #111827;
     color: #111827;
-  }
-
-  .alert-success-minimal {
-    background: #e5e7eb;
-    border-color: #374151;
-    color: #374151;
   }
 
   .alert-warning-minimal {
