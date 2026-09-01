@@ -29,7 +29,7 @@ const DialogContent = React.forwardRef(
         className={cn(
           'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[var(--border-color)] max-h-[90vh]',
-          'max-sm:inset-x-0 max-sm:bottom-0 max-sm:top-auto max-sm:max-h-[calc(var(--app-vh,1svh)*100-0.5rem)] max-sm:w-full max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:zoom-in-100 max-sm:zoom-out-100 max-sm:data-[state=open]:slide-in-from-bottom max-sm:data-[state=closed]:slide-out-to-bottom',
+          'max-sm:inset-x-0 max-sm:bottom-[var(--app-vv-bottom-inset,0px)] max-sm:top-auto max-sm:max-h-[calc(var(--app-vh,1svh)*100-0.5rem-var(--app-vv-bottom-inset,0px))] max-sm:w-full max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:zoom-in-100 max-sm:zoom-out-100 max-sm:data-[state=open]:slide-in-from-bottom max-sm:data-[state=closed]:slide-out-to-bottom',
           className
         )}
         {...props}
