@@ -34,8 +34,8 @@
   align-items: flex-start;
 }
 
-.form-control,
-.form-select {
+.todolist-wrapper .form-control,
+.todolist-wrapper .form-select {
   padding: 0.75rem;
   border: 1px solid #ecf0f1;
   border-radius: 6px;
@@ -43,15 +43,15 @@
   font-family: inherit;
 }
 
-.form-control:focus,
-.form-select:focus {
+.todolist-wrapper .form-control:focus,
+.todolist-wrapper .form-select:focus {
   outline: none;
   border-color: #3498db;
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
-.form-control:disabled,
-.form-select:disabled {
+.todolist-wrapper .form-control:disabled,
+.todolist-wrapper .form-select:disabled {
   background: #f8f9fa;
   color: #7f8c8d;
   cursor: not-allowed;
@@ -195,7 +195,7 @@ textarea.form-control {
   margin-left: 1rem;
 }
 
-.btn-action {
+.todolist-wrapper .btn-action {
   background: none;
   border: 1px solid #ecf0f1;
   padding: 0.5rem 0.75rem;
@@ -206,32 +206,32 @@ textarea.form-control {
   min-width: 35px;
 }
 
-.btn-success-sm {
+.todolist-wrapper .btn-success-sm {
   color: #27ae60;
   border-color: #27ae60;
 }
 
-.btn-success-sm:hover {
+.todolist-wrapper .btn-success-sm:hover {
   background: #27ae60;
   color: white;
 }
 
-.btn-info-sm {
+.todolist-wrapper .btn-info-sm {
   color: #3498db;
   border-color: #3498db;
 }
 
-.btn-info-sm:hover {
+.todolist-wrapper .btn-info-sm:hover {
   background: #3498db;
   color: white;
 }
 
-.btn-danger-sm {
+.todolist-wrapper .btn-danger-sm {
   color: #e74c3c;
   border-color: #e74c3c;
 }
 
-.btn-danger-sm:hover {
+.todolist-wrapper .btn-danger-sm:hover {
   background: #e74c3c;
   color: white;
 }
@@ -323,14 +323,13 @@ textarea.form-control {
 }
 
 @media (max-width: 480px) {
-  .todolist-form-section,
-  .section-container {
+  .todolist-form-section {
     border-radius: 0;
     margin: 0;
   }
 
-  .form-control,
-  .form-select {
+  .todolist-wrapper .form-control,
+  .todolist-wrapper .form-select {
     font-size: 16px;
   }
 
@@ -343,7 +342,7 @@ textarea.form-control {
     align-self: flex-start;
   }
 
-  .btn-action {
+  .todolist-wrapper .btn-action {
     min-width: 40px;
     padding: 0.6rem 0.8rem;
   }

@@ -12,34 +12,6 @@
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Contenedor General */
-.section-container {
-  padding: 1.5rem;
-  background: #fafbfc;
-  min-height: calc(100vh - 80px);
-}
-
-/* Header de Sección */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  gap: 1rem;
-}
-
-.section-title {
-  margin: 0;
-  font-weight: 600;
-  font-size: 1.5rem;
-  color: var(--color-text);
-}
-
-.section-subtitle {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-}
-
 /* Filtro */
 .filter-section {
   margin-bottom: 1.5rem;
@@ -77,52 +49,6 @@
   border-color: var(--color-primary);
   outline: none;
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
-}
-
-/* Tabla Minimalista */
-.table-wrapper {
-  overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
-}
-
-.table-minimal {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.table-minimal thead {
-  background: #111827;
-  border-bottom: 1px solid #1f2937;
-}
-
-.table-minimal th {
-  padding: 1rem 0.75rem;
-  font-weight: 700;
-  color: #f9fafb;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.72rem;
-  border: none;
-}
-
-.table-minimal td {
-  padding: 1rem 0.75rem;
-  border-bottom: 1px solid #e5e7eb;
-  color: #111827;
-  background: #ffffff;
-}
-
-.table-minimal tbody tr:nth-child(even) {
-  background: #f8fafc;
-}
-
-.table-minimal tbody tr:hover {
-  background: #eef2f7;
-}
-
-.table-minimal tbody tr:last-child td {
-  border-bottom: none;
 }
 
 /* Botones en Tabla */
@@ -336,30 +262,12 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .section-container {
-    padding: 1rem;
-  }
-
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .filter-section {
     flex-direction: column;
   }
 
   .filter-group {
     min-width: 100%;
-  }
-
-  .table-minimal {
-    font-size: 0.85rem;
-  }
-
-  .table-minimal th,
-  .table-minimal td {
-    padding: 0.75rem 0.5rem;
   }
 
   .action-buttons {
@@ -373,29 +281,11 @@
   .modal-body {
     padding: 1rem;
   }
-
-  .section-title {
-    font-size: 1.25rem;
-  }
 }
 
 @media (max-width: 480px) {
-  .section-container {
-    padding: 0.75rem;
-  }
-
-  .table-minimal th,
-  .table-minimal td {
-    padding: 0.5rem 0.25rem;
-    font-size: 0.8rem;
-  }
-
   .btn-custom {
     padding: 0.5rem 0.75rem;
     font-size: 0.85rem;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
   }
 }
