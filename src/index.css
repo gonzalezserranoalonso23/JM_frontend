@@ -93,6 +93,16 @@ body::-webkit-scrollbar {
   display: none; /* Chrome/Safari/Edge */
 }
 
+/* iOS/Android auto-zoom on focus triggers when a field's font-size is below
+   16px, which breaks the layout. Force 16px on mobile/tablet to prevent it. */
+@media (max-width: 1024px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 /* ===== Reusable Components ===== */
 @layer components {
   .page-content-shell {
