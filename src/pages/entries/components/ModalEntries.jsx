@@ -54,7 +54,7 @@ const ModalEntries = ({
         setFormData((prev) => ({
           ...prev,
           category: selectedProduct.category._id,
-          productPrice: selectedProduct.productPrice
+          productPrice: selectedProduct.purchasePrice
         }))
       }
     }
