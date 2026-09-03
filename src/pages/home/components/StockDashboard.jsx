@@ -137,6 +137,11 @@ const StockDashboard = () => {
                       <h4 className="low-stock-item-title font-medium text-slate-900">
                         {product.productName}
                       </h4>
+                      {product.productDescription && (
+                        <p className="text-sm text-slate-400 mt-1">
+                          {product.productDescription}
+                        </p>
+                      )}
                       <p className="low-stock-item-meta text-sm text-slate-500 mt-1">
                         Stock:{' '}
                         <strong className="low-stock-item-value text-slate-700">
