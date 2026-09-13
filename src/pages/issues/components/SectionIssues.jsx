@@ -3,6 +3,7 @@ import {
   useGetInventoryRecords,
   useDeleteInventoryRecord,
   useCreateInventoryRecord,
+  useCreateInventoryRecords,
   useUpdateInventoryRecord
 } from '@/features/inventory.features'
 import ModalIssues from './ModalIssues'
@@ -26,6 +27,7 @@ const getTypeValue = (record) => {
 const SectionIssues = () => {
   const { data: records, isLoading, isError } = useGetInventoryRecords()
   const createRecord = useCreateInventoryRecord()
+  const createRecords = useCreateInventoryRecords()
   const updateRecord = useUpdateInventoryRecord()
   const deleteRecord = useDeleteInventoryRecord()
 
@@ -115,6 +117,7 @@ const SectionIssues = () => {
         modalShow={modalShow}
         handleClose={handleClose}
         action={isEditing ? updateRecord : createRecord}
+        createBulkAction={createRecords}
         record={selectedRecord}
         isEditing={isEditing}
       />

@@ -4,6 +4,7 @@ import {
   getInventoryRecords,
   getInventoryRecord,
   createInventoryRecord,
+  createInventoryRecords,
   updateInventoryRecord,
   deleteInventoryRecord,
   getDailySalesSummary,
@@ -43,6 +44,28 @@ export const useCreateInventoryRecord = () => {
     onError: (error) => {
       const message =
         error.response?.data?.message || 'Error al registrar el movimiento'
+      toast.error(message)
+    }
+  })
+  return mutation
+}
+
+// Registra el carrito completo (varios movimientos) en una sola petición
+export const useCreateInventoryRecords = () => {
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: createInventoryRecords,
+    onSuccess: (data) => {
+      toast.success(
+        `${data.length} movimiento(s) de inventario registrados exitosamente!`
+      )
+      queryClient.invalidateQueries({ queryKey: ['InventoryRecords'] })
+      queryClient.invalidateQueries({ queryKey: ['InventoryStats'] })
+      queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+    },
+    onError: (error) => {
+      const message =
+        error.response?.data?.message || 'Error al registrar los movimientos'
       toast.error(message)
     }
   })

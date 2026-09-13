@@ -16,6 +16,13 @@ export const createInventoryRecord = async (body) => {
   return data
 }
 
+export const createInventoryRecords = async (records) => {
+  const { data } = await axios.post('/api/inventory-records/bulk', {
+    records
+  })
+  return data
+}
+
 export const updateInventoryRecord = async ({ id, body }) => {
   const { data } = await axios.put(`/api/inventory-records/${id}`, body)
   return data
