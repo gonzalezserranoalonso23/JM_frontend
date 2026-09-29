@@ -198,7 +198,10 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
                       onValueChange={setProduct}
                       disabled={!formData.supplier}
                     >
-                      <SelectTrigger id="product">
+                      <SelectTrigger
+                        id="product"
+                        className="disabled:opacity-100"
+                      >
                         <SelectValue
                           placeholder={
                             !formData.supplier
@@ -209,7 +212,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
                           }
                         />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent side="top" sideOffset={4}>
                         {filteredProducts?.map((p) => (
                           <SelectItem key={p._id} value={p._id}>
                             {p.productName}
@@ -299,8 +302,8 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
               )}
 
               {formData.items.length > 0 && (
-                <div className="rounded-lg bg-gray-50 p-4 text-right dark:bg-gray-800">
-                  <strong className="text-base">
+                <div className="rounded-lg bg-white p-4 text-right text-gray-900 dark:bg-white dark:text-gray-900">
+                  <strong className="text-base text-gray-900">
                     Total: ${getTotalAmount().toFixed(2)}
                   </strong>
                 </div>

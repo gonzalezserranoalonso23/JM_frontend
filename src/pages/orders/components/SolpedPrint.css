@@ -1,13 +1,70 @@
 .solped-container {
-  background: white;
-  padding: 2rem;
+  background: #f3f4f6;
+  padding: 1.25rem;
+}
+
+.solped-dialog {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: auto !important;
+  max-height: calc(var(--app-vh, 1svh) * 100 - 2rem) !important;
+  border-radius: 1rem;
+  background: #f3f4f6;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+}
+
+.solped-modal-heading {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-height: 5.5rem;
+  justify-content: center;
+  padding-right: 3.75rem;
+  background: #fff;
+}
+
+.solped-modal-title {
+  color: #111827;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.solped-modal-subtitle {
+  margin: 0.4rem 0 0;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.solped-print-body {
+  flex: none !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.solped-dialog::-webkit-scrollbar {
+  width: 8px;
+}
+
+.solped-dialog::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 999px;
 }
 
 .solped-document {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 900px;
   margin: 0 auto;
   background: white;
-  padding: 2rem;
+  padding: 2.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -19,7 +76,7 @@
 }
 
 .solped-title h2 {
-  font-size: 1.8rem;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
   font-weight: bold;
   margin: 0;
   color: #2c3e50;
@@ -49,8 +106,9 @@
 
 .solped-section {
   padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 4px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
 }
 
 .solped-label {
@@ -72,18 +130,24 @@
   margin: 2rem 0;
 }
 
+.solped-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.65rem;
+}
+
 .solped-table {
   width: 100%;
+  min-width: 520px;
   border-collapse: collapse;
-  margin-top: 1rem;
 }
 
 .solped-table thead {
-  background: #ecf0f1;
+  background: #f1f5f9;
 }
 
 .solped-table th {
-  padding: 1rem 0.75rem;
+  padding: 0.85rem 0.75rem;
   text-align: left;
   font-weight: 600;
   font-size: 0.85rem;
@@ -103,9 +167,11 @@
 }
 
 .solped-total {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 4px;
+  min-width: min(100%, 20rem);
+  background: #f8fafc;
+  padding: 1.1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
 }
 
 .solped-total-amount {
@@ -125,48 +191,131 @@
   margin-top: 2rem;
 }
 
-/* Estilos para impresión */
+.solped-modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
 @media print {
-  .no-print {
+  body.printing-solped * {
+    visibility: hidden !important;
+  }
+
+  body.printing-solped .solped-document,
+  body.printing-solped .solped-document * {
+    visibility: visible !important;
+  }
+
+  html,
+  body.printing-solped,
+  body.printing-solped #root {
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.printing-solped .solped-dialog {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body.printing-solped .solped-dialog > button,
+  body.printing-solped .no-print {
     display: none !important;
   }
 
-  body {
-    margin: 0;
-    padding: 0;
+  body.printing-solped .solped-print-body {
+    position: static !important;
+    display: block !important;
+    flex: none !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
   }
 
-  .modal {
-    max-width: 100%;
-    width: 100%;
+  body.printing-solped .solped-container {
+    width: 100% !important;
+    padding: 0 !important;
+    background: #fff !important;
   }
 
-  .modal-content {
-    box-shadow: none;
-    border: none;
+  body.printing-solped .solped-document {
+    position: relative !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 8mm !important;
+    background: #fff !important;
   }
 
-  .solped-container {
-    padding: 0;
+  body.printing-solped .solped-table-wrap {
+    overflow: visible !important;
+    border: 0 !important;
   }
 
-  .solped-document {
-    max-width: 100%;
-    padding: 20px;
-    margin: 0;
+  body.printing-solped .solped-table {
+    min-width: 0 !important;
   }
 
-  .solped-section {
-    page-break-inside: avoid;
+  body.printing-solped .solped-table {
+    break-inside: auto;
+    page-break-inside: auto;
   }
 
-  .solped-table {
+  body.printing-solped .solped-table thead {
+    display: table-header-group;
+  }
+
+  body.printing-solped .solped-table tr,
+  body.printing-solped .solped-section,
+  body.printing-solped .solped-total {
+    break-inside: avoid;
     page-break-inside: avoid;
   }
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
+  .solped-container {
+    padding: 0.75rem;
+  }
+
+  .solped-document {
+    padding: 1.25rem;
+  }
+
+  .solped-meta-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .solped-modal-footer {
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+  }
+
   .solped-header {
     flex-direction: column;
   }
@@ -180,9 +329,5 @@
   .solped-table td {
     padding: 0.5rem 0.25rem;
     font-size: 0.85rem;
-  }
-
-  .solped-document {
-    padding: 1rem;
   }
 }

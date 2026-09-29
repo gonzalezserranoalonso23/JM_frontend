@@ -2,7 +2,8 @@ import { useState } from 'react'
 import {
   useGetOrderRequests,
   useDeleteOrderRequest,
-  useCreateOrderRequest
+  useCreateOrderRequest,
+  useUpdateOrderRequest
 } from '@/features/orders.features'
 import ModalOrderRequest from './ModalOrderRequest'
 import SolpedPrint from './SolpedPrint'
@@ -13,6 +14,7 @@ const SectionOrders = () => {
   const { data: orders, isLoading, isError } = useGetOrderRequests()
   const createOrder = useCreateOrderRequest()
   const deleteOrder = useDeleteOrderRequest()
+  const updateOrder = useUpdateOrderRequest()
 
   const [modalShow, setModalShow] = useState(false)
   const [showSolped, setShowSolped] = useState(false)
@@ -35,6 +37,10 @@ const SectionOrders = () => {
     setShowSolped(true)
   }
 
+  const handleOrderUpdated = (updatedOrder) => {
+    setSelectedOrder(updatedOrder)
+  }
+
   if (isLoading) return <Loading />
   if (isError)
     return (
@@ -47,7 +53,6 @@ const SectionOrders = () => {
     )
 
   const getStatusColor = (status) => {
-    if (status === 'completado') return 'badge-success'
     if (status === 'confirmado') return 'badge-warning'
     return 'badge-warning'
   }
@@ -77,6 +82,8 @@ const SectionOrders = () => {
         <SolpedPrint
           order={selectedOrder}
           onClose={() => setShowSolped(false)}
+          updateOrder={updateOrder}
+          onOrderUpdated={handleOrderUpdated}
         />
       )}
 
@@ -101,7 +108,11 @@ const SectionOrders = () => {
                   <td>
                     <strong>#{order._id.slice(-6).toUpperCase()}</strong>
                   </td>
-                  <td>{order.supplier?.name || 'N/A'}</td>
+                  <td>
+                    {order.supplier?.suppliersName ||
+                      order.supplier?.name ||
+                      'N/A'}
+                  </td>
                   <td style={{ textAlign: 'center' }}>
                     {order.items?.length || 0}
                   </td>
@@ -123,9 +134,9 @@ const SectionOrders = () => {
                       <button
                         className="btn-action btn-info-sm w-full sm:w-auto"
                         onClick={() => handleViewSolped(order)}
-                        title="Ver SOLPED"
+                        title="Abrir vista previa de la solicitud"
                       >
-                        🖨️
+                        Abrir
                       </button>
                       <button
                         className="btn-action btn-danger-sm w-full sm:w-auto"
