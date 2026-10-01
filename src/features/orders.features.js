@@ -49,6 +49,11 @@ export const useUpdateOrderRequest = () => {
     onSuccess: () => {
       toast.success('Solicitud actualizada!')
       queryClient.invalidateQueries({ queryKey: ['OrderRequests'] })
+    },
+    onError: (error) => {
+      const message =
+        error.response?.data?.message || 'Error al actualizar solicitud'
+      toast.error(message)
     }
   })
   return mutation

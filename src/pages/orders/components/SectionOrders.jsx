@@ -19,11 +19,25 @@ const SectionOrders = () => {
   const [modalShow, setModalShow] = useState(false)
   const [showSolped, setShowSolped] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
+  const [editingOrder, setEditingOrder] = useState(null)
 
-  const handleClose = () => setModalShow(false)
+  const handleClose = () => {
+    setModalShow(false)
+    setEditingOrder(null)
+  }
   const handleShow = () => {
-    setSelectedOrder(null)
+    setEditingOrder(null)
     setModalShow(true)
+  }
+
+  const handleEdit = (order) => {
+    setEditingOrder(order)
+    setModalShow(true)
+  }
+
+  const handleStatusChange = (order) => {
+    const status = order.status === 'confirmado' ? 'pendiente' : 'confirmado'
+    updateOrder.mutate({ id: order._id, body: { status } })
   }
 
   const handleDelete = (id) => {
@@ -53,7 +67,7 @@ const SectionOrders = () => {
     )
 
   const getStatusColor = (status) => {
-    if (status === 'confirmado') return 'badge-warning'
+    if (status === 'confirmado') return 'badge-success'
     return 'badge-warning'
   }
 
@@ -74,7 +88,8 @@ const SectionOrders = () => {
       <ModalOrderRequest
         modalShow={modalShow}
         handleClose={handleClose}
-        action={createOrder}
+        action={editingOrder ? updateOrder : createOrder}
+        order={editingOrder}
       />
 
       {/* Solped Print */}
@@ -84,6 +99,10 @@ const SectionOrders = () => {
           onClose={() => setShowSolped(false)}
           updateOrder={updateOrder}
           onOrderUpdated={handleOrderUpdated}
+          onEdit={() => {
+            setShowSolped(false)
+            handleEdit(selectedOrder)
+          }}
         />
       )}
 
@@ -131,13 +150,25 @@ const SectionOrders = () => {
                   </td>
                   <td style={{ textAlign: 'center' }}>
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                      <button
-                        className="btn-action btn-info-sm w-full sm:w-auto"
-                        onClick={() => handleViewSolped(order)}
-                        title="Abrir vista previa de la solicitud"
-                      >
-                        Abrir
-                      </button>
+                      {order.status !== 'confirmado' && (
+                        <button
+                          className="btn-action btn-info-sm w-full sm:w-auto"
+                          onClick={() => handleViewSolped(order)}
+                          title="Abrir vista previa de la solicitud"
+                        >
+                          Abrir
+                        </button>
+                      )}
+                      {order.status === 'confirmado' && (
+                        <button
+                          className="btn-action btn-info-sm w-full sm:w-auto"
+                          onClick={() => handleStatusChange(order)}
+                          disabled={updateOrder.isPending}
+                          title="Reabrir solicitud"
+                        >
+                          Reabrir
+                        </button>
+                      )}
                       <button
                         className="btn-action btn-danger-sm w-full sm:w-auto"
                         onClick={() => handleDelete(order._id)}

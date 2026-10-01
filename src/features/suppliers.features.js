@@ -42,6 +42,11 @@ export const useUpdateSupplier = () => {
     onSuccess: () => {
       toast.success('Proveedor actualizado exitosamente!')
       queryClient.invalidateQueries({ queryKey: ['Suppliers'] })
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || 'Error al actualizar el proveedor'
+      )
     }
   })
   return mutationUpdate
@@ -54,6 +59,11 @@ export const useCreateSupplier = () => {
     onSuccess: () => {
       toast.success('Proveedor creado exitosamente!')
       queryClient.invalidateQueries({ queryKey: ['Suppliers'] })
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || 'Error al crear el proveedor'
+      )
     }
   })
   return mutationCreate

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from 'react-hot-toast'
 import {
   Select,
   SelectTrigger,
@@ -21,7 +22,7 @@ import { useGetProducts } from '@/features/products.features'
 import { useGetSuppliers } from '@/features/suppliers.features'
 import '@/styles/inventory.css'
 
-const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
+const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
   const { data: products } = useGetProducts()
   const { data: suppliers } = useGetSuppliers()
 
@@ -36,6 +37,38 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
     quantity: '',
     price: ''
   })
+
+  useEffect(() => {
+    if (!modalShow) return
+
+    if (order) {
+      setFormData({
+        date: order.date
+          ? new Date(order.date).toISOString().split('T')[0]
+          : '',
+        supplier:
+          typeof order.supplier === 'object'
+            ? order.supplier?._id || ''
+            : order.supplier || '',
+        items: (order.items || []).map((item) => ({
+          ...item,
+          productId:
+            typeof item.productId === 'object'
+              ? item.productId?._id || ''
+              : item.productId || '',
+          subtotal:
+            Number(item.subtotal) || Number(item.quantity) * Number(item.price)
+        }))
+      })
+    } else {
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        supplier: '',
+        items: []
+      })
+    }
+    setCurrentItem({ product: '', quantity: '', price: '' })
+  }, [modalShow, order])
 
   const filteredProducts = products?.filter((product) => {
     if (!formData.supplier) return false
@@ -103,23 +136,52 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
       subtotal: parseFloat(currentItem.quantity) * parseFloat(currentItem.price)
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      items: [...prev.items, newItem]
-    }))
+    setFormData((prev) => {
+      const existingItem = prev.items.find(
+        (item) => String(item.productId) === String(newItem.productId)
+      )
 
+      if (!existingItem) {
+        return { ...prev, items: [...prev.items, newItem] }
+      }
+
+      return {
+        ...prev,
+        items: prev.items.map((item) => {
+          if (String(item.productId) !== String(newItem.productId)) return item
+
+          const quantity = Number(item.quantity) + newItem.quantity
+          return {
+            ...item,
+            quantity,
+            subtotal: quantity * Number(item.price)
+          }
+        })
+      }
+    })
+
+    toast.success('Producto agregado a la solicitud')
     setCurrentItem({ product: '', quantity: '', price: '' })
   }
 
   const removeItem = (index) => {
+    const removedItem = formData.items[index]
     setFormData((prev) => ({
       ...prev,
       items: prev.items.filter((_, i) => i !== index)
     }))
+    toast.success(
+      `Producto ${removedItem?.productName || ''} eliminado de la solicitud`
+    )
   }
 
   const getTotalAmount = () => {
-    return formData.items.reduce((sum, item) => sum + item.subtotal, 0)
+    return formData.items.reduce(
+      (sum, item) =>
+        sum +
+        (Number(item.subtotal) || Number(item.quantity) * Number(item.price)),
+      0
+    )
   }
 
   const handleSubmit = (e) => {
@@ -133,27 +195,32 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
     const dataToSubmit = {
       ...formData,
       totalAmount: getTotalAmount(),
-      status: 'pendiente'
+      status: order?.status || 'pendiente'
     }
 
-    action.mutate(dataToSubmit, {
-      onSuccess: () => {
-        setFormData({
-          date: new Date().toISOString().split('T')[0],
-          supplier: '',
-          items: []
-        })
-        setCurrentItem({ product: '', quantity: '', price: '' })
-        handleClose()
+    action.mutate(
+      order ? { id: order._id, body: dataToSubmit } : dataToSubmit,
+      {
+        onSuccess: () => {
+          setFormData({
+            date: new Date().toISOString().split('T')[0],
+            supplier: '',
+            items: []
+          })
+          setCurrentItem({ product: '', quantity: '', price: '' })
+          handleClose()
+        }
       }
-    })
+    )
   }
 
   return (
     <Dialog open={modalShow} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Nueva Solicitud de Pedido</DialogTitle>
+          <DialogTitle>
+            {order ? 'Editar Solicitud de Pedido' : 'Nueva Solicitud de Pedido'}
+          </DialogTitle>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
@@ -214,8 +281,19 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
                       </SelectTrigger>
                       <SelectContent side="top" sideOffset={4}>
                         {filteredProducts?.map((p) => (
-                          <SelectItem key={p._id} value={p._id}>
-                            {p.productName}
+                          <SelectItem
+                            key={p._id}
+                            value={p._id}
+                            textValue={p.productName}
+                          >
+                            <span className="flex flex-col">
+                              <span>{p.productName}</span>
+                              {p.productDescription && (
+                                <span className="text-xs text-muted-foreground">
+                                  {p.productDescription}
+                                </span>
+                              )}
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -280,10 +358,14 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
                           </td>
                           <td className="text-center">{item.quantity}</td>
                           <td className="text-right">
-                            ${item.price.toFixed(2)}
+                            ${Number(item.price || 0).toFixed(2)}
                           </td>
                           <td className="text-right">
-                            ${item.subtotal.toFixed(2)}
+                            $
+                            {(
+                              Number(item.subtotal) ||
+                              Number(item.quantity) * Number(item.price)
+                            ).toFixed(2)}
                           </td>
                           <td className="text-center">
                             <button
@@ -314,7 +396,9 @@ const ModalOrderRequest = ({ modalShow, handleClose, action }) => {
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button type="submit">Crear Solicitud</Button>
+            <Button type="submit">
+              {order ? 'Guardar cambios' : 'Crear Solicitud'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

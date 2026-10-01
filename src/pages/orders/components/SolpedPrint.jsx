@@ -40,7 +40,13 @@ const ItemsTable = ({ items }) => (
   </table>
 )
 
-const SolpedPrint = ({ order, onClose, updateOrder, onOrderUpdated }) => {
+const SolpedPrint = ({
+  order,
+  onClose,
+  updateOrder,
+  onOrderUpdated,
+  onEdit
+}) => {
   const getTotalAmount = () => {
     return (
       order.items?.reduce(
@@ -167,6 +173,9 @@ const SolpedPrint = ({ order, onClose, updateOrder, onOrderUpdated }) => {
           </div>
         </DialogBody>
         <DialogFooter className="solped-modal-footer no-print">
+          <Button variant="outline" onClick={onEdit}>
+            Editar
+          </Button>
           <Button variant="outline" onClick={onClose}>
             Cerrar
           </Button>

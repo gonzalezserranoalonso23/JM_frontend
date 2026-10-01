@@ -42,10 +42,14 @@ const ModalSuppliers = ({
     validateOnChange: false,
     onSubmit: (values) => {
       action.mutate(
-        !supplier?._id ? values : { id: supplier?._id, body: values }
+        !supplier?._id ? values : { id: supplier?._id, body: values },
+        {
+          onSuccess: () => {
+            formik.resetForm()
+            handleClose()
+          }
+        }
       )
-      formik.resetForm()
-      handleClose()
     }
   })
 
