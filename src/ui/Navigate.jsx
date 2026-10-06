@@ -2,12 +2,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
 import { useState } from 'react'
+import { useGetPendingTasks } from '@/features/tasks.features'
 
 const Navigate = () => {
   const logOut = useAuthStore((state) => state.logOut)
   const isAdmin = useAuthStore((state) => state.isAdmin)
+  const { data: pendingTasks } = useGetPendingTasks()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
+  const pendingCount = pendingTasks?.length ?? 0
 
   const handleLogOut = () => {
     logOut()
@@ -77,9 +80,12 @@ const Navigate = () => {
             </Link>
             <Link
               to="../todolist"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
             >
               Pendientes
+              <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs font-semibold text-white">
+                {pendingCount}
+              </span>
             </Link>
             <Link
               to="../reports"
@@ -143,10 +149,13 @@ const Navigate = () => {
             </Link>
             <Link
               to="../todolist"
-              className="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded"
+              className="flex items-center justify-between rounded px-4 py-2 text-gray-400 hover:bg-gray-800 hover:text-white"
               onClick={() => setIsOpen(false)}
             >
               Pendientes
+              <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs font-semibold text-white">
+                {pendingCount}
+              </span>
             </Link>
             <Link
               to="../reports"

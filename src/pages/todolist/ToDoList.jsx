@@ -86,7 +86,6 @@ const ToDoList = () => {
                   </p>
                 </div>
               </div>
-
               {/* Formulario Crear Tarea */}
               <div className="todolist-form-section">
                 <h6 className="form-subtitle">Crear Nueva Tarea</h6>
