@@ -3,14 +3,23 @@ import {
   useCreateSupplier,
   useDeleteSupplier,
   useUpdateSupplier,
-  useGetSuppliers
+  useGetSupplierPages
 } from '@/features/suppliers.features'
 import ModalSuppliers from './ModalSuppliers'
 import Loading from '@/ui/Loading'
 import TableSuppliers from './TableSuppliers'
 
 const SectionSuppliers = () => {
-  const { data: suppliers, isLoading, isError } = useGetSuppliers()
+  const {
+    data: supplierPages,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useGetSupplierPages()
+  const suppliers = supplierPages?.pages.flatMap((page) => page.data) || []
+  const totalSuppliers = supplierPages?.pages[0]?.total || 0
 
   const createSupplier = useCreateSupplier()
   const updateSupplier = useUpdateSupplier()
@@ -79,6 +88,10 @@ const SectionSuppliers = () => {
         {suppliers?.length > 0 ? (
           <TableSuppliers
             suppliers={suppliers}
+            total={totalSuppliers}
+            hasNextPage={hasNextPage}
+            fetchNextPage={fetchNextPage}
+            isFetchingNextPage={isFetchingNextPage}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
           />

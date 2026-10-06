@@ -1,7 +1,13 @@
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  useQuery
+} from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
   getProducts,
+  getProductsPage,
   getProduct,
   createProduct,
   updateProduct,
@@ -15,6 +21,17 @@ export const useGetProducts = () => {
   })
   return { data, isLoading, isError }
 }
+
+export const useGetProductPages = (search = '') =>
+  useInfiniteQuery({
+    queryKey: ['Products', 'pages', search],
+    queryFn: ({ pageParam }) =>
+      getProductsPage({ page: pageParam, limit: 20, search }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
+  })
+
 export const useGetProduct = (id) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['Product', id],

@@ -1,23 +1,38 @@
 import { useState } from 'react'
 import {
-  useGetUsers,
+  useGetUserPages,
   useRegisterUser,
   useUpdateUser,
   useDeleteUser
 } from '@/features/users.features'
 import Loading from '@/ui/Loading'
 import ModalUsers from './components/ModalUsers'
+import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 
 const SectionUsers = () => {
-  const { data: users, isLoading, isError } = useGetUsers()
+  const [search, setSearch] = useState('')
+  const {
+    data: userPages,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useGetUserPages(search)
+  const users = userPages?.pages.flatMap((page) => page.data) || []
+  const totalUsers = userPages?.pages[0]?.total || 0
   const registerUser = useRegisterUser()
   const updateUser = useUpdateUser()
   const deleteUser = useDeleteUser()
 
-  const [search, setSearch] = useState('')
   const [modalShow, setModalShow] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [update, setUpdate] = useState(false)
+  const { sentinelRef, supportsIntersectionObserver } =
+    useIntersectionPagination(
+      fetchNextPage,
+      Boolean(hasNextPage) && !isFetchingNextPage
+    )
 
   const handleClose = () => setModalShow(false)
   const handleShowCreate = () => {
@@ -44,16 +59,6 @@ const SectionUsers = () => {
         Error al cargar los usuarios
       </div>
     )
-
-  const filtered = users?.filter((u) => {
-    if (!search) return true
-    const q = search.toLowerCase()
-    return (
-      u.username?.toLowerCase().includes(q) ||
-      u.fullName?.toLowerCase().includes(q) ||
-      u.email?.toLowerCase().includes(q)
-    )
-  })
 
   return (
     <div className="section-container">
@@ -95,7 +100,7 @@ const SectionUsers = () => {
       </div>
 
       {/* Tabla */}
-      {filtered?.length > 0 ? (
+      {totalUsers > 0 ? (
         <div className="table-wrapper">
           <table className="table-minimal">
             <thead>
@@ -108,7 +113,7 @@ const SectionUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((user) => (
+              {users.map((user) => (
                 <tr key={user._id}>
                   <td>
                     <strong>{user.username}</strong>
@@ -154,9 +159,22 @@ const SectionUsers = () => {
                 marginTop: '0.5rem'
               }}
             >
-              Total: {filtered.length} usuario{filtered.length !== 1 ? 's' : ''}
+              Total: {totalUsers} usuario{totalUsers !== 1 ? 's' : ''}
             </caption>
           </table>
+          {hasNextPage && supportsIntersectionObserver && (
+            <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+          )}
+          {hasNextPage && !supportsIntersectionObserver && (
+            <button
+              type="button"
+              className="w-full py-3 text-sm font-medium"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
+            </button>
+          )}
         </div>
       ) : (
         <div className="alert-minimal alert-info-minimal">

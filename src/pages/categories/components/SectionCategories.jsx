@@ -3,14 +3,23 @@ import {
   useCreateCategory,
   useDeleteCategory,
   useUpdateCategory,
-  useGetCategories
+  useGetCategoryPages
 } from '@/features/categories.features'
 import ModalCategories from './ModalCategories'
 import Loading from '@/ui/Loading'
 import TableCategories from './TableCategories'
 
 const SectionCategories = () => {
-  const { data: categories, isLoading, isError } = useGetCategories()
+  const {
+    data: categoryPages,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useGetCategoryPages()
+  const categories = categoryPages?.pages.flatMap((page) => page.data) || []
+  const totalCategories = categoryPages?.pages[0]?.total || 0
 
   const createCategory = useCreateCategory()
   const updateCategory = useUpdateCategory()
@@ -79,6 +88,10 @@ const SectionCategories = () => {
         {categories?.length > 0 ? (
           <TableCategories
             categories={categories}
+            total={totalCategories}
+            hasNextPage={hasNextPage}
+            fetchNextPage={fetchNextPage}
+            isFetchingNextPage={isFetchingNextPage}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
           />

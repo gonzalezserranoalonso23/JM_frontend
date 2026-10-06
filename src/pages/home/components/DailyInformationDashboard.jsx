@@ -20,9 +20,20 @@ const formatAmount = (amount) => `$${Number(amount || 0).toFixed(2)}`
 const DailyInformationDashboard = () => {
   const { data: records, isLoading, isError } = useGetDailyInformations()
   const [selectedId, setSelectedId] = useState('')
-  const orderedRecords = [...(records || [])].sort((first, second) =>
-    String(second.date).localeCompare(String(first.date))
-  )
+  const currentDate = new Date()
+  const today = [
+    currentDate.getFullYear(),
+    String(currentDate.getMonth() + 1).padStart(2, '0'),
+    String(currentDate.getDate()).padStart(2, '0')
+  ].join('-')
+  const orderedRecords = (records || [])
+    .filter((record) => {
+      const recordDate = String(record?.date || '').slice(0, 10)
+      return /^\d{4}-\d{2}-\d{2}$/.test(recordDate) && recordDate < today
+    })
+    .sort((first, second) =>
+      String(second.date).localeCompare(String(first.date))
+    )
   const selectedRecord =
     orderedRecords.find((record) => record._id === selectedId) ||
     orderedRecords[0]
@@ -35,7 +46,7 @@ const DailyInformationDashboard = () => {
             Información diaria
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Consulta los totales registrados por fecha
+            Consulta los totales de días anteriores
           </p>
         </div>
         {!isLoading && !isError && orderedRecords.length > 0 && (
@@ -100,7 +111,7 @@ const DailyInformationDashboard = () => {
         </div>
       ) : (
         <p className="text-sm text-slate-500">
-          Todavía no hay registros de información diaria.
+          No hay información diaria registrada antes de hoy.
         </p>
       )}
     </section>

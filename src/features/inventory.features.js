@@ -1,4 +1,9 @@
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  useQuery
+} from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
   getInventoryRecords,
@@ -9,6 +14,7 @@ import {
   deleteInventoryRecord,
   getDailySalesSummary,
   getLowStockProducts,
+  getLowStockProductsPage,
   getSalesByDateRange,
   getInventoryByType,
   getInventoryStats
@@ -114,6 +120,16 @@ export const useGetLowStockProducts = () => {
   })
   return { data, isLoading, isError }
 }
+
+export const useGetLowStockProductPages = () =>
+  useInfiniteQuery({
+    queryKey: ['LowStockProducts', 'pages'],
+    queryFn: ({ pageParam }) =>
+      getLowStockProductsPage({ page: pageParam, limit: 20 }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
+  })
 
 export const useGetSalesByDateRange = (startDate, endDate) => {
   const { data, isLoading, isError } = useQuery({

@@ -5,6 +5,13 @@ export const getCategories = async () => {
   return data
 }
 
+export const getCategoriesPage = async ({ page, limit }) => {
+  const { data } = await axios.get('/api/categories', {
+    params: { page, limit }
+  })
+  return data
+}
+
 export const getCategory = async (id) => {
   const { data } = await axios.get(`/api/categories/${id}`)
   return data

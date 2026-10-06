@@ -1,9 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient
+} from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
 import {
   login,
   getUsers,
+  getUsersPage,
   registerUser,
   updateUser,
   deleteUser
@@ -36,6 +42,16 @@ export const useGetUsers = () => {
     queryFn: getUsers
   })
 }
+
+export const useGetUserPages = (search = '') =>
+  useInfiniteQuery({
+    queryKey: ['users', 'pages', search],
+    queryFn: ({ pageParam }) =>
+      getUsersPage({ page: pageParam, limit: 20, search }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
+  })
 
 export const useRegisterUser = () => {
   const queryClient = useQueryClient()

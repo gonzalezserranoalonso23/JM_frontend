@@ -32,6 +32,8 @@ const SectionEntries = () => {
   const deleteRecord = useDeleteInventoryRecord()
 
   const [dataFilter, setDataFilter] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [modalShow, setModalShow] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -65,10 +67,13 @@ const SectionEntries = () => {
 
     if (!isEntry) return false
 
+    const recordDate = String(record.date || '').slice(0, 10)
+    if (startDate && recordDate < startDate) return false
+    if (endDate && recordDate > endDate) return false
+
     if (dataFilter) {
-      return record.productName.productName
-        .toLowerCase()
-        .includes(dataFilter.toLowerCase())
+      const productName = String(record.productName?.productName || '')
+      return productName.toLowerCase().includes(dataFilter.toLowerCase())
     }
     return true
   })
@@ -102,12 +107,34 @@ const SectionEntries = () => {
       {/* Filtro */}
       <div className="filter-section">
         <div className="filter-group">
-          <label>Buscar por producto</label>
+          <label htmlFor="entry-product-filter">Buscar por producto</label>
           <input
+            id="entry-product-filter"
             type="text"
+            className="form-control"
             placeholder="Nombre del producto..."
             value={dataFilter}
             onChange={(e) => setDataFilter(e.target.value)}
+          />
+        </div>
+        <div className="filter-group">
+          <label htmlFor="entry-start-date">Desde</label>
+          <input
+            id="entry-start-date"
+            type="date"
+            className="form-control"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </div>
+        <div className="filter-group">
+          <label htmlFor="entry-end-date">Hasta</label>
+          <input
+            id="entry-end-date"
+            type="date"
+            className="form-control"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
           />
         </div>
       </div>

@@ -5,6 +5,13 @@ export const getSuppliers = async () => {
   return data
 }
 
+export const getSuppliersPage = async ({ page, limit }) => {
+  const { data } = await axios.get('/api/suppliers', {
+    params: { page, limit }
+  })
+  return data
+}
+
 export const getSupplier = async (id) => {
   const { data } = await axios.get(`/api/suppliers/${id}`)
   return data

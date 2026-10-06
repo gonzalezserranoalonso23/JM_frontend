@@ -49,6 +49,13 @@ export const getLowStockProducts = async () => {
   return data
 }
 
+export const getLowStockProductsPage = async ({ page, limit }) => {
+  const { data } = await axios.get('/api/inventory-records/reports/low-stock', {
+    params: { page, limit }
+  })
+  return data
+}
+
 export const getSalesByDateRange = async (startDate, endDate) => {
   const { data } = await axios.get(
     '/api/inventory-records/reports/date-range',

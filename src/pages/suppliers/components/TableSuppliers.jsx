@@ -1,4 +1,17 @@
-const TableSuppliers = ({ suppliers, handleUpdate, handleDelete }) => {
+import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+
+const TableSuppliers = ({
+  suppliers,
+  total,
+  hasNextPage,
+  fetchNextPage,
+  isFetchingNextPage,
+  handleUpdate,
+  handleDelete
+}) => {
+  const { sentinelRef, supportsIntersectionObserver } =
+    useIntersectionPagination(fetchNextPage, hasNextPage && !isFetchingNextPage)
+
   return (
     <div className="table-wrapper">
       <table className="table-minimal">
@@ -14,7 +27,7 @@ const TableSuppliers = ({ suppliers, handleUpdate, handleDelete }) => {
           </tr>
         </thead>
         <tbody>
-          {suppliers?.map((supplier) => (
+          {suppliers.map((supplier) => (
             <tr key={supplier?._id}>
               <td>{supplier?.suppliersName}</td>
               <td>{supplier?.suppliersContact}</td>
@@ -48,9 +61,22 @@ const TableSuppliers = ({ suppliers, handleUpdate, handleDelete }) => {
           ))}
         </tbody>
         <caption className="text-sm text-gray-500 mt-2">
-          Total: {suppliers?.length}
+          Total: {total ?? suppliers.length}
         </caption>
       </table>
+      {hasNextPage && supportsIntersectionObserver && (
+        <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+      )}
+      {hasNextPage && !supportsIntersectionObserver && (
+        <button
+          type="button"
+          className="w-full py-3 text-sm font-medium"
+          onClick={() => fetchNextPage()}
+          disabled={isFetchingNextPage}
+        >
+          {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
+        </button>
+      )}
     </div>
   )
 }

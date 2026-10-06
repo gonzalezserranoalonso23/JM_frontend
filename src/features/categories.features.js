@@ -1,7 +1,13 @@
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  useQuery
+} from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
   getCategories,
+  getCategoriesPage,
   getCategory,
   createCategory,
   updateCategory,
@@ -15,6 +21,17 @@ export const useGetCategories = () => {
   })
   return { data, isLoading, isError }
 }
+
+export const useGetCategoryPages = () =>
+  useInfiniteQuery({
+    queryKey: ['Categories', 'pages'],
+    queryFn: ({ pageParam }) =>
+      getCategoriesPage({ page: pageParam, limit: 20 }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
+  })
+
 export const useGetCategory = (id) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['Category', id],

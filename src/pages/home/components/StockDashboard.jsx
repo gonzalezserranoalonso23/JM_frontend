@@ -1,19 +1,39 @@
 import {
   useGetInventoryStats,
-  useGetLowStockProducts,
+  useGetLowStockProductPages,
   useGetDailySalesSummary
 } from '@/features/inventory.features'
 import TaskWidget from './TaskWidget'
 import DailyInformationDashboard from './DailyInformationDashboard'
 import Loading from '@/ui/Loading'
+import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 
 const StockDashboard = () => {
   const { data: stats, isLoading: statsLoading } = useGetInventoryStats()
-  const { data: lowStockProducts, isLoading: lowStockLoading } =
-    useGetLowStockProducts()
-  const today = new Date().toISOString().split('T')[0]
+  const {
+    data: lowStockPages,
+    isLoading: lowStockLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useGetLowStockProductPages()
+  const lowStockProducts =
+    lowStockPages?.pages.flatMap((page) => page.data) || []
+  const lowStockTotal = lowStockPages?.pages[0]?.total || 0
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayDate = [
+    yesterday.getFullYear(),
+    String(yesterday.getMonth() + 1).padStart(2, '0'),
+    String(yesterday.getDate()).padStart(2, '0')
+  ].join('-')
   const { data: dailySales, isLoading: salesLoading } =
-    useGetDailySalesSummary(today)
+    useGetDailySalesSummary(yesterdayDate)
+  const { sentinelRef, supportsIntersectionObserver } =
+    useIntersectionPagination(
+      fetchNextPage,
+      Boolean(hasNextPage) && !isFetchingNextPage
+    )
 
   if (statsLoading || lowStockLoading || salesLoading) return <Loading />
 
@@ -25,6 +45,33 @@ const StockDashboard = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
             <p className="text-slate-500 mt-2">Resumen del sistema</p>
+          </div>
+
+          {/* Ventas del día anterior */}
+          <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="dashboard-card home-dashboard-card min-h-[150px] rounded-xl border border-slate-200 p-6 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
+              <h2 className="mb-4 text-sm font-medium text-slate-500">
+                Ventas del día anterior
+              </h2>
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <p className="mb-1 text-xs text-slate-500">
+                    {yesterday.toLocaleDateString('es-MX', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </p>
+                  <p className="text-3xl font-bold text-slate-900">
+                    ${(dailySales?.totalSales || 0).toFixed(2)}
+                  </p>
+                </div>
+                <p className="text-right text-sm text-slate-500">
+                  {dailySales?.totalTransactions || 0} transacciones
+                </p>
+              </div>
+            </div>
+            <TaskWidget />
           </div>
 
           <DailyInformationDashboard />
@@ -72,62 +119,12 @@ const StockDashboard = () => {
             </div>
           </div>
 
-          {/* Ventas Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 auto-rows-fr">
-            {/* Ventas Hoy */}
-            <div className="dashboard-card home-dashboard-card h-full min-h-[180px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-6 border border-slate-200">
-              <h3 className="text-slate-500 text-sm font-medium mb-4">
-                Ventas Hoy
-              </h3>
-              <div className="flex justify-between items-end h-[calc(100%-2rem)]">
-                <div>
-                  <div className="text-slate-500 text-xs mb-1">Total</div>
-                  <div className="text-2xl font-bold text-slate-900">
-                    ${(dailySales?.totalSales || 0).toFixed(2)}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-slate-500 text-xs mb-1">
-                    {dailySales?.totalTransactions || 0}
-                  </div>
-                  <div className="text-slate-500 text-xs">transacciones</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Total Vendido */}
-            <div className="dashboard-card home-dashboard-card h-full min-h-[180px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-6 border border-slate-200">
-              <h3 className="text-slate-500 text-sm font-medium mb-4">
-                Total Vendido
-              </h3>
-              <div className="flex justify-between items-end h-[calc(100%-2rem)]">
-                <div>
-                  <div className="text-slate-500 text-xs mb-1">Valor</div>
-                  <div className="text-2xl font-bold text-slate-900">
-                    ${(stats?.totalSalesValue || 0).toFixed(2)}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-slate-500 text-xs mb-1">
-                    {stats?.totalMovements || 0}
-                  </div>
-                  <div className="text-slate-500 text-xs">movimientos</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Task Widget */}
-          <div className="mb-8">
-            <TaskWidget />
-          </div>
-
           {/* Alertas de Stock Bajo */}
-          {lowStockProducts && lowStockProducts.length > 0 && (
+          {lowStockTotal > 0 && (
             <div className="dashboard-card home-dashboard-card h-full min-h-[220px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] overflow-hidden mb-8 border border-slate-200">
               <div className="low-stock-header px-6 py-4">
                 <h3 className="font-semibold">
-                  ⚠️ {lowStockProducts.length} productos con stock bajo
+                  ⚠️ {lowStockTotal} productos con stock bajo
                 </h3>
               </div>
               <div className="low-stock-list divide-y divide-slate-200">
@@ -166,12 +163,25 @@ const StockDashboard = () => {
                     </div>
                   </div>
                 ))}
+                {hasNextPage && supportsIntersectionObserver && (
+                  <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+                )}
+                {hasNextPage && !supportsIntersectionObserver && (
+                  <button
+                    type="button"
+                    className="w-full px-4 py-3 text-sm font-medium text-slate-700"
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                  >
+                    {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
+                  </button>
+                )}
               </div>
             </div>
           )}
 
           {/* Mensaje de Éxito */}
-          {lowStockProducts && lowStockProducts.length === 0 && (
+          {!lowStockLoading && lowStockTotal === 0 && (
             <div
               className="px-6 py-4 rounded-xl"
               style={{

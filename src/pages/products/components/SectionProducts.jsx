@@ -1,23 +1,30 @@
 import { useState } from 'react'
 import {
-  useGetProducts,
+  useGetProductPages,
   useDeleteProduct,
   useCreateProduct,
   useUpdateProduct
 } from '@/features/products.features'
 import ModalProducts from './ModalProducts'
 import FormFilter from './FormFilter'
-import Loading from '@/ui/Loading'
 import TableProducts from './TableProducts'
 
 const SectionProducts = () => {
-  const { data: products, isLoading, isError } = useGetProducts()
+  const [dataFilter, setDataFilter] = useState('')
+  const {
+    data: productPages,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useGetProductPages(dataFilter)
+  const products = productPages?.pages.flatMap((page) => page.data) || []
+  const totalProducts = productPages?.pages[0]?.total || 0
 
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
   const deleteProduct = useDeleteProduct()
-
-  const [dataFilter, setDataFilter] = useState('')
 
   const [modalShow, setModalShow] = useState(false)
   const [product, setProduct] = useState([])
@@ -36,25 +43,6 @@ const SectionProducts = () => {
     setProduct(data)
     setUpdate(true)
   }
-
-  const filter = products?.filter((product) => {
-    if (dataFilter)
-      return product?.productName
-        ?.toLowerCase()
-        .includes(dataFilter.toLowerCase())
-    else return product
-  })
-
-  if (isLoading) return <Loading />
-  if (isError)
-    return (
-      <div
-        className="alert-minimal alert-danger-minimal"
-        style={{ margin: '2rem' }}
-      >
-        Error al cargar los productos
-      </div>
-    )
 
   return (
     <>
@@ -92,17 +80,17 @@ const SectionProducts = () => {
           />
         )}
 
-        {filter?.length > 0 ? (
-          <TableProducts
-            products={filter}
-            handleUpdate={handleUpdate}
-            handleDelete={handleDelete}
-          />
-        ) : (
-          <div className="alert-minimal alert-warning-minimal">
-            No hay productos para mostrar
-          </div>
-        )}
+        <TableProducts
+          products={products}
+          total={totalProducts}
+          hasNextPage={hasNextPage}
+          fetchNextPage={fetchNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          isLoading={isLoading}
+          isError={isError}
+          handleUpdate={handleUpdate}
+          handleDelete={handleDelete}
+        />
       </section>
     </>
   )

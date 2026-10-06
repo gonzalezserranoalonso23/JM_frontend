@@ -1,7 +1,13 @@
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+  useQuery
+} from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
   getSuppliers,
+  getSuppliersPage,
   getSupplier,
   createSupplier,
   updateSupplier,
@@ -15,6 +21,17 @@ export const useGetSuppliers = () => {
   })
   return { data, isLoading, isError }
 }
+
+export const useGetSupplierPages = () =>
+  useInfiniteQuery({
+    queryKey: ['Suppliers', 'pages'],
+    queryFn: ({ pageParam }) =>
+      getSuppliersPage({ page: pageParam, limit: 20 }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
+  })
+
 export const useGetSupplier = (id) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['Supplier', id],
