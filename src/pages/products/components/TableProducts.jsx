@@ -97,7 +97,7 @@ const TableProducts = ({
                     className={`badge-minimal ${
                       product?.productStock === 0
                         ? 'badge-danger'
-                        : product?.productStock <= product?.minimumProductStock
+                        : product?.productStock < product?.minimumProductStock
                           ? 'badge-warning'
                           : 'badge-success'
                     }`}
