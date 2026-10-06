@@ -1,3 +1,5 @@
+import ActionIconButton from '@/components/ActionIconButton'
+
 const formatAmount = (amount) =>
   Number(amount || 0).toLocaleString('es-MX', {
     style: 'currency',
@@ -27,20 +29,16 @@ const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
             <td className="text-center">{record.totalTransactions}</td>
             <td className="text-center">
               <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
-                <button
-                  type="button"
-                  className="btn-action btn-info-sm w-full sm:w-auto"
+                <ActionIconButton
+                  action="edit"
+                  label="Editar"
                   onClick={() => handleUpdate(record)}
-                >
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  className="btn-action btn-danger-sm w-full sm:w-auto"
+                />
+                <ActionIconButton
+                  action="delete"
+                  label="Eliminar"
                   onClick={() => handleDelete(record._id)}
-                >
-                  Borrar
-                </button>
+                />
               </div>
             </td>
           </tr>

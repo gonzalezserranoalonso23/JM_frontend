@@ -1,4 +1,6 @@
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import ActionIconButton from '@/components/ActionIconButton'
+import Loading from '@/ui/Loading'
 
 const TableCategories = ({
   categories,
@@ -27,18 +29,16 @@ const TableCategories = ({
               <td>{category?.categories}</td>
               <td className="text-center">
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                  <button
-                    className="btn-action btn-info-sm w-full sm:w-auto"
+                  <ActionIconButton
+                    action="edit"
+                    label="Editar"
                     onClick={() => handleUpdate(category)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="btn-action btn-danger-sm w-full sm:w-auto"
+                  />
+                  <ActionIconButton
+                    action="delete"
+                    label="Eliminar"
                     onClick={() => handleDelete(category?._id)}
-                  >
-                    Borrar
-                  </button>
+                  />
                 </div>
               </td>
             </tr>
@@ -51,6 +51,9 @@ const TableCategories = ({
       {hasNextPage && supportsIntersectionObserver && (
         <div ref={sentinelRef} className="h-1" aria-hidden="true" />
       )}
+      {isFetchingNextPage && supportsIntersectionObserver && (
+        <Loading fullScreen={false} />
+      )}
       {hasNextPage && !supportsIntersectionObserver && (
         <button
           type="button"
@@ -58,7 +61,7 @@ const TableCategories = ({
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}
         >
-          {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
+          {isFetchingNextPage ? <Loading fullScreen={false} /> : 'Cargar más'}
         </button>
       )}
     </div>

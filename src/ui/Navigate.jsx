@@ -99,6 +99,12 @@ const Navigate = () => {
             >
               Información diaria
             </Link>
+            <Link
+              to="../cash"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              Caja
+            </Link>
             {isAdmin && (
               <Link
                 to="../catalogs"
@@ -170,6 +176,13 @@ const Navigate = () => {
               onClick={() => setIsOpen(false)}
             >
               Información diaria
+            </Link>
+            <Link
+              to="../cash"
+              className="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded"
+              onClick={() => setIsOpen(false)}
+            >
+              Caja
             </Link>
             {isAdmin && (
               <Link

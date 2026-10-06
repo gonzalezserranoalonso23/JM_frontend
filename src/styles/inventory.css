@@ -242,9 +242,6 @@
     min-width: 100%;
   }
 
-  .btn-action {
-    width: 100%;
-  }
 }
 
 @media (max-width: 480px) {

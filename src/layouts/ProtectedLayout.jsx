@@ -1,7 +1,9 @@
 import { Outlet } from 'react-router-dom'
 import Navigate from '@/ui/Navigate'
+import useTableCards from '@/hooks/useTableCards'
 
 const ProtectedLayout = () => {
+  useTableCards()
   return (
     <>
       <Navigate />

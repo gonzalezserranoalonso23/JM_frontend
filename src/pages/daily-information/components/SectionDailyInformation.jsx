@@ -69,7 +69,9 @@ const SectionDailyInformation = () => {
 
       {records?.length ? (
         <TableDailyInformation
-          records={records}
+          records={[...records].sort((a, b) =>
+            String(b.date).localeCompare(String(a.date))
+          )}
           handleUpdate={handleUpdate}
           handleDelete={handleDelete}
         />

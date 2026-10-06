@@ -1,6 +1,10 @@
-const Loading = () => {
+const Loading = ({ fullScreen = true }) => {
   return (
-    <div className="flex justify-center items-center min-h-screen">
+    <div
+      className={`flex justify-center items-center ${fullScreen ? 'min-h-screen' : 'py-6'}`}
+      role="status"
+      aria-label="Cargando"
+    >
       <div className="animate-spin">
         <svg
           className="w-12 h-12 text-warning"

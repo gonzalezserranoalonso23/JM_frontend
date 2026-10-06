@@ -1,5 +1,8 @@
 import { useRef } from 'react'
+import { Check, X } from 'lucide-react'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import ActionIconButton from '@/components/ActionIconButton'
+import Loading from '@/ui/Loading'
 
 const TableProducts = ({
   products,
@@ -10,7 +13,8 @@ const TableProducts = ({
   isLoading,
   isError,
   handleUpdate,
-  handleDelete
+  handleDelete,
+  handleToggleActive
 }) => {
   const tableContainerRef = useRef(null)
   const { sentinelRef, supportsIntersectionObserver } =
@@ -27,11 +31,8 @@ const TableProducts = ({
       aria-busy={isLoading || isFetchingNextPage}
     >
       {isLoading ? (
-        <div
-          className="flex h-full items-center justify-center text-sm text-slate-500"
-          role="status"
-        >
-          Cargando productos...
+        <div className="flex h-full items-center justify-center">
+          <Loading fullScreen={false} />
         </div>
       ) : isError ? (
         <div className="alert-minimal alert-danger-minimal m-4">
@@ -57,6 +58,9 @@ const TableProducts = ({
               <th className="mobile-expand hidden lg:table-cell">Stock mín.</th>
               <th className="mobile-expand hidden lg:table-cell">Proveedor</th>
               <th className="mobile-expand hidden lg:table-cell">Categoría</th>
+              <th className="mobile-expand hidden text-center lg:table-cell">
+                Estado
+              </th>
               <th className="text-center">Acciones</th>
             </tr>
           </thead>
@@ -80,6 +84,14 @@ const TableProducts = ({
                         product?.supplier?.name ||
                         'Sin proveedor'}{' '}
                       · {product?.category?.categories || 'Sin categoría'}
+                    </p>
+                    <p className="flex items-center gap-1">
+                      {product?.isActive === false ? (
+                        <X className="h-3.5 w-3.5 text-red-600" />
+                      ) : (
+                        <Check className="h-3.5 w-3.5 text-green-600" />
+                      )}
+                      {product?.isActive === false ? 'Desactivado' : 'Activado'}
                     </p>
                   </div>
                 </td>
@@ -117,20 +129,40 @@ const TableProducts = ({
                 <td className="mobile-expand hidden lg:table-cell">
                   <small>{product?.category?.categories}</small>
                 </td>
+                <td className="mobile-expand hidden text-center lg:table-cell">
+                  {product?.isActive === false ? (
+                    <X
+                      className="h-5 w-5 text-red-600"
+                      aria-label="Desactivado"
+                    />
+                  ) : (
+                    <Check
+                      className="h-5 w-5 text-green-600"
+                      aria-label="Activado"
+                    />
+                  )}
+                </td>
                 <td className="text-center">
-                  <div className="flex w-full flex-col items-center gap-1">
-                    <button
-                      className="btn-action btn-info-sm w-full"
+                  <div className="flex w-full flex-row items-center justify-center gap-1">
+                    <ActionIconButton
+                      action="edit"
+                      label="Editar"
                       onClick={() => handleUpdate(product)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="btn-action btn-danger-sm w-full"
+                    />
+                    <ActionIconButton
+                      action={
+                        product?.isActive === false ? 'activate' : 'deactivate'
+                      }
+                      label={
+                        product?.isActive === false ? 'Activar' : 'Desactivar'
+                      }
+                      onClick={() => handleToggleActive(product)}
+                    />
+                    <ActionIconButton
+                      action="delete"
+                      label="Eliminar"
                       onClick={() => handleDelete(product?._id)}
-                    >
-                      Borrar
-                    </button>
+                    />
                   </div>
                 </td>
               </tr>
@@ -147,6 +179,9 @@ const TableProducts = ({
         supportsIntersectionObserver && (
           <div ref={sentinelRef} className="h-1" aria-hidden="true" />
         )}
+      {isFetchingNextPage && supportsIntersectionObserver && (
+        <Loading fullScreen={false} />
+      )}
       {!isLoading &&
         !isError &&
         hasNextPage &&
@@ -157,7 +192,7 @@ const TableProducts = ({
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
           >
-            {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
+            {isFetchingNextPage ? <Loading fullScreen={false} /> : 'Cargar más'}
           </button>
         )}
     </div>

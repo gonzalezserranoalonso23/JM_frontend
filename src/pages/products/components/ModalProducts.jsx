@@ -20,6 +20,7 @@ import { useFormik } from 'formik'
 import { validateProduct } from '@/helpers/validations'
 import { useGetCategories } from '@/features/categories.features'
 import { useGetSuppliers } from '@/features/suppliers.features'
+import Loading from '@/ui/Loading'
 
 const ModalProducts = ({
   product,
@@ -29,8 +30,8 @@ const ModalProducts = ({
   type,
   setUpdate
 }) => {
-  const { data: categories } = useGetCategories()
-  const { data: suppliers } = useGetSuppliers()
+  const { data: categories, isLoading: loadingCategories } = useGetCategories()
+  const { data: suppliers, isLoading: loadingSuppliers } = useGetSuppliers()
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -74,6 +75,9 @@ const ModalProducts = ({
           className="flex flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
+            {(loadingCategories || loadingSuppliers) && (
+              <Loading fullScreen={false} />
+            )}
             <div className="flex flex-col gap-4">
               <div>
                 <Label htmlFor="productName">Nombre</Label>

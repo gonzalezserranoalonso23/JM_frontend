@@ -39,9 +39,9 @@ const StockDashboard = () => {
           <DailyInformationDashboard />
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 auto-rows-fr">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 auto-rows-fr">
             {/* Total Productos */}
-            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-300 h-full min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-6 border border-slate-200 border-l-4">
+            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-300 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
               <div className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
                 Productos
               </div>
@@ -51,7 +51,7 @@ const StockDashboard = () => {
             </div>
 
             {/* Valor Inventario */}
-            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-400 h-full min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-6 border border-slate-200 border-l-4">
+            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-400 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
               <div className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
                 Valor Inv.
               </div>
@@ -61,7 +61,7 @@ const StockDashboard = () => {
             </div>
 
             {/* Stock Bajo */}
-            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-500 h-full min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-6 border border-slate-200 border-l-4">
+            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-500 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
               <div className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
                 Stock Bajo
               </div>
@@ -71,7 +71,7 @@ const StockDashboard = () => {
             </div>
 
             {/* Sin Stock */}
-            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-600 h-full min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-6 border border-slate-200 border-l-4">
+            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-600 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
               <div className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
                 Sin Stock
               </div>
@@ -128,6 +128,9 @@ const StockDashboard = () => {
                 {hasNextPage && supportsIntersectionObserver && (
                   <div ref={sentinelRef} className="h-1" aria-hidden="true" />
                 )}
+                {isFetchingNextPage && supportsIntersectionObserver && (
+                  <Loading fullScreen={false} />
+                )}
                 {hasNextPage && !supportsIntersectionObserver && (
                   <button
                     type="button"
@@ -135,7 +138,11 @@ const StockDashboard = () => {
                     onClick={() => fetchNextPage()}
                     disabled={isFetchingNextPage}
                   >
-                    {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
+                    {isFetchingNextPage ? (
+                      <Loading fullScreen={false} />
+                    ) : (
+                      'Cargar más'
+                    )}
                   </button>
                 )}
               </div>

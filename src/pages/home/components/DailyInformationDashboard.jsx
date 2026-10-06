@@ -7,6 +7,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { useGetDailyInformations } from '@/features/dailyInformation.features'
+import Loading from '@/ui/Loading'
 
 const formatDate = (date) =>
   new Date(`${date}T00:00:00`).toLocaleDateString('es-MX', {
@@ -77,7 +78,7 @@ const DailyInformationDashboard = () => {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-slate-500">Cargando información diaria...</p>
+        <Loading fullScreen={false} />
       ) : isError ? (
         <p className="text-sm text-red-700">
           No se pudo cargar la información diaria.

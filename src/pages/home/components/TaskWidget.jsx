@@ -1,9 +1,12 @@
 import { useGetPendingTasks } from '@/features/tasks.features'
 import { Link } from 'react-router-dom'
 import './styles/taskWidget.css'
+import Loading from '@/ui/Loading'
 
 const TaskWidget = () => {
-  const { data: pendingTasks } = useGetPendingTasks()
+  const { data: pendingTasks, isLoading } = useGetPendingTasks()
+
+  if (isLoading) return <Loading fullScreen={false} />
 
   if (!pendingTasks || pendingTasks.length === 0) {
     return null

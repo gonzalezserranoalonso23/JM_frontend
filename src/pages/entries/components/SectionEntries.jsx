@@ -9,6 +9,7 @@ import {
 import ModalEntries from './ModalEntries'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
+import ActionIconButton from '@/components/ActionIconButton'
 
 const getTypeValue = (record) => {
   if (typeof record?.typeInventory === 'string') {
@@ -183,20 +184,16 @@ const SectionEntries = () => {
                   </td>
                   <td style={{ textAlign: 'center' }}>
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                      <button
-                        className="btn-action btn-info-sm w-full sm:w-auto"
+                      <ActionIconButton
+                        action="edit"
+                        label="Editar"
                         onClick={() => handleShowEdit(record)}
-                        title="Editar"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        className="btn-action btn-danger-sm w-full sm:w-auto"
+                      />
+                      <ActionIconButton
+                        action="delete"
+                        label="Eliminar"
                         onClick={() => handleDelete(record._id)}
-                        title="Eliminar"
-                      >
-                        ✕
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>

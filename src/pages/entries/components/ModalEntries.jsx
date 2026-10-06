@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select'
 import { useGetProducts } from '@/features/products.features'
 import '../../../styles/inventory.css'
+import Loading from '@/ui/Loading'
 
 const ENTRY_TYPE = 'ENTRY'
 
@@ -53,7 +54,7 @@ const ModalEntries = ({
   record,
   isEditing
 }) => {
-  const { data: products } = useGetProducts()
+  const { data: products, isLoading: loadingProducts } = useGetProducts()
 
   // Carrito: los productos se van sumando localmente, sin hacer una
   // petición POST por cada uno. Solo al "Registrar" se envían todos.
@@ -212,6 +213,7 @@ const ModalEntries = ({
             className="flex flex-1 flex-col overflow-hidden"
           >
             <DialogBody>
+              {loadingProducts && <Loading fullScreen={false} />}
               <div className="flex flex-col gap-4">
                 <div>
                   <Label htmlFor="date">Fecha *</Label>
@@ -330,6 +332,7 @@ const ModalEntries = ({
           className="flex flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
+            {loadingProducts && <Loading fullScreen={false} />}
             <div className="flex flex-col gap-4">
               <div>
                 <Label htmlFor="date">Fecha *</Label>

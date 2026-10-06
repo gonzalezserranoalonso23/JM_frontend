@@ -1,3 +1,5 @@
+import ActionIconButton from '@/components/ActionIconButton'
+
 const getTypeValue = (record) => {
   if (typeof record?.typeInventory === 'string') {
     return record.typeInventory.toUpperCase()
@@ -51,12 +53,11 @@ const TableIssues = ({ records, handleDelete }) => {
                 <small>{record.Observations || '-'}</small>
               </td>
               <td className="text-center">
-                <button
-                  className="btn-action btn-danger-sm"
+                <ActionIconButton
+                  action="delete"
+                  label="Eliminar"
                   onClick={() => handleDelete(record._id)}
-                >
-                  Eliminar
-                </button>
+                />
               </td>
             </tr>
           ))}

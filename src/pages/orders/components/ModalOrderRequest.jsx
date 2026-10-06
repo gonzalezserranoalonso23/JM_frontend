@@ -21,10 +21,11 @@ import {
 import { useGetProducts } from '@/features/products.features'
 import { useGetSuppliers } from '@/features/suppliers.features'
 import '@/styles/inventory.css'
+import Loading from '@/ui/Loading'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
-  const { data: products } = useGetProducts()
-  const { data: suppliers } = useGetSuppliers()
+  const { data: products, isLoading: loadingProducts } = useGetProducts()
+  const { data: suppliers, isLoading: loadingSuppliers } = useGetSuppliers()
 
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -230,6 +231,9 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
           className="flex flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
+            {(loadingProducts || loadingSuppliers) && (
+              <Loading fullScreen={false} />
+            )}
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>

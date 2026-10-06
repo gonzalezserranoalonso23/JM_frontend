@@ -44,6 +44,12 @@ const SectionProducts = () => {
     setUpdate(true)
   }
 
+  const handleToggleActive = (product) =>
+    updateProduct.mutate({
+      id: product?._id,
+      body: { isActive: !(product?.isActive ?? true) }
+    })
+
   return (
     <>
       <section>
@@ -90,6 +96,7 @@ const SectionProducts = () => {
           isError={isError}
           handleUpdate={handleUpdate}
           handleDelete={handleDelete}
+          handleToggleActive={handleToggleActive}
         />
       </section>
     </>

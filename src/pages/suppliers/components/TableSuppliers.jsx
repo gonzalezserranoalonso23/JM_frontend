@@ -1,4 +1,6 @@
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import ActionIconButton from '@/components/ActionIconButton'
+import Loading from '@/ui/Loading'
 
 const TableSuppliers = ({
   suppliers,
@@ -43,18 +45,16 @@ const TableSuppliers = ({
               </td>
               <td className="text-center">
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                  <button
-                    className="btn-action btn-info-sm w-full sm:w-auto"
+                  <ActionIconButton
+                    action="edit"
+                    label="Editar"
                     onClick={() => handleUpdate(supplier)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="btn-action btn-danger-sm w-full sm:w-auto"
+                  />
+                  <ActionIconButton
+                    action="delete"
+                    label="Eliminar"
                     onClick={() => handleDelete(supplier?._id)}
-                  >
-                    Borrar
-                  </button>
+                  />
                 </div>
               </td>
             </tr>
@@ -67,6 +67,9 @@ const TableSuppliers = ({
       {hasNextPage && supportsIntersectionObserver && (
         <div ref={sentinelRef} className="h-1" aria-hidden="true" />
       )}
+      {isFetchingNextPage && supportsIntersectionObserver && (
+        <Loading fullScreen={false} />
+      )}
       {hasNextPage && !supportsIntersectionObserver && (
         <button
           type="button"
@@ -74,7 +77,7 @@ const TableSuppliers = ({
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}
         >
-          {isFetchingNextPage ? 'Cargando...' : 'Cargar más'}
+          {isFetchingNextPage ? <Loading fullScreen={false} /> : 'Cargar más'}
         </button>
       )}
     </div>

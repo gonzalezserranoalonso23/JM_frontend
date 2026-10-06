@@ -9,6 +9,7 @@ import ModalOrderRequest from './ModalOrderRequest'
 import SolpedPrint from './SolpedPrint'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
+import ActionIconButton from '@/components/ActionIconButton'
 
 const SectionOrders = () => {
   const { data: orders, isLoading, isError } = useGetOrderRequests()
@@ -66,6 +67,14 @@ const SectionOrders = () => {
       </div>
     )
 
+  // Pendientes primero y, dentro de cada grupo, la fecha más reciente arriba
+  const sortedOrders = [...(orders || [])].sort((a, b) => {
+    const aPending = a.status !== 'confirmado'
+    const bPending = b.status !== 'confirmado'
+    if (aPending !== bPending) return aPending ? -1 : 1
+    return new Date(b.date) - new Date(a.date)
+  })
+
   const getStatusColor = (status) => {
     if (status === 'confirmado') return 'badge-success'
     return 'badge-warning'
@@ -122,7 +131,7 @@ const SectionOrders = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {sortedOrders.map((order) => (
                 <tr key={order._id}>
                   <td>
                     <strong>#{order._id.slice(-6).toUpperCase()}</strong>
@@ -151,31 +160,25 @@ const SectionOrders = () => {
                   <td style={{ textAlign: 'center' }}>
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
                       {order.status !== 'confirmado' && (
-                        <button
-                          className="btn-action btn-info-sm w-full sm:w-auto"
+                        <ActionIconButton
+                          action="open"
+                          label="Abrir"
                           onClick={() => handleViewSolped(order)}
-                          title="Abrir vista previa de la solicitud"
-                        >
-                          Abrir
-                        </button>
+                        />
                       )}
                       {order.status === 'confirmado' && (
-                        <button
-                          className="btn-action btn-info-sm w-full sm:w-auto"
+                        <ActionIconButton
+                          action="reopen"
+                          label="Reabrir"
                           onClick={() => handleStatusChange(order)}
                           disabled={updateOrder.isPending}
-                          title="Reabrir solicitud"
-                        >
-                          Reabrir
-                        </button>
+                        />
                       )}
-                      <button
-                        className="btn-action btn-danger-sm w-full sm:w-auto"
+                      <ActionIconButton
+                        action="delete"
+                        label="Eliminar"
                         onClick={() => handleDelete(order._id)}
-                        title="Eliminar"
-                      >
-                        ✕
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>
