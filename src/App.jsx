@@ -25,6 +25,7 @@ import Products from './pages/products/Products'
 import Suppliers from './pages/suppliers/Suppliers'
 import SupplierDetails from './pages/suppliers/SupplierDetails'
 import Categories from './pages/categories/Categories'
+import DailyInformation from './pages/daily-information/DailyInformation'
 
 import { Toaster } from 'react-hot-toast'
 import ProtectedLayout from './layouts/ProtectedLayout'
@@ -67,6 +68,7 @@ const App = () => {
               <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/suppliers/:id" element={<SupplierDetails />} />
               <Route path="/categories" element={<Categories />} />
+              <Route path="/daily-information" element={<DailyInformation />} />
             </Route>
           </Route>
           <Route path="*" element={<h1>Not Found!</h1>} />

@@ -80,6 +80,9 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
       ? supplierValue?._id === formData.supplier
       : supplierValue === formData.supplier
   })
+  const selectedProduct = products?.find(
+    (product) => product._id === currentItem.product
+  )
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -336,6 +339,26 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     </Button>
                   </div>
                 </div>
+                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <div>
+                    <Label htmlFor="currentProductStock">Stock actual</Label>
+                    <Input
+                      id="currentProductStock"
+                      type="number"
+                      value={selectedProduct?.productStock ?? ''}
+                      readOnly
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="minimumProductStock">Stock mínimo</Label>
+                    <Input
+                      id="minimumProductStock"
+                      type="number"
+                      value={selectedProduct?.minimumProductStock ?? ''}
+                      readOnly
+                    />
+                  </div>
+                </div>
               </div>
 
               {formData.items.length > 0 && (
@@ -345,6 +368,8 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                       <tr>
                         <th>Producto</th>
                         <th className="text-center">Cantidad</th>
+                        <th className="text-center">Stock actual</th>
+                        <th className="text-center">Stock mínimo</th>
                         <th className="text-right">Precio compra</th>
                         <th className="text-right">Subtotal</th>
                         <th className="text-center">Opciones</th>
@@ -357,6 +382,24 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                             <strong>{item?.productName}</strong>
                           </td>
                           <td className="text-center">{item.quantity}</td>
+                          <td className="text-center">
+                            {products?.find(
+                              (product) =>
+                                product._id ===
+                                (typeof item.productId === 'object'
+                                  ? item.productId?._id
+                                  : item.productId)
+                            )?.productStock ?? 0}
+                          </td>
+                          <td className="text-center">
+                            {products?.find(
+                              (product) =>
+                                product._id ===
+                                (typeof item.productId === 'object'
+                                  ? item.productId?._id
+                                  : item.productId)
+                            )?.minimumProductStock ?? 0}
+                          </td>
                           <td className="text-right">
                             ${Number(item.price || 0).toFixed(2)}
                           </td>

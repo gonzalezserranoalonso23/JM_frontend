@@ -45,10 +45,22 @@ export const validateProduct = (values) => {
     return toast.error('El precio de venta del producto es requerido')
   if (values.productPrice < 0)
     return toast.error('El precio de venta no puede ser negativo')
-  if (!values.productStock)
+  if (
+    values.productStock === '' ||
+    values.productStock === null ||
+    values.productStock === undefined
+  )
     return toast.error('El stock del producto es requerido')
-  if (!values.minimumProductStock)
+  if (Number(values.productStock) < 0)
+    return toast.error('El stock del producto no puede ser negativo')
+  if (
+    values.minimumProductStock === '' ||
+    values.minimumProductStock === null ||
+    values.minimumProductStock === undefined
+  )
     return toast.error('El stock mínimo del producto es requerido')
+  if (Number(values.minimumProductStock) < 0)
+    return toast.error('El stock mínimo no puede ser negativo')
   if (!values.supplier)
     return toast.error('El proveedor del producto es requerido')
   if (!values.category)

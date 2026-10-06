@@ -28,8 +28,8 @@ const DialogContent = React.forwardRef(
         ref={ref}
         className={cn(
           'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-          'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[var(--border-color)] max-h-[90vh]',
-          'max-sm:w-[calc(100vw-1rem)] max-sm:max-h-[calc(var(--app-vh,1svh)*100-1rem)]',
+          'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-[var(--border-color)] max-h-[90vh] overflow-hidden',
+          'max-sm:w-[calc(100vw-1rem)] max-sm:max-h-[calc(var(--app-vh,1svh)*100-2rem)]',
           className
         )}
         {...props}
@@ -48,7 +48,7 @@ DialogContent.displayName = DialogPrimitive.Content.displayName
 const DialogHeader = ({ className, ...props }) => (
   <div
     className={cn(
-      'flex shrink-0 flex-col gap-1.5 border-b border-[var(--border-color)] p-5 max-sm:p-4',
+      'flex shrink-0 flex-col gap-1.5 border-b border-[var(--border-color)] p-5 pr-12 max-sm:p-4 max-sm:pr-12',
       className
     )}
     {...props}
@@ -58,7 +58,7 @@ DialogHeader.displayName = 'DialogHeader'
 
 const DialogBody = ({ className, ...props }) => (
   <div
-    className={cn('flex-1 overflow-y-auto p-5 max-sm:p-4', className)}
+    className={cn('min-h-0 flex-1 overflow-y-auto p-5 max-sm:p-4', className)}
     {...props}
   />
 )
@@ -67,7 +67,7 @@ DialogBody.displayName = 'DialogBody'
 const DialogFooter = ({ className, ...props }) => (
   <div
     className={cn(
-      'sticky bottom-0 flex shrink-0 flex-row justify-end gap-3 border-t border-[var(--border-color)] bg-[var(--bg-card)] p-5 max-sm:p-4',
+      'sticky bottom-0 flex shrink-0 flex-row justify-end gap-3 border-t border-[var(--border-color)] bg-[var(--bg-card)] p-5 max-sm:flex-col-reverse max-sm:items-stretch max-sm:p-4',
       className
     )}
     {...props}

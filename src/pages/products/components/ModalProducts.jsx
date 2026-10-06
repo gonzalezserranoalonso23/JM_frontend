@@ -39,8 +39,8 @@ const ModalProducts = ({
       productDescription: product?.productDescription || '',
       purchasePrice: product?.purchasePrice || '',
       productPrice: product?.productPrice || '',
-      minimumProductStock: product?.minimumProductStock || '',
-      productStock: product?.productStock || '',
+      minimumProductStock: product?.minimumProductStock ?? '',
+      productStock: product?.productStock ?? '',
       supplier: product?.supplier || '',
       category: product?.category || ''
     },
@@ -120,6 +120,7 @@ const ModalProducts = ({
                   id="minimumProductStock"
                   type="number"
                   name="minimumProductStock"
+                  min="0"
                 />
               </div>
               <div>
@@ -129,6 +130,7 @@ const ModalProducts = ({
                   id="productStock"
                   type="number"
                   name="productStock"
+                  min="0"
                 />
               </div>
               <div>

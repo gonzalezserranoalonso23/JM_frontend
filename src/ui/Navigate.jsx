@@ -30,7 +30,9 @@ const Navigate = () => {
           {/* Toggle Button (Mobile) */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden inline-block p-2 rounded text-gray-400 hover:text-white hover:bg-gray-800"
+            className="lg:hidden inline-block p-2 rounded text-gray-400 hover:text-white hover:bg-gray-800"
+            aria-expanded={isOpen}
+            aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
           >
             <svg
               className="w-6 h-6"
@@ -48,7 +50,7 @@ const Navigate = () => {
           </button>
 
           {/* Navigation Links (Desktop) */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-6">
             <Link
               to="../home"
               className="text-gray-400 hover:text-white transition-colors"
@@ -84,6 +86,12 @@ const Navigate = () => {
               className="text-gray-400 hover:text-white transition-colors"
             >
               Reportes
+            </Link>
+            <Link
+              to="../daily-information"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              Información diaria
             </Link>
             {isAdmin && (
               <Link
@@ -104,7 +112,7 @@ const Navigate = () => {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden pb-4 space-y-2">
+          <div className="lg:hidden max-h-[calc(var(--app-vh,1svh)*100-4rem)] overflow-y-auto overscroll-contain pb-4 space-y-2">
             <Link
               to="../home"
               className="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded"
@@ -146,6 +154,13 @@ const Navigate = () => {
               onClick={() => setIsOpen(false)}
             >
               Reportes
+            </Link>
+            <Link
+              to="../daily-information"
+              className="block px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded"
+              onClick={() => setIsOpen(false)}
+            >
+              Información diaria
             </Link>
             {isAdmin && (
               <Link

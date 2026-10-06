@@ -272,8 +272,11 @@ body::-webkit-scrollbar {
 
   /* Table */
   .table-wrapper {
+    width: 100%;
+    max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 14px;
@@ -281,7 +284,8 @@ body::-webkit-scrollbar {
   }
 
   .table-minimal {
-    width: 100%;
+    width: max-content;
+    min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     font-size: 0.875rem;

@@ -4,6 +4,7 @@ import {
   useGetDailySalesSummary
 } from '@/features/inventory.features'
 import TaskWidget from './TaskWidget'
+import DailyInformationDashboard from './DailyInformationDashboard'
 import Loading from '@/ui/Loading'
 
 const StockDashboard = () => {
@@ -25,6 +26,8 @@ const StockDashboard = () => {
             <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
             <p className="text-slate-500 mt-2">Resumen del sistema</p>
           </div>
+
+          <DailyInformationDashboard />
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 auto-rows-fr">
