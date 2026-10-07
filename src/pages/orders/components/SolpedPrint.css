@@ -23,18 +23,19 @@
   min-height: 5.5rem;
   justify-content: center;
   padding-right: 3.75rem;
-  background: #fff;
+  background: #000;
+  color: #fff;
 }
 
 .solped-modal-title {
-  color: #111827;
+  color: #fff;
   font-size: 1.1rem;
   line-height: 1.4;
 }
 
 .solped-modal-subtitle {
   margin: 0.4rem 0 0;
-  color: #6b7280;
+  color: #d1d5db;
   font-size: 0.85rem;
 }
 
@@ -195,8 +196,28 @@
   position: sticky;
   bottom: 0;
   z-index: 2;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #374151;
+  background: #000;
+}
+
+.solped-modal-footer .solped-footer-button {
+  border: 1px solid #d1d5db;
   background: #fff;
+  color: #111827;
+}
+
+.solped-modal-footer .solped-footer-button:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.solped-modal-footer .solped-footer-button-primary {
+  border: 1px solid #6b7280;
+  background: #4b5563;
+  color: #fff;
+}
+
+.solped-modal-footer .solped-footer-button-primary:hover:not(:disabled) {
+  background: #6b7280;
 }
 
 @page {

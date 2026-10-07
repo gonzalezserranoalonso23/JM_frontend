@@ -173,14 +173,27 @@ const SolpedPrint = ({
           </div>
         </DialogBody>
         <DialogFooter className="solped-modal-footer no-print">
-          <Button variant="outline" onClick={onEdit}>
+          <Button
+            variant="outline"
+            className="solped-footer-button"
+            onClick={onEdit}
+          >
             Editar
           </Button>
-          <Button variant="outline" onClick={onClose}>
+          <Button
+            variant="outline"
+            className="solped-footer-button"
+            onClick={onClose}
+          >
             Cerrar
           </Button>
           <Button
             variant={currentStatus === 'pendiente' ? 'default' : 'outline'}
+            className={
+              currentStatus === 'pendiente'
+                ? 'solped-footer-button-primary disabled:opacity-100'
+                : 'solped-footer-button'
+            }
             onClick={() => handleStatusChange('pendiente')}
             disabled={currentStatus === 'pendiente' || updateOrder.isPending}
             title="Cambiar el estado a pendiente"
@@ -189,6 +202,11 @@ const SolpedPrint = ({
           </Button>
           <Button
             variant={currentStatus === 'confirmado' ? 'default' : 'outline'}
+            className={
+              currentStatus === 'confirmado'
+                ? 'solped-footer-button-primary disabled:opacity-100'
+                : 'solped-footer-button'
+            }
             onClick={() => handleStatusChange('confirmado')}
             disabled={currentStatus === 'confirmado' || updateOrder.isPending}
             title="Cambiar el estado a confirmado"
