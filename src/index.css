@@ -41,8 +41,17 @@
     color: var(--text-secondary);
   }
 
+  :is(a, button, input, select, textarea, [role='button']):focus-visible {
+    outline: 3px solid #6b7280;
+    outline-offset: 2px;
+  }
+
   button {
-    transition: all 0.2s ease;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      opacity 0.2s ease;
   }
 }
 
@@ -59,7 +68,7 @@
   --border-input: #9ca3af;
   --shadow-card: 0 2px 8px rgba(17, 24, 39, 0.08);
   --nav-bg: #111111;
-  --app-nav-height: 64px;
+  --app-nav-height: calc(4rem + env(safe-area-inset-top));
   --app-page-space-y: 1.5rem;
   /* Overwritten by JS (main.jsx) with window.innerHeight-based value; svh is just the pre-JS fallback. */
   --app-vh: 1svh;
@@ -110,6 +119,10 @@ body::-webkit-scrollbar {
       (var(--app-vh) * 100) - var(--app-nav-height) -
         (var(--app-page-space-y) * 2)
     );
+  }
+
+  .app-nav {
+    padding-top: env(safe-area-inset-top);
   }
 
   /* Section Container */
@@ -281,6 +294,23 @@ body::-webkit-scrollbar {
     border: 1px solid #e5e7eb;
     border-radius: 14px;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  }
+
+  .table-responsive {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .table-responsive > table {
+    min-width: 42rem;
+    margin-bottom: 0;
   }
 
   .products-table-wrapper .table-minimal thead th {
@@ -684,7 +714,7 @@ body::-webkit-scrollbar {
 @media (max-width: 768px) {
   .section-container {
     padding: 1rem;
-    border-radius: 0;
+    border-radius: 12px;
   }
 
   .filter-section {
@@ -694,6 +724,8 @@ body::-webkit-scrollbar {
   .section-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
   }
 
   .section-header > button {
@@ -701,18 +733,38 @@ body::-webkit-scrollbar {
     justify-content: center;
   }
 
+  .filter-section,
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-group {
+    max-width: none !important;
+  }
+
   .table-minimal th,
   .table-minimal td {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
   }
-
 }
 
 /* ===== Mobile: app-like experience ===== */
 @media (max-width: 767px) {
   html {
     -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  [role='button'] {
+    min-height: 44px;
+  }
+
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea,
+  [role='combobox'] {
+    min-height: 44px;
   }
 
   button,
@@ -731,12 +783,18 @@ body::-webkit-scrollbar {
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  .page-content-shell {
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
   /* Sections become a list of cards over the page background */
   .section-container {
-    padding: 0.75rem;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
+    padding: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--shadow-card);
     min-height: 0;
   }
 
@@ -748,6 +806,14 @@ body::-webkit-scrollbar {
 
   .btn-custom {
     min-height: 44px;
+  }
+
+  .table-responsive {
+    border-radius: 10px;
+  }
+
+  .table-responsive > table {
+    min-width: 42rem;
   }
 
   /* Tables -> cards (labels are set from the headers by useTableCards) */
@@ -838,7 +904,7 @@ body::-webkit-scrollbar {
     gap: 0.5rem;
   }
 
-  /* Products table has its own column visibility helpers */
+  /* Keep product cards concise on mobile; summary exposes the hidden details. */
   .products-table-wrapper {
     height: auto;
     max-height: none;
@@ -846,14 +912,58 @@ body::-webkit-scrollbar {
   }
 
   .products-table .mobile-expand {
-    display: flex !important;
+    display: none !important;
   }
 
   .products-table .mobile-summary {
-    display: none !important;
+    display: block !important;
+  }
+
+  .products-table .mobile-summary.flex {
+    display: flex !important;
+  }
+
+  .products-table tbody td:first-child {
+    display: block !important;
+    text-align: left !important;
+  }
+
+  .products-table tbody td:first-child::before {
+    display: block;
+    max-width: none;
+    margin-bottom: 0.25rem;
+  }
+
+  .products-table tbody td:nth-child(5) {
+    justify-content: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .products-table tbody td:nth-child(5)::before {
+    margin-right: 0.25rem;
+  }
+
+  .products-table tbody td:last-child > div {
+    justify-content: flex-end;
+  }
+
+  .products-table tbody tr {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   .products-table-wrapper .table-minimal thead th {
     position: static;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

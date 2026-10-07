@@ -29,76 +29,90 @@ const StockDashboard = () => {
   return (
     <div className="bg-[var(--bg-page)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
-        <div className="dashboard-shell home-dashboard-shell mt-6 mb-8">
+        <section
+          className="dashboard-shell home-dashboard-shell mt-6 mb-8"
+          aria-labelledby="dashboard-title"
+        >
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+          <header className="mb-8">
+            <h1
+              id="dashboard-title"
+              className="text-3xl font-bold text-slate-900"
+            >
+              Dashboard
+            </h1>
             <p className="text-slate-500 mt-2">Resumen del sistema</p>
-          </div>
+          </header>
 
           <DailyInformationDashboard />
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 auto-rows-fr">
+          <section
+            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 auto-rows-fr"
+            aria-label="Indicadores de inventario"
+          >
             {/* Total Productos */}
-            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-300 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
-              <div className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
+            <article className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-300 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
+              <h2 className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
                 Productos
-              </div>
-              <div className="fixed-kpi-value text-3xl font-bold text-slate-900">
+              </h2>
+              <p className="fixed-kpi-value text-3xl font-bold text-slate-900">
                 {stats?.totalProducts || 0}
-              </div>
-            </div>
+              </p>
+            </article>
 
             {/* Valor Inventario */}
-            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-400 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
-              <div className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
+            <article className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-400 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
+              <h2 className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
                 Valor Inv.
-              </div>
-              <div className="fixed-kpi-value text-3xl font-bold text-slate-900">
+              </h2>
+              <p className="fixed-kpi-value text-3xl font-bold text-slate-900">
                 ${(stats?.totalInventoryValue || 0).toFixed(0)}
-              </div>
-            </div>
+              </p>
+            </article>
 
             {/* Stock Bajo */}
-            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-500 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
-              <div className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
+            <article className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-500 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
+              <h2 className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
                 Stock Bajo
-              </div>
-              <div className="fixed-kpi-value text-3xl font-bold text-slate-900">
+              </h2>
+              <p className="fixed-kpi-value text-3xl font-bold text-slate-900">
                 {stats?.lowStockProducts || 0}
-              </div>
-            </div>
+              </p>
+            </article>
 
             {/* Sin Stock */}
-            <div className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-600 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
-              <div className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
+            <article className="dashboard-card home-dashboard-card fixed-dashboard-card fixed-kpi-card border-l-slate-600 h-full min-h-[120px] sm:min-h-[170px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-4 sm:p-6 border border-slate-200 border-l-4">
+              <h2 className="fixed-kpi-label text-slate-500 text-sm font-medium mb-2">
                 Sin Stock
-              </div>
-              <div className="fixed-kpi-value text-3xl font-bold text-slate-900">
+              </h2>
+              <p className="fixed-kpi-value text-3xl font-bold text-slate-900">
                 {stats?.outOfStockProducts || 0}
-              </div>
-            </div>
-          </div>
+              </p>
+            </article>
+          </section>
 
           {/* Alertas de Stock Bajo */}
           {lowStockTotal > 0 && (
-            <div className="dashboard-card home-dashboard-card h-full min-h-[220px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] overflow-hidden mb-8 border border-slate-200">
-              <div className="low-stock-header px-6 py-4">
-                <h3 className="font-semibold">
+            <section
+              className="dashboard-card home-dashboard-card h-full min-h-[220px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] overflow-hidden mb-8 border border-slate-200"
+              aria-labelledby="low-stock-title"
+            >
+              <header className="low-stock-header px-6 py-4">
+                <h2 id="low-stock-title" className="font-semibold">
                   ⚠️ {lowStockTotal} productos con stock bajo
-                </h3>
-              </div>
-              <div className="low-stock-list divide-y divide-slate-200">
+                </h2>
+              </header>
+              <ul className="low-stock-list divide-y divide-slate-200 list-none p-0 m-0">
                 {lowStockProducts.map((product) => (
-                  <div
+                  <li
                     key={product._id}
                     className="low-stock-item stock-row-item px-6 py-4 flex justify-between items-center"
                   >
                     <div className="flex-1">
-                      <h4 className="low-stock-item-title font-medium text-slate-900">
+                      <h3 className="low-stock-item-title font-medium text-slate-900">
                         {product.productName}
-                      </h4>
+                      </h3>
                       {product.productDescription && (
                         <p className="text-sm text-slate-400 mt-1">
                           {product.productDescription}
@@ -123,30 +137,30 @@ const StockDashboard = () => {
                         {product.productStock === 0 ? 'Agotado' : 'Bajo'}
                       </span>
                     </div>
-                  </div>
+                  </li>
                 ))}
-                {hasNextPage && supportsIntersectionObserver && (
-                  <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-                )}
-                {isFetchingNextPage && supportsIntersectionObserver && (
-                  <Loading fullScreen={false} />
-                )}
-                {hasNextPage && !supportsIntersectionObserver && (
-                  <button
-                    type="button"
-                    className="w-full px-4 py-3 text-sm font-medium text-slate-700"
-                    onClick={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                  >
-                    {isFetchingNextPage ? (
-                      <Loading fullScreen={false} />
-                    ) : (
-                      'Cargar más'
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
+              </ul>
+              {hasNextPage && supportsIntersectionObserver && (
+                <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+              )}
+              {isFetchingNextPage && supportsIntersectionObserver && (
+                <Loading fullScreen={false} />
+              )}
+              {hasNextPage && !supportsIntersectionObserver && (
+                <button
+                  type="button"
+                  className="w-full px-4 py-3 text-sm font-medium text-slate-700"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                >
+                  {isFetchingNextPage ? (
+                    <Loading fullScreen={false} />
+                  ) : (
+                    'Cargar más'
+                  )}
+                </button>
+              )}
+            </section>
           )}
 
           {/* Mensaje de Éxito */}
@@ -163,7 +177,7 @@ const StockDashboard = () => {
               </p>
             </div>
           )}
-        </div>
+        </section>
       </div>
     </div>
   )

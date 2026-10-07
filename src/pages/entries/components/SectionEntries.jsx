@@ -1,3 +1,4 @@
+import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import {
   useGetInventoryRecords,
@@ -10,6 +11,9 @@ import ModalEntries from './ModalEntries'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
 import ActionIconButton from '@/components/ActionIconButton'
+import useFilterQuery from '@/hooks/useFilterQuery'
+import FormFilter from '@/components/FormFilter'
+import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 
 const getTypeValue = (record) => {
   if (typeof record?.typeInventory === 'string') {
@@ -32,9 +36,7 @@ const SectionEntries = () => {
   const updateRecord = useUpdateInventoryRecord()
   const deleteRecord = useDeleteInventoryRecord()
 
-  const [dataFilter, setDataFilter] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
+  const [dataFilter, setDataFilter] = useFilterQuery()
   const [modalShow, setModalShow] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -63,20 +65,17 @@ const SectionEntries = () => {
     }
   }
 
+  const matcher = buildMatcher(dataFilter)
+
   const filteredRecords = records?.filter((record) => {
     const isEntry = getTypeValue(record) === 'ENTRY'
 
     if (!isEntry) return false
 
-    const recordDate = String(record.date || '').slice(0, 10)
-    if (startDate && recordDate < startDate) return false
-    if (endDate && recordDate > endDate) return false
-
-    if (dataFilter) {
-      const productName = String(record.productName?.productName || '')
-      return productName.toLowerCase().includes(dataFilter.toLowerCase())
-    }
-    return true
+    return matchesCells(
+      [record.productName?.productName, ...dateCells(record.date)],
+      matcher
+    )
   })
 
   if (isLoading) return <Loading />
@@ -91,11 +90,13 @@ const SectionEntries = () => {
     )
 
   return (
-    <div className="section-container">
+    <section className="section-container" aria-labelledby="entries-title">
       {/* Header */}
-      <div className="section-header">
+      <header className="section-header">
         <div>
-          <h4 className="section-title">Entradas</h4>
+          <h1 id="entries-title" className="section-title">
+            Entradas
+          </h1>
           <p className="section-subtitle">
             Registros de compras y movimientos positivos
           </p>
@@ -103,42 +104,15 @@ const SectionEntries = () => {
         <button className="btn-custom btn-success-custom" onClick={handleShow}>
           ↓ Nueva Entrada
         </button>
-      </div>
+      </header>
 
       {/* Filtro */}
-      <div className="filter-section">
-        <div className="filter-group">
-          <label htmlFor="entry-product-filter">Buscar por producto</label>
-          <input
-            id="entry-product-filter"
-            type="text"
-            className="form-control"
-            placeholder="Nombre del producto..."
-            value={dataFilter}
-            onChange={(e) => setDataFilter(e.target.value)}
-          />
-        </div>
-        <div className="filter-group">
-          <label htmlFor="entry-start-date">Desde</label>
-          <input
-            id="entry-start-date"
-            type="date"
-            className="form-control"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-        <div className="filter-group">
-          <label htmlFor="entry-end-date">Hasta</label>
-          <input
-            id="entry-end-date"
-            type="date"
-            className="form-control"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-        </div>
-      </div>
+      <FormFilter
+        id="entry-filter"
+        label="Buscar entradas"
+        value={dataFilter}
+        onChange={setDataFilter}
+      />
 
       {/* Modal */}
       <ModalEntries
@@ -168,7 +142,7 @@ const SectionEntries = () => {
             <tbody>
               {filteredRecords.map((record) => (
                 <tr key={record._id}>
-                  <td>{new Date(record.date).toLocaleDateString()}</td>
+                  <td>{formatDate(record.date)}</td>
                   <td>
                     <strong>{record.productName?.productName}</strong>
                   </td>
@@ -206,7 +180,7 @@ const SectionEntries = () => {
           No hay entradas registradas
         </div>
       )}
-    </div>
+    </section>
   )
 }
 

@@ -1,3 +1,4 @@
+import { todayLocal, isoDay } from '@/utils/dateDisplay'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -24,7 +25,7 @@ import Loading from '@/ui/Loading'
 
 const ISSUE_TYPE = 'ISSUE'
 
-const getToday = () => new Date().toISOString().split('T')[0]
+const getToday = () => todayLocal()
 
 const getEmptyItem = () => ({
   productName: '',
@@ -125,9 +126,7 @@ const ModalIssues = ({
   useEffect(() => {
     if (isEditing && record) {
       setEditFormData({
-        date: record.date
-          ? new Date(record.date).toISOString().split('T')[0]
-          : getToday(),
+        date: record.date ? isoDay(record.date) : getToday(),
         typeInventory: record.typeInventory || ISSUE_TYPE,
         productName: record.productName?._id || record.productName || '',
         category: record.category?._id || record.category || '',
@@ -502,7 +501,7 @@ const ModalIssues = ({
                           <th>Producto</th>
                           <th style={{ textAlign: 'center' }}>Cant.</th>
                           <th style={{ textAlign: 'right' }}>Total</th>
-                          <th></th>
+                          <th />
                         </tr>
                       </thead>
                       <tbody>

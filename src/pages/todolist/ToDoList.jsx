@@ -75,17 +75,19 @@ const ToDoList = () => {
     <>
       <div className="bg-light py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
-          <div className="section-container">
+          <section className="section-container" aria-labelledby="tasks-title">
             <div className="todolist-wrapper">
               {/* Header */}
-              <div className="section-header">
+              <header className="section-header">
                 <div>
-                  <h4 className="section-title">Tareas Pendientes</h4>
+                  <h1 id="tasks-title" className="section-title">
+                    Tareas Pendientes
+                  </h1>
                   <p className="section-subtitle">
                     Gestiona las tareas del sistema
                   </p>
                 </div>
-              </div>
+              </header>
               {/* Formulario Crear Tarea */}
               <div className="todolist-form-section">
                 <h6 className="form-subtitle">Crear Nueva Tarea</h6>
@@ -283,7 +285,7 @@ const ToDoList = () => {
                 </div>
               )}
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </>

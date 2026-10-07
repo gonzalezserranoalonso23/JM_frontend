@@ -1,3 +1,4 @@
+import { formatDate, todayLocal } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import { useGetSalesByDateRange } from '@/features/inventory.features'
 import Loading from '@/ui/Loading'
@@ -31,10 +32,8 @@ const formatTypeLabel = (typeStr = '') => {
 }
 
 const ReportsSalesAndMovements = () => {
-  const [startDate, setStartDate] = useState(
-    new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  )
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0])
+  const [startDate, setStartDate] = useState(todayLocal(-7))
+  const [endDate, setEndDate] = useState(todayLocal())
   const [selectedType, setSelectedType] = useState('')
 
   const { data: salesData, isLoading: salesLoading } = useGetSalesByDateRange(
@@ -59,11 +58,12 @@ const ReportsSalesAndMovements = () => {
   )
 
   return (
-    <div className="section-container">
+    <section className="section-container" aria-labelledby="reports-title">
       {/* Header */}
-      <div className="section-header">
+      <header className="section-header">
         <div>
-          <h4
+          <h1
+            id="reports-title"
             style={{
               fontSize: '1.25rem',
               fontWeight: '700',
@@ -72,7 +72,7 @@ const ReportsSalesAndMovements = () => {
             }}
           >
             Reportes
-          </h4>
+          </h1>
           <p
             style={{
               fontSize: '0.875rem',
@@ -83,7 +83,7 @@ const ReportsSalesAndMovements = () => {
             Movimientos y ventas por período
           </p>
         </div>
-      </div>
+      </header>
 
       {/* Filtros */}
       <div className="filter-section">
@@ -122,7 +122,8 @@ const ReportsSalesAndMovements = () => {
       </div>
 
       {/* Cards de Resumen */}
-      <div
+      <section
+        aria-label="Resumen del período"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
@@ -130,7 +131,7 @@ const ReportsSalesAndMovements = () => {
           marginBottom: '2rem'
         }}
       >
-        <div
+        <article
           style={{
             padding: '1.5rem',
             background: 'white',
@@ -138,7 +139,7 @@ const ReportsSalesAndMovements = () => {
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
           }}
         >
-          <h6
+          <h2
             style={{
               color: '#7f8c8d',
               margin: '0 0 0.5rem 0',
@@ -147,12 +148,12 @@ const ReportsSalesAndMovements = () => {
             }}
           >
             Total
-          </h6>
+          </h2>
           <strong style={{ fontSize: '1.75rem', color: '#27ae60' }}>
             ${totalRevenue.toFixed(2)}
           </strong>
-        </div>
-        <div
+        </article>
+        <article
           style={{
             padding: '1.5rem',
             background: 'white',
@@ -160,7 +161,7 @@ const ReportsSalesAndMovements = () => {
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
           }}
         >
-          <h6
+          <h2
             style={{
               color: '#7f8c8d',
               margin: '0 0 0.5rem 0',
@@ -169,12 +170,12 @@ const ReportsSalesAndMovements = () => {
             }}
           >
             Movimientos
-          </h6>
+          </h2>
           <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
             {filteredRecords.length}
           </strong>
-        </div>
-      </div>
+        </article>
+      </section>
 
       {/* Tabla de Movimientos */}
       <div className="table-wrapper">
@@ -197,7 +198,7 @@ const ReportsSalesAndMovements = () => {
 
                 return (
                   <tr key={record._id}>
-                    <td>{new Date(record.date).toLocaleDateString()}</td>
+                    <td>{formatDate(record.date)}</td>
                     <td>
                       <strong>{record.productName?.productName}</strong>
                     </td>
@@ -240,7 +241,7 @@ const ReportsSalesAndMovements = () => {
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   )
 }
 

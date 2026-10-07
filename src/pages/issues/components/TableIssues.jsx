@@ -1,3 +1,4 @@
+import { formatDate } from '@/utils/dateDisplay'
 import ActionIconButton from '@/components/ActionIconButton'
 
 const getTypeValue = (record) => {
@@ -34,7 +35,7 @@ const TableIssues = ({ records, handleDelete }) => {
         <tbody>
           {records?.map((record) => (
             <tr key={record._id}>
-              <td>{new Date(record.date).toLocaleDateString()}</td>
+              <td>{formatDate(record.date)}</td>
               <td>
                 <strong>{record.productName?.productName}</strong>
               </td>

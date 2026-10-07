@@ -8,10 +8,12 @@ import {
 import Loading from '@/ui/Loading'
 import ModalUsers from './components/ModalUsers'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import useFilterQuery from '@/hooks/useFilterQuery'
+import FormFilter from '@/components/FormFilter'
 import ActionIconButton from '@/components/ActionIconButton'
 
 const SectionUsers = () => {
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useFilterQuery()
   const {
     data: userPages,
     isLoading,
@@ -62,11 +64,13 @@ const SectionUsers = () => {
     )
 
   return (
-    <div className="section-container">
+    <section className="section-container" aria-labelledby="users-title">
       {/* Header */}
-      <div className="section-header">
+      <header className="section-header">
         <div>
-          <h4 className="section-title">Usuarios</h4>
+          <h1 id="users-title" className="section-title">
+            Usuarios
+          </h1>
           <p className="section-subtitle">Gestión de cuentas del sistema</p>
         </div>
         <button
@@ -75,7 +79,7 @@ const SectionUsers = () => {
         >
           + Nuevo Usuario
         </button>
-      </div>
+      </header>
 
       {/* Modal */}
       <ModalUsers
@@ -88,17 +92,12 @@ const SectionUsers = () => {
       />
 
       {/* Filtro */}
-      <div className="filter-section">
-        <div className="filter-group" style={{ flex: 1, maxWidth: '400px' }}>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Buscar por usuario, nombre o email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
+      <FormFilter
+        id="user-filter"
+        label="Buscar usuario"
+        value={search}
+        onChange={setSearch}
+      />
 
       {/* Tabla */}
       {totalUsers > 0 ? (
@@ -189,7 +188,7 @@ const SectionUsers = () => {
             : 'No hay usuarios registrados'}
         </div>
       )}
-    </div>
+    </section>
   )
 }
 

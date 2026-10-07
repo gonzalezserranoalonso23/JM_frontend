@@ -36,6 +36,16 @@ const Login = () => {
   }
 
   useEffect(() => {
+    document.title = 'Iniciar sesión | JM Panel'
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute(
+        'content',
+        'Acceso al panel de gestión de inventario de Mini Super JM.'
+      )
+  }, [])
+
+  useEffect(() => {
     if (auth && isTokenExpired) {
       logOut()
     }
@@ -47,22 +57,10 @@ const Login = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center"
-      style={{
-        background:
-          'linear-gradient(135deg, #1a252f 0%, #2c3e50 60%, #3d5166 100%)'
-      }}
+      className="flex min-h-[calc(var(--app-vh,1svh)*100)] w-full items-center justify-center px-4 py-8 sm:px-6"
+      style={{ background: '#000' }}
     >
-      <div
-        style={{
-          background: 'white',
-          borderRadius: '16px',
-          padding: '2.5rem',
-          width: '100%',
-          maxWidth: '400px',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.4)'
-        }}
-      >
+      <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.4)] sm:p-10">
         {/* Logo / Título */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div

@@ -1,3 +1,4 @@
+import { todayLocal } from '@/utils/dateDisplay'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -12,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 const getInitialValues = (record) => ({
-  date: record?.date || new Date().toISOString().slice(0, 10),
+  date: record?.date || todayLocal(),
   cashSales: record?.cashSales ?? '',
   cardSales: record?.cardSales ?? '',
   totalTransactions: record?.totalTransactions ?? ''

@@ -56,16 +56,18 @@ const SectionCategories = () => {
 
   return (
     <>
-      <section>
-        <div className="section-header">
-          <h4 className="section-title">Categorías</h4>
+      <section className="section-container" aria-labelledby="categories-title">
+        <header className="section-header">
+          <h1 id="categories-title" className="section-title">
+            Categorías
+          </h1>
           <button
             className="btn-custom btn-primary-custom"
             onClick={handleShow}
           >
             + Crear Categoría
           </button>
-        </div>
+        </header>
         {!update ? (
           <ModalCategories
             modalShow={modalShow}

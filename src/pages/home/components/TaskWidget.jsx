@@ -19,11 +19,11 @@ const TaskWidget = () => {
 
   return (
     <Link to="/todolist" className="task-widget-link">
-      <div className="task-widget-container home-task-widget">
-        <div className="widget-header">
-          <h6 className="widget-title">Tareas Pendientes</h6>
+      <article className="task-widget-container home-task-widget">
+        <header className="widget-header">
+          <h2 className="widget-title">Tareas Pendientes</h2>
           <span className="task-count-badge">{pendingTasks.length}</span>
-        </div>
+        </header>
 
         <div className="widget-content">
           {highPriorityTasks.length > 0 && (
@@ -55,8 +55,8 @@ const TaskWidget = () => {
           )}
         </div>
 
-        <div className="widget-footer">Ver todas las tareas →</div>
-      </div>
+        <footer className="widget-footer">Ver todas las tareas →</footer>
+      </article>
     </Link>
   )
 }

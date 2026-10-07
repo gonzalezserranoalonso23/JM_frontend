@@ -1,5 +1,4 @@
-import { Table, Button } from 'react-bootstrap'
-
+import { formatDate } from '@/utils/dateDisplay'
 const getTypeValue = (record) => {
   if (typeof record?.typeInventory === 'string') {
     return record.typeInventory.toUpperCase()
@@ -17,7 +16,7 @@ const getTypeValue = (record) => {
 const TableEntries = ({ records, handleDelete }) => {
   return (
     <div className="table-responsive">
-      <Table striped bordered hover>
+      <table className="table-minimal table-static">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -33,7 +32,7 @@ const TableEntries = ({ records, handleDelete }) => {
         <tbody>
           {records?.map((record) => (
             <tr key={record._id}>
-              <td>{new Date(record.date).toLocaleDateString()}</td>
+              <td>{formatDate(record.date)}</td>
               <td>{record.productName?.productName}</td>
               <td>{getTypeValue(record)}</td>
               <td className="text-center">{record.quantity}</td>
@@ -45,18 +44,18 @@ const TableEntries = ({ records, handleDelete }) => {
               </td>
               <td>{record.User?.username || 'N/A'}</td>
               <td>
-                <Button
-                  variant="danger"
-                  size="sm"
+                <button
+                  type="button"
+                  className="min-h-11 rounded-md bg-gray-800 px-3 text-sm font-medium text-white transition-colors hover:bg-gray-700"
                   onClick={() => handleDelete(record._id)}
                 >
                   Eliminar
-                </Button>
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
-      </Table>
+      </table>
     </div>
   )
 }

@@ -40,10 +40,16 @@ const DailyInformationDashboard = () => {
     orderedRecords[0]
 
   return (
-    <section className="dashboard-card home-dashboard-card mb-8 rounded-xl border border-slate-200 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] sm:p-6">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <section
+      className="dashboard-card home-dashboard-card mb-8 rounded-xl border border-slate-200 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] sm:p-6"
+      aria-labelledby="daily-summary-title"
+    >
+      <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">
+          <h2
+            id="daily-summary-title"
+            className="text-xl font-semibold text-slate-900"
+          >
             Información diaria
           </h2>
           <p className="mt-1 text-sm text-slate-500">
@@ -75,7 +81,7 @@ const DailyInformationDashboard = () => {
             </Select>
           </div>
         )}
-      </div>
+      </header>
 
       {isLoading ? (
         <Loading fullScreen={false} />

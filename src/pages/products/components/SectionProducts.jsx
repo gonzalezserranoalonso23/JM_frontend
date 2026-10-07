@@ -6,11 +6,12 @@ import {
   useUpdateProduct
 } from '@/features/products.features'
 import ModalProducts from './ModalProducts'
-import FormFilter from './FormFilter'
+import useFilterQuery from '@/hooks/useFilterQuery'
+import FormFilter from '@/components/FormFilter'
 import TableProducts from './TableProducts'
 
 const SectionProducts = () => {
-  const [dataFilter, setDataFilter] = useState('')
+  const [dataFilter, setDataFilter] = useFilterQuery()
   const {
     data: productPages,
     isLoading,
@@ -51,55 +52,53 @@ const SectionProducts = () => {
     })
 
   return (
-    <>
-      <section>
-        <div className="section-header">
-          <h4 className="section-title">Productos</h4>
-          <button
-            className="btn-custom btn-primary-custom"
-            onClick={handleShow}
-          >
-            + Crear Producto
-          </button>
-        </div>
-        <FormFilter
-          name="producto"
-          dataFilter={dataFilter}
-          setDataFilter={setDataFilter}
+    <section className="section-container" aria-labelledby="products-title">
+      <header className="section-header">
+        <h1 id="products-title" className="section-title">
+          Productos
+        </h1>
+        <button className="btn-custom btn-primary-custom" onClick={handleShow}>
+          + Crear Producto
+        </button>
+      </header>
+      <FormFilter
+        id="product-filter"
+        label="Buscar producto"
+        value={dataFilter}
+        onChange={setDataFilter}
+      />
+      {!update ? (
+        <ModalProducts
+          modalShow={modalShow}
+          handleClose={handleClose}
+          action={createProduct}
+          type="Crear"
+          setUpdate={setUpdate}
         />
-        {!update ? (
-          <ModalProducts
-            modalShow={modalShow}
-            handleClose={handleClose}
-            action={createProduct}
-            type="Crear"
-            setUpdate={setUpdate}
-          />
-        ) : (
-          <ModalProducts
-            product={product}
-            modalShow={modalShow}
-            handleClose={handleClose}
-            action={updateProduct}
-            type="Editar"
-            setUpdate={setUpdate}
-          />
-        )}
+      ) : (
+        <ModalProducts
+          product={product}
+          modalShow={modalShow}
+          handleClose={handleClose}
+          action={updateProduct}
+          type="Editar"
+          setUpdate={setUpdate}
+        />
+      )}
 
-        <TableProducts
-          products={products}
-          total={totalProducts}
-          hasNextPage={hasNextPage}
-          fetchNextPage={fetchNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          isLoading={isLoading}
-          isError={isError}
-          handleUpdate={handleUpdate}
-          handleDelete={handleDelete}
-          handleToggleActive={handleToggleActive}
-        />
-      </section>
-    </>
+      <TableProducts
+        products={products}
+        total={totalProducts}
+        hasNextPage={hasNextPage}
+        fetchNextPage={fetchNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        isLoading={isLoading}
+        isError={isError}
+        handleUpdate={handleUpdate}
+        handleDelete={handleDelete}
+        handleToggleActive={handleToggleActive}
+      />
+    </section>
   )
 }
 

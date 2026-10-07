@@ -26,9 +26,11 @@ const Cash = () => {
   return (
     <div className="bg-light py-6">
       <div className="page-content-shell mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="section-container">
-          <div className="section-header">
-            <h4 className="section-title">Calcular caja</h4>
+        <section className="section-container" aria-labelledby="cash-title">
+          <header className="section-header">
+            <h1 id="cash-title" className="section-title">
+              Calcular caja
+            </h1>
             <button
               type="button"
               className="btn-custom btn-primary-custom"
@@ -36,7 +38,7 @@ const Cash = () => {
             >
               Limpiar
             </button>
-          </div>
+          </header>
           <div className="table-wrapper overflow-x-hidden">
             <table className="table-minimal table-static !w-full table-fixed">
               <thead>
@@ -85,7 +87,7 @@ const Cash = () => {
               </tfoot>
             </table>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   )

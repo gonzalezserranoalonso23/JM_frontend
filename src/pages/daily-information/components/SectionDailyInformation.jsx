@@ -5,6 +5,9 @@ import {
   useGetDailyInformations,
   useUpdateDailyInformation
 } from '@/features/dailyInformation.features'
+import useFilterQuery from '@/hooks/useFilterQuery'
+import FormFilter from '@/components/FormFilter'
+import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 import Loading from '@/ui/Loading'
 import ModalDailyInformation from './ModalDailyInformation'
 import TableDailyInformation from './TableDailyInformation'
@@ -16,6 +19,16 @@ const SectionDailyInformation = () => {
   const deleteAction = useDeleteDailyInformation()
   const [modalShow, setModalShow] = useState(false)
   const [record, setRecord] = useState(null)
+  const [textFilter, setTextFilter] = useFilterQuery()
+
+  const matcher = buildMatcher(textFilter)
+
+  const filteredRecords = (records || [])
+    .filter((item) => {
+      if (!matchesCells(dateCells(item.date), matcher)) return false
+      return true
+    })
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
 
   const handleClose = () => {
     setModalShow(false)
@@ -48,9 +61,14 @@ const SectionDailyInformation = () => {
   }
 
   return (
-    <section>
-      <div className="section-header">
-        <h1 className="section-title">Información diaria</h1>
+    <section
+      className="section-container"
+      aria-labelledby="daily-information-title"
+    >
+      <header className="section-header">
+        <h1 id="daily-information-title" className="section-title">
+          Información diaria
+        </h1>
         <button
           type="button"
           className="btn-custom btn-primary-custom"
@@ -58,7 +76,7 @@ const SectionDailyInformation = () => {
         >
           + Nuevo registro
         </button>
-      </div>
+      </header>
 
       <ModalDailyInformation
         record={record}
@@ -67,17 +85,22 @@ const SectionDailyInformation = () => {
         action={record ? updateAction : createAction}
       />
 
-      {records?.length ? (
+      <FormFilter
+        id="daily-filter"
+        label="Buscar información diaria"
+        value={textFilter}
+        onChange={setTextFilter}
+      />
+
+      {filteredRecords.length ? (
         <TableDailyInformation
-          records={[...records].sort((a, b) =>
-            String(b.date).localeCompare(String(a.date))
-          )}
+          records={filteredRecords}
           handleUpdate={handleUpdate}
           handleDelete={handleDelete}
         />
       ) : (
         <div className="alert-minimal alert-warning-minimal">
-          No hay registros de información diaria
+          No hay registros que coincidan
         </div>
       )}
     </section>

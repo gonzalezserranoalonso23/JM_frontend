@@ -1,3 +1,4 @@
+import { todayLocal, isoDay } from '@/utils/dateDisplay'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -28,7 +29,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
   const { data: suppliers, isLoading: loadingSuppliers } = useGetSuppliers()
 
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: todayLocal(),
     supplier: '',
     items: []
   })
@@ -44,9 +45,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
 
     if (order) {
       setFormData({
-        date: order.date
-          ? new Date(order.date).toISOString().split('T')[0]
-          : '',
+        date: order.date ? isoDay(order.date) : '',
         supplier:
           typeof order.supplier === 'object'
             ? order.supplier?._id || ''
@@ -63,7 +62,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
       })
     } else {
       setFormData({
-        date: new Date().toISOString().split('T')[0],
+        date: todayLocal(),
         supplier: '',
         items: []
       })
@@ -207,7 +206,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
       {
         onSuccess: () => {
           setFormData({
-            date: new Date().toISOString().split('T')[0],
+            date: todayLocal(),
             supplier: '',
             items: []
           })

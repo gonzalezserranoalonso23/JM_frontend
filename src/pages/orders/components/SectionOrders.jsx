@@ -1,3 +1,4 @@
+import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import {
   useGetOrderRequests,
@@ -10,6 +11,9 @@ import SolpedPrint from './SolpedPrint'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
 import ActionIconButton from '@/components/ActionIconButton'
+import FormFilter from '@/components/FormFilter'
+import useFilterQuery from '@/hooks/useFilterQuery'
+import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 
 const SectionOrders = () => {
   const { data: orders, isLoading, isError } = useGetOrderRequests()
@@ -17,6 +21,7 @@ const SectionOrders = () => {
   const deleteOrder = useDeleteOrderRequest()
   const updateOrder = useUpdateOrderRequest()
 
+  const [filter, setFilter] = useFilterQuery()
   const [modalShow, setModalShow] = useState(false)
   const [showSolped, setShowSolped] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
@@ -68,12 +73,23 @@ const SectionOrders = () => {
     )
 
   // Pendientes primero y, dentro de cada grupo, la fecha más reciente arriba
-  const sortedOrders = [...(orders || [])].sort((a, b) => {
-    const aPending = a.status !== 'confirmado'
-    const bPending = b.status !== 'confirmado'
-    if (aPending !== bPending) return aPending ? -1 : 1
-    return new Date(b.date) - new Date(a.date)
-  })
+  const matcher = buildMatcher(filter)
+  const sortedOrders = [...(orders || [])]
+    .filter((order) =>
+      matchesCells(
+        [
+          order.supplier?.suppliersName || order.supplier?.name,
+          ...dateCells(order.date)
+        ],
+        matcher
+      )
+    )
+    .sort((a, b) => {
+      const aPending = a.status !== 'confirmado'
+      const bPending = b.status !== 'confirmado'
+      if (aPending !== bPending) return aPending ? -1 : 1
+      return new Date(b.date) - new Date(a.date)
+    })
 
   const getStatusColor = (status) => {
     if (status === 'confirmado') return 'badge-success'
@@ -81,17 +97,19 @@ const SectionOrders = () => {
   }
 
   return (
-    <div className="section-container">
+    <section className="section-container" aria-labelledby="orders-title">
       {/* Header */}
-      <div className="section-header">
+      <header className="section-header">
         <div>
-          <h4 className="section-title">Solicitudes de Pedido</h4>
+          <h1 id="orders-title" className="section-title">
+            Solicitudes de Pedido
+          </h1>
           <p className="section-subtitle">Gestión de órdenes de compra</p>
         </div>
         <button className="btn-custom btn-primary-custom" onClick={handleShow}>
           + Nueva Solicitud
         </button>
-      </div>
+      </header>
 
       {/* Modal */}
       <ModalOrderRequest
@@ -115,8 +133,15 @@ const SectionOrders = () => {
         />
       )}
 
+      <FormFilter
+        id="order-filter"
+        label="Buscar solicitud"
+        value={filter}
+        onChange={setFilter}
+      />
+
       {/* Tabla */}
-      {orders && orders.length > 0 ? (
+      {sortedOrders.length > 0 ? (
         <div className="table-wrapper">
           <table className="table-minimal">
             <thead>
@@ -155,7 +180,7 @@ const SectionOrders = () => {
                     </span>
                   </td>
                   <td>
-                    <small>{new Date(order.date).toLocaleDateString()}</small>
+                    <small>{formatDate(order.date)}</small>
                   </td>
                   <td style={{ textAlign: 'center' }}>
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
@@ -191,7 +216,7 @@ const SectionOrders = () => {
           No hay solicitudes registradas
         </div>
       )}
-    </div>
+    </section>
   )
 }
 

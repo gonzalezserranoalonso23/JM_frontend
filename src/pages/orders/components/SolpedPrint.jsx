@@ -1,3 +1,4 @@
+import { formatDate } from '@/utils/dateDisplay'
 import {
   Dialog,
   DialogContent,
@@ -65,7 +66,7 @@ const SolpedPrint = ({
 
   const solpedNumber = order._id.slice(-6).toUpperCase()
   const currentStatus = order.status || 'pendiente'
-  const formattedDate = new Date(order.date).toLocaleDateString('es-MX', {
+  const formattedDate = formatDate(order.date, 'es-MX', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
@@ -163,12 +164,12 @@ const SolpedPrint = ({
                 </div>
               </div>
 
-              <div className="solped-footer">
+              <footer className="solped-footer">
                 <p className="text-center text-gray-400 text-sm mt-4">
                   Esta es una solicitud de pedido generada automáticamente por
                   el sistema de inventario.
                 </p>
-              </div>
+              </footer>
             </div>
           </div>
         </DialogBody>

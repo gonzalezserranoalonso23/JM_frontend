@@ -5,12 +5,17 @@ const Catalogs = () => {
     <>
       <div className="bg-light py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
-          <div className="section-container">
-            <div className="section-header">
-              <h4 className="section-title">Catálogo</h4>
-            </div>
+          <section
+            className="section-container"
+            aria-labelledby="catalog-title"
+          >
+            <header className="section-header">
+              <h1 id="catalog-title" className="section-title">
+                Catálogo
+              </h1>
+            </header>
             <TableCatalogs />
-          </div>
+          </section>
         </div>
       </div>
     </>

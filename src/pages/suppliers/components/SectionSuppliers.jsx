@@ -56,16 +56,18 @@ const SectionSuppliers = () => {
 
   return (
     <>
-      <section>
-        <div className="section-header">
-          <h4 className="section-title">Proveedores</h4>
+      <section className="section-container" aria-labelledby="suppliers-title">
+        <header className="section-header">
+          <h1 id="suppliers-title" className="section-title">
+            Proveedores
+          </h1>
           <button
             className="btn-custom btn-primary-custom"
             onClick={handleShow}
           >
             + Crear Proveedor
           </button>
-        </div>
+        </header>
         {!update ? (
           <ModalSuppliers
             modalShow={modalShow}
