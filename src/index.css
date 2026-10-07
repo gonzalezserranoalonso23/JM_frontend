@@ -107,8 +107,20 @@ body::-webkit-scrollbar {
 @media (max-width: 1024px) {
   input,
   select,
+  textarea,
+  [contenteditable='true'] {
+    font-size: 16px !important;
+    line-height: 1.25;
+  }
+}
+
+/* Safari ignores the 16px rule for a few input types unless it is also set here */
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
   textarea {
     font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
   }
 }
 

@@ -113,13 +113,14 @@ const DialogContent = React.forwardRef(
         const vv = window.visualViewport
         if (!vv) return
         // Focusing a field or opening the keyboard turns the sheet into the whole visible viewport
-        const open = fieldFocused || openHeight - vv.height > 120
-        const key = `${open}|${vv.offsetTop}|${vv.height}`
+        const visualHeight = vv.height * vv.scale
+        const open = fieldFocused || openHeight - visualHeight > 120
+        const key = `${open}|${vv.offsetTop}|${visualHeight}`
         if (key === lastKey) return
         lastKey = key
         content.dataset.keyboard = String(open)
         content.style.setProperty('--vv-top', `${vv.offsetTop}px`)
-        content.style.setProperty('--vv-h', `${vv.height}px`)
+        content.style.setProperty('--vv-h', `${visualHeight}px`)
       }
       // iOS pans the visual viewport without timely events, so poll every frame while typing
       const tick = () => {
