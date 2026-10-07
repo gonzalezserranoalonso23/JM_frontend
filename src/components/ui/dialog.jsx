@@ -109,17 +109,28 @@ const DialogContent = React.forwardRef(
       const openHeight = window.innerHeight
       content.style.setProperty('--dialog-h', `${openHeight}px`)
       let syncFrame
+      let lastKey = ''
+      const applyViewport = () => {
+        const vv = window.visualViewport
+        if (!vv) return
+        // Focusing a field or opening the keyboard turns the sheet into the whole visible viewport
+        const open = fieldFocused || openHeight - vv.height > 120
+        const key = `${open}|${vv.offsetTop}|${vv.height}`
+        if (key === lastKey) return
+        lastKey = key
+        content.dataset.keyboard = String(open)
+        content.style.setProperty('--vv-top', `${vv.offsetTop}px`)
+        content.style.setProperty('--vv-h', `${vv.height}px`)
+      }
+      // iOS pans the visual viewport without timely events, so poll every frame while typing
+      const tick = () => {
+        applyViewport()
+        syncFrame = window.requestAnimationFrame(tick)
+      }
       syncViewport = () => {
         window.cancelAnimationFrame(syncFrame)
-        syncFrame = window.requestAnimationFrame(() => {
-          const vv = window.visualViewport
-          if (!vv) return
-          // Focusing a field or opening the keyboard turns the sheet into the whole visible viewport
-          const open = fieldFocused || openHeight - vv.height > 120
-          content.dataset.keyboard = String(open)
-          content.style.setProperty('--vv-top', `${vv.offsetTop}px`)
-          content.style.setProperty('--vv-h', `${vv.height}px`)
-        })
+        if (fieldFocused) tick()
+        else applyViewport()
       }
       let resizeTimer
       const handleResize = () => {
