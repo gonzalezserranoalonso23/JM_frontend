@@ -45,8 +45,15 @@ const Navigate = () => {
         <div className="flex h-16 items-center justify-between gap-4">
           <Link
             to="../home"
-            className="flex shrink-0 items-center rounded-sm text-lg font-bold text-gray-100 transition-colors hover:text-white focus-visible:outline-white"
+            className="flex shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold text-gray-100 transition-colors hover:text-white focus-visible:outline-white"
           >
+            <img
+              src="/logo.svg"
+              alt=""
+              width="32"
+              height="32"
+              className="h-8 w-8 rounded-md"
+            />
             JM Panel
           </Link>
 
