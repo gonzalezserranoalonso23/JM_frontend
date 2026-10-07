@@ -83,7 +83,7 @@ const DialogContent = React.forwardRef(
         focusTimer = window.setTimeout(revealFocusedField, 250)
       }
 
-      // The sheet follows the visible viewport so the keyboard never covers it
+      // The sheet keeps a fixed size; the keyboard height only pads the body so fields can scroll above it
       const isMobile = window.matchMedia('(max-width: 639px)').matches
       const { body } = document
       const previousBody = {
@@ -92,17 +92,19 @@ const DialogContent = React.forwardRef(
         width: body.style.width
       }
       const lockedScrollY = window.scrollY
+      const openHeight = window.innerHeight
+      content.style.setProperty('--dialog-h', `${openHeight}px`)
       let syncFrame
       const syncViewport = () => {
         window.cancelAnimationFrame(syncFrame)
         syncFrame = window.requestAnimationFrame(() => {
           const vv = window.visualViewport
           if (!vv) return
-          const layoutHeight =
-            document.documentElement.clientHeight || window.innerHeight
-          const gap = Math.max(0, layoutHeight - vv.offsetTop - vv.height)
-          content.style.setProperty('--app-vh', `${vv.height * 0.01}px`)
-          content.style.setProperty('--app-viewport-bottom-gap', `${gap}px`)
+          const keyboard = Math.max(0, openHeight - vv.height - vv.offsetTop)
+          content.style.setProperty(
+            '--keyboard-h',
+            `${keyboard > 120 ? keyboard : 0}px`
+          )
         })
       }
       let resizeTimer
@@ -157,8 +159,8 @@ const DialogContent = React.forwardRef(
             'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95',
             'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border-0 max-h-[90vh] overflow-hidden',
             // Mobile: bottom sheet instead of a centered dialog
-            'max-sm:inset-x-0 max-sm:bottom-[var(--app-viewport-bottom-gap,0px)] max-sm:transition-none max-sm:overscroll-contain max-sm:top-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:max-h-[calc(var(--app-vh,1svh)*100-1.5rem)]',
-            'max-sm:data-[state=open]:slide-in-from-bottom-full max-sm:data-[state=closed]:slide-out-to-bottom-full',
+            'max-sm:inset-x-0 max-sm:bottom-[var(--app-viewport-bottom-gap,0px)] max-sm:transition-none max-sm:overscroll-contain max-sm:top-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-2xl max-sm:h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:mt-2',
+            'max-sm:data-[state=open]:slide-in-from-top-4 max-sm:data-[state=closed]:slide-out-to-top-4',
             className
           )}
           {...props}
@@ -189,7 +191,7 @@ DialogHeader.displayName = 'DialogHeader'
 const DialogBody = ({ className, ...props }) => (
   <div
     className={cn(
-      'min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 max-sm:p-4',
+      'min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 max-sm:p-4 max-sm:pb-[calc(1rem+var(--keyboard-h,0px))]',
       className
     )}
     {...props}
