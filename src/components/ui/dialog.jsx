@@ -78,12 +78,26 @@ const DialogContent = React.forwardRef(
         })
       }
 
-      const handleFocus = () => {
+      const FIELD = 'input, textarea, select, [contenteditable="true"]'
+      let fieldFocused = false
+      let blurTimer
+      let syncViewport = () => {}
+      const handleFocus = (event) => {
         window.clearTimeout(focusTimer)
+        window.clearTimeout(blurTimer)
+        fieldFocused = Boolean(event.target.matches?.(FIELD))
+        syncViewport()
         focusTimer = window.setTimeout(revealFocusedField, 250)
       }
+      const handleBlur = () => {
+        window.clearTimeout(blurTimer)
+        blurTimer = window.setTimeout(() => {
+          fieldFocused = Boolean(document.activeElement?.matches?.(FIELD))
+          syncViewport()
+        }, 100)
+      }
 
-      // The sheet keeps a fixed size; the keyboard height only pads the body so fields can scroll above it
+      // Closed keyboard: fixed-size sheet. Open keyboard: sheet fills the visible viewport
       const isMobile = window.matchMedia('(max-width: 639px)').matches
       const { body } = document
       const previousBody = {
@@ -95,16 +109,16 @@ const DialogContent = React.forwardRef(
       const openHeight = window.innerHeight
       content.style.setProperty('--dialog-h', `${openHeight}px`)
       let syncFrame
-      const syncViewport = () => {
+      syncViewport = () => {
         window.cancelAnimationFrame(syncFrame)
         syncFrame = window.requestAnimationFrame(() => {
           const vv = window.visualViewport
           if (!vv) return
-          const keyboard = Math.max(0, openHeight - vv.height - vv.offsetTop)
-          content.style.setProperty(
-            '--keyboard-h',
-            `${keyboard > 120 ? keyboard : 0}px`
-          )
+          // Focusing a field or opening the keyboard turns the sheet into the whole visible viewport
+          const open = fieldFocused || openHeight - vv.height > 120
+          content.dataset.keyboard = String(open)
+          content.style.setProperty('--vv-top', `${vv.offsetTop}px`)
+          content.style.setProperty('--vv-h', `${vv.height}px`)
         })
       }
       let resizeTimer
@@ -123,9 +137,12 @@ const DialogContent = React.forwardRef(
       }
 
       content.addEventListener('focusin', handleFocus)
+      content.addEventListener('focusout', handleBlur)
 
       return () => {
         content.removeEventListener('focusin', handleFocus)
+        content.removeEventListener('focusout', handleBlur)
+        window.clearTimeout(blurTimer)
         if (isMobile) {
           window.visualViewport?.removeEventListener('resize', handleResize)
           window.visualViewport?.removeEventListener('scroll', syncViewport)
@@ -159,7 +176,7 @@ const DialogContent = React.forwardRef(
             'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95',
             'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border-0 max-h-[90vh] overflow-hidden',
             // Mobile: bottom sheet instead of a centered dialog
-            'max-sm:inset-x-0 max-sm:bottom-[var(--app-viewport-bottom-gap,0px)] max-sm:transition-none max-sm:overscroll-contain max-sm:top-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-2xl max-sm:h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:mt-2',
+            'max-sm:inset-x-0 max-sm:bottom-[var(--app-viewport-bottom-gap,0px)] max-sm:transition-none max-sm:overscroll-contain max-sm:top-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-2xl max-sm:data-[keyboard=true]:top-[var(--vv-top,0px)] max-sm:data-[keyboard=true]:mt-0 max-sm:data-[keyboard=true]:h-[var(--vv-h)] max-sm:data-[keyboard=true]:max-h-[var(--vv-h)] max-sm:data-[keyboard=true]:rounded-none max-sm:h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:mt-2',
             'max-sm:data-[state=open]:slide-in-from-top-4 max-sm:data-[state=closed]:slide-out-to-top-4',
             className
           )}
@@ -191,7 +208,7 @@ DialogHeader.displayName = 'DialogHeader'
 const DialogBody = ({ className, ...props }) => (
   <div
     className={cn(
-      'min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 max-sm:p-4 max-sm:pb-[calc(1rem+var(--keyboard-h,0px))]',
+      'min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 max-sm:p-4',
       className
     )}
     {...props}
@@ -202,7 +219,7 @@ DialogBody.displayName = 'DialogBody'
 const DialogFooter = ({ className, ...props }) => (
   <footer
     className={cn(
-      'sticky bottom-0 flex shrink-0 flex-row justify-end gap-3 border-t border-black bg-black p-5 max-sm:flex-col-reverse max-sm:items-stretch max-sm:p-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))] max-sm:[&_button]:h-12',
+      'flex shrink-0 flex-row justify-end gap-3 border-t border-black bg-black p-5 max-sm:flex-col-reverse max-sm:items-stretch max-sm:p-4 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))] max-sm:[&_button]:h-12',
       '[&_button:not([type=submit])]:border-white/60 [&_button:not([type=submit])]:text-white [&_button:not([type=submit])]:hover:bg-white/10',
       '[&_button[type=submit]]:bg-gray-700 [&_button[type=submit]]:text-white [&_button[type=submit]]:hover:bg-gray-600',
       className
