@@ -84,16 +84,42 @@ const DialogContent = React.forwardRef(
         focusTimer = window.setTimeout(revealFocusedField, 300)
       }
 
+      // iOS pans the page when the keyboard opens; pin it so the sheet stays still
+      const isMobile = window.matchMedia('(max-width: 639px)').matches
+      const { body } = document
+      const previousBody = {
+        position: body.style.position,
+        top: body.style.top,
+        width: body.style.width
+      }
+      const lockedScrollY = window.scrollY
+      const keepPinned = () => {
+        if (window.scrollY !== 0 || window.visualViewport?.offsetTop) {
+          window.scrollTo(0, 0)
+        }
+      }
+      if (isMobile) {
+        body.style.position = 'fixed'
+        body.style.top = `-${lockedScrollY}px`
+        body.style.width = '100%'
+        window.visualViewport?.addEventListener('scroll', keepPinned)
+      }
+
       content.addEventListener('focusin', handleFocus)
       window.visualViewport?.addEventListener('resize', revealFocusedField)
-      window.visualViewport?.addEventListener('scroll', revealFocusedField)
       window.addEventListener('resize', revealFocusedField)
 
       return () => {
         content.removeEventListener('focusin', handleFocus)
         window.visualViewport?.removeEventListener('resize', revealFocusedField)
-        window.visualViewport?.removeEventListener('scroll', revealFocusedField)
         window.removeEventListener('resize', revealFocusedField)
+        if (isMobile) {
+          window.visualViewport?.removeEventListener('scroll', keepPinned)
+          body.style.position = previousBody.position
+          body.style.top = previousBody.top
+          body.style.width = previousBody.width
+          window.scrollTo(0, lockedScrollY)
+        }
         window.cancelAnimationFrame(frameId)
         window.clearTimeout(focusTimer)
       }
@@ -117,7 +143,7 @@ const DialogContent = React.forwardRef(
             'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95',
             'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border-0 max-h-[90vh] overflow-hidden',
             // Mobile: bottom sheet instead of a centered dialog
-            'max-sm:inset-x-0 max-sm:bottom-[var(--app-viewport-bottom-gap,0px)] max-sm:top-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:max-h-[calc(var(--app-vh,1svh)*100-1.5rem)]',
+            'max-sm:inset-x-0 max-sm:bottom-[var(--app-viewport-bottom-gap,0px)] max-sm:transition-none max-sm:overscroll-contain max-sm:top-auto max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:max-h-[calc(var(--app-vh,1svh)*100-1.5rem)]',
             'max-sm:data-[state=open]:slide-in-from-bottom-full max-sm:data-[state=closed]:slide-out-to-bottom-full',
             className
           )}
@@ -148,7 +174,10 @@ DialogHeader.displayName = 'DialogHeader'
 
 const DialogBody = ({ className, ...props }) => (
   <div
-    className={cn('min-h-0 flex-1 overflow-y-auto p-5 max-sm:p-4', className)}
+    className={cn(
+      'min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 max-sm:p-4',
+      className
+    )}
     {...props}
   />
 )

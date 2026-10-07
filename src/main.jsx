@@ -28,7 +28,6 @@ setAppViewportHeight()
 window.addEventListener('resize', setAppViewportHeight)
 window.addEventListener('orientationchange', setAppViewportHeight)
 window.visualViewport?.addEventListener('resize', setAppViewportHeight)
-window.visualViewport?.addEventListener('scroll', setAppViewportHeight)
 
 createRoot(document.getElementById('root')).render(
   <QueryClientProvider client={queryClient}>
