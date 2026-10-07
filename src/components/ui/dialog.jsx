@@ -79,12 +79,11 @@ const DialogContent = React.forwardRef(
       }
 
       const handleFocus = () => {
-        revealFocusedField()
         window.clearTimeout(focusTimer)
-        focusTimer = window.setTimeout(revealFocusedField, 300)
+        focusTimer = window.setTimeout(revealFocusedField, 250)
       }
 
-      // iOS pans the page when the keyboard opens; pin it so the sheet stays still
+      // The sheet follows the visible viewport so the keyboard never covers it
       const isMobile = window.matchMedia('(max-width: 639px)').matches
       const { body } = document
       const previousBody = {
@@ -93,35 +92,50 @@ const DialogContent = React.forwardRef(
         width: body.style.width
       }
       const lockedScrollY = window.scrollY
-      const keepPinned = () => {
-        if (window.scrollY !== 0 || window.visualViewport?.offsetTop) {
-          window.scrollTo(0, 0)
-        }
+      let syncFrame
+      const syncViewport = () => {
+        window.cancelAnimationFrame(syncFrame)
+        syncFrame = window.requestAnimationFrame(() => {
+          const vv = window.visualViewport
+          if (!vv) return
+          const layoutHeight =
+            document.documentElement.clientHeight || window.innerHeight
+          const gap = Math.max(0, layoutHeight - vv.offsetTop - vv.height)
+          content.style.setProperty('--app-vh', `${vv.height * 0.01}px`)
+          content.style.setProperty('--app-viewport-bottom-gap', `${gap}px`)
+        })
+      }
+      let resizeTimer
+      const handleResize = () => {
+        syncViewport()
+        window.clearTimeout(resizeTimer)
+        resizeTimer = window.setTimeout(revealFocusedField, 150)
       }
       if (isMobile) {
         body.style.position = 'fixed'
         body.style.top = `-${lockedScrollY}px`
         body.style.width = '100%'
-        window.visualViewport?.addEventListener('scroll', keepPinned)
+        syncViewport()
+        window.visualViewport?.addEventListener('resize', handleResize)
+        window.visualViewport?.addEventListener('scroll', syncViewport)
       }
 
       content.addEventListener('focusin', handleFocus)
-      window.visualViewport?.addEventListener('resize', revealFocusedField)
-      window.addEventListener('resize', revealFocusedField)
 
       return () => {
         content.removeEventListener('focusin', handleFocus)
-        window.visualViewport?.removeEventListener('resize', revealFocusedField)
-        window.removeEventListener('resize', revealFocusedField)
         if (isMobile) {
-          window.visualViewport?.removeEventListener('scroll', keepPinned)
+          window.visualViewport?.removeEventListener('resize', handleResize)
+          window.visualViewport?.removeEventListener('scroll', syncViewport)
           body.style.position = previousBody.position
           body.style.top = previousBody.top
           body.style.width = previousBody.width
           window.scrollTo(0, lockedScrollY)
         }
         window.cancelAnimationFrame(frameId)
+        window.cancelAnimationFrame(syncFrame)
         window.clearTimeout(focusTimer)
+        window.clearTimeout(resizeTimer)
       }
     }, [])
 
