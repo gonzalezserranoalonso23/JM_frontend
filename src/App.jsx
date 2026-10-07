@@ -60,10 +60,11 @@ const App = () => {
               <Route path="/reports/:id" element={<ReportDetails />} />
               <Route path="/todolist" element={<ToDoList />} />
               <Route path="/todolist/:id" element={<ToDoListDetails />} />
-              <Route path="/catalogs" element={<Catalog />} />
-
-              <Route path="/users" element={<Users />} />
-              <Route path="/users/:id" element={<UserDetails />} />
+              <Route element={<Protected adminOnly />}>
+                <Route path="/catalogs" element={<Catalog />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/users/:id" element={<UserDetails />} />
+              </Route>
               <Route path="/products" element={<Products />} />
 
               <Route path="/suppliers" element={<Suppliers />} />
