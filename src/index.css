@@ -235,6 +235,12 @@ body::-webkit-scrollbar {
     border: 1px solid rgba(234, 179, 8, 0.2);
   }
 
+  .low-stock-badge.low-stock-badge-out {
+    background: #f87171 !important;
+    color: #ffffff !important;
+    border-color: #f87171 !important;
+  }
+
   .stock-row-item {
     border-bottom: 1px solid #e2e8f0;
     transition: background 0.2s ease;

@@ -130,7 +130,7 @@ const StockDashboard = () => {
                       <span
                         className={`low-stock-badge inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                           product.productStock === 0
-                            ? 'bg-red-100 text-red-700'
+                            ? 'low-stock-badge-out'
                             : 'bg-yellow-100 text-yellow-700'
                         }`}
                       >

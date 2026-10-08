@@ -39,6 +39,8 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     quantity: '',
     price: ''
   })
+  const [includesTax, setIncludesTax] = useState(true)
+  const [taxAmount, setTaxAmount] = useState('')
 
   useEffect(() => {
     if (!modalShow) return
@@ -68,10 +70,13 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
       })
     }
     setCurrentItem({ product: '', quantity: '', price: '' })
+    setIncludesTax(true)
+    setTaxAmount('')
   }, [modalShow, order])
 
   const filteredProducts = products?.filter((product) => {
     if (!formData.supplier) return false
+    if (product?.isActive === false) return false
 
     const supplierValue = product?.supplier
     if (!supplierValue) return false
@@ -179,12 +184,13 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
   }
 
   const getTotalAmount = () => {
-    return formData.items.reduce(
+    const itemsTotal = formData.items.reduce(
       (sum, item) =>
         sum +
         (Number(item.subtotal) || Number(item.quantity) * Number(item.price)),
       0
     )
+    return itemsTotal + (includesTax ? 0 : Number(taxAmount) || 0)
   }
 
   const handleSubmit = (e) => {
@@ -211,6 +217,8 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
             items: []
           })
           setCurrentItem({ product: '', quantity: '', price: '' })
+          setIncludesTax(true)
+          setTaxAmount('')
           handleClose()
         }
       }
@@ -264,7 +272,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
 
               <div>
                 <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-[2fr_1fr_1fr_auto]">
-                  <div>
+                  <div className="min-w-0">
                     <Label htmlFor="product">Producto</Label>
                     <Select
                       value={currentItem.product}
@@ -273,7 +281,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     >
                       <SelectTrigger
                         id="product"
-                        className="disabled:opacity-100"
+                        className="min-w-0 disabled:opacity-100 [&>span]:min-w-0 [&>span]:flex-1 [&>span]:truncate [&>span]:text-left"
                       >
                         <SelectValue
                           placeholder={
@@ -281,7 +289,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                               ? 'Selecciona un proveedor'
                               : filteredProducts?.length
                                 ? 'Selecciona'
-                                : 'Sin productos'
+                                : 'Sin productos activos'
                           }
                         />
                       </SelectTrigger>
@@ -292,10 +300,12 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                             value={p._id}
                             textValue={p.productName}
                           >
-                            <span className="flex flex-col">
-                              <span>{p.productName}</span>
+                            <span className="flex min-w-0 max-w-full flex-col">
+                              <span className="block max-w-full truncate">
+                                {p.productName}
+                              </span>
                               {p.productDescription && (
-                                <span className="text-xs text-muted-foreground">
+                                <span className="block max-w-full truncate text-xs text-muted-foreground">
                                   {p.productDescription}
                                 </span>
                               )}
@@ -382,7 +392,9 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                       {formData.items.map((item, idx) => (
                         <tr key={idx}>
                           <td>
-                            <strong>{item?.productName}</strong>
+                            <strong className="break-words">
+                              {item?.productName}
+                            </strong>
                           </td>
                           <td className="text-center">{item.quantity}</td>
                           <td className="text-center">
@@ -428,23 +440,49 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                   </table>
                 </div>
               )}
-
-              {formData.items.length > 0 && (
-                <div className="rounded-lg bg-white p-4 text-right text-gray-900 dark:bg-white dark:text-gray-900">
-                  <strong className="text-base text-gray-900">
-                    Total: ${getTotalAmount().toFixed(2)}
-                  </strong>
-                </div>
-              )}
             </div>
           </DialogBody>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancelar
-            </Button>
-            <Button type="submit">
-              {order ? 'Guardar cambios' : 'Crear Solicitud'}
-            </Button>
+          <DialogFooter className="flex-col">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-white">
+                  <input
+                    type="checkbox"
+                    checked={includesTax}
+                    onChange={(event) => setIncludesTax(event.target.checked)}
+                    className="h-4 w-4 accent-white"
+                  />
+                  Incluye impuestos
+                </label>
+                {!includesTax && (
+                  <div className="sm:w-48">
+                    <Label htmlFor="taxAmount" className="text-white">
+                      Impuesto
+                    </Label>
+                    <Input
+                      id="taxAmount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="Cantidad de impuesto"
+                      value={taxAmount}
+                      onChange={(event) => setTaxAmount(event.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+              <strong className="text-base text-white">
+                Total: ${getTotalAmount().toFixed(2)}
+              </strong>
+            </div>
+            <div className="flex w-full justify-end gap-3">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancelar
+              </Button>
+              <Button type="submit">
+                {order ? 'Guardar cambios' : 'Crear Solicitud'}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

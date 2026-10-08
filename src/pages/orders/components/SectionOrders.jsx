@@ -92,8 +92,8 @@ const SectionOrders = () => {
     })
 
   const getStatusColor = (status) => {
-    if (status === 'confirmado') return 'badge-success'
-    return 'badge-warning'
+    if (status === 'confirmado') return '!bg-cyan-900 !text-white'
+    return '!bg-yellow-500 !text-white'
   }
 
   return (
