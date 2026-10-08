@@ -49,9 +49,10 @@ const ModalProducts = ({
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: (values) => {
-      action.mutate(!product?._id ? values : { id: product?._id, body: values })
-      formik.resetForm()
-      handleClose()
+      action.mutate(
+        !product?._id ? values : { id: product?._id, body: values },
+        { onSuccess: handleCloseUpdate }
+      )
     }
   })
 

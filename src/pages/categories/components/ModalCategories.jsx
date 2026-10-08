@@ -30,10 +30,9 @@ const ModalCategory = ({
     validateOnChange: false,
     onSubmit: (values) => {
       action.mutate(
-        !category?._id ? values : { id: category?._id, body: values }
+        !category?._id ? values : { id: category?._id, body: values },
+        { onSuccess: handleCloseUpdate }
       )
-      formik.resetForm()
-      handleClose()
     }
   })
 

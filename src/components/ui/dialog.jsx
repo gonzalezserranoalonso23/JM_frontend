@@ -21,7 +21,10 @@ const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef(
-  ({ className, children, ...props }, ref) => {
+  (
+    { className, children, onInteractOutside, onEscapeKeyDown, ...props },
+    ref
+  ) => {
     const [content, setContent] = React.useState(null)
 
     React.useEffect(() => {
@@ -192,6 +195,14 @@ const DialogContent = React.forwardRef(
             'max-sm:data-[state=open]:slide-in-from-bottom-0 max-sm:data-[state=closed]:slide-out-to-bottom-0',
             className
           )}
+          onInteractOutside={(event) => {
+            onInteractOutside?.(event)
+            event.preventDefault()
+          }}
+          onEscapeKeyDown={(event) => {
+            onEscapeKeyDown?.(event)
+            event.preventDefault()
+          }}
           {...props}
         >
           {children}

@@ -442,7 +442,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
               )}
             </div>
           </DialogBody>
-          <DialogFooter className="flex-col">
+          <DialogFooter className="flex-col max-sm:[&_button]:flex-none">
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                 <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-white">
@@ -475,11 +475,16 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                 Total: ${getTotalAmount().toFixed(2)}
               </strong>
             </div>
-            <div className="flex w-full justify-end gap-3">
-              <Button type="button" variant="outline" onClick={handleClose}>
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                className="w-full sm:w-auto"
+              >
                 Cancelar
               </Button>
-              <Button type="submit">
+              <Button type="submit" className="w-full sm:w-auto">
                 {order ? 'Guardar cambios' : 'Crear Solicitud'}
               </Button>
             </div>

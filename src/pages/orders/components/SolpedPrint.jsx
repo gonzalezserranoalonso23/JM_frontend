@@ -60,7 +60,12 @@ const SolpedPrint = ({
   const handleStatusChange = (status) => {
     updateOrder.mutate(
       { id: order._id, body: { status } },
-      { onSuccess: onOrderUpdated }
+      {
+        onSuccess: (updatedOrder) => {
+          onOrderUpdated(updatedOrder)
+          if (status === 'confirmado') onClose()
+        }
+      }
     )
   }
 
@@ -173,7 +178,7 @@ const SolpedPrint = ({
             </div>
           </div>
         </DialogBody>
-        <DialogFooter className="solped-modal-footer no-print">
+        <DialogFooter className="solped-modal-footer no-print max-md:grid max-md:grid-cols-2 max-sm:[&_button]:flex-none">
           <Button
             variant="outline"
             className="solped-footer-button"

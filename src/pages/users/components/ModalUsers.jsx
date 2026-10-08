@@ -50,9 +50,9 @@ const ModalUsers = ({
       const payload = { ...values }
       // Al editar, solo incluir password si se llenó
       if (user?._id && !values.password) delete payload.password
-      action.mutate(!user?._id ? payload : { id: user._id, data: payload })
-      formik.resetForm()
-      handleClose()
+      action.mutate(!user?._id ? payload : { id: user._id, data: payload }, {
+        onSuccess: handleCloseReset
+      })
     }
   })
 
