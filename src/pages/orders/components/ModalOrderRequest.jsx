@@ -235,7 +235,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
         </DialogHeader>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-1 flex-col overflow-hidden"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
             {(loadingProducts || loadingSuppliers) && (
