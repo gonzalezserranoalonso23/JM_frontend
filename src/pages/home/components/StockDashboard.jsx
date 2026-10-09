@@ -4,9 +4,12 @@ import {
 } from '@/features/inventory.features'
 import DailyInformationDashboard from './DailyInformationDashboard'
 import Loading from '@/ui/Loading'
+import FormFilter from '@/components/FormFilter'
+import useFilterQuery from '@/hooks/useFilterQuery'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 
 const StockDashboard = () => {
+  const [dataFilter, setDataFilter] = useFilterQuery('stock')
   const { data: stats, isLoading: statsLoading } = useGetInventoryStats()
   const {
     data: lowStockPages,
@@ -14,7 +17,7 @@ const StockDashboard = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useGetLowStockProductPages()
+  } = useGetLowStockProductPages(dataFilter.trim())
   const lowStockProducts =
     lowStockPages?.pages.flatMap((page) => page.data) || []
   const lowStockTotal = lowStockPages?.pages[0]?.total || 0
@@ -93,7 +96,7 @@ const StockDashboard = () => {
           </section>
 
           {/* Alertas de Stock Bajo */}
-          {lowStockTotal > 0 && (
+          {(lowStockTotal > 0 || dataFilter) && (
             <section
               className="dashboard-card home-dashboard-card h-full min-h-[220px] rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] overflow-hidden mb-8 border border-slate-200"
               aria-labelledby="low-stock-title"
@@ -103,6 +106,20 @@ const StockDashboard = () => {
                   ⚠️ {lowStockTotal} productos con stock bajo
                 </h2>
               </header>
+              <div className="px-6 pt-4">
+                <FormFilter
+                  id="low-stock-filter"
+                  label="Buscar producto"
+                  placeholder="Buscar en stock bajo..."
+                  value={dataFilter}
+                  onChange={setDataFilter}
+                />
+              </div>
+              {lowStockProducts.length === 0 && (
+                <p className="px-6 py-4 text-sm text-slate-500">
+                  Sin resultados
+                </p>
+              )}
               <ul className="low-stock-list divide-y divide-slate-200 list-none p-0 m-0">
                 {lowStockProducts.map((product) => (
                   <li
@@ -164,7 +181,7 @@ const StockDashboard = () => {
           )}
 
           {/* Mensaje de Éxito */}
-          {!lowStockLoading && lowStockTotal === 0 && (
+          {!lowStockLoading && lowStockTotal === 0 && !dataFilter && (
             <div
               className="px-6 py-4 rounded-xl"
               style={{

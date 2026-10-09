@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQueryClient,
@@ -121,11 +122,12 @@ export const useGetLowStockProducts = () => {
   return { data, isLoading, isError }
 }
 
-export const useGetLowStockProductPages = () =>
+export const useGetLowStockProductPages = (search = '') =>
   useInfiniteQuery({
-    queryKey: ['LowStockProducts', 'pages'],
+    queryKey: ['LowStockProducts', 'pages', search],
     queryFn: ({ pageParam }) =>
-      getLowStockProductsPage({ page: pageParam, limit: 20 }),
+      getLowStockProductsPage({ page: pageParam, limit: 20, search }),
+    placeholderData: keepPreviousData,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
