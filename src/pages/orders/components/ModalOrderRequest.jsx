@@ -1,5 +1,6 @@
 import { todayLocal, isoDay } from '@/utils/dateDisplay'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,29 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
   })
   const [includesTax, setIncludesTax] = useState(true)
   const [taxAmount, setTaxAmount] = useState('')
+  const [productSearch, setProductSearch] = useState('')
+  const [productOpen, setProductOpen] = useState(false)
+  const productInputRef = useRef(null)
+  const [listPos, setListPos] = useState(null)
+
+  useEffect(() => {
+    if (!productOpen) return
+    const input = productInputRef.current
+    const dialog = input?.closest('[role="dialog"]')
+    if (!input || !dialog) return
+    const i = input.getBoundingClientRect()
+    const d = dialog.getBoundingClientRect()
+    const below = d.bottom - i.bottom
+    const openUp = below < 220 && i.top - d.top > below
+    setListPos({
+      dialog,
+      left: i.left - d.left,
+      width: i.width,
+      ...(openUp
+        ? { bottom: d.bottom - i.top + 4 }
+        : { top: i.bottom - d.top + 4 })
+    })
+  }, [productOpen])
 
   useEffect(() => {
     if (!modalShow) return
@@ -84,6 +108,19 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     return typeof supplierValue === 'object'
       ? supplierValue?._id === formData.supplier
       : supplierValue === formData.supplier
+  })
+  const normalize = (v) =>
+    String(v ?? '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+  const searchedProducts = (filteredProducts ?? []).filter((p) => {
+    const q = normalize(productSearch.trim())
+    return (
+      !q ||
+      normalize(p.productName).includes(q) ||
+      normalize(p.productDescription).includes(q)
+    )
   })
   const selectedProduct = products?.find(
     (product) => product._id === currentItem.product
@@ -274,46 +311,80 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                 <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-[2fr_1fr_1fr_auto]">
                   <div className="min-w-0">
                     <Label htmlFor="product">Producto</Label>
-                    <Select
-                      value={currentItem.product}
-                      onValueChange={setProduct}
-                      disabled={!formData.supplier}
-                    >
-                      <SelectTrigger
+                    <div>
+                      <Input
                         id="product"
-                        className="min-w-0 disabled:opacity-100 [&>span]:min-w-0 [&>span]:flex-1 [&>span]:truncate [&>span]:text-left"
-                      >
-                        <SelectValue
-                          placeholder={
-                            !formData.supplier
-                              ? 'Selecciona un proveedor'
-                              : filteredProducts?.length
-                                ? 'Selecciona'
-                                : 'Sin productos activos'
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent side="top" sideOffset={4}>
-                        {filteredProducts?.map((p) => (
-                          <SelectItem
-                            key={p._id}
-                            value={p._id}
-                            textValue={p.productName}
+                        ref={productInputRef}
+                        autoComplete="off"
+                        className="truncate disabled:opacity-100"
+                        disabled={!formData.supplier}
+                        value={
+                          productOpen
+                            ? productSearch
+                            : (selectedProduct?.productName ?? '')
+                        }
+                        placeholder={
+                          !formData.supplier
+                            ? 'Selecciona un proveedor'
+                            : filteredProducts?.length
+                              ? 'Buscar producto'
+                              : 'Sin productos activos'
+                        }
+                        onFocus={() => {
+                          setProductSearch('')
+                          setProductOpen(true)
+                        }}
+                        onChange={(e) => {
+                          setProductSearch(e.target.value)
+                          setProductOpen(true)
+                        }}
+                        onBlur={() => setProductOpen(false)}
+                      />
+                      {productOpen &&
+                        listPos &&
+                        createPortal(
+                          <div
+                            style={{
+                              position: 'absolute',
+                              left: listPos.left,
+                              width: listPos.width,
+                              top: listPos.top,
+                              bottom: listPos.bottom
+                            }}
+                            className="z-[100] max-h-48 overflow-y-scroll rounded-md border border-[var(--border-color)] bg-[var(--bg-card)] shadow-lg [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
                           >
-                            <span className="flex min-w-0 max-w-full flex-col">
-                              <span className="block max-w-full truncate">
-                                {p.productName}
-                              </span>
-                              {p.productDescription && (
-                                <span className="block max-w-full truncate text-xs text-muted-foreground">
-                                  {p.productDescription}
-                                </span>
-                              )}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                            {searchedProducts.length === 0 ? (
+                              <div className="px-3 py-2 text-sm text-muted-foreground">
+                                Sin resultados
+                              </div>
+                            ) : (
+                              searchedProducts.map((p) => (
+                                <button
+                                  type="button"
+                                  key={p._id}
+                                  className="block w-full min-w-0 px-3 py-2 text-left hover:bg-[var(--bg-subtle)]"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault()
+                                    setProduct(p._id)
+                                    setProductOpen(false)
+                                    setProductSearch('')
+                                  }}
+                                >
+                                  <span className="block truncate text-sm">
+                                    {p.productName}
+                                  </span>
+                                  {p.productDescription && (
+                                    <span className="block truncate text-xs text-muted-foreground">
+                                      {p.productDescription}
+                                    </span>
+                                  )}
+                                </button>
+                              ))
+                            )}
+                          </div>,
+                          listPos.dialog
+                        )}
+                    </div>
                   </div>
 
                   <div>

@@ -1,7 +1,8 @@
 {
   "name": "JM Panel | Mini Super JM",
   "short_name": "JM Panel",
-  "description": "Panel de gestión de inventario, ventas y operaciones de Mini Super JM.",
+  "description": "Software empresarial de control de inventario para tienda de abarrotes: productos, existencias, entradas, salidas, proveedores y solicitudes de pedido. Herramienta de uso comercial y administrativo.",
+  "categories": ["business", "productivity"],
   "lang": "es-MX",
   "start_url": "/home",
   "scope": "/",

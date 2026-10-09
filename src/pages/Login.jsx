@@ -6,6 +6,16 @@ import { verifyLogin } from '@/helpers/validations'
 import { useLogin } from '@/features/users.features'
 import { useAuthStore } from '@/store/auth'
 
+const REMEMBER_KEY = 'jm-remembered-user'
+
+const readRemembered = () => {
+  try {
+    return localStorage.getItem(REMEMBER_KEY) || ''
+  } catch {
+    return ''
+  }
+}
+
 const Login = () => {
   const login = useLogin()
   const auth = useAuthStore((state) => state.auth)
@@ -13,13 +23,23 @@ const Login = () => {
 
   const formik = useFormik({
     initialValues: {
-      username: '',
-      password: ''
+      username: readRemembered(),
+      password: '',
+      remember: true
     },
     validate: verifyLogin,
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: (values) => {
+      try {
+        if (values.remember) {
+          localStorage.setItem(REMEMBER_KEY, values.username)
+        } else {
+          localStorage.removeItem(REMEMBER_KEY)
+        }
+      } catch {
+        // no-op
+      }
       login.mutate(values)
     }
   })
@@ -120,6 +140,7 @@ const Login = () => {
               {...formik.getFieldProps('username')}
               id="username"
               name="username"
+              autoComplete="username"
               type="text"
               placeholder="Ingresa tu usuario"
               className="form-control"
@@ -143,10 +164,31 @@ const Login = () => {
               id="password"
               name="password"
               type="password"
+              autoComplete="current-password"
               placeholder="••••••••"
               className="form-control"
             />
           </div>
+          <label
+            htmlFor="remember"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.875rem',
+              color: '#2c3e50',
+              cursor: 'pointer'
+            }}
+          >
+            <input
+              id="remember"
+              name="remember"
+              type="checkbox"
+              checked={formik.values.remember}
+              onChange={formik.handleChange}
+            />
+            Recuérdame
+          </label>
           <button
             type="submit"
             disabled={login.isPending}
