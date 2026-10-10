@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import ProductCombobox from '@/components/ui/product-combobox'
 import {
   Select,
   SelectTrigger,
@@ -240,23 +241,16 @@ const ModalEntries = ({
 
                 <div>
                   <Label htmlFor="productName">Producto *</Label>
-                  <Select
+                  <ProductCombobox
+                    id="productName"
+                    products={products}
                     value={editFormData.productName}
                     onValueChange={(value) =>
                       setEditField('productName', value)
                     }
-                  >
-                    <SelectTrigger id="productName">
-                      <SelectValue placeholder="Selecciona producto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products?.map((p) => (
-                        <SelectItem key={p._id} value={p._id}>
-                          {p.productName} (Stock: {p.productStock})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Selecciona producto"
+                    showStock
+                  />
                 </div>
 
                 <div>
@@ -348,23 +342,16 @@ const ModalEntries = ({
               <div className="cart-item-form">
                 <div>
                   <Label htmlFor="productName">Producto</Label>
-                  <Select
+                  <ProductCombobox
+                    id="productName"
+                    products={products}
                     value={itemForm.productName}
                     onValueChange={(value) =>
                       setItemField('productName', value)
                     }
-                  >
-                    <SelectTrigger id="productName">
-                      <SelectValue placeholder="Selecciona producto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products?.map((p) => (
-                        <SelectItem key={p._id} value={p._id}>
-                          {p.productName} (Stock: {p.productStock})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Selecciona producto"
+                    showStock
+                  />
                 </div>
 
                 <div>
