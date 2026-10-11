@@ -11,7 +11,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import ProductCombobox from '@/components/ui/product-combobox'
 import {
   Select,
@@ -21,6 +20,7 @@ import {
   SelectItem
 } from '@/components/ui/select'
 import { useGetProducts } from '@/features/products.features'
+import { PAYMENT_TYPES } from '@/utils/paymentTypes'
 import '../../../styles/inventory.css'
 import Loading from '@/ui/Loading'
 
@@ -34,7 +34,7 @@ const getEmptyItem = () => ({
   productPrice: '',
   quantity: '',
   totalAmount: '',
-  Observations: ''
+  paymentType: ''
 })
 
 const getEmptyEditForm = () => ({
@@ -45,7 +45,7 @@ const getEmptyEditForm = () => ({
   productPrice: '',
   quantity: '',
   totalAmount: '',
-  Observations: ''
+  paymentType: ''
 })
 
 const ModalIssues = ({
@@ -134,7 +134,7 @@ const ModalIssues = ({
         productPrice: record.productPrice || '',
         quantity: record.quantity || '',
         totalAmount: record.totalAmount || '',
-        Observations: record.Observations || ''
+        paymentType: record.paymentType || ''
       })
       const product = products?.find(
         (p) => p._id === (record.productName?._id || record.productName)
@@ -161,6 +161,11 @@ const ModalIssues = ({
   const handleAddToCart = () => {
     if (!itemForm.productName || !itemForm.quantity) {
       setError('Selecciona un producto y una cantidad')
+      return
+    }
+
+    if (!itemForm.paymentType) {
+      setError('Selecciona el tipo de pago')
       return
     }
 
@@ -348,15 +353,24 @@ const ModalIssues = ({
                 </div>
 
                 <div>
-                  <Label htmlFor="Observations">Observaciones</Label>
-                  <Textarea
-                    id="Observations"
-                    name="Observations"
-                    value={editFormData.Observations}
-                    onChange={handleEditChange}
-                    placeholder="Notas (ej: venta cliente X)..."
-                    rows={3}
-                  />
+                  <Label htmlFor="paymentTypeEdit">Tipo de pago</Label>
+                  <Select
+                    value={editFormData.paymentType}
+                    onValueChange={(value) =>
+                      setEditField('paymentType', value)
+                    }
+                  >
+                    <SelectTrigger id="paymentTypeEdit">
+                      <SelectValue placeholder="Selecciona un tipo de pago" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </DialogBody>
@@ -459,15 +473,24 @@ const ModalIssues = ({
                 </div>
 
                 <div>
-                  <Label htmlFor="Observations">Observaciones</Label>
-                  <Textarea
-                    id="Observations"
-                    name="Observations"
-                    value={itemForm.Observations}
-                    onChange={handleItemChange}
-                    placeholder="Notas (ej: venta cliente X)..."
-                    rows={2}
-                  />
+                  <Label htmlFor="paymentType">Tipo de pago</Label>
+                  <Select
+                    value={itemForm.paymentType}
+                    onValueChange={(value) =>
+                      setItemField('paymentType', value)
+                    }
+                  >
+                    <SelectTrigger id="paymentType">
+                      <SelectValue placeholder="Selecciona un tipo de pago" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button

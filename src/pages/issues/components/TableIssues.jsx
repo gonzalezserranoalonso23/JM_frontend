@@ -1,5 +1,6 @@
 import { formatDate } from '@/utils/dateDisplay'
 import ActionIconButton from '@/components/ActionIconButton'
+import { PAYMENT_LABELS } from '@/utils/paymentTypes'
 
 const getTypeValue = (record) => {
   if (typeof record?.typeInventory === 'string') {
@@ -28,7 +29,7 @@ const TableIssues = ({ records, handleDelete }) => {
             <th className="text-right">Precio Unit.</th>
             <th className="text-right">Total</th>
             <th>Usuario</th>
-            <th>Notas</th>
+            <th>Tipo de pago</th>
             <th className="text-center">Acciones</th>
           </tr>
         </thead>
@@ -51,7 +52,7 @@ const TableIssues = ({ records, handleDelete }) => {
                 <small>{record.User?.username || 'N/A'}</small>
               </td>
               <td>
-                <small>{record.Observations || '-'}</small>
+                <small>{PAYMENT_LABELS[record.paymentType] || '-'}</small>
               </td>
               <td className="text-center">
                 <ActionIconButton

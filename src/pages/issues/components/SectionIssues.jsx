@@ -14,6 +14,7 @@ import ActionIconButton from '@/components/ActionIconButton'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
+import { PAYMENT_LABELS } from '@/utils/paymentTypes'
 
 const getTypeValue = (record) => {
   if (typeof record?.typeInventory === 'string') {
@@ -140,7 +141,7 @@ const SectionIssues = () => {
                 <th style={{ textAlign: 'center' }}>Cantidad</th>
                 <th style={{ textAlign: 'right' }}>Precio</th>
                 <th style={{ textAlign: 'right' }}>Total</th>
-                <th>Notas</th>
+                <th>Tipo de pago</th>
                 <th style={{ textAlign: 'center' }}>Acciones</th>
               </tr>
             </thead>
@@ -163,7 +164,7 @@ const SectionIssues = () => {
                   </td>
                   <td>
                     <small className="text-muted">
-                      {record.Observations || '-'}
+                      {PAYMENT_LABELS[record.paymentType] || '-'}
                     </small>
                   </td>
                   <td style={{ textAlign: 'center' }}>
