@@ -52,18 +52,45 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     const input = productInputRef.current
     const dialog = input?.closest('[role="dialog"]')
     if (!input || !dialog) return
-    const i = input.getBoundingClientRect()
-    const d = dialog.getBoundingClientRect()
-    const below = d.bottom - i.bottom
-    const openUp = below < 220 && i.top - d.top > below
-    setListPos({
-      dialog,
-      left: i.left - d.left,
-      width: i.width,
-      ...(openUp
-        ? { bottom: d.bottom - i.top + 4 }
-        : { top: i.bottom - d.top + 4 })
-    })
+
+    const updateListPosition = () => {
+      const inputBounds = input.getBoundingClientRect()
+      const dialogBounds = dialog.getBoundingClientRect()
+      const headerBottom =
+        dialog.querySelector('header')?.getBoundingClientRect().bottom ??
+        dialogBounds.top
+      const footerTop =
+        dialog.querySelector('footer')?.getBoundingClientRect().top ??
+        dialogBounds.bottom
+      const spaceAbove = Math.max(0, inputBounds.top - headerBottom)
+      const spaceBelow = Math.max(0, footerTop - inputBounds.bottom)
+      const openUp = spaceBelow < 192 && spaceAbove > spaceBelow
+      const availableHeight = openUp ? spaceAbove : spaceBelow
+
+      setListPos({
+        dialog,
+        left: inputBounds.left - dialogBounds.left,
+        width: inputBounds.width,
+        maxHeight: Math.max(0, Math.min(192, availableHeight - 4)),
+        ...(openUp
+          ? { bottom: dialogBounds.bottom - inputBounds.top + 4 }
+          : { top: inputBounds.bottom - dialogBounds.top + 4 })
+      })
+    }
+
+    updateListPosition()
+    const visualViewport = window.visualViewport
+    window.addEventListener('resize', updateListPosition)
+    dialog.addEventListener('scroll', updateListPosition, true)
+    visualViewport?.addEventListener('resize', updateListPosition)
+    visualViewport?.addEventListener('scroll', updateListPosition)
+
+    return () => {
+      window.removeEventListener('resize', updateListPosition)
+      dialog.removeEventListener('scroll', updateListPosition, true)
+      visualViewport?.removeEventListener('resize', updateListPosition)
+      visualViewport?.removeEventListener('scroll', updateListPosition)
+    }
   }, [productOpen])
 
   useEffect(() => {
@@ -348,6 +375,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                               position: 'absolute',
                               left: listPos.left,
                               width: listPos.width,
+                              maxHeight: listPos.maxHeight,
                               top: listPos.top,
                               bottom: listPos.bottom
                             }}
