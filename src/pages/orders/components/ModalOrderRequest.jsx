@@ -541,10 +541,10 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
               )}
             </div>
           </DialogBody>
-          <DialogFooter className="flex-col max-sm:[&_button]:flex-none">
-            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-white">
+          <DialogFooter className="flex-col max-sm:gap-1 max-sm:p-2 max-sm:[&_button]:h-10">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between max-sm:flex-row max-sm:items-center max-sm:gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end max-sm:flex-row max-sm:items-center max-sm:gap-2">
+                <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-white max-sm:min-h-0 max-sm:whitespace-nowrap">
                   <input
                     type="checkbox"
                     checked={includesTax}
@@ -554,8 +554,11 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                   Incluye impuestos
                 </label>
                 {!includesTax && (
-                  <div className="sm:w-48">
-                    <Label htmlFor="taxAmount" className="text-white">
+                  <div className="sm:w-48 max-sm:w-32">
+                    <Label
+                      htmlFor="taxAmount"
+                      className="text-white max-sm:text-xs"
+                    >
                       Impuesto
                     </Label>
                     <Input
@@ -570,11 +573,11 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                   </div>
                 )}
               </div>
-              <strong className="text-base text-white">
+              <strong className="text-base text-white max-sm:whitespace-nowrap max-sm:text-sm">
                 Total: ${getTotalAmount().toFixed(2)}
               </strong>
             </div>
-            <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3">
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3 max-sm:flex-row max-sm:gap-2">
               <Button
                 type="button"
                 variant="outline"
