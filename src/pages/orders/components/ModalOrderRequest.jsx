@@ -242,6 +242,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
   }
 
   const removeItem = (index) => {
+    if (!window.confirm('¿Quitar este producto de la solicitud?')) return
     const removedItem = formData.items[index]
     setFormData((prev) => ({
       ...prev,
@@ -347,6 +348,10 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                       <Input
                         id="product"
                         ref={productInputRef}
+                        role="combobox"
+                        aria-autocomplete="list"
+                        aria-expanded={productOpen}
+                        aria-controls="product-options"
                         autoComplete="off"
                         className="truncate disabled:opacity-100"
                         disabled={!formData.supplier}
@@ -376,6 +381,8 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                         listPos &&
                         createPortal(
                           <div
+                            id="product-options"
+                            role="listbox"
                             style={{
                               position: 'absolute',
                               left: listPos.left,
@@ -394,6 +401,8 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                               searchedProducts.map((p) => (
                                 <button
                                   type="button"
+                                  role="option"
+                                  aria-selected={p._id === currentItem.product}
                                   key={p._id}
                                   className="block w-full min-w-0 px-3 py-2 text-left hover:bg-[var(--bg-subtle)]"
                                   onMouseDown={(e) => {

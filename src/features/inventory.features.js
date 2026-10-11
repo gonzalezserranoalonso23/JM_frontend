@@ -21,6 +21,18 @@ import {
   getInventoryStats
 } from '@/services/inventory.services'
 
+// Un movimiento cambia el stock de los productos y los reportes derivados
+const invalidateStockQueries = (queryClient) => {
+  for (const key of [
+    'InventoryRecords',
+    'InventoryStats',
+    'LowStockProducts',
+    'Products'
+  ]) {
+    queryClient.invalidateQueries({ queryKey: [key] })
+  }
+}
+
 // Registros
 export const useGetInventoryRecords = () => {
   const { data, isLoading, isError } = useQuery({
@@ -44,9 +56,7 @@ export const useCreateInventoryRecord = () => {
     mutationFn: createInventoryRecord,
     onSuccess: () => {
       toast.success('Movimiento de inventario registrado exitosamente!')
-      queryClient.invalidateQueries({ queryKey: ['InventoryRecords'] })
-      queryClient.invalidateQueries({ queryKey: ['InventoryStats'] })
-      queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+      invalidateStockQueries(queryClient)
     },
     onError: (error) => {
       const message =
@@ -66,9 +76,7 @@ export const useCreateInventoryRecords = () => {
       toast.success(
         `${data.length} movimiento(s) de inventario registrados exitosamente!`
       )
-      queryClient.invalidateQueries({ queryKey: ['InventoryRecords'] })
-      queryClient.invalidateQueries({ queryKey: ['InventoryStats'] })
-      queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+      invalidateStockQueries(queryClient)
     },
     onError: (error) => {
       const message =
@@ -85,8 +93,12 @@ export const useUpdateInventoryRecord = () => {
     mutationFn: updateInventoryRecord,
     onSuccess: () => {
       toast.success('Movimiento actualizado exitosamente!')
-      queryClient.invalidateQueries({ queryKey: ['InventoryRecords'] })
-      queryClient.invalidateQueries({ queryKey: ['InventoryStats'] })
+      invalidateStockQueries(queryClient)
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || 'Error al actualizar el movimiento'
+      )
     }
   })
   return mutation
@@ -97,9 +109,15 @@ export const useDeleteInventoryRecord = () => {
   const mutation = useMutation({
     mutationFn: deleteInventoryRecord,
     onSuccess: () => {
-      toast.success('Movimiento eliminado exitosamente!')
-      queryClient.invalidateQueries({ queryKey: ['InventoryRecords'] })
-      queryClient.invalidateQueries({ queryKey: ['InventoryStats'] })
+      toast.success('Movimiento eliminado. El inventario fue actualizado.', {
+        duration: 5000
+      })
+      invalidateStockQueries(queryClient)
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message || 'Error al eliminar el movimiento'
+      )
     }
   })
   return mutation

@@ -30,8 +30,13 @@ import Cash from './pages/cash/Cash'
 
 import { Toaster } from 'react-hot-toast'
 import ProtectedLayout from './layouts/ProtectedLayout'
+import useNetworkToasts from './hooks/useNetworkToasts'
+import useServiceWorkerUpdate from './hooks/useServiceWorkerUpdate'
 
 const App = () => {
+  useNetworkToasts()
+  useServiceWorkerUpdate()
+
   return (
     <>
       <Toaster

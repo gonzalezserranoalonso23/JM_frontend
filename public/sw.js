@@ -1,9 +1,13 @@
-const CACHE = 'jm-shell-v1'
-const SHELL = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
+const CACHE = 'jm-shell-v2'
+const SHELL = ['/offline.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)))
-  self.skipWaiting()
+})
+
+// La nueva versión espera a que el usuario acepte la actualización.
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
@@ -24,7 +28,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return
 
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).catch(() => caches.match('/')))
+    event.respondWith(fetch(request).catch(() => caches.match('/offline.html')))
     return
   }
 

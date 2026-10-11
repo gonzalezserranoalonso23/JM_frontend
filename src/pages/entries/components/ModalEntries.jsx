@@ -147,6 +147,7 @@ const ModalEntries = ({
   }
 
   const handleRemoveFromCart = (tempId) => {
+    if (!window.confirm('¿Quitar este producto del carrito?')) return
     setCart((prev) => prev.filter((item) => item.tempId !== tempId))
   }
 

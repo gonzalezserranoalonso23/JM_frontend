@@ -26,12 +26,25 @@ const DialogContent = React.forwardRef(
     ref
   ) => {
     const [content, setContent] = React.useState(null)
+    const dirtyRef = React.useRef(false)
+
+    // Pide confirmación solo si el usuario ya capturó algo; true = se puede cerrar.
+    const canDiscard = () =>
+      !dirtyRef.current ||
+      window.confirm('Hay cambios sin guardar. ¿Deseas cerrar y descartarlos?')
 
     React.useEffect(() => {
       if (!content) return
 
       let frameId
       let focusTimer
+
+      dirtyRef.current = false
+      const markDirty = () => {
+        dirtyRef.current = true
+      }
+      content.addEventListener('input', markDirty)
+      content.addEventListener('change', markDirty)
 
       const revealFocusedField = () => {
         window.cancelAnimationFrame(frameId)
@@ -113,6 +126,8 @@ const DialogContent = React.forwardRef(
 
       return () => {
         content.removeEventListener('focusin', handleFocus)
+        content.removeEventListener('input', markDirty)
+        content.removeEventListener('change', markDirty)
         if (isMobile) {
           window.visualViewport?.removeEventListener('resize', handleResize)
           window.visualViewport?.removeEventListener(
@@ -158,13 +173,21 @@ const DialogContent = React.forwardRef(
           }}
           onEscapeKeyDown={(event) => {
             onEscapeKeyDown?.(event)
-            event.preventDefault()
+            // Escape cierra el combo abierto en vez del modal
+            const listOpen = content?.querySelector('[aria-expanded="true"]')
+            if (listOpen || !canDiscard()) event.preventDefault()
           }}
+          aria-describedby={undefined}
           {...props}
         >
           {children}
-          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm text-white opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none">
-            <X className="h-4 w-4" />
+          <DialogPrimitive.Close
+            onClick={(event) => {
+              if (!canDiscard()) event.preventDefault()
+            }}
+            className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-md text-white opacity-80 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white disabled:pointer-events-none max-sm:right-1 max-sm:top-1"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Cerrar</span>
           </DialogPrimitive.Close>
         </DialogPrimitive.Content>
@@ -177,7 +200,7 @@ DialogContent.displayName = DialogPrimitive.Content.displayName
 const DialogHeader = ({ className, ...props }) => (
   <header
     className={cn(
-      'flex shrink-0 flex-col gap-1.5 border-b border-black bg-black p-5 pr-12 text-white max-sm:p-4 max-sm:pr-12',
+      'flex shrink-0 flex-col gap-1.5 border-b border-black bg-black p-5 pr-14 text-white max-sm:p-4 max-sm:pr-14',
       className
     )}
     {...props}

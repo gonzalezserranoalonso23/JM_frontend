@@ -60,7 +60,11 @@ const SectionEntries = () => {
   }
 
   const handleDelete = (id) => {
-    if (window.confirm('¿Eliminar este registro?')) {
+    if (
+      window.confirm(
+        '¿Eliminar este registro?\n\nAl eliminarlo se descontará del inventario la cantidad que había sumado esta entrada.'
+      )
+    ) {
       deleteRecord.mutate(id)
     }
   }
