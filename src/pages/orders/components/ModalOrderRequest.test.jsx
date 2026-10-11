@@ -147,8 +147,13 @@ describe('ModalOrderRequest', () => {
       screen.queryByLabelText(/impuesto/i, { selector: 'input[type=number]' })
     ).toBeNull()
     await user.click(screen.getByRole('checkbox'))
-    expect(
-      screen.getByLabelText(/impuesto/i, { selector: 'input[type=number]' })
-    ).toBeInTheDocument()
+    const taxInput = screen.getByLabelText(/impuesto/i, {
+      selector: 'input[type=number]'
+    })
+    expect(taxInput).toBeInTheDocument()
+    expect(taxInput.parentElement).toHaveClass(
+      'max-sm:flex-col',
+      'max-sm:w-full'
+    )
   })
 })
