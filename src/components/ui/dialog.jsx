@@ -81,25 +81,12 @@ const DialogContent = React.forwardRef(
       }
 
       const FIELD = 'input, textarea, select, [contenteditable="true"]'
-      let fieldFocused = false
-      let blurTimer
-      let syncViewport = () => {}
       const handleFocus = (event) => {
         window.clearTimeout(focusTimer)
-        window.clearTimeout(blurTimer)
-        fieldFocused = Boolean(event.target.matches?.(FIELD))
-        syncViewport()
+        if (!event.target.matches?.(FIELD)) return
         focusTimer = window.setTimeout(revealFocusedField, 250)
       }
-      const handleBlur = () => {
-        window.clearTimeout(blurTimer)
-        blurTimer = window.setTimeout(() => {
-          fieldFocused = Boolean(document.activeElement?.matches?.(FIELD))
-          syncViewport()
-        }, 100)
-      }
 
-      // Closed keyboard: fixed-size sheet. Open keyboard: sheet fills the visible viewport
       const isMobile = window.matchMedia('(max-width: 639px)').matches
       const { body } = document
       const previousBody = {
@@ -108,36 +95,9 @@ const DialogContent = React.forwardRef(
         width: body.style.width
       }
       const lockedScrollY = window.scrollY
-      const openHeight = window.innerHeight
-      content.style.setProperty('--dialog-h', `${openHeight}px`)
-      let syncFrame
-      let lastKey = ''
-      const applyViewport = () => {
-        const vv = window.visualViewport
-        if (!vv) return
-        // Focusing a field or opening the keyboard turns the sheet into the whole visible viewport
-        const visualHeight = vv.height * vv.scale
-        const open = fieldFocused || openHeight - visualHeight > 120
-        const key = `${open}|${vv.offsetTop}|${visualHeight}`
-        if (key === lastKey) return
-        lastKey = key
-        content.dataset.keyboard = String(open)
-        content.style.setProperty('--vv-top', `${vv.offsetTop}px`)
-        content.style.setProperty('--vv-h', `${visualHeight}px`)
-      }
-      // iOS pans the visual viewport without timely events, so poll every frame while typing
-      const tick = () => {
-        applyViewport()
-        syncFrame = window.requestAnimationFrame(tick)
-      }
-      syncViewport = () => {
-        window.cancelAnimationFrame(syncFrame)
-        if (fieldFocused) tick()
-        else applyViewport()
-      }
+      content.style.setProperty('--dialog-h', `${window.innerHeight}px`)
       let resizeTimer
       const handleResize = () => {
-        syncViewport()
         window.clearTimeout(resizeTimer)
         resizeTimer = window.setTimeout(revealFocusedField, 150)
       }
@@ -145,28 +105,26 @@ const DialogContent = React.forwardRef(
         body.style.position = 'fixed'
         body.style.top = `-${lockedScrollY}px`
         body.style.width = '100%'
-        syncViewport()
         window.visualViewport?.addEventListener('resize', handleResize)
-        window.visualViewport?.addEventListener('scroll', syncViewport)
+        window.visualViewport?.addEventListener('scroll', revealFocusedField)
       }
 
       content.addEventListener('focusin', handleFocus)
-      content.addEventListener('focusout', handleBlur)
 
       return () => {
         content.removeEventListener('focusin', handleFocus)
-        content.removeEventListener('focusout', handleBlur)
-        window.clearTimeout(blurTimer)
         if (isMobile) {
           window.visualViewport?.removeEventListener('resize', handleResize)
-          window.visualViewport?.removeEventListener('scroll', syncViewport)
+          window.visualViewport?.removeEventListener(
+            'scroll',
+            revealFocusedField
+          )
           body.style.position = previousBody.position
           body.style.top = previousBody.top
           body.style.width = previousBody.width
           window.scrollTo(0, lockedScrollY)
         }
         window.cancelAnimationFrame(frameId)
-        window.cancelAnimationFrame(syncFrame)
         window.clearTimeout(focusTimer)
         window.clearTimeout(resizeTimer)
       }
@@ -190,8 +148,7 @@ const DialogContent = React.forwardRef(
             'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95',
             'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border-0 max-h-[90vh] overflow-hidden',
             // Mobile: bottom sheet instead of a centered dialog
-            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-[var(--vv-top,0px)] max-sm:mt-2 max-sm:h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-2xl max-sm:transition-none max-sm:overscroll-contain',
-            'max-sm:data-[keyboard=true]:mt-0 max-sm:data-[keyboard=true]:h-[var(--vv-h)] max-sm:data-[keyboard=true]:max-h-[var(--vv-h)] max-sm:data-[keyboard=true]:rounded-none',
+            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:mt-2 max-sm:h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-2xl max-sm:transition-none max-sm:overscroll-contain',
             'max-sm:data-[state=open]:slide-in-from-bottom-0 max-sm:data-[state=closed]:slide-out-to-bottom-0',
             className
           )}
