@@ -28,9 +28,13 @@ const getTypeValue = (record) => {
 
 const isExit = (typeStr = '') => typeStr === 'ISSUE'
 
-const formatTypeLabel = (typeStr = '') => {
-  if (typeStr === 'ISSUE') return 'ISSUE'
-  return 'ENTRY'
+const formatTypeLabel = (typeStr = '') =>
+  typeStr === 'ISSUE' ? 'Salida' : 'Entrada'
+
+const COUNT_LABELS = {
+  '': 'Movimientos',
+  ENTRY: 'Movimientos de entrada',
+  ISSUE: 'Movimientos de salida'
 }
 
 const ReportsSalesAndMovements = () => {
@@ -54,10 +58,16 @@ const ReportsSalesAndMovements = () => {
     return true
   })
 
-  const totalRevenue = filteredRecords.reduce(
-    (sum, r) => sum + parseFloat(r.totalAmount || 0),
-    0
-  )
+  const sumByType = (type) =>
+    filteredRecords
+      .filter((r) => getTypeValue(r) === type)
+      .reduce((sum, r) => sum + parseFloat(r.totalAmount || 0), 0)
+
+  // Con "Todos" se separan para no mezclar entradas con salidas en un solo total
+  const totalCards = [
+    { label: 'Total de entradas', type: 'ENTRY' },
+    { label: 'Total de salidas', type: 'ISSUE' }
+  ].filter((card) => !selectedType || card.type === selectedType)
 
   const handleExport = async () => {
     setIsExporting(true)
@@ -154,6 +164,31 @@ const ReportsSalesAndMovements = () => {
           marginBottom: '2rem'
         }}
       >
+        {totalCards.map((card) => (
+          <article
+            key={card.type}
+            style={{
+              padding: '1.5rem',
+              background: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}
+          >
+            <h2
+              style={{
+                color: '#7f8c8d',
+                margin: '0 0 0.5rem 0',
+                fontSize: '0.85rem',
+                fontWeight: '600'
+              }}
+            >
+              {card.label}
+            </h2>
+            <strong style={{ fontSize: '1.75rem', color: '#27ae60' }}>
+              ${sumByType(card.type).toFixed(2)}
+            </strong>
+          </article>
+        ))}
         <article
           style={{
             padding: '1.5rem',
@@ -170,29 +205,7 @@ const ReportsSalesAndMovements = () => {
               fontWeight: '600'
             }}
           >
-            Total
-          </h2>
-          <strong style={{ fontSize: '1.75rem', color: '#27ae60' }}>
-            ${totalRevenue.toFixed(2)}
-          </strong>
-        </article>
-        <article
-          style={{
-            padding: '1.5rem',
-            background: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-          }}
-        >
-          <h2
-            style={{
-              color: '#7f8c8d',
-              margin: '0 0 0.5rem 0',
-              fontSize: '0.85rem',
-              fontWeight: '600'
-            }}
-          >
-            Movimientos
+            {COUNT_LABELS[selectedType]}
           </h2>
           <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
             {filteredRecords.length}
