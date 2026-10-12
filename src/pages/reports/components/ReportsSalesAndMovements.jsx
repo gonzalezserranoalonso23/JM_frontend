@@ -1,7 +1,9 @@
 import { formatDate, todayLocal } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { useGetSalesByDateRange } from '@/features/inventory.features'
+import { useGetSalesByDateRangePages } from '@/features/inventory.features'
+import { getSalesByDateRange } from '@/services/inventory.services'
+import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import { exportMovementsToExcel } from '@/utils/exportExcel'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
@@ -38,30 +40,27 @@ const COUNT_LABELS = {
 }
 
 const ReportsSalesAndMovements = () => {
-  const [startDate, setStartDate] = useState(todayLocal(-7))
-  const [endDate, setEndDate] = useState(todayLocal())
+  const [startDate, setStartDate] = useState(todayLocal(-1))
+  const [endDate, setEndDate] = useState(todayLocal(-1))
   const [selectedType, setSelectedType] = useState('')
   const [isExporting, setIsExporting] = useState(false)
-  const { data: salesData, isLoading: salesLoading } = useGetSalesByDateRange(
-    startDate,
-    endDate
-  )
+  const {
+    data: salesPages,
+    isLoading: salesLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useGetSalesByDateRangePages(startDate, endDate, selectedType)
+  const { sentinelRef, supportsIntersectionObserver } =
+    useIntersectionPagination(fetchNextPage, hasNextPage && !isFetchingNextPage)
 
   if (salesLoading) return <Loading />
 
-  const allRecords = salesData?.allRecords || []
+  const filteredRecords = salesPages?.pages.flatMap((page) => page.data) || []
+  const totalRecords = salesPages?.pages[0]?.total ?? 0
+  const summary = salesPages?.pages[0]?.summary
 
-  const filteredRecords = allRecords.filter((r) => {
-    const typeName = getTypeValue(r)
-    if (selectedType === 'ENTRY') return typeName === 'ENTRY'
-    if (selectedType === 'ISSUE') return typeName === 'ISSUE'
-    return true
-  })
-
-  const sumByType = (type) =>
-    filteredRecords
-      .filter((r) => getTypeValue(r) === type)
-      .reduce((sum, r) => sum + parseFloat(r.totalAmount || 0), 0)
+  const sumByType = (type) => Number(summary?.[type]?.totalAmount || 0)
 
   // Con "Todos" se separan para no mezclar entradas con salidas en un solo total
   const totalCards = [
@@ -72,8 +71,12 @@ const ReportsSalesAndMovements = () => {
   const handleExport = async () => {
     setIsExporting(true)
     try {
+      const { allRecords = [] } = await getSalesByDateRange(startDate, endDate)
+      const records = allRecords
+        .filter((r) => !selectedType || getTypeValue(r) === selectedType)
+        .map((r) => ({ ...r, typeInventory: getTypeValue(r) }))
       await exportMovementsToExcel(
-        filteredRecords.map((r) => ({ ...r, typeInventory: getTypeValue(r) })),
+        records,
         `reporte-movimientos_${startDate}_${endDate}.xlsx`
       )
     } catch {
@@ -112,7 +115,7 @@ const ReportsSalesAndMovements = () => {
           type="button"
           className="btn-custom btn-primary-custom"
           onClick={handleExport}
-          disabled={isExporting || filteredRecords.length === 0}
+          disabled={isExporting || totalRecords === 0}
         >
           {isExporting ? 'Exportando...' : 'Exportar a Excel'}
         </button>
@@ -208,7 +211,7 @@ const ReportsSalesAndMovements = () => {
             {COUNT_LABELS[selectedType]}
           </h2>
           <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
-            {filteredRecords.length}
+            {totalRecords}
           </strong>
         </article>
       </section>
@@ -276,6 +279,22 @@ const ReportsSalesAndMovements = () => {
             )}
           </tbody>
         </table>
+        {hasNextPage && supportsIntersectionObserver && (
+          <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+        )}
+        {isFetchingNextPage && supportsIntersectionObserver && (
+          <Loading fullScreen={false} />
+        )}
+        {hasNextPage && !supportsIntersectionObserver && (
+          <button
+            type="button"
+            className="w-full py-3 text-sm font-medium"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+          >
+            {isFetchingNextPage ? <Loading fullScreen={false} /> : 'Cargar más'}
+          </button>
+        )}
       </div>
     </section>
   )

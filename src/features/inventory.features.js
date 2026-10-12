@@ -17,6 +17,7 @@ import {
   getLowStockProducts,
   getLowStockProductsPage,
   getSalesByDateRange,
+  getSalesByDateRangePage,
   getInventoryByType,
   getInventoryStats
 } from '@/services/inventory.services'
@@ -159,6 +160,24 @@ export const useGetSalesByDateRange = (startDate, endDate) => {
   })
   return { data, isLoading, isError }
 }
+
+export const useGetSalesByDateRangePages = (startDate, endDate, type = '') =>
+  useInfiniteQuery({
+    queryKey: ['SalesByDateRange', 'pages', startDate, endDate, type],
+    queryFn: ({ pageParam }) =>
+      getSalesByDateRangePage({
+        startDate,
+        endDate,
+        page: pageParam,
+        limit: 20,
+        ...(type && { type })
+      }),
+    enabled: !!(startDate && endDate),
+    placeholderData: keepPreviousData,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
+  })
 
 export const useGetInventoryByType = (type) => {
   const { data, isLoading, isError } = useQuery({
