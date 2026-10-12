@@ -33,8 +33,7 @@ const getEmptyItem = () => ({
   category: '',
   productPrice: '',
   quantity: '',
-  totalAmount: '',
-  paymentType: ''
+  totalAmount: ''
 })
 
 const getEmptyEditForm = () => ({
@@ -63,6 +62,7 @@ const ModalIssues = ({
   const [date, setDate] = useState(getToday())
   const [itemForm, setItemForm] = useState(getEmptyItem())
   const [cart, setCart] = useState([])
+  const [cartPaymentType, setCartPaymentType] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -148,6 +148,7 @@ const ModalIssues = ({
       setDate(getToday())
       setItemForm(getEmptyItem())
       setCart([])
+      setCartPaymentType('')
       setEditFormData(getEmptyEditForm())
       setEditSelectedProduct(null)
       setError('')
@@ -161,11 +162,6 @@ const ModalIssues = ({
   const handleAddToCart = () => {
     if (!itemForm.productName || !itemForm.quantity) {
       setError('Selecciona un producto y una cantidad')
-      return
-    }
-
-    if (!itemForm.paymentType) {
-      setError('Selecciona el tipo de pago')
       return
     }
 
@@ -205,13 +201,19 @@ const ModalIssues = ({
       return
     }
 
+    if (!cartPaymentType) {
+      setError('Selecciona el tipo de pago para esta salida')
+      return
+    }
+
     setIsSubmitting(true)
     const records = cart.map(({ tempId, productLabel, ...payload }) => ({
       ...payload,
       quantity: Number(payload.quantity),
       totalAmount: Number(payload.totalAmount),
       date,
-      typeInventory: ISSUE_TYPE
+      typeInventory: ISSUE_TYPE,
+      paymentType: cartPaymentType
     }))
 
     try {
@@ -472,27 +474,6 @@ const ModalIssues = ({
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="paymentType">Tipo de pago</Label>
-                  <Select
-                    value={itemForm.paymentType}
-                    onValueChange={(value) =>
-                      setItemField('paymentType', value)
-                    }
-                  >
-                    <SelectTrigger id="paymentType">
-                      <SelectValue placeholder="Selecciona un tipo de pago" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PAYMENT_TYPES.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <Button
                   type="button"
                   variant="outline"
@@ -544,6 +525,29 @@ const ModalIssues = ({
                   </div>
                   <div className="cart-total">
                     Total: <strong>${cartTotal.toFixed(2)}</strong>
+                  </div>
+                  <div>
+                    <Label htmlFor="cartPaymentType">
+                      Tipo de pago de la salida *
+                    </Label>
+                    <Select
+                      value={cartPaymentType}
+                      onValueChange={(value) => {
+                        setCartPaymentType(value)
+                        setError('')
+                      }}
+                    >
+                      <SelectTrigger id="cartPaymentType">
+                        <SelectValue placeholder="Selecciona un tipo de pago" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PAYMENT_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               )}
