@@ -48,7 +48,7 @@ const Navigate = () => {
       aria-label="Navegación principal"
       className="app-nav fixed left-0 right-0 top-0 z-50 border-b border-gray-800 bg-black text-gray-300 shadow-[0_4px_20px_rgba(0,0,0,0.35)]"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-none">
         <div className="flex h-16 items-center justify-between gap-4">
           <Link
             to="../home"
@@ -67,7 +67,7 @@ const Navigate = () => {
           <button
             type="button"
             onClick={() => setIsOpen((open) => !open)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-gray-200 transition-colors hover:bg-gray-800 hover:text-white focus-visible:outline-white xl:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-gray-200 transition-colors hover:bg-gray-800 hover:text-white focus-visible:outline-white 2xl:hidden"
             aria-expanded={isOpen}
             aria-controls="app-navigation-menu"
             aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -79,7 +79,7 @@ const Navigate = () => {
             )}
           </button>
 
-          <div className="hidden min-w-0 items-center gap-1 xl:flex">
+          <div className="hidden min-w-0 items-center gap-1 2xl:flex">
             <div className="flex min-w-0 items-center gap-1">
               {links.map(({ to, label, end, badge }) => (
                 <NavLink
@@ -123,7 +123,7 @@ const Navigate = () => {
         {isOpen && (
           <div
             id="app-navigation-menu"
-            className="max-h-[calc(var(--app-vh,1svh)*100-var(--app-nav-height))] space-y-1 overflow-y-auto overscroll-contain border-t border-gray-800 pb-4 pt-3 xl:hidden"
+            className="max-h-[calc(var(--app-vh,1svh)*100-var(--app-nav-height))] space-y-1 overflow-y-auto overscroll-contain border-t border-gray-800 pb-4 pt-3 2xl:hidden"
           >
             <div>
               {links.map(({ to, label, end, badge }) => (
