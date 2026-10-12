@@ -160,6 +160,14 @@ const ModalEntries = ({
       return
     }
 
+    if (
+      !window.confirm(
+        `¿Estás seguro que deseas registrar ${cart.length} entrada(s)?`
+      )
+    ) {
+      return
+    }
+
     setIsSubmitting(true)
     const records = cart.map(({ tempId, productLabel, ...payload }) => ({
       ...payload,
