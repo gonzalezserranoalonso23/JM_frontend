@@ -1,6 +1,8 @@
 import { formatDate, todayLocal } from '@/utils/dateDisplay'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useGetSalesByDateRange } from '@/features/inventory.features'
+import { exportMovementsToExcel } from '@/utils/exportExcel'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
 
@@ -35,7 +37,7 @@ const ReportsSalesAndMovements = () => {
   const [startDate, setStartDate] = useState(todayLocal(-7))
   const [endDate, setEndDate] = useState(todayLocal())
   const [selectedType, setSelectedType] = useState('')
-
+  const [isExporting, setIsExporting] = useState(false)
   const { data: salesData, isLoading: salesLoading } = useGetSalesByDateRange(
     startDate,
     endDate
@@ -57,9 +59,22 @@ const ReportsSalesAndMovements = () => {
     0
   )
 
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      await exportMovementsToExcel(
+        filteredRecords.map((r) => ({ ...r, typeInventory: getTypeValue(r) })),
+        `reporte-movimientos_${startDate}_${endDate}.xlsx`
+      )
+    } catch {
+      toast.error('No se pudo exportar el reporte a Excel')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <section className="section-container" aria-labelledby="reports-title">
-      {/* Header */}
       <header className="section-header">
         <div>
           <h1
@@ -83,6 +98,14 @@ const ReportsSalesAndMovements = () => {
             Movimientos y ventas por período
           </p>
         </div>
+        <button
+          type="button"
+          className="btn-custom btn-primary-custom"
+          onClick={handleExport}
+          disabled={isExporting || filteredRecords.length === 0}
+        >
+          {isExporting ? 'Exportando...' : 'Exportar a Excel'}
+        </button>
       </header>
 
       {/* Filtros */}
