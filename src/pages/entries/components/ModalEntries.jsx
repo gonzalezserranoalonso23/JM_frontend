@@ -11,7 +11,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import ProductCombobox from '@/components/ui/product-combobox'
 import {
   Select,
@@ -33,8 +32,7 @@ const getEmptyItem = () => ({
   category: '',
   productPrice: '',
   quantity: '',
-  totalAmount: '',
-  Observations: ''
+  totalAmount: ''
 })
 
 const getEmptyEditForm = () => ({
@@ -44,8 +42,7 @@ const getEmptyEditForm = () => ({
   category: '',
   productPrice: '',
   quantity: '',
-  totalAmount: '',
-  Observations: ''
+  totalAmount: ''
 })
 
 const ModalEntries = ({
@@ -112,8 +109,7 @@ const ModalEntries = ({
         category: record.category?._id || record.category || '',
         productPrice: record.productPrice || '',
         quantity: record.quantity || '',
-        totalAmount: record.totalAmount || '',
-        Observations: record.Observations || ''
+        totalAmount: record.totalAmount || ''
       })
     }
   }, [record, isEditing])
@@ -289,18 +285,6 @@ const ModalEntries = ({
                     disabled
                   />
                 </div>
-
-                <div>
-                  <Label htmlFor="Observations">Observaciones</Label>
-                  <Textarea
-                    id="Observations"
-                    name="Observations"
-                    value={editFormData.Observations}
-                    onChange={handleEditChange}
-                    placeholder="Notas adicionales..."
-                    rows={3}
-                  />
-                </div>
               </div>
             </DialogBody>
             <DialogFooter>
@@ -387,18 +371,6 @@ const ModalEntries = ({
                     type="number"
                     value={itemForm.totalAmount}
                     disabled
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="Observations">Observaciones</Label>
-                  <Textarea
-                    id="Observations"
-                    name="Observations"
-                    value={itemForm.Observations}
-                    onChange={handleItemChange}
-                    placeholder="Notas adicionales..."
-                    rows={2}
                   />
                 </div>
 
