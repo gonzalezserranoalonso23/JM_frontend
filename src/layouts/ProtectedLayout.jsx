@@ -16,6 +16,7 @@ const PAGE_TITLES = {
   '/suppliers': 'Proveedores',
   '/categories': 'Categorías',
   '/daily-information': 'Información diaria',
+  '/shortages': 'Faltantes',
   '/cash': 'Caja'
 }
 

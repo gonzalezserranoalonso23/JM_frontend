@@ -31,7 +31,9 @@ export const useGetPendingTasks = () => {
   return useQuery({
     queryKey: ['pendingTasks'],
     queryFn: getPendingTasks,
-    staleTime: 1000 * 60 * 5
+    staleTime: 1000 * 60 * 5,
+    refetchInterval: 1000 * 60,
+    refetchIntervalInBackground: true
   })
 }
 

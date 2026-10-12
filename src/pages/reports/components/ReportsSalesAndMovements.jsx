@@ -34,15 +34,14 @@ const formatTypeLabel = (typeStr = '') =>
   typeStr === 'ISSUE' ? 'Salida' : 'Entrada'
 
 const COUNT_LABELS = {
-  '': 'Movimientos',
-  ENTRY: 'Movimientos de entrada',
-  ISSUE: 'Movimientos de salida'
+  ENTRY: 'Productos ingresados',
+  ISSUE: 'Productos vendidos'
 }
 
 const ReportsSalesAndMovements = () => {
   const [startDate, setStartDate] = useState(todayLocal(-1))
   const [endDate, setEndDate] = useState(todayLocal(-1))
-  const [selectedType, setSelectedType] = useState('')
+  const [selectedType, setSelectedType] = useState('ISSUE')
   const [isExporting, setIsExporting] = useState(false)
   const {
     data: salesPages,
@@ -64,8 +63,8 @@ const ReportsSalesAndMovements = () => {
 
   // Con "Todos" se separan para no mezclar entradas con salidas en un solo total
   const totalCards = [
-    { label: 'Total de entradas', type: 'ENTRY' },
-    { label: 'Total de salidas', type: 'ISSUE' }
+    { label: 'Total de compras', type: 'ENTRY' },
+    { label: 'Total de ventas', type: 'ISSUE' }
   ].filter((card) => !selectedType || card.type === selectedType)
 
   const handleExport = async () => {
@@ -192,28 +191,30 @@ const ReportsSalesAndMovements = () => {
             </strong>
           </article>
         ))}
-        <article
-          style={{
-            padding: '1.5rem',
-            background: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-          }}
-        >
-          <h2
+        {selectedType && (
+          <article
             style={{
-              color: '#7f8c8d',
-              margin: '0 0 0.5rem 0',
-              fontSize: '0.85rem',
-              fontWeight: '600'
+              padding: '1.5rem',
+              background: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
             }}
           >
-            {COUNT_LABELS[selectedType]}
-          </h2>
-          <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
-            {totalRecords}
-          </strong>
-        </article>
+            <h2
+              style={{
+                color: '#7f8c8d',
+                margin: '0 0 0.5rem 0',
+                fontSize: '0.85rem',
+                fontWeight: '600'
+              }}
+            >
+              {COUNT_LABELS[selectedType]}
+            </h2>
+            <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
+              {summary?.[selectedType]?.products ?? 0}
+            </strong>
+          </article>
+        )}
       </section>
 
       {/* Tabla de Movimientos */}

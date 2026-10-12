@@ -10,6 +10,7 @@ import {
   login,
   getUsers,
   getUsersPage,
+  getAssignableUsers,
   registerUser,
   updateUser,
   deleteUser
@@ -42,6 +43,12 @@ export const useGetUsers = () => {
     queryFn: getUsers
   })
 }
+
+export const useGetAssignableUsers = () =>
+  useQuery({
+    queryKey: ['Users', 'assignable'],
+    queryFn: getAssignableUsers
+  })
 
 export const useGetUserPages = (search = '') =>
   useInfiniteQuery({

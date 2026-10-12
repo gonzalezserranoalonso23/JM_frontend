@@ -27,6 +27,7 @@ import SupplierDetails from './pages/suppliers/SupplierDetails'
 import Categories from './pages/categories/Categories'
 import DailyInformation from './pages/daily-information/DailyInformation'
 import Cash from './pages/cash/Cash'
+import Shortages from './pages/shortages/Shortages'
 
 import { Toaster } from 'react-hot-toast'
 import ProtectedLayout from './layouts/ProtectedLayout'
@@ -76,6 +77,7 @@ const App = () => {
               <Route path="/suppliers/:id" element={<SupplierDetails />} />
               <Route path="/categories" element={<Categories />} />
               <Route path="/daily-information" element={<DailyInformation />} />
+              <Route path="/shortages" element={<Shortages />} />
               <Route path="/cash" element={<Cash />} />
             </Route>
           </Route>

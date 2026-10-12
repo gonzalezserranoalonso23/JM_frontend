@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQueryClient,
@@ -30,6 +31,14 @@ export const useGetProductPages = (search = '') =>
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
+  })
+
+export const useSearchProducts = (search = '') =>
+  useQuery({
+    queryKey: ['Products', 'lookup', search],
+    queryFn: () => getProductsPage({ page: 1, limit: 10, search }),
+    enabled: search.length > 0,
+    placeholderData: keepPreviousData
   })
 
 export const useGetProduct = (id) => {

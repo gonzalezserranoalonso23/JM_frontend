@@ -141,11 +141,16 @@ export const useGetLowStockProducts = () => {
   return { data, isLoading, isError }
 }
 
-export const useGetLowStockProductPages = (search = '') =>
+export const useGetLowStockProductPages = (search = '', category = '') =>
   useInfiniteQuery({
-    queryKey: ['LowStockProducts', 'pages', search],
+    queryKey: ['LowStockProducts', 'pages', search, category],
     queryFn: ({ pageParam }) =>
-      getLowStockProductsPage({ page: pageParam, limit: 20, search }),
+      getLowStockProductsPage({
+        page: pageParam,
+        limit: 20,
+        search,
+        category
+      }),
     placeholderData: keepPreviousData,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>

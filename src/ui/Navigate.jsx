@@ -4,11 +4,13 @@ import { Menu, X } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
 import { useGetPendingTasks } from '@/features/tasks.features'
+import useTaskNotifications from '@/hooks/useTaskNotifications'
 
 const Navigate = () => {
   const logOut = useAuthStore((state) => state.logOut)
   const isAdmin = useAuthStore((state) => state.isAdmin)
   const { data: pendingTasks } = useGetPendingTasks()
+  const { permission, requestPermission } = useTaskNotifications(pendingTasks)
   const navigate = useNavigate()
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
@@ -30,11 +32,16 @@ const Navigate = () => {
     { to: '../entries', label: 'Entradas' },
     { to: '../orders', label: 'Órdenes' },
     { to: '../todolist', label: 'Pendientes', badge: pendingCount },
-    { to: '../reports', label: 'Reportes' },
-    { to: '../daily-information', label: 'Información diaria' },
+    { to: '../reports', label: 'Reportes', adminOnly: true },
+    {
+      to: '../daily-information',
+      label: 'Información diaria',
+      adminOnly: true
+    },
+    { to: '../shortages', label: 'Faltantes' },
     { to: '../cash', label: 'Caja' },
-    ...(isAdmin ? [{ to: '../catalogs', label: 'Catálogo' }] : [])
-  ]
+    { to: '../catalogs', label: 'Catálogo', adminOnly: true }
+  ].filter((link) => isAdmin || !link.adminOnly)
 
   return (
     <nav
@@ -94,6 +101,15 @@ const Navigate = () => {
                 </NavLink>
               ))}
             </div>
+            {permission === 'default' && (
+              <button
+                type="button"
+                onClick={requestPermission}
+                className="ml-2 min-h-10 shrink-0 rounded-lg border border-gray-600 px-3 text-sm font-medium text-gray-200 transition-colors hover:bg-white/10 focus-visible:outline-white"
+              >
+                Activar notificaciones
+              </button>
+            )}
             <button
               type="button"
               onClick={handleLogOut}
@@ -130,6 +146,15 @@ const Navigate = () => {
                 </NavLink>
               ))}
             </div>
+            {permission === 'default' && (
+              <button
+                type="button"
+                onClick={requestPermission}
+                className="mt-2 min-h-12 w-full rounded-lg border border-gray-600 px-4 text-left text-sm font-medium text-gray-200 transition-colors hover:bg-gray-800 focus-visible:outline-white"
+              >
+                Activar notificaciones
+              </button>
+            )}
             <button
               type="button"
               onClick={handleLogOut}

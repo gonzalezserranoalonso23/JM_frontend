@@ -49,9 +49,19 @@ export const getLowStockProducts = async () => {
   return data
 }
 
-export const getLowStockProductsPage = async ({ page, limit, search }) => {
+export const getLowStockProductsPage = async ({
+  page,
+  limit,
+  search,
+  category
+}) => {
   const { data } = await axios.get('/api/inventory-records/reports/low-stock', {
-    params: { page, limit, ...(search ? { search } : {}) }
+    params: {
+      page,
+      limit,
+      ...(search ? { search } : {}),
+      ...(category ? { category } : {})
+    }
   })
   return data
 }

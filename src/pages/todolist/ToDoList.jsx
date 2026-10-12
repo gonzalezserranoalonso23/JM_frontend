@@ -7,6 +7,7 @@ import {
   useUpdateTask,
   useDeleteTask
 } from '@/features/tasks.features'
+import { useGetAssignableUsers } from '@/features/users.features'
 import Loading from '@/ui/Loading'
 import './styles/todolist.css'
 
@@ -14,6 +15,7 @@ const ToDoList = () => {
   const { data: pendingTasks, isLoading: loadingPending } = useGetPendingTasks()
   const { data: completedTasks, isLoading: loadingCompleted } =
     useGetCompletedTasks()
+  const { data: users } = useGetAssignableUsers()
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
   const deleteTask = useDeleteTask()
@@ -21,6 +23,7 @@ const ToDoList = () => {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState('medium')
+  const [assignedTo, setAssignedTo] = useState('')
   const [activeTab, setActiveTab] = useState('pending')
 
   const handleCreateTask = (e) => {
@@ -34,13 +37,15 @@ const ToDoList = () => {
       {
         title: title.trim(),
         description: description.trim(),
-        priority
+        priority,
+        assignedTo: assignedTo || null
       },
       {
         onSuccess: () => {
           setTitle('')
           setDescription('')
           setPriority('medium')
+          setAssignedTo('')
         }
       }
     )
@@ -57,6 +62,13 @@ const ToDoList = () => {
     updateTask.mutate({
       id: taskId,
       data: { status: 'pending' }
+    })
+  }
+
+  const handleAssignTask = (taskId, assignedTo) => {
+    updateTask.mutate({
+      id: taskId,
+      data: { assignedTo: assignedTo || null }
     })
   }
 
@@ -110,6 +122,20 @@ const ToDoList = () => {
                       <option value="low">Baja</option>
                       <option value="medium">Media</option>
                       <option value="high">Alta</option>
+                    </select>
+                    <select
+                      value={assignedTo}
+                      onChange={(e) => setAssignedTo(e.target.value)}
+                      className="form-select"
+                      disabled={createTask.isPending}
+                      aria-label="Asignar a"
+                    >
+                      <option value="">Sin asignar</option>
+                      {users?.map((user) => (
+                        <option key={user._id} value={user._id}>
+                          {user.fullName || user.username}
+                        </option>
+                      ))}
                     </select>
                     <button
                       type="submit"
@@ -202,6 +228,23 @@ const ToDoList = () => {
                               </strong>
                             </small>
                             <small>
+                              Asignada a:{' '}
+                              <select
+                                value={task.assignedTo?._id || ''}
+                                onChange={(e) =>
+                                  handleAssignTask(task._id, e.target.value)
+                                }
+                                aria-label="Reasignar tarea"
+                              >
+                                <option value="">Sin asignar</option>
+                                {users?.map((user) => (
+                                  <option key={user._id} value={user._id}>
+                                    {user.fullName || user.username}
+                                  </option>
+                                ))}
+                              </select>
+                            </small>
+                            <small>
                               {new Date(task.createdAt).toLocaleDateString()}
                             </small>
                           </div>
@@ -264,6 +307,12 @@ const ToDoList = () => {
                                 {task.createdBy?.username || 'Usuario'}
                               </strong>
                             </small>
+                            {task.assignedTo && (
+                              <small>
+                                Asignada a:{' '}
+                                <strong>{task.assignedTo.username}</strong>
+                              </small>
+                            )}
                             <small>
                               Completada por:{' '}
                               <strong>

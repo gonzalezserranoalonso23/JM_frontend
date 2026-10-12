@@ -7,6 +7,11 @@ export const getUsers = async () => {
   return data
 }
 
+export const getAssignableUsers = async () => {
+  const { data } = await axios.get('/api/users/assignable')
+  return data
+}
+
 export const getUsersPage = async ({ page, limit, search }) => {
   const { data } = await axios.get('/api/users', {
     params: { page, limit, ...(search ? { search } : {}) }

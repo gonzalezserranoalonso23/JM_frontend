@@ -2,6 +2,7 @@ import {
   useGetInventoryStats,
   useGetLowStockProductPages
 } from '@/features/inventory.features'
+import ProductLookup from './ProductLookup'
 import DailyInformationDashboard from './DailyInformationDashboard'
 import Loading from '@/ui/Loading'
 import FormFilter from '@/components/FormFilter'
@@ -94,6 +95,8 @@ const StockDashboard = () => {
               </p>
             </article>
           </section>
+
+          <ProductLookup />
 
           {/* Alertas de Stock Bajo */}
           {(lowStockTotal > 0 || dataFilter) && (
