@@ -5,6 +5,7 @@ import { useGetSalesByDateRangePages } from '@/features/inventory.features'
 import { getSalesByDateRange } from '@/services/inventory.services'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import { exportMovementsToExcel } from '@/utils/exportExcel'
+import { PAYMENT_LABELS, PAYMENT_TYPES } from '@/utils/paymentTypes'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
 
@@ -42,14 +43,22 @@ const ReportsSalesAndMovements = () => {
   const [startDate, setStartDate] = useState(todayLocal(-1))
   const [endDate, setEndDate] = useState(todayLocal(-1))
   const [selectedType, setSelectedType] = useState('ISSUE')
+  const [selectedPaymentType, setSelectedPaymentType] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const isDateRangeInvalid =
+    Boolean(startDate && endDate) && startDate > endDate
   const {
     data: salesPages,
     isLoading: salesLoading,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage
-  } = useGetSalesByDateRangePages(startDate, endDate, selectedType)
+  } = useGetSalesByDateRangePages(
+    startDate,
+    endDate,
+    selectedType,
+    selectedPaymentType
+  )
   const { sentinelRef, supportsIntersectionObserver } =
     useIntersectionPagination(fetchNextPage, hasNextPage && !isFetchingNextPage)
 
@@ -68,9 +77,15 @@ const ReportsSalesAndMovements = () => {
   ].filter((card) => !selectedType || card.type === selectedType)
 
   const handleExport = async () => {
+    if (isDateRangeInvalid) return
+
     setIsExporting(true)
     try {
-      const { allRecords = [] } = await getSalesByDateRange(startDate, endDate)
+      const { allRecords = [] } = await getSalesByDateRange(
+        startDate,
+        endDate,
+        selectedPaymentType
+      )
       const records = allRecords
         .filter((r) => !selectedType || getTypeValue(r) === selectedType)
         .map((r) => ({ ...r, typeInventory: getTypeValue(r) }))
@@ -114,7 +129,7 @@ const ReportsSalesAndMovements = () => {
           type="button"
           className="btn-custom btn-primary-custom"
           onClick={handleExport}
-          disabled={isExporting || totalRecords === 0}
+          disabled={isDateRangeInvalid || isExporting || totalRecords === 0}
         >
           {isExporting ? 'Exportando...' : 'Exportar a Excel'}
         </button>
@@ -123,19 +138,29 @@ const ReportsSalesAndMovements = () => {
       {/* Filtros */}
       <div className="filter-section">
         <div className="filter-group">
-          <label>Desde</label>
+          <label htmlFor="report-start-date">Desde</label>
           <input
+            id="report-start-date"
             type="date"
             className="form-control"
+            aria-invalid={isDateRangeInvalid}
+            aria-describedby={
+              isDateRangeInvalid ? 'report-date-error' : undefined
+            }
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
         <div className="filter-group">
-          <label>Hasta</label>
+          <label htmlFor="report-end-date">Hasta</label>
           <input
+            id="report-end-date"
             type="date"
             className="form-control"
+            aria-invalid={isDateRangeInvalid}
+            aria-describedby={
+              isDateRangeInvalid ? 'report-date-error' : undefined
+            }
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
@@ -154,149 +179,189 @@ const ReportsSalesAndMovements = () => {
             ))}
           </select>
         </div>
+        <div className="filter-group">
+          <label>Forma de pago</label>
+          <select
+            value={selectedPaymentType}
+            onChange={(e) => setSelectedPaymentType(e.target.value)}
+            className="form-select"
+          >
+            <option value="">Todas</option>
+            {PAYMENT_TYPES.map((payment) => (
+              <option key={payment.value} value={payment.value}>
+                {payment.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+      {isDateRangeInvalid && (
+        <p
+          id="report-date-error"
+          role="alert"
+          style={{
+            color: '#b91c1c',
+            marginTop: '-0.75rem',
+            marginBottom: '1rem'
+          }}
+        >
+          La fecha de inicio no puede ser posterior a la fecha final.
+        </p>
+      )}
 
-      {/* Cards de Resumen */}
-      <section
-        aria-label="Resumen del período"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '1rem',
-          marginBottom: '2rem'
-        }}
-      >
-        {totalCards.map((card) => (
-          <article
-            key={card.type}
+      {!isDateRangeInvalid && (
+        <>
+          {/* Cards de Resumen */}
+          <section
+            aria-label="Resumen del período"
             style={{
-              padding: '1.5rem',
-              background: 'white',
-              borderRadius: '8px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '1rem',
+              marginBottom: '2rem'
             }}
           >
-            <h2
-              style={{
-                color: '#7f8c8d',
-                margin: '0 0 0.5rem 0',
-                fontSize: '0.85rem',
-                fontWeight: '600'
-              }}
-            >
-              {card.label}
-            </h2>
-            <strong style={{ fontSize: '1.75rem', color: '#27ae60' }}>
-              ${sumByType(card.type).toFixed(2)}
-            </strong>
-          </article>
-        ))}
-        {selectedType && (
-          <article
-            style={{
-              padding: '1.5rem',
-              background: 'white',
-              borderRadius: '8px',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-            }}
-          >
-            <h2
-              style={{
-                color: '#7f8c8d',
-                margin: '0 0 0.5rem 0',
-                fontSize: '0.85rem',
-                fontWeight: '600'
-              }}
-            >
-              {COUNT_LABELS[selectedType]}
-            </h2>
-            <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
-              {summary?.[selectedType]?.products ?? 0}
-            </strong>
-          </article>
-        )}
-      </section>
-
-      {/* Tabla de Movimientos */}
-      <div className="table-wrapper">
-        <table className="table-minimal">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Producto</th>
-              <th>Tipo</th>
-              <th style={{ textAlign: 'center' }}>Cantidad</th>
-              <th style={{ textAlign: 'right' }}>Precio Unit.</th>
-              <th style={{ textAlign: 'right' }}>Total</th>
-              <th>Usuario</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRecords.length > 0 ? (
-              filteredRecords.map((record) => {
-                const typeValue = getTypeValue(record)
-
-                return (
-                  <tr key={record._id}>
-                    <td>{formatDate(record.date)}</td>
-                    <td>
-                      <strong>{record.productName?.productName}</strong>
-                    </td>
-                    <td>
-                      <span
-                        className={`badge-minimal ${isExit(typeValue) ? 'badge-danger' : 'badge-success'}`}
-                      >
-                        {formatTypeLabel(typeValue)}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'center' }}>{record.quantity}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      ${parseFloat(record.productPrice).toFixed(2)}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <strong>
-                        ${parseFloat(record.totalAmount).toFixed(2)}
-                      </strong>
-                    </td>
-                    <td>
-                      <small>{record.User?.username || 'N/A'}</small>
-                    </td>
-                  </tr>
-                )
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan="7"
+            {totalCards.map((card) => (
+              <article
+                key={card.type}
+                style={{
+                  padding: '1.5rem',
+                  background: 'white',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                }}
+              >
+                <h2
                   style={{
-                    textAlign: 'center',
-                    padding: '2rem',
-                    color: '#7f8c8d'
+                    color: '#7f8c8d',
+                    margin: '0 0 0.5rem 0',
+                    fontSize: '0.85rem',
+                    fontWeight: '600'
                   }}
                 >
-                  No hay movimientos en este período
-                </td>
-              </tr>
+                  {card.label}
+                </h2>
+                <strong style={{ fontSize: '1.75rem', color: '#27ae60' }}>
+                  ${sumByType(card.type).toFixed(2)}
+                </strong>
+              </article>
+            ))}
+            {selectedType && (
+              <article
+                style={{
+                  padding: '1.5rem',
+                  background: 'white',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                }}
+              >
+                <h2
+                  style={{
+                    color: '#7f8c8d',
+                    margin: '0 0 0.5rem 0',
+                    fontSize: '0.85rem',
+                    fontWeight: '600'
+                  }}
+                >
+                  {COUNT_LABELS[selectedType]}
+                </h2>
+                <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
+                  {summary?.[selectedType]?.products ?? 0}
+                </strong>
+              </article>
             )}
-          </tbody>
-        </table>
-        {hasNextPage && supportsIntersectionObserver && (
-          <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-        )}
-        {isFetchingNextPage && supportsIntersectionObserver && (
-          <Loading fullScreen={false} />
-        )}
-        {hasNextPage && !supportsIntersectionObserver && (
-          <button
-            type="button"
-            className="w-full py-3 text-sm font-medium"
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-          >
-            {isFetchingNextPage ? <Loading fullScreen={false} /> : 'Cargar más'}
-          </button>
-        )}
-      </div>
+          </section>
+
+          {/* Tabla de Movimientos */}
+          <div className="table-wrapper">
+            <table className="table-minimal">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Producto</th>
+                  <th>Tipo</th>
+                  <th>Forma de pago</th>
+                  <th style={{ textAlign: 'center' }}>Cantidad</th>
+                  <th style={{ textAlign: 'right' }}>Precio Unit.</th>
+                  <th style={{ textAlign: 'right' }}>Total</th>
+                  <th>Usuario</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRecords.length > 0 ? (
+                  filteredRecords.map((record) => {
+                    const typeValue = getTypeValue(record)
+
+                    return (
+                      <tr key={record._id}>
+                        <td>{formatDate(record.date)}</td>
+                        <td>
+                          <strong>{record.productName?.productName}</strong>
+                        </td>
+                        <td>
+                          <span
+                            className={`badge-minimal ${isExit(typeValue) ? 'badge-danger' : 'badge-success'}`}
+                          >
+                            {formatTypeLabel(typeValue)}
+                          </span>
+                        </td>
+                        <td>{PAYMENT_LABELS[record.paymentType] || '-'}</td>
+                        <td style={{ textAlign: 'center' }}>
+                          {record.quantity}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          ${parseFloat(record.productPrice).toFixed(2)}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <strong>
+                            ${parseFloat(record.totalAmount).toFixed(2)}
+                          </strong>
+                        </td>
+                        <td>
+                          <small>{record.User?.username || 'N/A'}</small>
+                        </td>
+                      </tr>
+                    )
+                  })
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      style={{
+                        textAlign: 'center',
+                        padding: '2rem',
+                        color: '#7f8c8d'
+                      }}
+                    >
+                      No hay movimientos en este período
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            {hasNextPage && supportsIntersectionObserver && (
+              <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+            )}
+            {isFetchingNextPage && supportsIntersectionObserver && (
+              <Loading fullScreen={false} />
+            )}
+            {hasNextPage && !supportsIntersectionObserver && (
+              <button
+                type="button"
+                className="w-full py-3 text-sm font-medium"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? (
+                  <Loading fullScreen={false} />
+                ) : (
+                  'Cargar más'
+                )}
+              </button>
+            )}
+          </div>
+        </>
+      )}
     </section>
   )
 }

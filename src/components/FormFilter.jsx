@@ -3,7 +3,8 @@ const FormFilter = ({
   label = 'Buscar',
   placeholder = 'Buscar...',
   value,
-  onChange
+  onChange,
+  children
 }) => (
   <form
     className="filter-section"
@@ -23,6 +24,7 @@ const FormFilter = ({
         onChange={(event) => onChange(event.target.value)}
       />
     </div>
+    {children}
   </form>
 )
 

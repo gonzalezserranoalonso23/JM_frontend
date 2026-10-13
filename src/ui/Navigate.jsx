@@ -48,7 +48,7 @@ const Navigate = () => {
       aria-label="Navegación principal"
       className="app-nav fixed left-0 right-0 top-0 z-50 border-b border-gray-800 bg-black text-gray-300 shadow-[0_4px_20px_rgba(0,0,0,0.35)]"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 2xl:max-w-none">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:max-w-none">
         <div className="flex h-16 items-center justify-between gap-4">
           <Link
             to="../home"
@@ -67,7 +67,7 @@ const Navigate = () => {
           <button
             type="button"
             onClick={() => setIsOpen((open) => !open)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-gray-200 transition-colors hover:bg-gray-800 hover:text-white focus-visible:outline-white 2xl:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-gray-200 transition-colors hover:bg-gray-800 hover:text-white focus-visible:outline-white xl:hidden"
             aria-expanded={isOpen}
             aria-controls="app-navigation-menu"
             aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -79,7 +79,7 @@ const Navigate = () => {
             )}
           </button>
 
-          <div className="hidden min-w-0 items-center gap-1 2xl:flex">
+          <div className="hidden min-w-0 items-center gap-1 xl:flex">
             <div className="flex min-w-0 items-center gap-1">
               {links.map(({ to, label, end, badge }) => (
                 <NavLink
@@ -113,7 +113,7 @@ const Navigate = () => {
             <button
               type="button"
               onClick={handleLogOut}
-              className="ml-2 min-h-10 shrink-0 rounded-lg bg-gray-100 px-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-white focus-visible:outline-white"
+              className="ml-2 flex h-8 min-h-0 shrink-0 items-center justify-center self-center rounded-lg bg-yellow-400 px-2.5 py-0 text-center text-xs font-semibold text-gray-900 transition-colors hover:bg-yellow-300 focus-visible:outline-white"
             >
               Cerrar sesión
             </button>
@@ -123,7 +123,7 @@ const Navigate = () => {
         {isOpen && (
           <div
             id="app-navigation-menu"
-            className="max-h-[calc(var(--app-vh,1svh)*100-var(--app-nav-height))] space-y-1 overflow-y-auto overscroll-contain border-t border-gray-800 pb-4 pt-3 2xl:hidden"
+            className="max-h-[calc(var(--app-vh,1svh)*100-var(--app-nav-height))] space-y-0.5 overflow-y-auto overscroll-contain border-t border-gray-800 pb-2 pt-2 xl:hidden"
           >
             <div>
               {links.map(({ to, label, end, badge }) => (
@@ -132,7 +132,7 @@ const Navigate = () => {
                   to={to}
                   end={end}
                   className={({ isActive }) =>
-                    `flex min-h-12 items-center justify-between rounded-lg px-4 text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white focus-visible:outline-white ${
+                    `flex min-h-10 items-center justify-between rounded-lg px-3 text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white focus-visible:outline-white ${
                       isActive ? 'bg-white/10 text-white' : 'text-gray-300'
                     }`
                   }
@@ -150,7 +150,7 @@ const Navigate = () => {
               <button
                 type="button"
                 onClick={requestPermission}
-                className="mt-2 min-h-12 w-full rounded-lg border border-gray-600 px-4 text-left text-sm font-medium text-gray-200 transition-colors hover:bg-gray-800 focus-visible:outline-white"
+                className="mt-1 min-h-10 w-full rounded-lg border border-gray-600 px-3 text-left text-sm font-medium text-gray-200 transition-colors hover:bg-gray-800 focus-visible:outline-white"
               >
                 Activar notificaciones
               </button>
@@ -158,7 +158,7 @@ const Navigate = () => {
             <button
               type="button"
               onClick={handleLogOut}
-              className="mt-2 min-h-12 w-full rounded-lg bg-gray-100 px-4 text-left text-sm font-semibold text-gray-900 transition-colors hover:bg-white focus-visible:outline-white"
+              className="ml-auto mt-1 flex min-h-10 w-fit items-center justify-center rounded-lg bg-yellow-400 px-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-300 focus-visible:outline-white"
             >
               Cerrar sesión
             </button>

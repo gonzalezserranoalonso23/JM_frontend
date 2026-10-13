@@ -14,7 +14,7 @@ import ActionIconButton from '@/components/ActionIconButton'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
-import { PAYMENT_LABELS } from '@/utils/paymentTypes'
+import { PAYMENT_LABELS, PAYMENT_TYPES } from '@/utils/paymentTypes'
 
 const getTypeValue = (record) => {
   if (typeof record?.typeInventory === 'string') {
@@ -38,6 +38,7 @@ const SectionIssues = () => {
   const deleteRecord = useDeleteInventoryRecord()
 
   const [dataFilter, setDataFilter] = useFilterQuery()
+  const [paymentFilter, setPaymentFilter] = useState('')
   const [modalShow, setModalShow] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -76,6 +77,7 @@ const SectionIssues = () => {
     const isExit = getTypeValue(record) === 'ISSUE'
 
     if (!isExit) return false
+    if (paymentFilter && record.paymentType !== paymentFilter) return false
 
     return matchesCells(
       [record.productName?.productName, ...dateCells(record.date)],
@@ -117,7 +119,24 @@ const SectionIssues = () => {
         label="Buscar salidas"
         value={dataFilter}
         onChange={setDataFilter}
-      />
+      >
+        <div className="filter-group">
+          <label htmlFor="issue-payment-filter">Forma de pago</label>
+          <select
+            id="issue-payment-filter"
+            className="form-select"
+            value={paymentFilter}
+            onChange={(event) => setPaymentFilter(event.target.value)}
+          >
+            <option value="">Todas</option>
+            {PAYMENT_TYPES.map((payment) => (
+              <option key={payment.value} value={payment.value}>
+                {payment.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </FormFilter>
 
       {/* Modal */}
       <ModalIssues

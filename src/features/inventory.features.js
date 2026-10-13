@@ -166,18 +166,31 @@ export const useGetSalesByDateRange = (startDate, endDate) => {
   return { data, isLoading, isError }
 }
 
-export const useGetSalesByDateRangePages = (startDate, endDate, type = '') =>
+export const useGetSalesByDateRangePages = (
+  startDate,
+  endDate,
+  type = '',
+  paymentType = ''
+) =>
   useInfiniteQuery({
-    queryKey: ['SalesByDateRange', 'pages', startDate, endDate, type],
+    queryKey: [
+      'SalesByDateRange',
+      'pages',
+      startDate,
+      endDate,
+      type,
+      paymentType
+    ],
     queryFn: ({ pageParam }) =>
       getSalesByDateRangePage({
         startDate,
         endDate,
         page: pageParam,
         limit: 20,
-        ...(type && { type })
+        ...(type && { type }),
+        ...(paymentType && { paymentType })
       }),
-    enabled: !!(startDate && endDate),
+    enabled: !!(startDate && endDate && startDate <= endDate),
     placeholderData: keepPreviousData,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
