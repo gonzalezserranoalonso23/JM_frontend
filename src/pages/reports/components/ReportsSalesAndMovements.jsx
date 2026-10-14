@@ -27,7 +27,10 @@ const ReportsSalesAndMovements = () => {
   const [typeChoice, setTypeChoice] = useState()
   const selectedType = typeChoice ?? issueType?.value ?? ''
   const selectedTypeInfo = types.find((type) => type.value === selectedType)
-  const [selectedPaymentType, setSelectedPaymentType] = useState('')
+  const [paymentChoice, setPaymentChoice] = useState('')
+  // Las entradas no tienen forma de pago: el filtro solo aplica a salidas/todos
+  const showPaymentFilter = selectedTypeInfo?.stockDirection !== 1
+  const selectedPaymentType = showPaymentFilter ? paymentChoice : ''
   const [isExporting, setIsExporting] = useState(false)
   const isDateRangeInvalid =
     Boolean(startDate && endDate) && startDate > endDate
@@ -163,21 +166,23 @@ const ReportsSalesAndMovements = () => {
             ))}
           </select>
         </div>
-        <div className="filter-group">
-          <label>Forma de pago</label>
-          <select
-            value={selectedPaymentType}
-            onChange={(e) => setSelectedPaymentType(e.target.value)}
-            className="form-select"
-          >
-            <option value="">Todas</option>
-            {paymentTypes.map((payment) => (
-              <option key={payment.value} value={payment.value}>
-                {payment.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {showPaymentFilter && (
+          <div className="filter-group">
+            <label>Forma de pago</label>
+            <select
+              value={selectedPaymentType}
+              onChange={(e) => setPaymentChoice(e.target.value)}
+              className="form-select"
+            >
+              <option value="">Todas</option>
+              {paymentTypes.map((payment) => (
+                <option key={payment.value} value={payment.value}>
+                  {payment.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
       {isDateRangeInvalid && (
         <p
