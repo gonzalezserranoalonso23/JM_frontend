@@ -44,7 +44,8 @@ const ReportsSalesAndMovements = () => {
     startDate,
     endDate,
     selectedType,
-    selectedPaymentType
+    selectedPaymentType,
+    typeChoice !== undefined || Boolean(issueType)
   )
   const { sentinelRef, supportsIntersectionObserver } =
     useIntersectionPagination(fetchNextPage, hasNextPage && !isFetchingNextPage)

@@ -170,7 +170,8 @@ export const useGetSalesByDateRangePages = (
   startDate,
   endDate,
   type = '',
-  paymentType = ''
+  paymentType = '',
+  enabled = true
 ) =>
   useInfiniteQuery({
     queryKey: [
@@ -190,8 +191,8 @@ export const useGetSalesByDateRangePages = (
         ...(type && { type }),
         ...(paymentType && { paymentType })
       }),
-    enabled: !!(startDate && endDate && startDate <= endDate),
-    placeholderData: keepPreviousData,
+    // Sin placeholderData: al cambiar de tipo no deben verse filas del filtro anterior
+    enabled: enabled && !!(startDate && endDate && startDate <= endDate),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
