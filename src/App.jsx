@@ -25,6 +25,7 @@ import Products from './pages/products/Products'
 import Suppliers from './pages/suppliers/Suppliers'
 import SupplierDetails from './pages/suppliers/SupplierDetails'
 import Categories from './pages/categories/Categories'
+import PaymentTypes from './pages/payment-types/PaymentTypes'
 import DailyInformation from './pages/daily-information/DailyInformation'
 import Cash from './pages/cash/Cash'
 import Shortages from './pages/shortages/Shortages'
@@ -68,6 +69,7 @@ const App = () => {
               <Route path="/todolist/:id" element={<ToDoListDetails />} />
               <Route element={<Protected adminOnly />}>
                 <Route path="/catalogs" element={<Catalog />} />
+                <Route path="/payment-types" element={<PaymentTypes />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/users/:id" element={<UserDetails />} />
               </Route>

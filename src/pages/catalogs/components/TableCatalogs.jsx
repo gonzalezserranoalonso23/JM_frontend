@@ -5,6 +5,7 @@ const TableCatalogs = () => {
     { name: 'Productos', path: '../products' },
     { name: 'Proveedores', path: '../suppliers' },
     { name: 'Categorías', path: '../categories' },
+    { name: 'Métodos de pago', path: '../payment-types' },
     { name: 'Usuarios', path: '../users' }
   ]
 

@@ -19,6 +19,11 @@ export const validateCategory = (values) => {
     return toast.error('La categoría debe contener al menos 4 caracteres')
 }
 
+export const validatePaymentType = (values) => {
+  if (!values.paymentType?.trim())
+    return toast.error('El método de pago es requerido')
+}
+
 export const validateSupplier = (values) => {
   if (!values.suppliersName)
     return toast.error('El nombre del proveedor es requerido')

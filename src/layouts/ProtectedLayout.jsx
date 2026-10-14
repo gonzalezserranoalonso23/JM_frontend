@@ -15,6 +15,7 @@ const PAGE_TITLES = {
   '/products': 'Productos',
   '/suppliers': 'Proveedores',
   '/categories': 'Categorías',
+  '/payment-types': 'Métodos de pago',
   '/daily-information': 'Información diaria',
   '/shortages': 'Faltantes',
   '/cash': 'Caja'
