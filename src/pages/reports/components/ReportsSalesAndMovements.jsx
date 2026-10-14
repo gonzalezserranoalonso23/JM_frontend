@@ -5,7 +5,7 @@ import { useGetSalesByDateRangePages } from '@/features/inventory.features'
 import { getSalesByDateRange } from '@/services/inventory.services'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import { exportMovementsToExcel } from '@/utils/exportExcel'
-import { PAYMENT_LABELS, PAYMENT_TYPES } from '@/utils/paymentTypes'
+import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
 
@@ -40,6 +40,7 @@ const COUNT_LABELS = {
 }
 
 const ReportsSalesAndMovements = () => {
+  const { data: paymentTypes } = useGetPaymentTypes()
   const [startDate, setStartDate] = useState(todayLocal(-1))
   const [endDate, setEndDate] = useState(todayLocal(-1))
   const [selectedType, setSelectedType] = useState('ISSUE')
@@ -187,7 +188,7 @@ const ReportsSalesAndMovements = () => {
             className="form-select"
           >
             <option value="">Todas</option>
-            {PAYMENT_TYPES.map((payment) => (
+            {paymentTypes.map((payment) => (
               <option key={payment.value} value={payment.value}>
                 {payment.label}
               </option>
@@ -284,7 +285,6 @@ const ReportsSalesAndMovements = () => {
                   <th style={{ textAlign: 'center' }}>Cantidad</th>
                   <th style={{ textAlign: 'right' }}>Precio Unit.</th>
                   <th style={{ textAlign: 'right' }}>Total</th>
-                  <th>Usuario</th>
                 </tr>
               </thead>
               <tbody>
@@ -305,7 +305,7 @@ const ReportsSalesAndMovements = () => {
                             {formatTypeLabel(typeValue)}
                           </span>
                         </td>
-                        <td>{PAYMENT_LABELS[record.paymentType] || '-'}</td>
+                        <td>{record.paymentType?.paymentType || '-'}</td>
                         <td style={{ textAlign: 'center' }}>
                           {record.quantity}
                         </td>
@@ -317,16 +317,13 @@ const ReportsSalesAndMovements = () => {
                             ${parseFloat(record.totalAmount).toFixed(2)}
                           </strong>
                         </td>
-                        <td>
-                          <small>{record.User?.username || 'N/A'}</small>
-                        </td>
                       </tr>
                     )
                   })
                 ) : (
                   <tr>
                     <td
-                      colSpan="8"
+                      colSpan="7"
                       style={{
                         textAlign: 'center',
                         padding: '2rem',

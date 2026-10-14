@@ -102,6 +102,53 @@ body::-webkit-scrollbar {
   display: none; /* Chrome/Safari/Edge */
 }
 
+/* Date/time inputs on iOS/Android have an intrinsic width and overflow their
+   container once a value is picked; force them to fit and keep a stable height. */
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
+input[type='month'] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.75rem;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+input[type='date']::-webkit-date-and-time-value,
+input[type='time']::-webkit-date-and-time-value,
+input[type='datetime-local']::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+  margin: 0;
+}
+
+input[type='date']::-webkit-datetime-edit,
+input[type='time']::-webkit-datetime-edit {
+  padding: 0;
+  min-width: 0;
+}
+
+/* The scrollbar is hidden, so Radix's scroll-lock compensation (padding/margin
+   on body while a Dialog/Select is open) only makes the layout jump. */
+html body[data-scroll-locked] {
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+html body[data-scroll-locked] .right-scroll-bar-position {
+  right: 0 !important;
+}
+
+html body[data-scroll-locked] .width-before-scroll-bar {
+  margin-right: 0 !important;
+}
+
 /* iOS/Android auto-zoom on focus triggers when a field's font-size is below
    16px, which breaks the layout. Force 16px on mobile/tablet to prevent it. */
 @media (max-width: 1024px) {

@@ -20,7 +20,7 @@ import {
   SelectItem
 } from '@/components/ui/select'
 import { useGetProducts } from '@/features/products.features'
-import { PAYMENT_TYPES } from '@/utils/paymentTypes'
+import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import '../../../styles/inventory.css'
 import Loading from '@/ui/Loading'
 
@@ -55,6 +55,7 @@ const ModalIssues = ({
   record,
   isEditing
 }) => {
+  const { data: paymentTypes } = useGetPaymentTypes()
   const { data: products, isLoading: loadingProducts } = useGetProducts()
 
   // Carrito: los productos se van sumando localmente, sin hacer una
@@ -134,7 +135,7 @@ const ModalIssues = ({
         productPrice: record.productPrice || '',
         quantity: record.quantity || '',
         totalAmount: record.totalAmount || '',
-        paymentType: record.paymentType || ''
+        paymentType: record.paymentType?._id || ''
       })
       const product = products?.find(
         (p) => p._id === (record.productName?._id || record.productName)
@@ -374,7 +375,7 @@ const ModalIssues = ({
                       <SelectValue placeholder="Selecciona un tipo de pago" />
                     </SelectTrigger>
                     <SelectContent>
-                      {PAYMENT_TYPES.map((type) => (
+                      {paymentTypes.map((type) => (
                         <SelectItem key={type.value} value={type.value}>
                           {type.label}
                         </SelectItem>
@@ -549,7 +550,7 @@ const ModalIssues = ({
                         <SelectValue placeholder="Selecciona un tipo de pago" />
                       </SelectTrigger>
                       <SelectContent>
-                        {PAYMENT_TYPES.map((type) => (
+                        {paymentTypes.map((type) => (
                           <SelectItem key={type.value} value={type.value}>
                             {type.label}
                           </SelectItem>

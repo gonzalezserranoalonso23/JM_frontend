@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
 import { useGetPendingTasks } from '@/features/tasks.features'
+import { logout } from '@/services/users.services'
 import useTaskNotifications from '@/hooks/useTaskNotifications'
 
 const Navigate = () => {
@@ -20,7 +21,9 @@ const Navigate = () => {
     setIsOpen(false)
   }, [location.pathname])
 
-  const handleLogOut = () => {
+  const handleLogOut = async () => {
+    // Invalida el token en el servidor; si falla, igual se cierra localmente
+    await logout().catch(() => {})
     logOut()
     toast.success('Cierre de sesión exitoso!')
     navigate('/')

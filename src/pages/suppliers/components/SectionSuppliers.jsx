@@ -8,8 +8,11 @@ import {
 import ModalSuppliers from './ModalSuppliers'
 import Loading from '@/ui/Loading'
 import TableSuppliers from './TableSuppliers'
+import useFilterQuery from '@/hooks/useFilterQuery'
+import FormFilter from '@/components/FormFilter'
 
 const SectionSuppliers = () => {
+  const [dataFilter, setDataFilter] = useFilterQuery()
   const {
     data: supplierPages,
     isLoading,
@@ -17,7 +20,7 @@ const SectionSuppliers = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useGetSupplierPages()
+  } = useGetSupplierPages(dataFilter)
   const suppliers = supplierPages?.pages.flatMap((page) => page.data) || []
   const totalSuppliers = supplierPages?.pages[0]?.total || 0
 
@@ -68,6 +71,12 @@ const SectionSuppliers = () => {
             + Crear Proveedor
           </button>
         </header>
+        <FormFilter
+          id="supplier-filter"
+          label="Buscar proveedor"
+          value={dataFilter}
+          onChange={setDataFilter}
+        />
         {!update ? (
           <ModalSuppliers
             modalShow={modalShow}

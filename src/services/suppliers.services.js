@@ -5,9 +5,9 @@ export const getSuppliers = async () => {
   return data
 }
 
-export const getSuppliersPage = async ({ page, limit }) => {
+export const getSuppliersPage = async ({ page, limit, search }) => {
   const { data } = await axios.get('/api/suppliers', {
-    params: { page, limit }
+    params: { page, limit, search }
   })
   return data
 }

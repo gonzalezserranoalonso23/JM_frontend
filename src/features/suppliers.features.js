@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQueryClient,
@@ -22,12 +23,13 @@ export const useGetSuppliers = () => {
   return { data, isLoading, isError }
 }
 
-export const useGetSupplierPages = () =>
+export const useGetSupplierPages = (search = '') =>
   useInfiniteQuery({
-    queryKey: ['Suppliers', 'pages'],
+    queryKey: ['Suppliers', 'pages', search],
     queryFn: ({ pageParam }) =>
-      getSuppliersPage({ page: pageParam, limit: 20 }),
+      getSuppliersPage({ page: pageParam, limit: 20, search }),
     initialPageParam: 1,
+    placeholderData: keepPreviousData,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })

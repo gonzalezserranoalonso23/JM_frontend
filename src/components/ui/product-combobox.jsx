@@ -37,20 +37,50 @@ const ProductCombobox = ({
     const dialog = input?.closest('[role="dialog"]')
     if (!input || !dialog) return
 
-    const inputRect = input.getBoundingClientRect()
-    const dialogRect = dialog.getBoundingClientRect()
-    const spaceBelow = dialogRect.bottom - inputRect.bottom
-    const openUp =
-      spaceBelow < 220 && inputRect.top - dialogRect.top > spaceBelow
+    const GAP = 4
+    const place = () => {
+      const inputRect = input.getBoundingClientRect()
+      const dialogRect = dialog.getBoundingClientRect()
+      const viewport = window.visualViewport
+      const visibleTop = Math.max(dialogRect.top, viewport?.offsetTop ?? 0)
+      const visibleBottom = Math.min(
+        dialogRect.bottom,
+        (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight)
+      )
+      const spaceBelow = visibleBottom - inputRect.bottom - GAP
+      const spaceAbove = inputRect.top - visibleTop - GAP
+      const openUp = spaceBelow < 200 && spaceAbove > spaceBelow
+      const width = Math.min(inputRect.width, dialogRect.width)
+      const left = Math.min(
+        Math.max(inputRect.left - dialogRect.left, 0),
+        dialogRect.width - width
+      )
 
-    setListPos({
-      dialog,
-      left: inputRect.left - dialogRect.left,
-      width: inputRect.width,
-      ...(openUp
-        ? { bottom: dialogRect.bottom - inputRect.top + 4 }
-        : { top: inputRect.bottom - dialogRect.top + 4 })
-    })
+      setListPos({
+        dialog,
+        left,
+        width,
+        maxHeight: Math.max(
+          Math.min(openUp ? spaceAbove : spaceBelow, 192),
+          96
+        ),
+        ...(openUp
+          ? { bottom: dialogRect.bottom - inputRect.top + GAP }
+          : { top: inputRect.bottom - dialogRect.top + GAP })
+      })
+    }
+
+    place()
+    window.addEventListener('resize', place)
+    window.visualViewport?.addEventListener('resize', place)
+    window.visualViewport?.addEventListener('scroll', place)
+    document.addEventListener('scroll', place, true)
+    return () => {
+      window.removeEventListener('resize', place)
+      window.visualViewport?.removeEventListener('resize', place)
+      window.visualViewport?.removeEventListener('scroll', place)
+      document.removeEventListener('scroll', place, true)
+    }
   }, [isOpen])
 
   const handleSelect = (product) => {
@@ -101,9 +131,10 @@ const ProductCombobox = ({
               left: listPos.left,
               width: listPos.width,
               top: listPos.top,
-              bottom: listPos.bottom
+              bottom: listPos.bottom,
+              maxHeight: listPos.maxHeight
             }}
-            className="z-[100] max-h-48 overflow-y-scroll rounded-md border border-[var(--border-color)] bg-[var(--bg-card)] shadow-lg [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
+            className="z-[100] overflow-y-auto rounded-md border border-[var(--border-color)] bg-[var(--bg-card)] shadow-lg [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
           >
             {searchedProducts.length === 0 ? (
               <div className="px-3 py-2 text-sm text-muted-foreground">

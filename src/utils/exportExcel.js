@@ -1,5 +1,4 @@
 import { isoDay } from '@/utils/dateDisplay'
-import { PAYMENT_LABELS } from '@/utils/paymentTypes'
 
 const HEADER_STYLE = { fontWeight: 'bold', backgroundColor: '#fbbf24' }
 
@@ -21,8 +20,7 @@ export const exportMovementsToExcel = async (records, fileName) => {
     'Cantidad',
     'Precio unitario',
     'Total',
-    'Tipo de pago',
-    'Usuario'
+    'Tipo de pago'
   ].map(headerCell)
 
   const rows = records.map((record) => [
@@ -35,8 +33,7 @@ export const exportMovementsToExcel = async (records, fileName) => {
     { value: toNumber(record.quantity), type: Number },
     { value: toNumber(record.productPrice), type: Number, format: '#,##0.00' },
     { value: toNumber(record.totalAmount), type: Number, format: '#,##0.00' },
-    { value: PAYMENT_LABELS[record.paymentType] || '', type: String },
-    { value: record.User?.username || '', type: String }
+    { value: record.paymentType?.paymentType || '', type: String }
   ])
 
   const columns = [
@@ -46,8 +43,7 @@ export const exportMovementsToExcel = async (records, fileName) => {
     { width: 10 },
     { width: 16 },
     { width: 14 },
-    { width: 14 },
-    { width: 16 }
+    { width: 14 }
   ]
 
   await writeExcelFile([header, ...rows], { columns }).toFile(fileName)

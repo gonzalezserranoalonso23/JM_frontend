@@ -25,7 +25,6 @@ const TableEntries = ({ records, handleDelete }) => {
             <th>Cantidad</th>
             <th>Precio Unit.</th>
             <th>Monto Total</th>
-            <th>Usuario</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -42,7 +41,6 @@ const TableEntries = ({ records, handleDelete }) => {
               <td className="text-right">
                 ${parseFloat(record.totalAmount).toFixed(2)}
               </td>
-              <td>{record.User?.username || 'N/A'}</td>
               <td>
                 <button
                   type="button"

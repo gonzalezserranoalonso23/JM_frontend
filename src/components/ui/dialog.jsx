@@ -11,10 +11,7 @@ const DialogClose = DialogPrimitive.Close
 const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn(
-      'fixed inset-0 z-50 bg-black/70 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      className
-    )}
+    className={cn('fixed inset-0 z-50 bg-black/70', className)}
     {...props}
   />
 ))
@@ -160,11 +157,10 @@ const DialogContent = React.forwardRef(
         <DialogPrimitive.Content
           ref={setContentRef}
           className={cn(
-            'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95',
+            'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg',
             'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border-0 max-h-[90vh] overflow-hidden',
-            // Mobile: bottom sheet instead of a centered dialog
-            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:mt-2 max-sm:h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-h-[calc(var(--dialog-h,100svh)-1rem)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-2xl max-sm:transition-none max-sm:overscroll-contain',
-            'max-sm:data-[state=open]:slide-in-from-bottom-0 max-sm:data-[state=closed]:slide-out-to-bottom-0',
+            // Mobile: static full-screen sheet; no animations or movement
+            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:h-[var(--dialog-h,100svh)] max-sm:max-h-[var(--dialog-h,100svh)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain',
             className
           )}
           onInteractOutside={(event) => {
@@ -211,7 +207,9 @@ DialogHeader.displayName = 'DialogHeader'
 const DialogBody = ({ className, ...props }) => (
   <div
     className={cn(
-      'min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 max-sm:p-4',
+      'min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-5 [overflow-anchor:none] max-sm:p-4',
+      // Los hijos de grid/flex no deben ensanchar la columna más allá de la pantalla
+      '[&_.grid>*]:min-w-0 [&_.flex>*]:min-w-0 [&_input]:max-w-full [&_textarea]:max-w-full [&_button[role=combobox]]:max-w-full',
       className
     )}
     {...props}

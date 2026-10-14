@@ -2,6 +2,8 @@ import axios from '@/libs/axios'
 
 export const login = (values) => axios.post('/api/users/login', values)
 
+export const logout = () => axios.post('/api/users/logout')
+
 export const getUsers = async () => {
   const { data } = await axios.get('/api/users')
   return data

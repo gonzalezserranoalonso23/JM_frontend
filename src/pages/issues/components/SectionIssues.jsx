@@ -14,7 +14,7 @@ import ActionIconButton from '@/components/ActionIconButton'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
-import { PAYMENT_LABELS, PAYMENT_TYPES } from '@/utils/paymentTypes'
+import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 
 const getTypeValue = (record) => {
   if (typeof record?.typeInventory === 'string') {
@@ -31,6 +31,7 @@ const getTypeValue = (record) => {
 }
 
 const SectionIssues = () => {
+  const { data: paymentTypes } = useGetPaymentTypes()
   const { data: records, isLoading, isError } = useGetInventoryRecords()
   const createRecord = useCreateInventoryRecord()
   const createRecords = useCreateInventoryRecords()
@@ -77,7 +78,7 @@ const SectionIssues = () => {
     const isExit = getTypeValue(record) === 'ISSUE'
 
     if (!isExit) return false
-    if (paymentFilter && record.paymentType !== paymentFilter) return false
+    if (paymentFilter && record.paymentType?._id !== paymentFilter) return false
 
     return matchesCells(
       [record.productName?.productName, ...dateCells(record.date)],
@@ -129,7 +130,7 @@ const SectionIssues = () => {
             onChange={(event) => setPaymentFilter(event.target.value)}
           >
             <option value="">Todas</option>
-            {PAYMENT_TYPES.map((payment) => (
+            {paymentTypes.map((payment) => (
               <option key={payment.value} value={payment.value}>
                 {payment.label}
               </option>
@@ -183,7 +184,7 @@ const SectionIssues = () => {
                   </td>
                   <td>
                     <small className="text-muted">
-                      {PAYMENT_LABELS[record.paymentType] || '-'}
+                      {record.paymentType?.paymentType || '-'}
                     </small>
                   </td>
                   <td style={{ textAlign: 'center' }}>
