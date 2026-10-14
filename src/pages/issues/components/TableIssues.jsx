@@ -1,20 +1,6 @@
 import { formatDate } from '@/utils/dateDisplay'
 import ActionIconButton from '@/components/ActionIconButton'
 
-const getTypeValue = (record) => {
-  if (typeof record?.typeInventory === 'string') {
-    return record.typeInventory.toUpperCase()
-  }
-
-  const legacy = record?.typeInventory?.typeInventory || ''
-  const normalized = legacy.toLowerCase().trim()
-  if (normalized.includes('salida') || normalized.includes('venta')) {
-    return 'ISSUE'
-  }
-
-  return 'ENTRY'
-}
-
 const TableIssues = ({ records, handleDelete }) => {
   return (
     <div className="table-wrapper">
@@ -38,7 +24,7 @@ const TableIssues = ({ records, handleDelete }) => {
               <td>
                 <strong>{record.productName?.productName}</strong>
               </td>
-              <td>{getTypeValue(record)}</td>
+              <td>{record.typeInventory?.typeInventory}</td>
               <td className="text-center">{record.quantity}</td>
               <td className="text-right">
                 ${parseFloat(record.productPrice).toFixed(2)}

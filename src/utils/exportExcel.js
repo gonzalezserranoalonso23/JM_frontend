@@ -1,4 +1,5 @@
 import { isoDay } from '@/utils/dateDisplay'
+import { isIssueRecord } from '@/utils/typeInventory'
 
 const HEADER_STYLE = { fontWeight: 'bold', backgroundColor: '#fbbf24' }
 
@@ -27,7 +28,9 @@ export const exportMovementsToExcel = async (records, fileName) => {
     { value: isoDay(record.date), type: String },
     { value: record.productName?.productName || '', type: String },
     {
-      value: record.typeInventory === 'ISSUE' ? 'Salida' : 'Entrada',
+      value:
+        record.typeInventory?.typeInventory ||
+        (isIssueRecord(record) ? 'Salida' : 'Entrada'),
       type: String
     },
     { value: toNumber(record.quantity), type: Number },

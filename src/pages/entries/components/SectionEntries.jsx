@@ -14,20 +14,7 @@ import ActionIconButton from '@/components/ActionIconButton'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
-
-const getTypeValue = (record) => {
-  if (typeof record?.typeInventory === 'string') {
-    return record.typeInventory.toUpperCase()
-  }
-
-  const legacy = record?.typeInventory?.typeInventory || ''
-  const normalized = legacy.toLowerCase().trim()
-  if (normalized.includes('salida') || normalized.includes('venta')) {
-    return 'ISSUE'
-  }
-
-  return 'ENTRY'
-}
+import { isEntryRecord } from '@/utils/typeInventory'
 
 const SectionEntries = () => {
   const { data: records, isLoading, isError } = useGetInventoryRecords()
@@ -72,7 +59,7 @@ const SectionEntries = () => {
   const matcher = buildMatcher(dataFilter)
 
   const filteredRecords = records?.filter((record) => {
-    const isEntry = getTypeValue(record) === 'ENTRY'
+    const isEntry = isEntryRecord(record)
 
     if (!isEntry) return false
 
@@ -150,7 +137,7 @@ const SectionEntries = () => {
                   <td>
                     <strong>{record.productName?.productName}</strong>
                   </td>
-                  <td>{getTypeValue(record)}</td>
+                  <td>{record.typeInventory?.typeInventory}</td>
                   <td style={{ textAlign: 'center' }}>{record.quantity}</td>
                   <td style={{ textAlign: 'right' }}>
                     ${parseFloat(record.productPrice).toFixed(2)}

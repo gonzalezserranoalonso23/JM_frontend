@@ -1,17 +1,4 @@
 import { formatDate } from '@/utils/dateDisplay'
-const getTypeValue = (record) => {
-  if (typeof record?.typeInventory === 'string') {
-    return record.typeInventory.toUpperCase()
-  }
-
-  const legacy = record?.typeInventory?.typeInventory || ''
-  const normalized = legacy.toLowerCase().trim()
-  if (normalized.includes('salida') || normalized.includes('venta')) {
-    return 'ISSUE'
-  }
-
-  return 'ENTRY'
-}
 
 const TableEntries = ({ records, handleDelete }) => {
   return (
@@ -33,7 +20,7 @@ const TableEntries = ({ records, handleDelete }) => {
             <tr key={record._id}>
               <td>{formatDate(record.date)}</td>
               <td>{record.productName?.productName}</td>
-              <td>{getTypeValue(record)}</td>
+              <td>{record.typeInventory?.typeInventory}</td>
               <td className="text-center">{record.quantity}</td>
               <td className="text-right">
                 ${parseFloat(record.productPrice).toFixed(2)}

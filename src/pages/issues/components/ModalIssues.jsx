@@ -23,8 +23,7 @@ import { useGetProducts } from '@/features/products.features'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import '../../../styles/inventory.css'
 import Loading from '@/ui/Loading'
-
-const ISSUE_TYPE = 'ISSUE'
+import { useGetTypeInventories } from '@/features/typeInventory.features'
 
 const getToday = () => todayLocal()
 
@@ -38,7 +37,7 @@ const getEmptyItem = () => ({
 
 const getEmptyEditForm = () => ({
   date: getToday(),
-  typeInventory: ISSUE_TYPE,
+  typeInventory: '',
   productName: '',
   category: '',
   productPrice: '',
@@ -56,6 +55,7 @@ const ModalIssues = ({
   isEditing
 }) => {
   const { data: paymentTypes } = useGetPaymentTypes()
+  const { issueType } = useGetTypeInventories()
   const { data: products, isLoading: loadingProducts } = useGetProducts()
 
   // Carrito: los productos se van sumando localmente, sin hacer una
@@ -129,7 +129,7 @@ const ModalIssues = ({
     if (isEditing && record) {
       setEditFormData({
         date: record.date ? isoDay(record.date) : getToday(),
-        typeInventory: record.typeInventory || ISSUE_TYPE,
+        typeInventory: record.typeInventory?._id || '',
         productName: record.productName?._id || record.productName || '',
         category: record.category?._id || record.category || '',
         productPrice: record.productPrice || '',
@@ -202,6 +202,11 @@ const ModalIssues = ({
       return
     }
 
+    if (!issueType) {
+      setError('No se pudo cargar el tipo de salida, intenta de nuevo')
+      return
+    }
+
     if (!cartPaymentType) {
       setError('Selecciona el tipo de pago para esta salida')
       return
@@ -221,7 +226,7 @@ const ModalIssues = ({
       quantity: Number(payload.quantity),
       totalAmount: Number(payload.totalAmount),
       date,
-      typeInventory: ISSUE_TYPE,
+      typeInventory: issueType.value,
       paymentType: cartPaymentType
     }))
 
@@ -303,7 +308,11 @@ const ModalIssues = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ISSUE_TYPE}>{ISSUE_TYPE}</SelectItem>
+                      {issueType && (
+                        <SelectItem value={issueType.value}>
+                          {issueType.label}
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

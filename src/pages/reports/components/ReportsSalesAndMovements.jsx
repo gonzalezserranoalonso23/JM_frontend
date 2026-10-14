@@ -8,42 +8,25 @@ import { exportMovementsToExcel } from '@/utils/exportExcel'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import Loading from '@/ui/Loading'
 import '../../../styles/inventory.css'
+import { useGetTypeInventories } from '@/features/typeInventory.features'
 
-const FILTER_OPTIONS = [
-  { value: '', label: 'Todos' },
-  { value: 'ENTRY', label: 'Entradas' },
-  { value: 'ISSUE', label: 'Salidas' }
-]
+const isExitType = (type) => type?.stockDirection === -1
 
-const getTypeValue = (record) => {
-  if (typeof record?.typeInventory === 'string') {
-    return record.typeInventory.toUpperCase()
-  }
+const COUNT_LABEL = (type) =>
+  isExitType(type) ? 'Productos vendidos' : 'Productos ingresados'
 
-  const legacy = record?.typeInventory?.typeInventory || ''
-  const normalized = legacy.toLowerCase().trim()
-  if (normalized.includes('salida') || normalized.includes('venta')) {
-    return 'ISSUE'
-  }
-
-  return 'ENTRY'
-}
-
-const isExit = (typeStr = '') => typeStr === 'ISSUE'
-
-const formatTypeLabel = (typeStr = '') =>
-  typeStr === 'ISSUE' ? 'Salida' : 'Entrada'
-
-const COUNT_LABELS = {
-  ENTRY: 'Productos ingresados',
-  ISSUE: 'Productos vendidos'
-}
+const TOTAL_LABEL = (type) =>
+  isExitType(type) ? 'Total de ventas' : 'Total de compras'
 
 const ReportsSalesAndMovements = () => {
   const { data: paymentTypes } = useGetPaymentTypes()
   const [startDate, setStartDate] = useState(todayLocal(-1))
   const [endDate, setEndDate] = useState(todayLocal(-1))
-  const [selectedType, setSelectedType] = useState('ISSUE')
+  const { types, issueType } = useGetTypeInventories()
+  // undefined = aún sin elegir: por defecto las salidas; '' = todos
+  const [typeChoice, setTypeChoice] = useState()
+  const selectedType = typeChoice ?? issueType?.value ?? ''
+  const selectedTypeInfo = types.find((type) => type.value === selectedType)
   const [selectedPaymentType, setSelectedPaymentType] = useState('')
   const [isExporting, setIsExporting] = useState(false)
   const isDateRangeInvalid =
@@ -72,10 +55,9 @@ const ReportsSalesAndMovements = () => {
   const sumByType = (type) => Number(summary?.[type]?.totalAmount || 0)
 
   // Con "Todos" se separan para no mezclar entradas con salidas en un solo total
-  const totalCards = [
-    { label: 'Total de compras', type: 'ENTRY' },
-    { label: 'Total de ventas', type: 'ISSUE' }
-  ].filter((card) => !selectedType || card.type === selectedType)
+  const totalCards = types
+    .filter((type) => !selectedType || type.value === selectedType)
+    .map((type) => ({ label: TOTAL_LABEL(type), type: type.value }))
 
   const handleExport = async () => {
     if (isDateRangeInvalid) return
@@ -87,9 +69,9 @@ const ReportsSalesAndMovements = () => {
         endDate,
         selectedPaymentType
       )
-      const records = allRecords
-        .filter((r) => !selectedType || getTypeValue(r) === selectedType)
-        .map((r) => ({ ...r, typeInventory: getTypeValue(r) }))
+      const records = allRecords.filter(
+        (r) => !selectedType || r.typeInventory?._id === selectedType
+      )
       await exportMovementsToExcel(
         records,
         `reporte-movimientos_${startDate}_${endDate}.xlsx`
@@ -170,10 +152,11 @@ const ReportsSalesAndMovements = () => {
           <label>Tipo de movimiento</label>
           <select
             value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
+            onChange={(e) => setTypeChoice(e.target.value)}
             className="form-select"
           >
-            {FILTER_OPTIONS.map((opt) => (
+            <option value="">Todos</option>
+            {types.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -264,7 +247,7 @@ const ReportsSalesAndMovements = () => {
                     fontWeight: '600'
                   }}
                 >
-                  {COUNT_LABELS[selectedType]}
+                  {COUNT_LABEL(selectedTypeInfo)}
                 </h2>
                 <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
                   {summary?.[selectedType]?.products ?? 0}
@@ -290,8 +273,6 @@ const ReportsSalesAndMovements = () => {
               <tbody>
                 {filteredRecords.length > 0 ? (
                   filteredRecords.map((record) => {
-                    const typeValue = getTypeValue(record)
-
                     return (
                       <tr key={record._id}>
                         <td>{formatDate(record.date)}</td>
@@ -300,9 +281,9 @@ const ReportsSalesAndMovements = () => {
                         </td>
                         <td>
                           <span
-                            className={`badge-minimal ${isExit(typeValue) ? 'badge-danger' : 'badge-success'}`}
+                            className={`badge-minimal ${isExitType(record.typeInventory) ? 'badge-danger' : 'badge-success'}`}
                           >
-                            {formatTypeLabel(typeValue)}
+                            {record.typeInventory?.typeInventory}
                           </span>
                         </td>
                         <td>{record.paymentType?.paymentType || '-'}</td>

@@ -15,20 +15,7 @@ import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
-
-const getTypeValue = (record) => {
-  if (typeof record?.typeInventory === 'string') {
-    return record.typeInventory.toUpperCase()
-  }
-
-  const legacy = record?.typeInventory?.typeInventory || ''
-  const normalized = legacy.toLowerCase().trim()
-  if (normalized.includes('salida') || normalized.includes('venta')) {
-    return 'ISSUE'
-  }
-
-  return 'ENTRY'
-}
+import { isIssueRecord } from '@/utils/typeInventory'
 
 const SectionIssues = () => {
   const { data: paymentTypes } = useGetPaymentTypes()
@@ -75,7 +62,7 @@ const SectionIssues = () => {
   const matcher = buildMatcher(dataFilter)
 
   const filteredRecords = records?.filter((record) => {
-    const isExit = getTypeValue(record) === 'ISSUE'
+    const isExit = isIssueRecord(record)
 
     if (!isExit) return false
     if (paymentFilter && record.paymentType?._id !== paymentFilter) return false
@@ -172,7 +159,7 @@ const SectionIssues = () => {
                   <td>
                     <strong>{record.productName?.productName}</strong>
                   </td>
-                  <td>{getTypeValue(record)}</td>
+                  <td>{record.typeInventory?.typeInventory}</td>
                   <td style={{ textAlign: 'center' }}>{record.quantity}</td>
                   <td style={{ textAlign: 'right' }}>
                     ${parseFloat(record.productPrice).toFixed(2)}

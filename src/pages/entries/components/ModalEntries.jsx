@@ -22,8 +22,7 @@ import {
 import { useGetProducts } from '@/features/products.features'
 import '../../../styles/inventory.css'
 import Loading from '@/ui/Loading'
-
-const ENTRY_TYPE = 'ENTRY'
+import { useGetTypeInventories } from '@/features/typeInventory.features'
 
 const getToday = () => todayLocal()
 
@@ -37,7 +36,7 @@ const getEmptyItem = () => ({
 
 const getEmptyEditForm = () => ({
   date: getToday(),
-  typeInventory: ENTRY_TYPE,
+  typeInventory: '',
   productName: '',
   category: '',
   productPrice: '',
@@ -54,6 +53,7 @@ const ModalEntries = ({
   isEditing
 }) => {
   const { data: products, isLoading: loadingProducts } = useGetProducts()
+  const { entryType } = useGetTypeInventories()
 
   // Carrito: los productos se van sumando localmente, sin hacer una
   // petición POST por cada uno. Solo al "Registrar" se envían todos.
@@ -104,7 +104,7 @@ const ModalEntries = ({
     if (isEditing && record) {
       setEditFormData({
         date: record.date ? isoDay(record.date) : getToday(),
-        typeInventory: record.typeInventory || ENTRY_TYPE,
+        typeInventory: record.typeInventory?._id || '',
         productName: record.productName?._id || record.productName || '',
         category: record.category?._id || record.category || '',
         productPrice: record.productPrice || '',
@@ -160,6 +160,11 @@ const ModalEntries = ({
       return
     }
 
+    if (!entryType) {
+      window.alert('No se pudo cargar el tipo de entrada, intenta de nuevo')
+      return
+    }
+
     if (
       !window.confirm(
         `¿Estás seguro que deseas registrar ${cart.length} entrada(s)?`
@@ -174,7 +179,7 @@ const ModalEntries = ({
       quantity: Number(payload.quantity),
       totalAmount: Number(payload.totalAmount),
       date,
-      typeInventory: ENTRY_TYPE
+      typeInventory: entryType.value
     }))
 
     try {
@@ -239,7 +244,11 @@ const ModalEntries = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={ENTRY_TYPE}>{ENTRY_TYPE}</SelectItem>
+                      {entryType && (
+                        <SelectItem value={entryType.value}>
+                          {entryType.label}
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
