@@ -5,8 +5,11 @@ import { buildMatcher, matchesCells } from './filterMatcher'
 describe('dateDisplay', () => {
   it('isoDay conserva el día guardado sin cambiar zona horaria', () => {
     expect(isoDay('2026-03-05T23:59:59.000Z')).toBe('2026-03-05')
+    expect(isoDay('15/10/2026')).toBe('2026-10-15')
+    expect(isoDay('16/10/26')).toBe('2026-10-16')
     expect(isoDay('')).toBe('')
     expect(isoDay('basura')).toBe('')
+    expect(isoDay('31/02/2026')).toBe('')
   })
 
   it('formatDate regresa vacío con fechas inválidas', () => {

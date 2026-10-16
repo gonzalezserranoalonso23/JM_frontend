@@ -8,9 +8,12 @@ import {
 } from '@/components/ui/select'
 import { useGetDailyInformations } from '@/features/dailyInformation.features'
 import Loading from '@/ui/Loading'
+import { formatDate as displayDate, isoDay } from '@/utils/dateDisplay'
+
+const START_DATE = '2026-10-01'
 
 const formatDate = (date) =>
-  new Date(`${date}T00:00:00`).toLocaleDateString('es-MX', {
+  displayDate(date, 'es-MX', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -21,19 +24,13 @@ const formatAmount = (amount) => `$${Number(amount || 0).toFixed(2)}`
 const DailyInformationDashboard = () => {
   const { data: records, isLoading, isError } = useGetDailyInformations()
   const [selectedId, setSelectedId] = useState('')
-  const currentDate = new Date()
-  const today = [
-    currentDate.getFullYear(),
-    String(currentDate.getMonth() + 1).padStart(2, '0'),
-    String(currentDate.getDate()).padStart(2, '0')
-  ].join('-')
   const orderedRecords = (records || [])
     .filter((record) => {
-      const recordDate = String(record?.date || '').slice(0, 10)
-      return /^\d{4}-\d{2}-\d{2}$/.test(recordDate) && recordDate < today
+      const date = isoDay(record?.date)
+      return date >= START_DATE
     })
     .sort((first, second) =>
-      String(second.date).localeCompare(String(first.date))
+      isoDay(second.date).localeCompare(isoDay(first.date))
     )
   const selectedRecord =
     orderedRecords.find((record) => record._id === selectedId) ||
@@ -53,7 +50,7 @@ const DailyInformationDashboard = () => {
             Información diaria
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Consulta los totales de días anteriores
+            Consulta los totales registrados desde el 1 de octubre de 2026
           </p>
         </div>
         {!isLoading && !isError && orderedRecords.length > 0 && (
@@ -118,7 +115,7 @@ const DailyInformationDashboard = () => {
         </div>
       ) : (
         <p className="text-sm text-slate-500">
-          No hay información diaria registrada antes de hoy.
+          No hay información diaria registrada desde el 1 de octubre de 2026.
         </p>
       )}
     </section>
