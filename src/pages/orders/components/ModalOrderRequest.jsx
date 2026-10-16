@@ -1,6 +1,5 @@
 import { todayLocal, isoDay } from '@/utils/dateDisplay'
-import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -13,13 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'react-hot-toast'
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem
-} from '@/components/ui/select'
+import ProductCombobox from '@/components/ui/product-combobox'
 import { useGetProducts } from '@/features/products.features'
 import { useGetSuppliers } from '@/features/suppliers.features'
 import '@/styles/inventory.css'
@@ -27,11 +20,13 @@ import Loading from '@/ui/Loading'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
   const { data: products, isLoading: loadingProducts } = useGetProducts()
-  const { data: suppliers, isLoading: loadingSuppliers } = useGetSuppliers()
+  const { data: suppliers } = useGetSuppliers()
+  const suppliersById = Object.fromEntries(
+    (suppliers ?? []).map((s) => [s._id, s.suppliersName || s.name])
+  )
 
   const [formData, setFormData] = useState({
     date: todayLocal(),
-    supplier: '',
     items: []
   })
 
@@ -40,76 +35,18 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     quantity: '',
     price: ''
   })
-  const [includesTax, setIncludesTax] = useState(true)
-  const [taxAmount, setTaxAmount] = useState('')
-  const [productSearch, setProductSearch] = useState('')
-  const [productOpen, setProductOpen] = useState(false)
-  const productInputRef = useRef(null)
-  const [listPos, setListPos] = useState(null)
-
-  useEffect(() => {
-    if (!productOpen) return
-    const input = productInputRef.current
-    const dialog = input?.closest('[role="dialog"]')
-    if (!input || !dialog) return
-
-    const updateListPosition = () => {
-      const inputBounds = input.getBoundingClientRect()
-      const dialogBounds = dialog.getBoundingClientRect()
-      const headerBottom =
-        dialog.querySelector('header')?.getBoundingClientRect().bottom ??
-        dialogBounds.top
-      const footerTop =
-        dialog.querySelector('footer')?.getBoundingClientRect().top ??
-        dialogBounds.bottom
-      const viewportTop = window.visualViewport?.offsetTop ?? dialogBounds.top
-      const viewportBottom =
-        viewportTop + (window.visualViewport?.height ?? window.innerHeight)
-      const visibleTop = Math.max(headerBottom, viewportTop)
-      const visibleBottom = Math.min(footerTop, viewportBottom)
-      const spaceAbove = Math.max(0, inputBounds.top - visibleTop)
-      const spaceBelow = Math.max(0, visibleBottom - inputBounds.bottom)
-      const openUp = spaceBelow < 192 && spaceAbove > spaceBelow
-      const availableHeight = openUp ? spaceAbove : spaceBelow
-
-      setListPos({
-        dialog,
-        left: inputBounds.left - dialogBounds.left,
-        width: inputBounds.width,
-        maxHeight: Math.max(0, Math.min(192, availableHeight - 4)),
-        ...(openUp
-          ? { bottom: dialogBounds.bottom - inputBounds.top + 4 }
-          : { top: inputBounds.bottom - dialogBounds.top + 4 })
-      })
-    }
-
-    updateListPosition()
-    const visualViewport = window.visualViewport
-    window.addEventListener('resize', updateListPosition)
-    dialog.addEventListener('scroll', updateListPosition, true)
-    visualViewport?.addEventListener('resize', updateListPosition)
-    visualViewport?.addEventListener('scroll', updateListPosition)
-
-    return () => {
-      window.removeEventListener('resize', updateListPosition)
-      dialog.removeEventListener('scroll', updateListPosition, true)
-      visualViewport?.removeEventListener('resize', updateListPosition)
-      visualViewport?.removeEventListener('scroll', updateListPosition)
-    }
-  }, [productOpen])
-
   useEffect(() => {
     if (!modalShow) return
 
     if (order) {
       setFormData({
         date: order.date ? isoDay(order.date) : '',
-        supplier:
-          typeof order.supplier === 'object'
-            ? order.supplier?._id || ''
-            : order.supplier || '',
         items: (order.items || []).map((item) => ({
           ...item,
+          supplier:
+            typeof item.supplier === 'object'
+              ? item.supplier?._id || ''
+              : item.supplier || '',
           productId:
             typeof item.productId === 'object'
               ? item.productId?._id || ''
@@ -121,39 +58,13 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     } else {
       setFormData({
         date: todayLocal(),
-        supplier: '',
         items: []
       })
     }
     setCurrentItem({ product: '', quantity: '', price: '' })
-    setIncludesTax(true)
-    setTaxAmount('')
   }, [modalShow, order])
 
-  const filteredProducts = products?.filter((product) => {
-    if (!formData.supplier) return false
-    if (product?.isActive === false) return false
-
-    const supplierValue = product?.supplier
-    if (!supplierValue) return false
-
-    return typeof supplierValue === 'object'
-      ? supplierValue?._id === formData.supplier
-      : supplierValue === formData.supplier
-  })
-  const normalize = (v) =>
-    String(v ?? '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-  const searchedProducts = (filteredProducts ?? []).filter((p) => {
-    const q = normalize(productSearch.trim())
-    return (
-      !q ||
-      normalize(p.productName).includes(q) ||
-      normalize(p.productDescription).includes(q)
-    )
-  })
+  const activeProducts = (products ?? []).filter((p) => p?.isActive !== false)
   const selectedProduct = products?.find(
     (product) => product._id === currentItem.product
   )
@@ -161,10 +72,6 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-
-    if (name === 'supplier') {
-      setCurrentItem((prev) => ({ ...prev, product: '', price: '' }))
-    }
   }
 
   const handleItemChange = (e) => {
@@ -180,11 +87,6 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
         }))
       }
     }
-  }
-
-  const setSupplier = (value) => {
-    setFormData((prev) => ({ ...prev, supplier: value }))
-    setCurrentItem((prev) => ({ ...prev, product: '', price: '' }))
   }
 
   const setProduct = (value) => {
@@ -204,8 +106,14 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
       return
     }
 
+    const selected = products?.find((p) => p._id === currentItem.product)
+    const supplierValue = selected?.supplier
     const newItem = {
       productId: currentItem.product,
+      supplier:
+        typeof supplierValue === 'object'
+          ? supplierValue?._id || ''
+          : supplierValue || '',
       productName: products?.find((p) => p._id === currentItem.product)
         ?.productName,
       quantity: parseFloat(currentItem.quantity),
@@ -260,19 +168,20 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
         (Number(item.subtotal) || Number(item.quantity) * Number(item.price)),
       0
     )
-    return itemsTotal + (includesTax ? 0 : Number(taxAmount) || 0)
+    return itemsTotal
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    if (!formData.supplier || formData.items.length === 0) {
-      window.alert('Selecciona proveedor y agrega productos')
+    if (formData.items.length === 0) {
+      window.alert('Agrega productos')
       return
     }
 
     const dataToSubmit = {
       ...formData,
+      supplier: formData.items.find((item) => item.supplier)?.supplier,
       totalAmount: getTotalAmount(),
       status: order?.status || 'pendiente'
     }
@@ -283,12 +192,9 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
         onSuccess: () => {
           setFormData({
             date: todayLocal(),
-            supplier: '',
             items: []
           })
           setCurrentItem({ product: '', quantity: '', price: '' })
-          setIncludesTax(true)
-          setTaxAmount('')
           handleClose()
         }
       }
@@ -308,9 +214,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
-            {(loadingProducts || loadingSuppliers) && (
-              <Loading fullScreen={false} />
-            )}
+            {loadingProducts && <Loading fullScreen={false} />}
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
@@ -323,110 +227,18 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     onChange={handleChange}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="supplier">Proveedor *</Label>
-                  <Select value={formData.supplier} onValueChange={setSupplier}>
-                    <SelectTrigger id="supplier">
-                      <SelectValue placeholder="Selecciona" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {suppliers?.map((s) => (
-                        <SelectItem key={s._id} value={s._id}>
-                          {s.suppliersName || s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
 
               <div>
                 <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-[2fr_1fr_1fr_auto]">
                   <div className="min-w-0">
                     <Label htmlFor="product">Producto</Label>
-                    <div>
-                      <Input
-                        id="product"
-                        ref={productInputRef}
-                        role="combobox"
-                        aria-autocomplete="list"
-                        aria-expanded={productOpen}
-                        aria-controls="product-options"
-                        autoComplete="off"
-                        className="truncate disabled:opacity-100"
-                        disabled={!formData.supplier}
-                        value={
-                          productOpen
-                            ? productSearch
-                            : (selectedProduct?.productName ?? '')
-                        }
-                        placeholder={
-                          !formData.supplier
-                            ? 'Selecciona un proveedor'
-                            : filteredProducts?.length
-                              ? 'Buscar producto'
-                              : 'Sin productos activos'
-                        }
-                        onFocus={() => {
-                          setProductSearch('')
-                          setProductOpen(true)
-                        }}
-                        onChange={(e) => {
-                          setProductSearch(e.target.value)
-                          setProductOpen(true)
-                        }}
-                        onBlur={() => setProductOpen(false)}
-                      />
-                      {productOpen &&
-                        listPos &&
-                        createPortal(
-                          <div
-                            id="product-options"
-                            role="listbox"
-                            style={{
-                              position: 'absolute',
-                              left: listPos.left,
-                              width: listPos.width,
-                              maxHeight: listPos.maxHeight,
-                              top: listPos.top,
-                              bottom: listPos.bottom
-                            }}
-                            className="z-[100] max-h-48 overflow-y-scroll rounded-md border border-[var(--border-color)] bg-[var(--bg-card)] shadow-lg [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
-                          >
-                            {searchedProducts.length === 0 ? (
-                              <div className="px-3 py-2 text-sm text-muted-foreground">
-                                Sin resultados
-                              </div>
-                            ) : (
-                              searchedProducts.map((p) => (
-                                <button
-                                  type="button"
-                                  role="option"
-                                  aria-selected={p._id === currentItem.product}
-                                  key={p._id}
-                                  className="block w-full min-w-0 px-3 py-2 text-left hover:bg-[var(--bg-subtle)]"
-                                  onMouseDown={(e) => {
-                                    e.preventDefault()
-                                    setProduct(p._id)
-                                    setProductOpen(false)
-                                    setProductSearch('')
-                                  }}
-                                >
-                                  <span className="block truncate text-sm">
-                                    {p.productName}
-                                  </span>
-                                  {p.productDescription && (
-                                    <span className="block truncate text-xs text-muted-foreground">
-                                      {p.productDescription}
-                                    </span>
-                                  )}
-                                </button>
-                              ))
-                            )}
-                          </div>,
-                          listPos.dialog
-                        )}
-                    </div>
+                    <ProductCombobox
+                      id="product"
+                      products={activeProducts}
+                      value={currentItem.product}
+                      onValueChange={setProduct}
+                    />
                   </div>
 
                   <div>
@@ -493,6 +305,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     <thead>
                       <tr>
                         <th>Producto</th>
+                        <th>Proveedor</th>
                         <th className="text-center">Cantidad</th>
                         <th className="text-center">Stock actual</th>
                         <th className="text-center">Stock mínimo</th>
@@ -508,6 +321,13 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                             <strong className="break-words">
                               {item?.productName}
                             </strong>
+                          </td>
+                          <td>
+                            {suppliersById[
+                              typeof item.supplier === 'object'
+                                ? item.supplier?._id
+                                : item.supplier
+                            ] || '-'}
                           </td>
                           <td className="text-center">{item.quantity}</td>
                           <td className="text-center">
@@ -557,34 +377,6 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
           </DialogBody>
           <DialogFooter className="flex-col max-sm:gap-1 max-sm:p-2 max-sm:[&_button]:h-10">
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between max-sm:items-stretch max-sm:gap-2">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end max-sm:items-stretch max-sm:gap-2">
-                <label className="flex min-h-10 items-center gap-2 text-sm font-medium text-white max-sm:min-h-0">
-                  <input
-                    type="checkbox"
-                    checked={includesTax}
-                    onChange={(event) => setIncludesTax(event.target.checked)}
-                    className="h-4 w-4 accent-white"
-                  />
-                  Incluye impuestos
-                </label>
-                {!includesTax && (
-                  <div className="flex sm:w-48 max-sm:w-full max-sm:flex-col max-sm:items-stretch max-sm:gap-1">
-                    <Label htmlFor="taxAmount" className="text-white">
-                      Impuesto
-                    </Label>
-                    <Input
-                      id="taxAmount"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="Cantidad de impuesto"
-                      value={taxAmount}
-                      onChange={(event) => setTaxAmount(event.target.value)}
-                      className="max-sm:min-w-0"
-                    />
-                  </div>
-                )}
-              </div>
               <strong className="text-base text-white max-sm:self-end">
                 Total: ${getTotalAmount().toFixed(2)}
               </strong>

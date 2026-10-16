@@ -29,7 +29,7 @@ vi.mock('@/features/products.features', () => ({
 }))
 vi.mock('@/features/suppliers.features', () => ({
   useGetSuppliers: () => ({
-    data: [{ _id: 's1', supplierName: 'Proveedor 1' }],
+    data: [{ _id: 's1', suppliersName: 'Proveedor 1' }],
     isLoading: false
   })
 }))
@@ -55,19 +55,19 @@ const setup = (order) => {
 }
 
 describe('ModalOrderRequest', () => {
-  it('deshabilita el producto sin proveedor', () => {
+  it('el producto está habilitado sin elegir proveedor', () => {
     setup()
-    expect(screen.getByLabelText('Producto')).toBeDisabled()
+    expect(screen.getByLabelText('Producto')).toBeEnabled()
   })
 
-  it('filtra con includes, solo activos del proveedor', async () => {
+  it('filtra con includes, solo productos activos', async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 })
     setup({ supplier: 's1', items: [], date: '2026-01-01' })
     const input = screen.getByLabelText('Producto')
     await user.click(input)
     expect(await screen.findByText('Coca Cola 600ml')).toBeInTheDocument()
     expect(screen.queryByText('Coca Apagada')).not.toBeInTheDocument()
-    expect(screen.queryByText('Coca Otro Proveedor')).not.toBeInTheDocument()
+    expect(screen.getByText('Coca Otro Proveedor')).toBeInTheDocument()
 
     await user.type(input, 'CAFE')
     expect(screen.getByText('Café Soluble')).toBeInTheDocument()
@@ -90,6 +90,7 @@ describe('ModalOrderRequest', () => {
     await user.type(screen.getByLabelText('Cantidad'), '2')
     await user.click(screen.getByRole('button', { name: /agregar producto/i }))
     expect(screen.getAllByText(/Coca Cola 600ml/).length).toBeGreaterThan(0)
+    expect(screen.getByText('Proveedor 1')).toBeInTheDocument()
   })
 
   it('reubica la lista de productos al cambiar el espacio del modal en móvil', async () => {
@@ -140,20 +141,9 @@ describe('ModalOrderRequest', () => {
     expect(list.style.maxHeight).toBe('192px')
   })
 
-  it('muestra el impuesto solo si no incluye impuestos', async () => {
-    const user = userEvent.setup({ pointerEventsCheck: 0 })
+  it('no muestra campos de impuestos', () => {
     setup()
-    expect(
-      screen.queryByLabelText(/impuesto/i, { selector: 'input[type=number]' })
-    ).toBeNull()
-    await user.click(screen.getByRole('checkbox'))
-    const taxInput = screen.getByLabelText(/impuesto/i, {
-      selector: 'input[type=number]'
-    })
-    expect(taxInput).toBeInTheDocument()
-    expect(taxInput.parentElement).toHaveClass(
-      'max-sm:flex-col',
-      'max-sm:w-full'
-    )
+    expect(screen.queryByText(/impuesto/i)).toBeNull()
+    expect(screen.queryByRole('checkbox')).toBeNull()
   })
 })
