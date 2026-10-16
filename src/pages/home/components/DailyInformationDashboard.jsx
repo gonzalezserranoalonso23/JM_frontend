@@ -49,9 +49,6 @@ const DailyInformationDashboard = () => {
           >
             Información diaria
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Consulta los totales registrados desde el 1 de octubre de 2026
-          </p>
         </div>
         {!isLoading && !isError && orderedRecords.length > 0 && (
           <div className="w-full sm:w-64">
