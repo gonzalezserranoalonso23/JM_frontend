@@ -395,10 +395,19 @@ const ModalIssues = ({
               </div>
             </DialogBody>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose}>
+              <Button
+                type="button"
+                onClick={handleClose}
+                className="bg-red-400 text-white hover:bg-red-500"
+              >
                 Cancelar
               </Button>
-              <Button type="submit">Guardar cambios</Button>
+              <Button
+                type="submit"
+                className="bg-cyan-900 text-white hover:bg-cyan-950"
+              >
+                Guardar cambios
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -494,8 +503,8 @@ const ModalIssues = ({
 
                 <Button
                   type="button"
-                  variant="outline"
                   onClick={handleAddToCart}
+                  className="bg-cyan-900 text-white hover:bg-cyan-950"
                 >
                   + Agregar al carrito
                 </Button>
@@ -572,10 +581,18 @@ const ModalIssues = ({
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button
+              type="button"
+              onClick={handleClose}
+              className="bg-red-400 text-white hover:bg-red-500"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={cart.length === 0 || isSubmitting}>
+            <Button
+              type="submit"
+              disabled={cart.length === 0 || isSubmitting}
+              className="bg-cyan-900 text-white hover:bg-cyan-950 disabled:opacity-100 disabled:cursor-not-allowed"
+            >
               {isSubmitting
                 ? 'Registrando...'
                 : `Registrar ${cart.length || ''} salida${

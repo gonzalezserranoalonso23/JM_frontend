@@ -139,7 +139,7 @@ const ToDoList = () => {
                     </select>
                     <button
                       type="submit"
-                      className="btn-custom btn-primary-custom"
+                      className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
                       disabled={createTask.isPending}
                     >
                       {createTask.isPending ? '...' : '+ Agregar'}

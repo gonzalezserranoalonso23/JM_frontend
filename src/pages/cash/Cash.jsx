@@ -7,7 +7,9 @@ const formatAmount = (amount) =>
   amount.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })
 
 const formatDenomination = (value) =>
-  value < 1 ? `$${value.toFixed(2)}` : `$${value.toLocaleString('es-MX')}`
+  value < 1
+    ? `$${value.toFixed(2)}`
+    : `$${value.toLocaleString('es-MX', { maximumFractionDigits: 2 })}`
 
 const Cash = () => {
   const [quantities, setQuantities] = useState({})

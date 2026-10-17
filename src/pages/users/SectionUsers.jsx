@@ -74,7 +74,7 @@ const SectionUsers = () => {
           <p className="section-subtitle">Gestión de cuentas del sistema</p>
         </div>
         <button
-          className="btn-custom btn-primary-custom"
+          className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
           onClick={handleShowCreate}
         >
           + Nuevo Usuario

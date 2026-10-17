@@ -4,6 +4,8 @@ import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import ActionIconButton from '@/components/ActionIconButton'
 import Loading from '@/ui/Loading'
 
+const fmt = (value) => Math.round(Number(value ?? 0) * 100) / 100
+
 const TableProducts = ({
   products,
   total,
@@ -76,8 +78,8 @@ const TableProducts = ({
                       <p>{product.productDescription}</p>
                     )}
                     <p>
-                      Compra ${product?.purchasePrice ?? 0} · Venta $
-                      {product?.productPrice ?? 0}
+                      Compra ${fmt(product?.purchasePrice)} · Venta $
+                      {fmt(product?.productPrice)}
                     </p>
                     <p>
                       {product?.supplier?.suppliersName ||
@@ -99,10 +101,10 @@ const TableProducts = ({
                   <small>{product?.productDescription}</small>
                 </td>
                 <td className="mobile-expand hidden lg:table-cell">
-                  ${product?.purchasePrice ?? 0}
+                  ${fmt(product?.purchasePrice)}
                 </td>
                 <td className="mobile-expand hidden lg:table-cell">
-                  ${product?.productPrice ?? 0}
+                  ${fmt(product?.productPrice)}
                 </td>
                 <td>
                   <span
@@ -114,14 +116,14 @@ const TableProducts = ({
                           : 'badge-success'
                     }`}
                   >
-                    {product?.productStock}
+                    {fmt(product?.productStock)}
                   </span>
                   <span className="mobile-summary mt-1 block text-xs text-slate-500 lg:hidden">
-                    Mín. {product?.minimumProductStock ?? 0}
+                    Mín. {fmt(product?.minimumProductStock)}
                   </span>
                 </td>
                 <td className="mobile-expand hidden lg:table-cell">
-                  {product?.minimumProductStock}
+                  {fmt(product?.minimumProductStock)}
                 </td>
                 <td className="mobile-expand hidden lg:table-cell">
                   <small>{product?.supplier?.suppliersName}</small>

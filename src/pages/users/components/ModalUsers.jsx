@@ -174,7 +174,11 @@ const ModalUsers = ({
             <Button type="button" variant="outline" onClick={handleCloseReset}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={action.isPending}>
+            <Button
+              type="submit"
+              disabled={action.isPending}
+              className="bg-cyan-900 text-white hover:bg-cyan-950"
+            >
               {type} usuario
             </Button>
           </DialogFooter>

@@ -116,7 +116,7 @@ const Navigate = () => {
             <button
               type="button"
               onClick={handleLogOut}
-              className="ml-2 flex h-8 min-h-0 shrink-0 items-center justify-center self-center rounded-lg bg-yellow-400 px-2.5 py-0 text-center text-xs font-semibold text-gray-900 transition-colors hover:bg-yellow-300 focus-visible:outline-white"
+              className="ml-2 flex h-8 min-h-0 shrink-0 items-center justify-center self-center rounded-lg bg-red-400 px-2.5 py-0 text-center text-xs font-semibold text-white transition-all hover:scale-105 hover:bg-red-500 focus-visible:outline-white"
             >
               Cerrar sesión
             </button>
@@ -161,7 +161,7 @@ const Navigate = () => {
             <button
               type="button"
               onClick={handleLogOut}
-              className="ml-auto mt-1 flex min-h-10 w-fit items-center justify-center rounded-lg bg-yellow-400 px-3 text-center text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-300 focus-visible:outline-white"
+              className="ml-auto mt-1 flex min-h-10 w-fit items-center justify-center rounded-lg bg-red-400 px-3 text-center text-sm font-semibold text-white transition-all hover:scale-105 hover:bg-red-500 focus-visible:outline-white"
             >
               Cerrar sesión
             </button>

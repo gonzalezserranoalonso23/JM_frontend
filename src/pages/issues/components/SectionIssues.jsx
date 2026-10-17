@@ -96,7 +96,10 @@ const SectionIssues = () => {
             Registros de ventas y movimientos negativos
           </p>
         </div>
-        <button className="btn-custom btn-danger-custom" onClick={handleShow}>
+        <button
+          className="btn-custom btn-danger-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
+          onClick={handleShow}
+        >
           ↑ Nueva Salida
         </button>
       </header>

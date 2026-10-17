@@ -181,10 +181,19 @@ const ModalProducts = ({
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleCloseUpdate}>
+            <Button
+              type="button"
+              onClick={handleCloseUpdate}
+              className="bg-red-400 text-white hover:bg-red-500"
+            >
               Cerrar
             </Button>
-            <Button type="submit">{type} producto</Button>
+            <Button
+              type="submit"
+              className="bg-cyan-900 text-white hover:bg-cyan-950"
+            >
+              {type} producto
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

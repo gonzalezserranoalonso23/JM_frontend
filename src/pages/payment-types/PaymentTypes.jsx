@@ -48,7 +48,7 @@ const PaymentTypes = () => {
               Métodos de pago
             </h1>
             <button
-              className="btn-custom btn-primary-custom"
+              className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
               onClick={() => setModalShow(true)}
             >
               + Crear método de pago

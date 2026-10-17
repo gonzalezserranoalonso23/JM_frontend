@@ -65,7 +65,7 @@ const SectionSuppliers = () => {
             Proveedores
           </h1>
           <button
-            className="btn-custom btn-primary-custom"
+            className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
             onClick={handleShow}
           >
             + Crear Proveedor

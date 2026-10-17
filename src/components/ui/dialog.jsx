@@ -221,8 +221,8 @@ const DialogFooter = ({ className, ...props }) => (
   <footer
     className={cn(
       'flex shrink-0 flex-row justify-end gap-3 border-t border-black bg-black p-5 max-sm:gap-2 max-sm:p-3 max-sm:[&_button]:flex-1 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))] max-sm:[&_button]:h-12',
-      '[&_button:not([type=submit])]:border-white/60 [&_button:not([type=submit])]:text-white [&_button:not([type=submit])]:hover:bg-white/10',
-      '[&_button[type=submit]]:bg-gray-700 [&_button[type=submit]]:text-white [&_button[type=submit]]:hover:bg-gray-600',
+      '[&_button:not([type=submit])]:border-white/60 [&_button:not([type=submit])]:text-white',
+      '[&_button[type=submit]]:bg-cyan-900 [&_button[type=submit]]:text-white [&_button[type=submit]]:hover:bg-cyan-950',
       className
     )}
     {...props}

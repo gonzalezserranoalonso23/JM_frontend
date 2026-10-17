@@ -106,7 +106,10 @@ const SectionOrders = () => {
           </h1>
           <p className="section-subtitle">Gestión de órdenes de compra</p>
         </div>
-        <button className="btn-custom btn-primary-custom" onClick={handleShow}>
+        <button
+          className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
+          onClick={handleShow}
+        >
           + Nueva Solicitud
         </button>
       </header>

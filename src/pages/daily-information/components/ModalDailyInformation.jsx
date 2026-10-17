@@ -132,7 +132,11 @@ const ModalDailyInformation = ({ record, modalShow, handleClose, action }) => {
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={action.isPending}>
+            <Button
+              type="submit"
+              disabled={action.isPending}
+              className="bg-cyan-900 text-white hover:bg-cyan-950"
+            >
               {action.isPending ? 'Guardando...' : 'Guardar registro'}
             </Button>
           </DialogFooter>

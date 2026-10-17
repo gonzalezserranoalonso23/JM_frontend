@@ -71,7 +71,7 @@ const SectionDailyInformation = () => {
         </h1>
         <button
           type="button"
-          className="btn-custom btn-primary-custom"
+          className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
           onClick={handleCreate}
         >
           + Nuevo registro

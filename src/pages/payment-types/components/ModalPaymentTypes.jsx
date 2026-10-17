@@ -71,7 +71,12 @@ const ModalPaymentTypes = ({
             >
               Cerrar
             </Button>
-            <Button type="submit">{type} método</Button>
+            <Button
+              type="submit"
+              className="bg-cyan-900 text-white hover:bg-cyan-950"
+            >
+              {type} método
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

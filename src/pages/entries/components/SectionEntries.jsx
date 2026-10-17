@@ -92,7 +92,10 @@ const SectionEntries = () => {
             Registros de compras y movimientos positivos
           </p>
         </div>
-        <button className="btn-custom btn-success-custom" onClick={handleShow}>
+        <button
+          className="btn-custom btn-success-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
+          onClick={handleShow}
+        >
           ↓ Nueva Entrada
         </button>
       </header>

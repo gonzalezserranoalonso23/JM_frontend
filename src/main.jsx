@@ -29,6 +29,19 @@ window.addEventListener('resize', setAppViewportHeight)
 window.addEventListener('orientationchange', setAppViewportHeight)
 window.visualViewport?.addEventListener('resize', setAppViewportHeight)
 
+// Limit every numeric input to two decimals. Runs in the capture phase so
+// React's onChange already receives the truncated value.
+document.addEventListener(
+  'input',
+  (event) => {
+    const input = event.target
+    if (input?.tagName !== 'INPUT' || input.type !== 'number') return
+    const match = input.value.match(/^(-?\d*\.\d{2})\d+$/)
+    if (match) input.value = match[1]
+  },
+  true
+)
+
 createRoot(document.getElementById('root')).render(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider delayDuration={150}>

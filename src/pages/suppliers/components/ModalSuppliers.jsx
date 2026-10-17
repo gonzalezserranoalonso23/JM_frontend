@@ -142,7 +142,12 @@ const ModalSuppliers = ({
             <Button type="button" variant="outline" onClick={handleCloseUpdate}>
               Cerrar
             </Button>
-            <Button type="submit">{type} proveedor</Button>
+            <Button
+              type="submit"
+              className="bg-cyan-900 text-white hover:bg-cyan-950"
+            >
+              {type} proveedor
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

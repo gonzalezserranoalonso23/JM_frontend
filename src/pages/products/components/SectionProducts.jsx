@@ -57,7 +57,10 @@ const SectionProducts = () => {
         <h1 id="products-title" className="section-title">
           Productos
         </h1>
-        <button className="btn-custom btn-primary-custom" onClick={handleShow}>
+        <button
+          className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
+          onClick={handleShow}
+        >
           + Crear Producto
         </button>
       </header>

@@ -271,7 +271,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     <Button
                       type="button"
                       onClick={addItem}
-                      className="min-h-[42px] w-full whitespace-nowrap md:w-auto"
+                      className="min-h-[42px] w-full whitespace-nowrap bg-cyan-900 text-white hover:bg-cyan-950 md:w-auto"
                     >
                       Agregar producto
                     </Button>
@@ -384,13 +384,15 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
             <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3 max-sm:flex-row max-sm:gap-2">
               <Button
                 type="button"
-                variant="outline"
                 onClick={handleClose}
-                className="w-full sm:w-auto"
+                className="w-full bg-red-400 text-white hover:bg-red-500 sm:w-auto"
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                className="w-full bg-cyan-900 text-white hover:bg-cyan-950 sm:w-auto"
+              >
                 {order ? 'Guardar cambios' : 'Crear Solicitud'}
               </Button>
             </div>
