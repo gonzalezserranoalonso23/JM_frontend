@@ -20,6 +20,7 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table'
+import RecordCards from '@/components/RecordCards'
 import ActionIconButton from '@/components/ActionIconButton'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import useDebouncedValue from '@/hooks/useDebouncedValue'
@@ -128,57 +129,66 @@ const SectionEntries = () => {
 
         {/* Tabla */}
         {records.length > 0 ? (
-          <div className="rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Producto</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead className="text-center">Cantidad</TableHead>
-                  <TableHead className="text-right">Precio</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="text-center">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {records.map((record) => (
-                  <TableRow key={record._id}>
-                    <TableCell>{formatDate(record.date)}</TableCell>
-                    <TableCell>
-                      <strong>{record.productName?.productName}</strong>
-                    </TableCell>
-                    <TableCell>{record.typeInventory?.typeInventory}</TableCell>
-                    <TableCell className="text-center">
-                      {record.quantity}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      ${parseFloat(record.productPrice).toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <strong>
-                        ${parseFloat(record.totalAmount).toFixed(2)}
-                      </strong>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                        <ActionIconButton
-                          action="edit"
-                          label="Editar"
-                          onClick={() => handleShowEdit(record)}
-                        />
-                        <ActionIconButton
-                          action="delete"
-                          label="Eliminar"
-                          onClick={() => handleDelete(record._id)}
-                        />
-                      </div>
-                    </TableCell>
+          <>
+            <RecordCards
+              records={records}
+              onEdit={handleShowEdit}
+              onDelete={handleDelete}
+            />
+            <div className="hidden rounded-lg border lg:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Producto</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead className="text-center">Cantidad</TableHead>
+                    <TableHead className="text-right">Precio</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {records.map((record) => (
+                    <TableRow key={record._id}>
+                      <TableCell>{formatDate(record.date)}</TableCell>
+                      <TableCell>
+                        <strong>{record.productName?.productName}</strong>
+                      </TableCell>
+                      <TableCell>
+                        {record.typeInventory?.typeInventory}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {record.quantity}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        ${parseFloat(record.productPrice).toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <strong>
+                          ${parseFloat(record.totalAmount).toFixed(2)}
+                        </strong>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                          <ActionIconButton
+                            action="edit"
+                            label="Editar"
+                            onClick={() => handleShowEdit(record)}
+                          />
+                          <ActionIconButton
+                            action="delete"
+                            label="Eliminar"
+                            onClick={() => handleDelete(record._id)}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         ) : (
           <Alert>No hay entradas registradas</Alert>
         )}
