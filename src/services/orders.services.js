@@ -6,11 +6,6 @@ export const getOrderRequests = async () => {
   return data
 }
 
-export const getOrderRequest = async (id) => {
-  const { data } = await axios.get(`/api/orders/${id}`)
-  return data
-}
-
 export const createOrderRequest = async (body) => {
   const { data } = await axios.post('/api/orders', body)
   return data

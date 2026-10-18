@@ -1,14 +1,15 @@
+import { Card } from '@/components/ui/card'
+
 const IssueDetails = () => {
   return (
-    <div className="bg-light py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
-        <section
-          className="section-container"
-          aria-labelledby="issue-details-title"
-        >
-          <h1 id="issue-details-title" className="section-title">
-            Detalle de salida
-          </h1>
+    <div className="py-6">
+      <div className="page-content-shell">
+        <section aria-labelledby="issue-details-title">
+          <Card className="p-4 sm:p-6">
+            <h1 id="issue-details-title" className="text-2xl font-semibold">
+              Detalle de salida
+            </h1>
+          </Card>
         </section>
       </div>
     </div>

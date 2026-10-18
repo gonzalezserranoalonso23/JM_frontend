@@ -22,6 +22,11 @@ const ProductCombobox = ({
   const [listPos, setListPos] = useState(null)
   const inputRef = useRef(null)
   const selectedProduct = productList.find((product) => product._id === value)
+  const selectedLabel = selectedProduct
+    ? `${selectedProduct.productName}${
+        showStock ? ` (Stock: ${selectedProduct.productStock})` : ''
+      }`
+    : ''
   const searchedProducts = productList.filter((product) => {
     const query = normalize(search.trim())
     return (
@@ -99,17 +104,9 @@ const ProductCombobox = ({
         aria-expanded={isOpen}
         aria-controls={`${id}-options`}
         autoComplete="off"
-        className="truncate"
-        value={
-          isOpen
-            ? search
-            : selectedProduct
-              ? `${selectedProduct.productName}${
-                  showStock ? ` (Stock: ${selectedProduct.productStock})` : ''
-                }`
-              : ''
-        }
-        placeholder={placeholder}
+        className={`truncate ${isOpen && selectedLabel ? 'placeholder:text-foreground' : ''}`}
+        value={isOpen ? search : selectedLabel}
+        placeholder={isOpen && selectedLabel ? selectedLabel : placeholder}
         onFocus={() => {
           setSearch('')
           setIsOpen(true)
@@ -134,7 +131,7 @@ const ProductCombobox = ({
               bottom: listPos.bottom,
               maxHeight: listPos.maxHeight
             }}
-            className="z-[100] overflow-y-auto rounded-md border border-[var(--border-color)] bg-[var(--bg-card)] shadow-lg [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
+            className="z-[100] overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-lg [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
           >
             {searchedProducts.length === 0 ? (
               <div className="px-3 py-2 text-sm text-muted-foreground">
@@ -147,7 +144,7 @@ const ProductCombobox = ({
                   role="option"
                   aria-selected={product._id === value}
                   key={product._id}
-                  className="block w-full min-w-0 px-3 py-2 text-left hover:bg-[var(--bg-subtle)]"
+                  className="block w-full min-w-0 px-3 py-2 text-left hover:bg-accent"
                   onMouseDown={(event) => {
                     event.preventDefault()
                     handleSelect(product)

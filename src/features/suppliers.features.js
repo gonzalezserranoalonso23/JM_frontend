@@ -9,7 +9,6 @@ import { toast } from 'react-hot-toast'
 import {
   getSuppliers,
   getSuppliersPage,
-  getSupplier,
   createSupplier,
   updateSupplier,
   deleteSupplier
@@ -33,14 +32,6 @@ export const useGetSupplierPages = (search = '') =>
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
-
-export const useGetSupplier = (id) => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['Supplier', id],
-    queryFn: () => getSupplier(id)
-  })
-  return { data, isLoading, isError }
-}
 
 export const useDeleteSupplier = () => {
   const queryClient = useQueryClient()

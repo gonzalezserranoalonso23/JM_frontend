@@ -1,5 +1,15 @@
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 
 const DENOMINATIONS = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5]
 
@@ -26,70 +36,74 @@ const Cash = () => {
   )
 
   return (
-    <div className="bg-light py-6">
-      <div className="page-content-shell mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <section className="section-container" aria-labelledby="cash-title">
-          <header className="section-header">
-            <h1 id="cash-title" className="section-title">
-              Calcular caja
-            </h1>
-            <button
-              type="button"
-              className="btn-custom btn-primary-custom"
-              onClick={() => setQuantities({})}
-            >
+    <div className="py-6">
+      <div className="page-content-shell">
+        <Card role="region" aria-labelledby="cash-title">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>
+              <h1 id="cash-title" className="text-xl font-bold">
+                Calcular caja
+              </h1>
+            </CardTitle>
+            <Button type="button" onClick={() => setQuantities({})}>
               Limpiar
-            </button>
-          </header>
-          <div className="table-wrapper overflow-x-hidden">
-            <table className="table-minimal table-static !w-full table-fixed">
-              <thead>
-                <tr>
-                  <th className="w-[30%]">Denominación</th>
-                  <th className="w-[34%] text-center">Cantidad</th>
-                  <th className="w-[36%] text-right">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DENOMINATIONS.map((denomination) => (
-                  <tr key={denomination}>
-                    <td>
-                      <strong>{formatDenomination(denomination)}</strong>
-                    </td>
-                    <td className="text-center">
-                      <Input
-                        type="number"
-                        inputMode="numeric"
-                        min="0"
-                        step="1"
-                        placeholder="0"
-                        className="mx-auto h-9 w-full max-w-28 px-2 text-center"
-                        aria-label={`Cantidad de ${formatDenomination(denomination)}`}
-                        value={quantities[denomination] ?? ''}
-                        onChange={(e) =>
-                          handleChange(denomination, e.target.value)
-                        }
-                      />
-                    </td>
-                    <td className="text-right">
-                      {formatAmount(denomination * getQuantity(denomination))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan={2} className="text-right">
-                    <strong>Total en caja</strong>
-                  </td>
-                  <td className="text-right">
-                    <strong>{formatAmount(total)}</strong>
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </section>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-hidden rounded-lg border">
+              <Table className="table-fixed">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[30%]">Denominación</TableHead>
+                    <TableHead className="w-[34%] text-center">
+                      Cantidad
+                    </TableHead>
+                    <TableHead className="w-[36%] text-right">
+                      Subtotal
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {DENOMINATIONS.map((denomination) => (
+                    <TableRow key={denomination}>
+                      <TableCell>
+                        <strong>{formatDenomination(denomination)}</strong>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          min="0"
+                          step="1"
+                          placeholder="0"
+                          className="mx-auto h-9 w-full max-w-28 px-2 text-center"
+                          aria-label={`Cantidad de ${formatDenomination(denomination)}`}
+                          value={quantities[denomination] ?? ''}
+                          onChange={(e) =>
+                            handleChange(denomination, e.target.value)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatAmount(denomination * getQuantity(denomination))}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <tfoot className="border-t bg-muted/50 font-medium">
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-right">
+                      <strong>Total en caja</strong>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <strong>{formatAmount(total)}</strong>
+                    </TableCell>
+                  </TableRow>
+                </tfoot>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

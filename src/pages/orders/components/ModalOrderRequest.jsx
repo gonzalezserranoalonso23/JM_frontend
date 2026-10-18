@@ -15,7 +15,14 @@ import { toast } from 'react-hot-toast'
 import ProductCombobox from '@/components/ui/product-combobox'
 import { useGetProducts } from '@/features/products.features'
 import { useGetSuppliers } from '@/features/suppliers.features'
-import '@/styles/inventory.css'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 import Loading from '@/ui/Loading'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
@@ -203,7 +210,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
 
   return (
     <Dialog open={modalShow} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
             {order ? 'Editar Solicitud de Pedido' : 'Nueva Solicitud de Pedido'}
@@ -229,108 +236,109 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                 </div>
               </div>
 
-              <div>
-                <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-[2fr_1fr_1fr_auto]">
-                  <div className="min-w-0">
-                    <Label htmlFor="product">Producto</Label>
-                    <ProductCombobox
-                      id="product"
-                      products={activeProducts}
-                      value={currentItem.product}
-                      onValueChange={setProduct}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="quantity">Cantidad</Label>
-                    <Input
-                      id="quantity"
-                      type="number"
-                      name="quantity"
-                      placeholder="Cantidad"
-                      value={currentItem.quantity}
-                      onChange={handleItemChange}
-                      min="1"
-                      step="0.01"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="price">Precio compra</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      name="price"
-                      placeholder="Precio compra"
-                      value={currentItem.price}
-                      disabled
-                    />
-                  </div>
-
-                  <div className="mb-4 flex w-full self-end md:mb-0 md:w-auto">
-                    <Button
-                      type="button"
-                      onClick={addItem}
-                      className="min-h-[42px] w-full whitespace-nowrap bg-cyan-900 text-white hover:bg-cyan-950 md:w-auto"
-                    >
-                      Agregar producto
-                    </Button>
-                  </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+                <div className="min-w-0 md:col-span-2 lg:col-span-4">
+                  <Label htmlFor="product">Producto</Label>
+                  <ProductCombobox
+                    id="product"
+                    products={activeProducts}
+                    value={currentItem.product}
+                    onValueChange={setProduct}
+                  />
                 </div>
-                <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="currentProductStock">Stock actual</Label>
-                    <Input
-                      id="currentProductStock"
-                      type="number"
-                      value={selectedProduct?.productStock ?? ''}
-                      readOnly
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="minimumProductStock">Stock mínimo</Label>
-                    <Input
-                      id="minimumProductStock"
-                      type="number"
-                      value={selectedProduct?.minimumProductStock ?? ''}
-                      readOnly
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="currentProductStock">Stock actual</Label>
+                  <Input
+                    id="currentProductStock"
+                    type="number"
+                    value={selectedProduct?.productStock ?? ''}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="minimumProductStock">Stock mínimo</Label>
+                  <Input
+                    id="minimumProductStock"
+                    type="number"
+                    value={selectedProduct?.minimumProductStock ?? ''}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="quantity">Cantidad</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    name="quantity"
+                    placeholder="Cantidad"
+                    value={currentItem.quantity}
+                    onChange={handleItemChange}
+                    min="1"
+                    step="0.01"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="price">Precio compra</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    name="price"
+                    placeholder="Precio compra"
+                    value={currentItem.price}
+                    disabled
+                  />
+                </div>
+                <div className="md:col-span-2 lg:col-span-4">
+                  <Button
+                    type="button"
+                    onClick={addItem}
+                    className="w-full whitespace-nowrap md:w-auto"
+                  >
+                    Agregar producto
+                  </Button>
                 </div>
               </div>
 
               {formData.items.length > 0 && (
-                <div className="table-wrapper">
-                  <table className="table-minimal">
-                    <thead>
-                      <tr>
-                        <th>Producto</th>
-                        <th>Proveedor</th>
-                        <th className="text-center">Cantidad</th>
-                        <th className="text-center">Stock actual</th>
-                        <th className="text-center">Stock mínimo</th>
-                        <th className="text-right">Precio compra</th>
-                        <th className="text-right">Subtotal</th>
-                        <th className="text-center">Opciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                <div className="rounded-lg border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Producto</TableHead>
+                        <TableHead>Proveedor</TableHead>
+                        <TableHead className="text-center">Cantidad</TableHead>
+                        <TableHead className="text-center">
+                          Stock actual
+                        </TableHead>
+                        <TableHead className="text-center">
+                          Stock mínimo
+                        </TableHead>
+                        <TableHead className="text-right">
+                          Precio compra
+                        </TableHead>
+                        <TableHead className="text-right">Subtotal</TableHead>
+                        <TableHead className="text-center">Opciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {formData.items.map((item, idx) => (
-                        <tr key={idx}>
-                          <td>
+                        <TableRow key={idx}>
+                          <TableCell>
                             <strong className="break-words">
                               {item?.productName}
                             </strong>
-                          </td>
-                          <td>
+                          </TableCell>
+                          <TableCell>
                             {suppliersById[
                               typeof item.supplier === 'object'
                                 ? item.supplier?._id
                                 : item.supplier
                             ] || '-'}
-                          </td>
-                          <td className="text-center">{item.quantity}</td>
-                          <td className="text-center">
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {item.quantity}
+                          </TableCell>
+                          <TableCell className="text-center">
                             {products?.find(
                               (product) =>
                                 product._id ===
@@ -338,8 +346,8 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                                   ? item.productId?._id
                                   : item.productId)
                             )?.productStock ?? 0}
-                          </td>
-                          <td className="text-center">
+                          </TableCell>
+                          <TableCell className="text-center">
                             {products?.find(
                               (product) =>
                                 product._id ===
@@ -347,37 +355,38 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                                   ? item.productId?._id
                                   : item.productId)
                             )?.minimumProductStock ?? 0}
-                          </td>
-                          <td className="text-right">
+                          </TableCell>
+                          <TableCell className="text-right">
                             ${Number(item.price || 0).toFixed(2)}
-                          </td>
-                          <td className="text-right">
+                          </TableCell>
+                          <TableCell className="text-right">
                             $
                             {(
                               Number(item.subtotal) ||
                               Number(item.quantity) * Number(item.price)
                             ).toFixed(2)}
-                          </td>
-                          <td className="text-center">
-                            <button
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Button
                               type="button"
+                              variant="destructive"
+                              size="sm"
                               onClick={() => removeItem(idx)}
-                              className="btn-action btn-danger-sm"
                             >
                               Borrar
-                            </button>
-                          </td>
-                        </tr>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </div>
           </DialogBody>
           <DialogFooter className="flex-col max-sm:gap-1 max-sm:p-2 max-sm:[&_button]:h-10">
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between max-sm:items-stretch max-sm:gap-2">
-              <strong className="text-base text-white max-sm:self-end">
+              <strong className="text-base text-foreground max-sm:self-end">
                 Total: ${getTotalAmount().toFixed(2)}
               </strong>
             </div>
@@ -385,14 +394,12 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
               <Button
                 type="button"
                 onClick={handleClose}
-                className="w-full bg-red-400 text-white hover:bg-red-500 sm:w-auto"
+                variant="outline"
+                className="w-full sm:w-auto"
               >
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                className="w-full bg-cyan-900 text-white hover:bg-cyan-950 sm:w-auto"
-              >
+              <Button type="submit" className="w-full sm:w-auto">
                 {order ? 'Guardar cambios' : 'Crear Solicitud'}
               </Button>
             </div>

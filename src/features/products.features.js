@@ -9,7 +9,6 @@ import { toast } from 'react-hot-toast'
 import {
   getProducts,
   getProductsPage,
-  getProduct,
   createProduct,
   updateProduct,
   deleteProduct
@@ -40,14 +39,6 @@ export const useSearchProducts = (search = '') =>
     enabled: search.length > 0,
     placeholderData: keepPreviousData
   })
-
-export const useGetProduct = (id) => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['Product', id],
-    queryFn: () => getProduct(id)
-  })
-  return { data, isLoading, isError }
-}
 
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient()

@@ -1,4 +1,12 @@
 import ActionIconButton from '@/components/ActionIconButton'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 
 const formatAmount = (amount) =>
   Number(amount || 0).toLocaleString('es-MX', {
@@ -7,27 +15,35 @@ const formatAmount = (amount) =>
   })
 
 const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
-  <div className="table-wrapper">
-    <table className="table-minimal">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th className="text-right">Efectivo</th>
-          <th className="text-right">Tarjeta</th>
-          <th className="text-right">Ventas totales</th>
-          <th className="text-center">Transacciones</th>
-          <th className="text-center">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
+  <div className="rounded-lg border">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Fecha</TableHead>
+          <TableHead className="text-right">Efectivo</TableHead>
+          <TableHead className="text-right">Tarjeta</TableHead>
+          <TableHead className="text-right">Ventas totales</TableHead>
+          <TableHead className="text-center">Transacciones</TableHead>
+          <TableHead className="text-center">Acciones</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {records.map((record) => (
-          <tr key={record._id}>
-            <td>{record.date}</td>
-            <td className="text-right">{formatAmount(record.cashSales)}</td>
-            <td className="text-right">{formatAmount(record.cardSales)}</td>
-            <td className="text-right">{formatAmount(record.totalSales)}</td>
-            <td className="text-center">{record.totalTransactions}</td>
-            <td className="text-center">
+          <TableRow key={record._id}>
+            <TableCell>{record.date}</TableCell>
+            <TableCell className="text-right">
+              {formatAmount(record.cashSales)}
+            </TableCell>
+            <TableCell className="text-right">
+              {formatAmount(record.cardSales)}
+            </TableCell>
+            <TableCell className="text-right">
+              {formatAmount(record.totalSales)}
+            </TableCell>
+            <TableCell className="text-center">
+              {record.totalTransactions}
+            </TableCell>
+            <TableCell className="text-center">
               <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
                 <ActionIconButton
                   action="edit"
@@ -40,14 +56,14 @@ const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
                   onClick={() => handleDelete(record._id)}
                 />
               </div>
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         ))}
-      </tbody>
-      <caption className="mt-2 text-sm text-gray-500">
+      </TableBody>
+      <caption className="mt-2 mb-2 text-sm text-muted-foreground">
         Total: {records.length} registros
       </caption>
-    </table>
+    </Table>
   </div>
 )
 

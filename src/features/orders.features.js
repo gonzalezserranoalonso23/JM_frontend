@@ -2,7 +2,6 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
   getOrderRequests,
-  getOrderRequest,
   createOrderRequest,
   updateOrderRequest,
   deleteOrderRequest
@@ -12,15 +11,6 @@ export const useGetOrderRequests = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['OrderRequests'],
     queryFn: getOrderRequests
-  })
-  return { data, isLoading, isError }
-}
-
-export const useGetOrderRequest = (id) => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['OrderRequest', id],
-    queryFn: () => getOrderRequest(id),
-    enabled: !!id
   })
   return { data, isLoading, isError }
 }

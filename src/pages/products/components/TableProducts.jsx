@@ -3,6 +3,18 @@ import { Check, X } from 'lucide-react'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import ActionIconButton from '@/components/ActionIconButton'
 import Loading from '@/ui/Loading'
+import { Alert } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 
 const fmt = (value) => Math.round(Number(value ?? 0) * 100) / 100
 
@@ -19,133 +31,122 @@ const TableProducts = ({
   handleToggleActive
 }) => {
   const tableContainerRef = useRef(null)
+  // Only the desktop table scrolls internally; on mobile the page scrolls.
+  const desktopRootRef = {
+    get current() {
+      return window.matchMedia('(min-width: 1024px)').matches
+        ? tableContainerRef.current
+        : null
+    }
+  }
   const { sentinelRef, supportsIntersectionObserver } =
     useIntersectionPagination(
       fetchNextPage,
       hasNextPage && !isFetchingNextPage,
-      tableContainerRef
+      desktopRootRef
     )
 
   return (
     <div
       ref={tableContainerRef}
-      className="table-wrapper products-table-wrapper h-[70vh] min-h-[18rem] overflow-y-auto"
+      className="lg:h-[70vh] lg:min-h-[18rem] lg:overflow-y-auto lg:rounded-lg lg:border"
       aria-busy={isLoading || isFetchingNextPage}
     >
       {isLoading ? (
-        <div className="flex h-full items-center justify-center">
+        <div className="flex h-64 items-center justify-center lg:h-full">
           <Loading fullScreen={false} />
         </div>
       ) : isError ? (
-        <div className="alert-minimal alert-danger-minimal m-4">
+        <Alert variant="destructive" className="m-4 w-auto">
           Error al cargar los productos
-        </div>
+        </Alert>
       ) : products.length === 0 ? (
-        <div className="flex h-full items-center justify-center">
-          <div className="alert-minimal alert-warning-minimal">
-            No hay productos para mostrar
-          </div>
+        <div className="flex h-64 items-center justify-center lg:h-full">
+          <Alert className="w-auto">No hay productos para mostrar</Alert>
         </div>
       ) : (
-        <table className="table-minimal products-table">
-          <thead className="sticky top-0 z-10">
-            <tr>
-              <th>Producto</th>
-              <th className="mobile-expand hidden lg:table-cell">
-                Descripción
-              </th>
-              <th className="mobile-expand hidden lg:table-cell">Compra</th>
-              <th className="mobile-expand hidden lg:table-cell">Venta</th>
-              <th>Stock</th>
-              <th className="mobile-expand hidden lg:table-cell">Stock mín.</th>
-              <th className="mobile-expand hidden lg:table-cell">Proveedor</th>
-              <th className="mobile-expand hidden lg:table-cell">Categoría</th>
-              <th className="mobile-expand hidden text-center lg:table-cell">
-                Estado
-              </th>
-              <th className="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          <div className="space-y-3 lg:hidden">
             {products.map((product) => (
-              <tr key={product?._id}>
-                <td>
-                  <strong className="break-words">
-                    {product?.productName}
-                  </strong>
-                  <div className="mobile-summary mt-1 space-y-0.5 break-words text-xs text-slate-500 lg:hidden">
-                    {product?.productDescription && (
-                      <p>{product.productDescription}</p>
-                    )}
-                    <p>
-                      Compra ${fmt(product?.purchasePrice)} · Venta $
-                      {fmt(product?.productPrice)}
-                    </p>
-                    <p>
-                      {product?.supplier?.suppliersName ||
-                        product?.supplier?.name ||
-                        'Sin proveedor'}{' '}
-                      · {product?.category?.categories || 'Sin categoría'}
-                    </p>
-                    <p className="flex items-center gap-1">
-                      {product?.isActive === false ? (
-                        <X className="h-3.5 w-3.5 text-red-600" />
-                      ) : (
-                        <Check className="h-3.5 w-3.5 text-green-600" />
+              <Card key={product?._id} className="gap-3 py-4">
+                <CardContent className="space-y-3 px-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="break-words font-medium">
+                        {product?.productName}
+                      </p>
+                      {product?.productDescription && (
+                        <p className="break-words text-xs text-muted-foreground">
+                          {product.productDescription}
+                        </p>
                       )}
-                      {product?.isActive === false ? 'Desactivado' : 'Activado'}
-                    </p>
+                    </div>
+                    <Badge
+                      variant={
+                        product?.productStock === 0 ? 'destructive' : 'outline'
+                      }
+                      className={
+                        product?.productStock === 0
+                          ? 'shrink-0'
+                          : `shrink-0 ${
+                              product?.productStock <
+                              product?.minimumProductStock
+                                ? 'text-amber-400'
+                                : 'text-emerald-400'
+                            }`
+                      }
+                    >
+                      Stock {fmt(product?.productStock)}
+                    </Badge>
                   </div>
-                </td>
-                <td className="mobile-expand hidden lg:table-cell">
-                  <small>{product?.productDescription}</small>
-                </td>
-                <td className="mobile-expand hidden lg:table-cell">
-                  ${fmt(product?.purchasePrice)}
-                </td>
-                <td className="mobile-expand hidden lg:table-cell">
-                  ${fmt(product?.productPrice)}
-                </td>
-                <td>
-                  <span
-                    className={`badge-minimal ${
-                      product?.productStock === 0
-                        ? 'badge-danger'
-                        : product?.productStock < product?.minimumProductStock
-                          ? 'badge-warning'
-                          : 'badge-success'
-                    }`}
-                  >
-                    {fmt(product?.productStock)}
-                  </span>
-                  <span className="mobile-summary mt-1 block text-xs text-slate-500 lg:hidden">
-                    Mín. {fmt(product?.minimumProductStock)}
-                  </span>
-                </td>
-                <td className="mobile-expand hidden lg:table-cell">
-                  {fmt(product?.minimumProductStock)}
-                </td>
-                <td className="mobile-expand hidden lg:table-cell">
-                  <small>{product?.supplier?.suppliersName}</small>
-                </td>
-                <td className="mobile-expand hidden lg:table-cell">
-                  <small>{product?.category?.categories}</small>
-                </td>
-                <td className="mobile-expand hidden text-center lg:table-cell">
-                  {product?.isActive === false ? (
-                    <X
-                      className="h-5 w-5 text-red-600"
-                      aria-label="Desactivado"
-                    />
-                  ) : (
-                    <Check
-                      className="h-5 w-5 text-green-600"
-                      aria-label="Activado"
-                    />
-                  )}
-                </td>
-                <td className="text-center">
-                  <div className="flex w-full flex-row items-center justify-center gap-1">
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Compra</dt>
+                      <dd>${fmt(product?.purchasePrice)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Venta</dt>
+                      <dd>${fmt(product?.productPrice)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Stock mín.
+                      </dt>
+                      <dd>{fmt(product?.minimumProductStock)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Estado</dt>
+                      <dd className="flex items-center gap-1">
+                        {product?.isActive === false ? (
+                          <X className="h-4 w-4 text-destructive" />
+                        ) : (
+                          <Check className="h-4 w-4 text-emerald-400" />
+                        )}
+                        {product?.isActive === false
+                          ? 'Desactivado'
+                          : 'Activado'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Proveedor
+                      </dt>
+                      <dd className="break-words">
+                        {product?.supplier?.suppliersName ||
+                          product?.supplier?.name ||
+                          'Sin proveedor'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Categoría
+                      </dt>
+                      <dd className="break-words">
+                        {product?.category?.categories || 'Sin categoría'}
+                      </dd>
+                    </div>
+                  </dl>
+                  <div className="flex items-center justify-end gap-2 border-t pt-3">
                     <ActionIconButton
                       action="edit"
                       label="Editar"
@@ -166,14 +167,154 @@ const TableProducts = ({
                       onClick={() => handleDelete(product?._id)}
                     />
                   </div>
-                </td>
-              </tr>
+                </CardContent>
+              </Card>
             ))}
-          </tbody>
-          <caption className="text-sm text-gray-500 mt-2">
-            Total: {total ?? products.length} productos
-          </caption>
-        </table>
+            <p className="pb-2 text-center text-sm text-muted-foreground">
+              Total: {total ?? products.length} productos
+            </p>
+          </div>
+          <Table className="hidden lg:table">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Producto</TableHead>
+                <TableHead className="hidden lg:table-cell">
+                  Descripción
+                </TableHead>
+                <TableHead className="hidden lg:table-cell">Compra</TableHead>
+                <TableHead className="hidden lg:table-cell">Venta</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead className="hidden lg:table-cell">
+                  Stock mín.
+                </TableHead>
+                <TableHead className="hidden lg:table-cell">
+                  Proveedor
+                </TableHead>
+                <TableHead className="hidden lg:table-cell">
+                  Categoría
+                </TableHead>
+                <TableHead className="hidden text-center lg:table-cell">
+                  Estado
+                </TableHead>
+                <TableHead className="text-center">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => (
+                <TableRow key={product?._id}>
+                  <TableCell>
+                    <strong className="break-words font-medium">
+                      {product?.productName}
+                    </strong>
+                    <div className="mt-1 space-y-0.5 break-words text-xs text-muted-foreground lg:hidden">
+                      {product?.productDescription && (
+                        <p>{product.productDescription}</p>
+                      )}
+                      <p>
+                        Compra ${fmt(product?.purchasePrice)} · Venta $
+                        {fmt(product?.productPrice)}
+                      </p>
+                      <p>
+                        {product?.supplier?.suppliersName ||
+                          product?.supplier?.name ||
+                          'Sin proveedor'}{' '}
+                        · {product?.category?.categories || 'Sin categoría'}
+                      </p>
+                      <p className="flex items-center gap-1">
+                        {product?.isActive === false ? (
+                          <X className="h-3.5 w-3.5 text-destructive" />
+                        ) : (
+                          <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        )}
+                        {product?.isActive === false
+                          ? 'Desactivado'
+                          : 'Activado'}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <small>{product?.productDescription}</small>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    ${fmt(product?.purchasePrice)}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    ${fmt(product?.productPrice)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        product?.productStock === 0 ? 'destructive' : 'outline'
+                      }
+                      className={
+                        product?.productStock === 0
+                          ? undefined
+                          : product?.productStock < product?.minimumProductStock
+                            ? 'text-amber-400'
+                            : 'text-emerald-400'
+                      }
+                    >
+                      {fmt(product?.productStock)}
+                    </Badge>
+                    <span className="mt-1 block text-xs text-muted-foreground lg:hidden">
+                      Mín. {fmt(product?.minimumProductStock)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {fmt(product?.minimumProductStock)}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <small>{product?.supplier?.suppliersName}</small>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <small>{product?.category?.categories}</small>
+                  </TableCell>
+                  <TableCell className="hidden text-center lg:table-cell">
+                    {product?.isActive === false ? (
+                      <X
+                        className="h-5 w-5 text-destructive"
+                        aria-label="Desactivado"
+                      />
+                    ) : (
+                      <Check
+                        className="h-5 w-5 text-emerald-400"
+                        aria-label="Activado"
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex w-full flex-row items-center justify-center gap-1">
+                      <ActionIconButton
+                        action="edit"
+                        label="Editar"
+                        onClick={() => handleUpdate(product)}
+                      />
+                      <ActionIconButton
+                        action={
+                          product?.isActive === false
+                            ? 'activate'
+                            : 'deactivate'
+                        }
+                        label={
+                          product?.isActive === false ? 'Activar' : 'Desactivar'
+                        }
+                        onClick={() => handleToggleActive(product)}
+                      />
+                      <ActionIconButton
+                        action="delete"
+                        label="Eliminar"
+                        onClick={() => handleDelete(product?._id)}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            <caption className="mt-2 pb-2 text-sm text-muted-foreground">
+              Total: {total ?? products.length} productos
+            </caption>
+          </Table>
+        </>
       )}
       {!isLoading &&
         !isError &&
@@ -188,14 +329,15 @@ const TableProducts = ({
         !isError &&
         hasNextPage &&
         !supportsIntersectionObserver && (
-          <button
+          <Button
             type="button"
-            className="w-full py-3 text-sm font-medium"
+            variant="ghost"
+            className="w-full"
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
           >
             {isFetchingNextPage ? <Loading fullScreen={false} /> : 'Cargar más'}
-          </button>
+          </Button>
         )}
     </div>
   )

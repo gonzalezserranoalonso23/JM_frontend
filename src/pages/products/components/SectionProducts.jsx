@@ -8,6 +8,8 @@ import {
 import ModalProducts from './ModalProducts'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import TableProducts from './TableProducts'
 
 const SectionProducts = () => {
@@ -52,17 +54,16 @@ const SectionProducts = () => {
     })
 
   return (
-    <section className="section-container" aria-labelledby="products-title">
-      <header className="section-header">
-        <h1 id="products-title" className="section-title">
+    <Card
+      role="region"
+      className="gap-4 p-4 sm:p-6"
+      aria-labelledby="products-title"
+    >
+      <header className="flex flex-wrap items-center justify-between gap-2">
+        <h1 id="products-title" className="text-xl font-semibold">
           Productos
         </h1>
-        <button
-          className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-          onClick={handleShow}
-        >
-          + Crear Producto
-        </button>
+        <Button onClick={handleShow}>+ Crear Producto</Button>
       </header>
       <FormFilter
         id="product-filter"
@@ -101,7 +102,7 @@ const SectionProducts = () => {
         handleDelete={handleDelete}
         handleToggleActive={handleToggleActive}
       />
-    </section>
+    </Card>
   )
 }
 

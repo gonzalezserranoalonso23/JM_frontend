@@ -12,11 +12,6 @@ export const getProductsPage = async ({ page, limit, search }) => {
   return data
 }
 
-export const getProduct = async (id) => {
-  const { data } = await axios.get(`/api/products/${id}`)
-  return data
-}
-
 export const createProduct = async (body) => {
   const { data } = await axios.post('/api/products', body)
   return data

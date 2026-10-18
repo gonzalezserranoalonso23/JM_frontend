@@ -8,7 +8,6 @@ import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
 import {
   login,
-  getUsers,
   getUsersPage,
   getAssignableUsers,
   registerUser,
@@ -35,13 +34,6 @@ export const useLogin = () => {
     onError: () => toast.error('Error al iniciar sesión!')
   })
   return mutationLogin
-}
-
-export const useGetUsers = () => {
-  return useQuery({
-    queryKey: ['users'],
-    queryFn: getUsers
-  })
 }
 
 export const useGetAssignableUsers = () =>

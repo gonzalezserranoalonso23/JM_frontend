@@ -1,15 +1,5 @@
 import axios from '@/libs/axios'
 
-export const getTasks = async () => {
-  const { data } = await axios.get('/api/tasks')
-  return data
-}
-
-export const getTask = async (id) => {
-  const { data } = await axios.get(`/api/tasks/${id}`)
-  return data
-}
-
 export const getPendingTasks = async () => {
   const { data } = await axios.get('/api/tasks/pending')
   return data

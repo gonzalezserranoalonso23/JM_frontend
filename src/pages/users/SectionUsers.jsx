@@ -1,3 +1,15 @@
+import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
+import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { useState } from 'react'
 import {
   useGetUserPages,
@@ -55,30 +67,28 @@ const SectionUsers = () => {
   if (isLoading) return <Loading />
   if (isError)
     return (
-      <div
-        className="alert-minimal alert-danger-minimal"
-        style={{ margin: '2rem' }}
-      >
+      <Alert variant="destructive" className="m-8 w-auto">
         Error al cargar los usuarios
-      </div>
+      </Alert>
     )
 
   return (
-    <section className="section-container" aria-labelledby="users-title">
+    <Card
+      role="region"
+      aria-labelledby="users-title"
+      className="gap-4 p-4 sm:p-6"
+    >
       {/* Header */}
-      <header className="section-header">
+      <header className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 id="users-title" className="section-title">
+          <h1 id="users-title" className="text-xl font-semibold">
             Usuarios
           </h1>
-          <p className="section-subtitle">Gestión de cuentas del sistema</p>
+          <p className="text-sm text-muted-foreground">
+            Gestión de cuentas del sistema
+          </p>
         </div>
-        <button
-          className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-          onClick={handleShowCreate}
-        >
-          + Nuevo Usuario
-        </button>
+        <Button onClick={handleShowCreate}>+ Nuevo Usuario</Button>
       </header>
 
       {/* Modal */}
@@ -101,39 +111,40 @@ const SectionUsers = () => {
 
       {/* Tabla */}
       {totalUsers > 0 ? (
-        <div className="table-wrapper">
-          <table className="table-minimal">
-            <thead>
-              <tr>
-                <th>Usuario</th>
-                <th>Nombre completo</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th className="text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Usuario</TableHead>
+                <TableHead>Nombre completo</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Rol</TableHead>
+                <TableHead className="text-center">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {users.map((user) => (
-                <tr key={user._id}>
-                  <td>
+                <TableRow key={user._id}>
+                  <TableCell>
                     <strong>{user.username}</strong>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     {user.fullName || (
-                      <span style={{ color: '#9ca3af' }}>—</span>
+                      <span className="text-muted-foreground">—</span>
                     )}
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <small>{user.email}</small>
-                  </td>
-                  <td>
-                    <span
-                      className={`badge-minimal ${user.isAdmin ? 'badge-warning' : 'badge-info'}`}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={user.isAdmin ? 'outline' : 'secondary'}
+                      className={user.isAdmin ? 'text-amber-400' : undefined}
                     >
                       {user.isAdmin ? 'Admin' : 'Usuario'}
-                    </span>
-                  </td>
-                  <td className="text-center">
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
                     <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
                       <ActionIconButton
                         action="edit"
@@ -146,20 +157,14 @@ const SectionUsers = () => {
                         onClick={() => handleDelete(user._id)}
                       />
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-            <caption
-              style={{
-                fontSize: '0.8rem',
-                color: '#9ca3af',
-                marginTop: '0.5rem'
-              }}
-            >
+            </TableBody>
+            <caption className="mt-2 pb-2 text-sm text-muted-foreground">
               Total: {totalUsers} usuario{totalUsers !== 1 ? 's' : ''}
             </caption>
-          </table>
+          </Table>
           {hasNextPage && supportsIntersectionObserver && (
             <div ref={sentinelRef} className="h-1" aria-hidden="true" />
           )}
@@ -167,9 +172,10 @@ const SectionUsers = () => {
             <Loading fullScreen={false} />
           )}
           {hasNextPage && !supportsIntersectionObserver && (
-            <button
+            <Button
               type="button"
-              className="w-full py-3 text-sm font-medium"
+              variant="ghost"
+              className="w-full"
               onClick={() => fetchNextPage()}
               disabled={isFetchingNextPage}
             >
@@ -178,17 +184,17 @@ const SectionUsers = () => {
               ) : (
                 'Cargar más'
               )}
-            </button>
+            </Button>
           )}
         </div>
       ) : (
-        <div className="alert-minimal alert-info-minimal">
+        <Alert>
           {search
             ? 'No se encontraron usuarios con esa búsqueda'
             : 'No hay usuarios registrados'}
-        </div>
+        </Alert>
       )}
-    </section>
+    </Card>
   )
 }
 

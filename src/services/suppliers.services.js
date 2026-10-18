@@ -12,11 +12,6 @@ export const getSuppliersPage = async ({ page, limit, search }) => {
   return data
 }
 
-export const getSupplier = async (id) => {
-  const { data } = await axios.get(`/api/suppliers/${id}`)
-  return data
-}
-
 export const createSupplier = async (body) => {
   const { data } = await axios.post('/api/suppliers', body)
   return data

@@ -1,4 +1,13 @@
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 import { Link } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 
 const TableCatalogs = () => {
   const items = [
@@ -10,29 +19,29 @@ const TableCatalogs = () => {
   ]
 
   return (
-    <div className="table-wrapper">
-      <table className="table-minimal">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th className="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nombre</TableHead>
+            <TableHead className="text-center">Acciones</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {items.map((item) => (
-            <tr key={item.name}>
-              <td>
+            <TableRow key={item.name}>
+              <TableCell>
                 <strong>{item.name}</strong>
-              </td>
-              <td className="text-center">
-                <Link to={item.path} className="btn-action btn-info-sm">
-                  Ver
-                </Link>
-              </td>
-            </tr>
+              </TableCell>
+              <TableCell className="text-center">
+                <Button asChild variant="outline" size="sm">
+                  <Link to={item.path}>Ver</Link>
+                </Button>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

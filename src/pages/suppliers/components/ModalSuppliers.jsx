@@ -64,7 +64,7 @@ const ModalSuppliers = ({
       open={modalShow}
       onOpenChange={(open) => !open && handleCloseUpdate()}
     >
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{type} proveedor</DialogTitle>
         </DialogHeader>
@@ -142,12 +142,7 @@ const ModalSuppliers = ({
             <Button type="button" variant="outline" onClick={handleCloseUpdate}>
               Cerrar
             </Button>
-            <Button
-              type="submit"
-              className="bg-cyan-900 text-white hover:bg-cyan-950"
-            >
-              {type} proveedor
-            </Button>
+            <Button type="submit">{type} proveedor</Button>
           </DialogFooter>
         </form>
       </DialogContent>

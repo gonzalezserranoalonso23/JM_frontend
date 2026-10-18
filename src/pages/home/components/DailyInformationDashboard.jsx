@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useGetDailyInformations } from '@/features/dailyInformation.features'
 import Loading from '@/ui/Loading'
 import { formatDate as displayDate, isoDay } from '@/utils/dateDisplay'
@@ -37,24 +38,18 @@ const DailyInformationDashboard = () => {
     orderedRecords[0]
 
   return (
-    <section
-      className="dashboard-card home-dashboard-card mb-8 rounded-xl border border-slate-200 p-5 shadow-[0_8px_24px_rgba(15,23,42,0.06)] sm:p-6"
-      aria-labelledby="daily-summary-title"
-    >
-      <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2
-            id="daily-summary-title"
-            className="text-xl font-semibold text-slate-900"
-          >
+    <Card className="mb-8" aria-labelledby="daily-summary-title" role="region">
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <CardTitle>
+          <h2 id="daily-summary-title" className="text-xl font-semibold">
             Información diaria
           </h2>
-        </div>
+        </CardTitle>
         {!isLoading && !isError && orderedRecords.length > 0 && (
           <div className="w-full sm:w-64">
             <label
               htmlFor="daily-information-date"
-              className="mb-1 block text-sm font-medium text-slate-600"
+              className="mb-1 block text-sm font-medium text-muted-foreground"
             >
               Fecha
             </label>
@@ -75,47 +70,40 @@ const DailyInformationDashboard = () => {
             </Select>
           </div>
         )}
-      </header>
+      </CardHeader>
 
-      {isLoading ? (
-        <Loading fullScreen={false} />
-      ) : isError ? (
-        <p className="text-sm text-red-700">
-          No se pudo cargar la información diaria.
-        </p>
-      ) : selectedRecord ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="min-w-0 py-2">
-            <p className="text-sm font-medium text-slate-500">Efectivo</p>
-            <p className="mt-3 text-2xl font-bold text-slate-900">
-              {formatAmount(selectedRecord.cashSales)}
-            </p>
+      <CardContent>
+        {isLoading ? (
+          <Loading fullScreen={false} />
+        ) : isError ? (
+          <p className="text-sm text-destructive">
+            No se pudo cargar la información diaria.
+          </p>
+        ) : selectedRecord ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              ['Efectivo', formatAmount(selectedRecord.cashSales)],
+              ['Tarjeta', formatAmount(selectedRecord.cardSales)],
+              ['Ventas totales', formatAmount(selectedRecord.totalSales)],
+              ['Transacciones', selectedRecord.totalTransactions ?? 0]
+            ].map(([label, value]) => (
+              <div key={label} className="min-w-0 py-2">
+                <p className="text-sm font-medium text-muted-foreground">
+                  {label}
+                </p>
+                <p className="mt-3 text-2xl font-bold text-foreground">
+                  {value}
+                </p>
+              </div>
+            ))}
           </div>
-          <div className="min-w-0 py-2">
-            <p className="text-sm font-medium text-slate-500">Tarjeta</p>
-            <p className="mt-3 text-2xl font-bold text-slate-900">
-              {formatAmount(selectedRecord.cardSales)}
-            </p>
-          </div>
-          <div className="min-w-0 py-2">
-            <p className="text-sm font-medium text-slate-500">Ventas totales</p>
-            <p className="mt-3 text-2xl font-bold text-slate-900">
-              {formatAmount(selectedRecord.totalSales)}
-            </p>
-          </div>
-          <div className="min-w-0 py-2">
-            <p className="text-sm font-medium text-slate-500">Transacciones</p>
-            <p className="mt-3 text-2xl font-bold text-slate-900">
-              {selectedRecord.totalTransactions ?? 0}
-            </p>
-          </div>
-        </div>
-      ) : (
-        <p className="text-sm text-slate-500">
-          No hay información diaria registrada desde el 1 de octubre de 2026.
-        </p>
-      )}
-    </section>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            No hay información diaria registrada desde el 1 de octubre de 2026.
+          </p>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

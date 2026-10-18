@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
 import { useGetPendingTasks } from '@/features/tasks.features'
@@ -49,13 +52,13 @@ const Navigate = () => {
   return (
     <nav
       aria-label="Navegación principal"
-      className="app-nav fixed left-0 right-0 top-0 z-50 border-b border-gray-800 bg-black text-gray-300 shadow-[0_4px_20px_rgba(0,0,0,0.35)]"
+      className="app-nav fixed left-0 right-0 top-0 z-50 border-b border-border bg-background text-foreground"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:max-w-none">
+      <div className="mx-auto w-full max-w-[1760px] px-3 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           <Link
             to="../home"
-            className="flex shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold text-gray-100 transition-colors hover:text-white focus-visible:outline-white"
+            className="flex shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold text-foreground"
           >
             <img
               src="/logo.svg"
@@ -67,10 +70,12 @@ const Navigate = () => {
             JM Panel
           </Link>
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => setIsOpen((open) => !open)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-gray-200 transition-colors hover:bg-gray-800 hover:text-white focus-visible:outline-white xl:hidden"
+            className="xl:hidden"
             aria-expanded={isOpen}
             aria-controls="app-navigation-menu"
             aria-label={isOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -80,7 +85,7 @@ const Navigate = () => {
             ) : (
               <Menu className="h-5 w-5" aria-hidden="true" />
             )}
-          </button>
+          </Button>
 
           <div className="hidden min-w-0 items-center gap-1 xl:flex">
             <div className="flex min-w-0 items-center gap-1">
@@ -90,43 +95,47 @@ const Navigate = () => {
                   to={to}
                   end={end}
                   className={({ isActive }) =>
-                    `inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-lg px-2.5 text-sm font-medium transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-white ${
-                      isActive ? 'bg-white/10 text-white' : 'text-gray-300'
-                    }`
+                    cn(
+                      'inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                      isActive
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-muted-foreground'
+                    )
                   }
                 >
                   {label}
                   {badge !== undefined && (
-                    <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs font-semibold text-white">
-                      {badge}
-                    </span>
+                    <Badge variant="secondary">{badge}</Badge>
                   )}
                 </NavLink>
               ))}
             </div>
             {permission === 'default' && (
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={requestPermission}
-                className="ml-2 min-h-10 shrink-0 rounded-lg border border-gray-600 px-3 text-sm font-medium text-gray-200 transition-colors hover:bg-white/10 focus-visible:outline-white"
+                className="ml-2 shrink-0"
               >
                 Activar notificaciones
-              </button>
+              </Button>
             )}
-            <button
+            <Button
               type="button"
+              variant="destructive"
+              size="sm"
               onClick={handleLogOut}
-              className="ml-2 flex h-8 min-h-0 shrink-0 items-center justify-center self-center rounded-lg bg-red-400 px-2.5 py-0 text-center text-xs font-semibold text-white transition-all hover:scale-105 hover:bg-red-500 focus-visible:outline-white"
+              className="ml-2 shrink-0"
             >
               Cerrar sesión
-            </button>
+            </Button>
           </div>
         </div>
 
         {isOpen && (
           <div
             id="app-navigation-menu"
-            className="max-h-[calc(var(--app-vh,1svh)*100-var(--app-nav-height))] space-y-0.5 overflow-y-auto overscroll-contain border-t border-gray-800 pb-2 pt-2 xl:hidden"
+            className="max-h-[calc(var(--app-vh,1svh)*100-var(--app-nav-height))] space-y-0.5 overflow-y-auto overscroll-contain border-t border-border pb-2 pt-2 xl:hidden"
           >
             <div>
               {links.map(({ to, label, end, badge }) => (
@@ -135,36 +144,39 @@ const Navigate = () => {
                   to={to}
                   end={end}
                   className={({ isActive }) =>
-                    `flex min-h-10 items-center justify-between rounded-lg px-3 text-sm font-medium transition-colors hover:bg-gray-800 hover:text-white focus-visible:outline-white ${
-                      isActive ? 'bg-white/10 text-white' : 'text-gray-300'
-                    }`
+                    cn(
+                      'flex min-h-10 items-center justify-between rounded-md px-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                      isActive
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-muted-foreground'
+                    )
                   }
                 >
                   {label}
                   {badge !== undefined && (
-                    <span className="rounded-full bg-gray-700 px-2.5 py-1 text-xs font-semibold text-white">
-                      {badge}
-                    </span>
+                    <Badge variant="secondary">{badge}</Badge>
                   )}
                 </NavLink>
               ))}
             </div>
             {permission === 'default' && (
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={requestPermission}
-                className="mt-1 min-h-10 w-full rounded-lg border border-gray-600 px-3 text-left text-sm font-medium text-gray-200 transition-colors hover:bg-gray-800 focus-visible:outline-white"
+                className="mt-1 w-full justify-start"
               >
                 Activar notificaciones
-              </button>
+              </Button>
             )}
-            <button
+            <Button
               type="button"
+              variant="destructive"
               onClick={handleLogOut}
-              className="ml-auto mt-1 flex min-h-10 w-fit items-center justify-center rounded-lg bg-red-400 px-3 text-center text-sm font-semibold text-white transition-all hover:scale-105 hover:bg-red-500 focus-visible:outline-white"
+              className="ml-auto mt-1 block"
             >
               Cerrar sesión
-            </button>
+            </Button>
           </div>
         )}
       </div>

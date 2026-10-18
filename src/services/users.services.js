@@ -4,11 +4,6 @@ export const login = (values) => axios.post('/api/users/login', values)
 
 export const logout = () => axios.post('/api/users/logout')
 
-export const getUsers = async () => {
-  const { data } = await axios.get('/api/users')
-  return data
-}
-
 export const getAssignableUsers = async () => {
   const { data } = await axios.get('/api/users/assignable')
   return data
@@ -18,11 +13,6 @@ export const getUsersPage = async ({ page, limit, search }) => {
   const { data } = await axios.get('/api/users', {
     params: { page, limit, ...(search ? { search } : {}) }
   })
-  return data
-}
-
-export const getUser = async (id) => {
-  const { data } = await axios.get(`/api/users/${id}`)
   return data
 }
 

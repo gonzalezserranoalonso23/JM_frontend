@@ -1,7 +1,7 @@
 import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import {
-  useGetInventoryRecords,
+  useGetInventoryRecordPages,
   useDeleteInventoryRecord,
   useCreateInventoryRecord,
   useCreateInventoryRecords,
@@ -9,17 +9,36 @@ import {
 } from '@/features/inventory.features'
 import ModalIssues from './ModalIssues'
 import Loading from '@/ui/Loading'
-import '../../../styles/inventory.css'
+import { Button } from '@/components/ui/button'
+import { Alert } from '@/components/ui/alert'
+import { Card } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 import ActionIconButton from '@/components/ActionIconButton'
+import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
-import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
-import { isIssueRecord } from '@/utils/typeInventory'
+
+const ALL_PAYMENTS = 'all'
 
 const SectionIssues = () => {
   const { data: paymentTypes } = useGetPaymentTypes()
-  const { data: records, isLoading, isError } = useGetInventoryRecords()
   const createRecord = useCreateInventoryRecord()
   const createRecords = useCreateInventoryRecords()
   const updateRecord = useUpdateInventoryRecord()
@@ -27,6 +46,26 @@ const SectionIssues = () => {
 
   const [dataFilter, setDataFilter] = useFilterQuery()
   const [paymentFilter, setPaymentFilter] = useState('')
+  const search = useDebouncedValue(dataFilter.trim())
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useGetInventoryRecordPages({
+    direction: -1,
+    search,
+    paymentType: paymentFilter
+  })
+  const records = data?.pages.flatMap((page) => page.data) ?? []
+  const total = data?.pages[0]?.total ?? 0
+  const { sentinelRef, supportsIntersectionObserver } =
+    useIntersectionPagination(
+      fetchNextPage,
+      Boolean(hasNextPage) && !isFetchingNextPage
+    )
   const [modalShow, setModalShow] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -59,148 +98,154 @@ const SectionIssues = () => {
     }
   }
 
-  const matcher = buildMatcher(dataFilter)
-
-  const filteredRecords = records?.filter((record) => {
-    const isExit = isIssueRecord(record)
-
-    if (!isExit) return false
-    if (paymentFilter && record.paymentType?._id !== paymentFilter) return false
-
-    return matchesCells(
-      [record.productName?.productName, ...dateCells(record.date)],
-      matcher
-    )
-  })
-
   if (isLoading) return <Loading />
   if (isError)
     return (
-      <div
-        className="alert-minimal alert-danger-minimal"
-        style={{ margin: '2rem' }}
-      >
+      <Alert variant="destructive" className="m-8">
         Error al cargar las salidas
-      </div>
+      </Alert>
     )
 
   return (
-    <section className="section-container" aria-labelledby="issues-title">
-      {/* Header */}
-      <header className="section-header">
-        <div>
-          <h1 id="issues-title" className="section-title">
-            Salidas
-          </h1>
-          <p className="section-subtitle">
-            Registros de ventas y movimientos negativos
-          </p>
-        </div>
-        <button
-          className="btn-custom btn-danger-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-          onClick={handleShow}
+    <section aria-labelledby="issues-title">
+      <Card className="p-4 sm:p-6">
+        {/* Header */}
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 id="issues-title" className="text-2xl font-semibold">
+              Salidas
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Registros de ventas y movimientos negativos
+            </p>
+          </div>
+          <Button onClick={handleShow}>↑ Nueva Salida</Button>
+        </header>
+
+        {/* Filtro */}
+        <FormFilter
+          id="issue-filter"
+          label="Buscar salidas"
+          value={dataFilter}
+          onChange={setDataFilter}
         >
-          ↑ Nueva Salida
-        </button>
-      </header>
+          <div className="flex min-w-[200px] flex-col gap-2">
+            <Label htmlFor="issue-payment-filter" className="mb-0">
+              Forma de pago
+            </Label>
+            <Select
+              value={paymentFilter || ALL_PAYMENTS}
+              onValueChange={(value) =>
+                setPaymentFilter(value === ALL_PAYMENTS ? '' : value)
+              }
+            >
+              <SelectTrigger id="issue-payment-filter">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_PAYMENTS}>Todas</SelectItem>
+                {paymentTypes.map((payment) => (
+                  <SelectItem key={payment.value} value={payment.value}>
+                    {payment.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </FormFilter>
 
-      {/* Filtro */}
-      <FormFilter
-        id="issue-filter"
-        label="Buscar salidas"
-        value={dataFilter}
-        onChange={setDataFilter}
-      >
-        <div className="filter-group">
-          <label htmlFor="issue-payment-filter">Forma de pago</label>
-          <select
-            id="issue-payment-filter"
-            className="form-select"
-            value={paymentFilter}
-            onChange={(event) => setPaymentFilter(event.target.value)}
-          >
-            <option value="">Todas</option>
-            {paymentTypes.map((payment) => (
-              <option key={payment.value} value={payment.value}>
-                {payment.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </FormFilter>
+        {/* Modal */}
+        <ModalIssues
+          modalShow={modalShow}
+          handleClose={handleClose}
+          action={isEditing ? updateRecord : createRecord}
+          createBulkAction={createRecords}
+          record={selectedRecord}
+          isEditing={isEditing}
+        />
 
-      {/* Modal */}
-      <ModalIssues
-        modalShow={modalShow}
-        handleClose={handleClose}
-        action={isEditing ? updateRecord : createRecord}
-        createBulkAction={createRecords}
-        record={selectedRecord}
-        isEditing={isEditing}
-      />
-
-      {/* Tabla */}
-      {filteredRecords && filteredRecords.length > 0 ? (
-        <div className="table-wrapper">
-          <table className="table-minimal">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Producto</th>
-                <th>Tipo</th>
-                <th style={{ textAlign: 'center' }}>Cantidad</th>
-                <th style={{ textAlign: 'right' }}>Precio</th>
-                <th style={{ textAlign: 'right' }}>Total</th>
-                <th>Tipo de pago</th>
-                <th style={{ textAlign: 'center' }}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRecords.map((record) => (
-                <tr key={record._id}>
-                  <td>{formatDate(record.date)}</td>
-                  <td>
-                    <strong>{record.productName?.productName}</strong>
-                  </td>
-                  <td>{record.typeInventory?.typeInventory}</td>
-                  <td style={{ textAlign: 'center' }}>{record.quantity}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    ${parseFloat(record.productPrice).toFixed(2)}
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <strong>
-                      ${parseFloat(record.totalAmount).toFixed(2)}
-                    </strong>
-                  </td>
-                  <td>
-                    <small className="text-muted">
-                      {record.paymentType?.paymentType || '-'}
-                    </small>
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                      <ActionIconButton
-                        action="edit"
-                        label="Editar"
-                        onClick={() => handleShowEdit(record)}
-                      />
-                      <ActionIconButton
-                        action="delete"
-                        label="Eliminar"
-                        onClick={() => handleDelete(record._id)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="alert-minimal alert-info-minimal">
-          No hay salidas registradas
-        </div>
-      )}
+        {/* Tabla */}
+        {records.length > 0 ? (
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Producto</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-center">Cantidad</TableHead>
+                  <TableHead className="text-right">Precio</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead>Tipo de pago</TableHead>
+                  <TableHead className="text-center">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {records.map((record) => (
+                  <TableRow key={record._id}>
+                    <TableCell>{formatDate(record.date)}</TableCell>
+                    <TableCell>
+                      <strong>{record.productName?.productName}</strong>
+                    </TableCell>
+                    <TableCell>{record.typeInventory?.typeInventory}</TableCell>
+                    <TableCell className="text-center">
+                      {record.quantity}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      ${parseFloat(record.productPrice).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <strong>
+                        ${parseFloat(record.totalAmount).toFixed(2)}
+                      </strong>
+                    </TableCell>
+                    <TableCell>
+                      <small className="text-muted-foreground">
+                        {record.paymentType?.paymentType || '-'}
+                      </small>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                        <ActionIconButton
+                          action="edit"
+                          label="Editar"
+                          onClick={() => handleShowEdit(record)}
+                        />
+                        <ActionIconButton
+                          action="delete"
+                          label="Eliminar"
+                          onClick={() => handleDelete(record._id)}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <Alert>No hay salidas registradas</Alert>
+        )}
+        {hasNextPage &&
+          (supportsIntersectionObserver ? (
+            <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              Cargar más
+            </Button>
+          ))}
+        {total > 0 && (
+          <p className="text-center text-sm text-muted-foreground">
+            Mostrando {records.length} de {total} salidas
+          </p>
+        )}
+      </Card>
     </section>
   )
 }

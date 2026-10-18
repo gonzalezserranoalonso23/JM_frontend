@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import {
   Tooltip,
   TooltipContent,
@@ -15,12 +16,12 @@ const ICONS = {
 }
 
 const VARIANTS = {
-  edit: 'btn-info-sm',
-  delete: 'btn-danger-sm',
-  activate: 'btn-info-sm',
-  deactivate: 'btn-info-sm',
-  open: 'btn-info-sm',
-  reopen: 'btn-info-sm'
+  edit: 'outline',
+  delete: 'destructive',
+  activate: 'outline',
+  deactivate: 'outline',
+  open: 'outline',
+  reopen: 'outline'
 }
 
 const ActionIconButton = ({ action, label, className = '', ...props }) => {
@@ -28,14 +29,16 @@ const ActionIconButton = ({ action, label, className = '', ...props }) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button
+        <Button
           type="button"
-          className={`btn-action ${VARIANTS[action]} inline-flex items-center justify-center ${className}`}
+          variant={VARIANTS[action]}
+          size="icon"
+          className={className}
           aria-label={label}
           {...props}
         >
-          <Icon className="h-4 w-4" aria-hidden="true" />
-        </button>
+          <Icon aria-hidden="true" />
+        </Button>
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>

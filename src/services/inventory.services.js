@@ -1,13 +1,22 @@
 import axios from '@/libs/axios'
 
 // Registros de inventario
-export const getInventoryRecords = async () => {
-  const { data } = await axios.get('/api/inventory-records')
-  return data
-}
-
-export const getInventoryRecord = async (id) => {
-  const { data } = await axios.get(`/api/inventory-records/${id}`)
+export const getInventoryRecordsPage = async ({
+  page,
+  limit,
+  search,
+  direction,
+  paymentType
+}) => {
+  const { data } = await axios.get('/api/inventory-records', {
+    params: {
+      page,
+      limit,
+      direction,
+      ...(search ? { search } : {}),
+      ...(paymentType ? { paymentType } : {})
+    }
+  })
   return data
 }
 
@@ -34,21 +43,6 @@ export const deleteInventoryRecord = async (id) => {
 }
 
 // Reportes
-export const getDailySalesSummary = async (date) => {
-  const { data } = await axios.get(
-    '/api/inventory-records/reports/daily-summary',
-    {
-      params: { date }
-    }
-  )
-  return data
-}
-
-export const getLowStockProducts = async () => {
-  const { data } = await axios.get('/api/inventory-records/reports/low-stock')
-  return data
-}
-
 export const getLowStockProductsPage = async ({
   page,
   limit,
@@ -85,13 +79,6 @@ export const getSalesByDateRangePage = async (params) => {
     '/api/inventory-records/reports/date-range',
     { params }
   )
-  return data
-}
-
-export const getInventoryByType = async (type) => {
-  const { data } = await axios.get('/api/inventory-records/reports/by-type', {
-    params: { type }
-  })
   return data
 }
 

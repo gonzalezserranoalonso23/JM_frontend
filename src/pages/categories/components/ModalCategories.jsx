@@ -73,12 +73,7 @@ const ModalCategory = ({
             <Button type="button" variant="outline" onClick={handleCloseUpdate}>
               Cerrar
             </Button>
-            <Button
-              type="submit"
-              className="bg-cyan-900 text-white hover:bg-cyan-950"
-            >
-              {type} categoría
-            </Button>
+            <Button type="submit">{type} categoría</Button>
           </DialogFooter>
         </form>
       </DialogContent>

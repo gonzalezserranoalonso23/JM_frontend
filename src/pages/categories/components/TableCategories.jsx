@@ -1,3 +1,12 @@
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import ActionIconButton from '@/components/ActionIconButton'
 import Loading from '@/ui/Loading'
@@ -15,19 +24,19 @@ const TableCategories = ({
     useIntersectionPagination(fetchNextPage, hasNextPage && !isFetchingNextPage)
 
   return (
-    <div className="table-wrapper">
-      <table className="table-minimal">
-        <thead>
-          <tr>
-            <th>Categoría</th>
-            <th className="text-center">Opciones</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Categoría</TableHead>
+            <TableHead className="text-center">Opciones</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {categories.map((category) => (
-            <tr key={category?._id}>
-              <td>{category?.categories}</td>
-              <td className="text-center">
+            <TableRow key={category?._id}>
+              <TableCell>{category?.categories}</TableCell>
+              <TableCell className="text-center">
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
                   <ActionIconButton
                     action="edit"
@@ -40,14 +49,14 @@ const TableCategories = ({
                     onClick={() => handleDelete(category?._id)}
                   />
                 </div>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-        <caption className="text-sm text-gray-500 mt-2">
+        </TableBody>
+        <caption className="mt-2 pb-2 text-sm text-muted-foreground">
           Total: {total ?? categories.length}
         </caption>
-      </table>
+      </Table>
       {hasNextPage && supportsIntersectionObserver && (
         <div ref={sentinelRef} className="h-1" aria-hidden="true" />
       )}
@@ -55,14 +64,15 @@ const TableCategories = ({
         <Loading fullScreen={false} />
       )}
       {hasNextPage && !supportsIntersectionObserver && (
-        <button
+        <Button
           type="button"
-          className="w-full py-3 text-sm font-medium"
+          variant="ghost"
+          className="w-full"
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}
         >
           {isFetchingNextPage ? <Loading fullScreen={false} /> : 'Cargar más'}
-        </button>
+        </Button>
       )}
     </div>
   )

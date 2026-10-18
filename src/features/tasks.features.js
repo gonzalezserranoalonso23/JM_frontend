@@ -1,7 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  getTasks,
-  getTask,
   getPendingTasks,
   getCompletedTasks,
   createTask,
@@ -9,23 +7,6 @@ import {
   deleteTask
 } from '@/services/tasks.services'
 import toast from 'react-hot-toast'
-
-export const useGetTasks = () => {
-  return useQuery({
-    queryKey: ['tasks'],
-    queryFn: getTasks,
-    staleTime: 1000 * 60 * 5
-  })
-}
-
-export const useGetTask = (id) => {
-  return useQuery({
-    queryKey: ['task', id],
-    queryFn: () => getTask(id),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 5
-  })
-}
 
 export const useGetPendingTasks = () => {
   return useQuery({

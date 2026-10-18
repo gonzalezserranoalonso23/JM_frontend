@@ -1,4 +1,4 @@
-const CACHE = 'jm-shell-v2'
+const CACHE = 'jm-shell-v3'
 const SHELL = ['/offline.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {
@@ -28,7 +28,21 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return
 
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).catch(() => caches.match('/offline.html')))
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone()
+            caches.open(CACHE).then((cache) => cache.put('/index.html', copy))
+          }
+          return response
+        })
+        .catch(
+          async () =>
+            (await caches.match('/index.html')) ||
+            caches.match('/offline.html')
+        )
+    )
     return
   }
 

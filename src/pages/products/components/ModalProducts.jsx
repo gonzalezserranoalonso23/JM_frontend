@@ -67,7 +67,7 @@ const ModalProducts = ({
       open={modalShow}
       onOpenChange={(open) => !open && handleCloseUpdate()}
     >
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>{type} producto</DialogTitle>
         </DialogHeader>
@@ -79,8 +79,8 @@ const ModalProducts = ({
             {(loadingCategories || loadingSuppliers) && (
               <Loading fullScreen={false} />
             )}
-            <div className="flex flex-col gap-4">
-              <div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
                 <Label htmlFor="productName">Nombre</Label>
                 <Input
                   {...formik.getFieldProps('productName')}
@@ -89,7 +89,7 @@ const ModalProducts = ({
                   name="productName"
                 />
               </div>
-              <div>
+              <div className="sm:col-span-2">
                 <Label htmlFor="productDescription">Descripción</Label>
                 <Input
                   {...formik.getFieldProps('productDescription')}
@@ -98,7 +98,7 @@ const ModalProducts = ({
                   name="productDescription"
                 />
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="contents">
                 <div>
                   <Label htmlFor="purchasePrice">Precio de compra</Label>
                   <Input
@@ -181,19 +181,10 @@ const ModalProducts = ({
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button
-              type="button"
-              onClick={handleCloseUpdate}
-              className="bg-red-400 text-white hover:bg-red-500"
-            >
+            <Button type="button" variant="outline" onClick={handleCloseUpdate}>
               Cerrar
             </Button>
-            <Button
-              type="submit"
-              className="bg-cyan-900 text-white hover:bg-cyan-950"
-            >
-              {type} producto
-            </Button>
+            <Button type="submit">{type} producto</Button>
           </DialogFooter>
         </form>
       </DialogContent>

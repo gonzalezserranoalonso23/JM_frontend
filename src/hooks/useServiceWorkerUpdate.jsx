@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
+import { Button } from '@/components/ui/button'
 
 const UPDATE_ID = 'app-update'
 
@@ -8,16 +9,16 @@ const showUpdate = (worker) => {
     (t) => (
       <span className="flex items-center gap-3">
         <span>Hay una nueva versión disponible</span>
-        <button
+        <Button
           type="button"
-          className="min-h-11 rounded-md bg-white px-3 font-semibold text-black"
+          size="sm"
           onClick={() => {
             toast.dismiss(t.id)
             worker.postMessage({ type: 'SKIP_WAITING' })
           }}
         >
           Actualizar
-        </button>
+        </Button>
       </span>
     ),
     { id: UPDATE_ID, duration: Infinity }

@@ -9,7 +9,32 @@ import {
 } from '@/features/tasks.features'
 import { useGetAssignableUsers } from '@/features/users.features'
 import Loading from '@/ui/Loading'
-import './styles/todolist.css'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import {
+  Card,
+  CardHeader,
+  CardDescription,
+  CardContent
+} from '@/components/ui/card'
+import { cn } from '@/lib/utils'
+
+const selectClass =
+  'h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-popover [&>option]:text-popover-foreground'
+
+const priorityLabel = { low: 'Baja', medium: 'Media', high: 'Alta' }
+const priorityBorder = {
+  low: 'border-l-muted-foreground',
+  medium: 'border-l-amber-400',
+  high: 'border-l-destructive'
+}
+const priorityBadge = {
+  low: 'text-muted-foreground',
+  medium: 'text-amber-400',
+  high: 'text-destructive'
+}
 
 const ToDoList = () => {
   const { data: pendingTasks, isLoading: loadingPending } = useGetPendingTasks()
@@ -85,38 +110,37 @@ const ToDoList = () => {
 
   return (
     <>
-      <div className="bg-light py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
-          <section className="section-container" aria-labelledby="tasks-title">
-            <div className="todolist-wrapper">
-              {/* Header */}
-              <header className="section-header">
-                <div>
-                  <h1 id="tasks-title" className="section-title">
-                    Tareas Pendientes
-                  </h1>
-                  <p className="section-subtitle">
-                    Gestiona las tareas del sistema
-                  </p>
-                </div>
-              </header>
+      <div className="py-6">
+        <div className="page-content-shell">
+          <Card role="region" aria-labelledby="tasks-title">
+            <CardHeader>
+              <h1 id="tasks-title" className="text-2xl font-semibold">
+                Tareas Pendientes
+              </h1>
+              <CardDescription>Gestiona las tareas del sistema</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-6">
               {/* Formulario Crear Tarea */}
-              <div className="todolist-form-section">
-                <h6 className="form-subtitle">Crear Nueva Tarea</h6>
-                <form onSubmit={handleCreateTask} className="todolist-form">
-                  <div className="form-row">
-                    <input
+              <div className="rounded-lg border p-4">
+                <h6 className="mb-3 text-sm font-semibold">
+                  Crear Nueva Tarea
+                </h6>
+                <form
+                  onSubmit={handleCreateTask}
+                  className="flex flex-col gap-3"
+                >
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-[2fr_1fr_1fr_auto]">
+                    <Input
                       type="text"
                       placeholder="Título de la tarea *"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="form-control"
                       disabled={createTask.isPending}
                     />
                     <select
                       value={priority}
                       onChange={(e) => setPriority(e.target.value)}
-                      className="form-select"
+                      className={selectClass}
                       disabled={createTask.isPending}
                     >
                       <option value="low">Baja</option>
@@ -126,7 +150,7 @@ const ToDoList = () => {
                     <select
                       value={assignedTo}
                       onChange={(e) => setAssignedTo(e.target.value)}
-                      className="form-select"
+                      className={selectClass}
                       disabled={createTask.isPending}
                       aria-label="Asignar a"
                     >
@@ -137,20 +161,15 @@ const ToDoList = () => {
                         </option>
                       ))}
                     </select>
-                    <button
-                      type="submit"
-                      className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-                      disabled={createTask.isPending}
-                    >
+                    <Button type="submit" disabled={createTask.isPending}>
                       {createTask.isPending ? '...' : '+ Agregar'}
-                    </button>
+                    </Button>
                   </div>
 
-                  <textarea
+                  <Textarea
                     placeholder="Descripción (opcional)"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="form-control"
                     rows="2"
                     disabled={createTask.isPending}
                   />
@@ -158,183 +177,190 @@ const ToDoList = () => {
               </div>
 
               {/* Tabs */}
-              <div className="todolist-tabs">
-                <button
-                  className={`tab-button ${activeTab === 'pending' ? 'active' : ''}`}
+              <div className="flex gap-2 border-b pb-2">
+                <Button
+                  variant={activeTab === 'pending' ? 'secondary' : 'ghost'}
                   onClick={() => setActiveTab('pending')}
                 >
                   Pendientes ({pendingCount})
-                </button>
-                <button
-                  className={`tab-button ${activeTab === 'completed' ? 'active' : ''}`}
+                </Button>
+                <Button
+                  variant={activeTab === 'completed' ? 'secondary' : 'ghost'}
                   onClick={() => setActiveTab('completed')}
                 >
                   Completadas ({completedCount})
-                </button>
+                </Button>
               </div>
 
               {/* Tareas Pendientes */}
-              {activeTab === 'pending' && (
-                <div className="todolist-content">
-                  {pendingTasks && pendingTasks.length > 0 ? (
-                    <div className="tasks-list">
-                      {pendingTasks.map((task) => (
-                        <div
-                          key={task._id}
-                          className={`task-item task-${task.priority}`}
-                        >
-                          <div className="task-header">
-                            <div className="task-title-section">
-                              <h5 className="task-title">{task.title}</h5>
-                              <span
-                                className={`priority-badge priority-${task.priority}`}
-                              >
-                                {task.priority === 'low'
-                                  ? 'Baja'
-                                  : task.priority === 'medium'
-                                    ? 'Media'
-                                    : 'Alta'}
-                              </span>
-                            </div>
-                            <div className="task-actions">
-                              <button
-                                className="btn-action btn-success-sm"
-                                onClick={() => handleCompleteTask(task._id)}
-                                title="Marcar como completada"
-                              >
-                                ✓
-                              </button>
-                              <button
-                                className="btn-action btn-danger-sm"
-                                onClick={() => handleDeleteTask(task._id)}
-                                title="Eliminar"
-                              >
-                                ✕
-                              </button>
-                            </div>
+              {activeTab === 'pending' &&
+                (pendingTasks && pendingTasks.length > 0 ? (
+                  <div className="flex flex-col gap-3">
+                    {pendingTasks.map((task) => (
+                      <div
+                        key={task._id}
+                        className={cn(
+                          'rounded-lg border border-l-4 bg-card p-4',
+                          priorityBorder[task.priority]
+                        )}
+                      >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex flex-1 flex-wrap items-center gap-3">
+                            <h5 className="font-semibold">{task.title}</h5>
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                'uppercase',
+                                priorityBadge[task.priority]
+                              )}
+                            >
+                              {priorityLabel[task.priority] || 'Alta'}
+                            </Badge>
                           </div>
-
-                          {task.description && (
-                            <p className="task-description">
-                              {task.description}
-                            </p>
-                          )}
-
-                          <div className="task-meta">
-                            <small>
-                              Por:{' '}
-                              <strong>
-                                {task.createdBy?.username || 'Usuario'}
-                              </strong>
-                            </small>
-                            <small>
-                              Asignada a:{' '}
-                              <select
-                                value={task.assignedTo?._id || ''}
-                                onChange={(e) =>
-                                  handleAssignTask(task._id, e.target.value)
-                                }
-                                aria-label="Reasignar tarea"
-                              >
-                                <option value="">Sin asignar</option>
-                                {users?.map((user) => (
-                                  <option key={user._id} value={user._id}>
-                                    {user.fullName || user.username}
-                                  </option>
-                                ))}
-                              </select>
-                            </small>
-                            <small>
-                              {new Date(task.createdAt).toLocaleDateString()}
-                            </small>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="text-emerald-400"
+                              onClick={() => handleCompleteTask(task._id)}
+                              title="Marcar como completada"
+                            >
+                              ✓
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => handleDeleteTask(task._id)}
+                              title="Eliminar"
+                            >
+                              ✕
+                            </Button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="empty-state">
-                      <p>✓ ¡No hay tareas pendientes!</p>
-                      <small>Todas las tareas están completadas</small>
-                    </div>
-                  )}
-                </div>
-              )}
+
+                        {task.description && (
+                          <p className="my-3 text-sm text-muted-foreground">
+                            {task.description}
+                          </p>
+                        )}
+
+                        <div className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                          <small>
+                            Por:{' '}
+                            <strong>
+                              {task.createdBy?.username || 'Usuario'}
+                            </strong>
+                          </small>
+                          <small className="flex items-center gap-2">
+                            Asignada a:{' '}
+                            <select
+                              value={task.assignedTo?._id || ''}
+                              onChange={(e) =>
+                                handleAssignTask(task._id, e.target.value)
+                              }
+                              className={cn(selectClass, 'h-8 w-auto')}
+                              aria-label="Reasignar tarea"
+                            >
+                              <option value="">Sin asignar</option>
+                              {users?.map((user) => (
+                                <option key={user._id} value={user._id}>
+                                  {user.fullName || user.username}
+                                </option>
+                              ))}
+                            </select>
+                          </small>
+                          <small>
+                            {new Date(task.createdAt).toLocaleDateString()}
+                          </small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    <p className="mb-1 text-lg font-medium">
+                      ✓ ¡No hay tareas pendientes!
+                    </p>
+                    <small>Todas las tareas están completadas</small>
+                  </div>
+                ))}
 
               {/* Tareas Completadas */}
-              {activeTab === 'completed' && (
-                <div className="todolist-content">
-                  {completedTasks && completedTasks.length > 0 ? (
-                    <div className="tasks-list">
-                      {completedTasks.map((task) => (
-                        <div
-                          key={task._id}
-                          className="task-item task-completed"
-                        >
-                          <div className="task-header">
-                            <div className="task-title-section">
-                              <h5 className="task-title task-done">
-                                {task.title}
-                              </h5>
-                            </div>
-                            <div className="task-actions">
-                              <button
-                                className="btn-action btn-info-sm"
-                                onClick={() => handleReactivateTask(task._id)}
-                                title="Reactivar"
-                              >
-                                ↺
-                              </button>
-                              <button
-                                className="btn-action btn-danger-sm"
-                                onClick={() => handleDeleteTask(task._id)}
-                                title="Eliminar"
-                              >
-                                ✕
-                              </button>
-                            </div>
+              {activeTab === 'completed' &&
+                (completedTasks && completedTasks.length > 0 ? (
+                  <div className="flex flex-col gap-3">
+                    {completedTasks.map((task) => (
+                      <div
+                        key={task._id}
+                        className="rounded-lg border border-l-4 border-l-emerald-400 bg-card p-4"
+                      >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex flex-1 items-center gap-3">
+                            <h5 className="font-semibold text-muted-foreground line-through">
+                              {task.title}
+                            </h5>
                           </div>
-
-                          {task.description && (
-                            <p className="task-description task-done">
-                              {task.description}
-                            </p>
-                          )}
-
-                          <div className="task-meta">
-                            <small>
-                              Por:{' '}
-                              <strong>
-                                {task.createdBy?.username || 'Usuario'}
-                              </strong>
-                            </small>
-                            {task.assignedTo && (
-                              <small>
-                                Asignada a:{' '}
-                                <strong>{task.assignedTo.username}</strong>
-                              </small>
-                            )}
-                            <small>
-                              Completada por:{' '}
-                              <strong>
-                                {task.completedBy?.username || 'Usuario'}
-                              </strong>
-                            </small>
-                            <small>
-                              {new Date(task.completedAt).toLocaleDateString()}
-                            </small>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleReactivateTask(task._id)}
+                              title="Reactivar"
+                            >
+                              ↺
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => handleDeleteTask(task._id)}
+                              title="Eliminar"
+                            >
+                              ✕
+                            </Button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="empty-state">
-                      <p>No hay tareas completadas aún</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </section>
+
+                        {task.description && (
+                          <p className="my-3 text-sm text-muted-foreground line-through">
+                            {task.description}
+                          </p>
+                        )}
+
+                        <div className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:gap-4">
+                          <small>
+                            Por:{' '}
+                            <strong>
+                              {task.createdBy?.username || 'Usuario'}
+                            </strong>
+                          </small>
+                          {task.assignedTo && (
+                            <small>
+                              Asignada a:{' '}
+                              <strong>{task.assignedTo.username}</strong>
+                            </small>
+                          )}
+                          <small>
+                            Completada por:{' '}
+                            <strong>
+                              {task.completedBy?.username || 'Usuario'}
+                            </strong>
+                          </small>
+                          <small>
+                            {new Date(task.completedAt).toLocaleDateString()}
+                          </small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center text-muted-foreground">
+                    <p className="text-lg font-medium">
+                      No hay tareas completadas aún
+                    </p>
+                  </div>
+                ))}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>

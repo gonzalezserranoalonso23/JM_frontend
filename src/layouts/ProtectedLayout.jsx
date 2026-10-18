@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Navigate from '@/ui/Navigate'
-import useTableCards from '@/hooks/useTableCards'
 
 const PAGE_TITLES = {
   '/home': 'Inicio',
@@ -33,7 +32,6 @@ const DETAIL_PAGE_TITLES = {
 
 const ProtectedLayout = () => {
   const { pathname } = useLocation()
-  useTableCards()
 
   useEffect(() => {
     const pageTitle =
@@ -55,7 +53,7 @@ const ProtectedLayout = () => {
   return (
     <>
       <Navigate />
-      <main className="min-h-dvh bg-[var(--bg-page)] pt-[var(--app-nav-height)]">
+      <main className="min-h-dvh bg-background pt-[var(--app-nav-height)]">
         <Outlet />
       </main>
     </>

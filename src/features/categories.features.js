@@ -8,7 +8,6 @@ import { toast } from 'react-hot-toast'
 import {
   getCategories,
   getCategoriesPage,
-  getCategory,
   createCategory,
   updateCategory,
   deleteCategory
@@ -31,14 +30,6 @@ export const useGetCategoryPages = () =>
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
-
-export const useGetCategory = (id) => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['Category', id],
-    queryFn: () => getCategory(id)
-  })
-  return { data, isLoading, isError }
-}
 
 export const useDeleteCategory = () => {
   const queryClient = useQueryClient()

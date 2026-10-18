@@ -9,7 +9,23 @@ import {
 import ModalOrderRequest from './ModalOrderRequest'
 import SolpedPrint from './SolpedPrint'
 import Loading from '@/ui/Loading'
-import '../../../styles/inventory.css'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Card,
+  CardHeader,
+  CardDescription,
+  CardContent
+} from '@/components/ui/card'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 import ActionIconButton from '@/components/ActionIconButton'
 import FormFilter from '@/components/FormFilter'
 import useFilterQuery from '@/hooks/useFilterQuery'
@@ -64,12 +80,9 @@ const SectionOrders = () => {
   if (isLoading) return <Loading />
   if (isError)
     return (
-      <div
-        className="alert-minimal alert-danger-minimal"
-        style={{ margin: '2rem' }}
-      >
-        Error al cargar las solicitudes
-      </div>
+      <Alert variant="destructive" className="m-8 w-auto">
+        <AlertDescription>Error al cargar las solicitudes</AlertDescription>
+      </Alert>
     )
 
   // Pendientes primero y, dentro de cada grupo, la fecha más reciente arriba
@@ -91,135 +104,130 @@ const SectionOrders = () => {
       return new Date(b.date) - new Date(a.date)
     })
 
-  const getStatusColor = (status) => {
-    if (status === 'confirmado') return '!bg-cyan-900 !text-white'
-    return '!bg-yellow-500 !text-white'
-  }
+  const getStatusColor = (status) =>
+    status === 'confirmado' ? 'text-emerald-400' : 'text-amber-400'
 
   return (
-    <section className="section-container" aria-labelledby="orders-title">
+    <Card role="region" aria-labelledby="orders-title">
       {/* Header */}
-      <header className="section-header">
-        <div>
-          <h1 id="orders-title" className="section-title">
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div className="flex flex-col gap-1.5">
+          <h1 id="orders-title" className="text-2xl font-semibold">
             Solicitudes de Pedido
           </h1>
-          <p className="section-subtitle">Gestión de órdenes de compra</p>
+          <CardDescription>Gestión de órdenes de compra</CardDescription>
         </div>
-        <button
-          className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-          onClick={handleShow}
-        >
-          + Nueva Solicitud
-        </button>
-      </header>
-
-      {/* Modal */}
-      <ModalOrderRequest
-        modalShow={modalShow}
-        handleClose={handleClose}
-        action={editingOrder ? updateOrder : createOrder}
-        order={editingOrder}
-      />
-
-      {/* Solped Print */}
-      {showSolped && selectedOrder && (
-        <SolpedPrint
-          order={selectedOrder}
-          onClose={() => setShowSolped(false)}
-          updateOrder={updateOrder}
-          onOrderUpdated={handleOrderUpdated}
-          onEdit={() => {
-            setShowSolped(false)
-            handleEdit(selectedOrder)
-          }}
+        <Button onClick={handleShow}>+ Nueva Solicitud</Button>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {/* Modal */}
+        <ModalOrderRequest
+          modalShow={modalShow}
+          handleClose={handleClose}
+          action={editingOrder ? updateOrder : createOrder}
+          order={editingOrder}
         />
-      )}
 
-      <FormFilter
-        id="order-filter"
-        label="Buscar solicitud"
-        value={filter}
-        onChange={setFilter}
-      />
+        {/* Solped Print */}
+        {showSolped && selectedOrder && (
+          <SolpedPrint
+            order={selectedOrder}
+            onClose={() => setShowSolped(false)}
+            updateOrder={updateOrder}
+            onOrderUpdated={handleOrderUpdated}
+            onEdit={() => {
+              setShowSolped(false)
+              handleEdit(selectedOrder)
+            }}
+          />
+        )}
 
-      {/* Tabla */}
-      {sortedOrders.length > 0 ? (
-        <div className="table-wrapper">
-          <table className="table-minimal">
-            <thead>
-              <tr>
-                <th>Nº Solicitud</th>
-                <th>Proveedor</th>
-                <th style={{ textAlign: 'center' }}>Productos</th>
-                <th style={{ textAlign: 'right' }}>Total</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th style={{ textAlign: 'center' }}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedOrders.map((order) => (
-                <tr key={order._id}>
-                  <td>
-                    <strong>#{order._id.slice(-6).toUpperCase()}</strong>
-                  </td>
-                  <td>
-                    {order.supplier?.suppliersName ||
-                      order.supplier?.name ||
-                      'N/A'}
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    {order.items?.length || 0}
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <strong>${(order.totalAmount || 0).toFixed(2)}</strong>
-                  </td>
-                  <td>
-                    <span
-                      className={`badge-minimal ${getStatusColor(order.status)}`}
-                    >
-                      {order.status || 'pendiente'}
-                    </span>
-                  </td>
-                  <td>
-                    <small>{formatDate(order.date)}</small>
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                      {order.status !== 'confirmado' && (
+        <FormFilter
+          id="order-filter"
+          label="Buscar solicitud"
+          value={filter}
+          onChange={setFilter}
+        />
+
+        {/* Tabla */}
+        {sortedOrders.length > 0 ? (
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nº Solicitud</TableHead>
+                  <TableHead>Proveedor</TableHead>
+                  <TableHead className="text-center">Productos</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead className="text-center">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sortedOrders.map((order) => (
+                  <TableRow key={order._id}>
+                    <TableCell>
+                      <strong>#{order._id.slice(-6).toUpperCase()}</strong>
+                    </TableCell>
+                    <TableCell>
+                      {order.supplier?.suppliersName ||
+                        order.supplier?.name ||
+                        'N/A'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {order.items?.length || 0}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <strong>${(order.totalAmount || 0).toFixed(2)}</strong>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={getStatusColor(order.status)}
+                      >
+                        {order.status || 'pendiente'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <small>{formatDate(order.date)}</small>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                        {order.status !== 'confirmado' && (
+                          <ActionIconButton
+                            action="open"
+                            label="Abrir"
+                            onClick={() => handleViewSolped(order)}
+                          />
+                        )}
+                        {order.status === 'confirmado' && (
+                          <ActionIconButton
+                            action="reopen"
+                            label="Reabrir"
+                            onClick={() => handleStatusChange(order)}
+                            disabled={updateOrder.isPending}
+                          />
+                        )}
                         <ActionIconButton
-                          action="open"
-                          label="Abrir"
-                          onClick={() => handleViewSolped(order)}
+                          action="delete"
+                          label="Eliminar"
+                          onClick={() => handleDelete(order._id)}
                         />
-                      )}
-                      {order.status === 'confirmado' && (
-                        <ActionIconButton
-                          action="reopen"
-                          label="Reabrir"
-                          onClick={() => handleStatusChange(order)}
-                          disabled={updateOrder.isPending}
-                        />
-                      )}
-                      <ActionIconButton
-                        action="delete"
-                        label="Eliminar"
-                        onClick={() => handleDelete(order._id)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="alert-minimal alert-info-minimal">
-          No hay solicitudes registradas
-        </div>
-      )}
-    </section>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <Alert>
+            <AlertDescription>No hay solicitudes registradas</AlertDescription>
+          </Alert>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

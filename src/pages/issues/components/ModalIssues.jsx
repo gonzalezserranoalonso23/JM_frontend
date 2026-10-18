@@ -9,6 +9,15 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Alert } from '@/components/ui/alert'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ProductCombobox from '@/components/ui/product-combobox'
@@ -21,7 +30,6 @@ import {
 } from '@/components/ui/select'
 import { useGetProducts } from '@/features/products.features'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
-import '../../../styles/inventory.css'
 import Loading from '@/ui/Loading'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
 
@@ -283,11 +291,7 @@ const ModalIssues = ({
             <DialogBody>
               {loadingProducts && <Loading fullScreen={false} />}
               <div className="flex flex-col gap-4">
-                {error && (
-                  <div className="alert-minimal alert-danger-minimal">
-                    {error}
-                  </div>
-                )}
+                {error && <Alert variant="destructive">{error}</Alert>}
 
                 <div>
                   <Label htmlFor="date">Fecha *</Label>
@@ -345,7 +349,7 @@ const ModalIssues = ({
                     required
                   />
                   {editSelectedProduct && (
-                    <small style={{ color: '#7f8c8d' }}>
+                    <small className="text-muted-foreground">
                       Stock disponible: {editSelectedProduct.productStock}
                     </small>
                   )}
@@ -395,19 +399,10 @@ const ModalIssues = ({
               </div>
             </DialogBody>
             <DialogFooter>
-              <Button
-                type="button"
-                onClick={handleClose}
-                className="bg-red-400 text-white hover:bg-red-500"
-              >
+              <Button type="button" variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                className="bg-cyan-900 text-white hover:bg-cyan-950"
-              >
-                Guardar cambios
-              </Button>
+              <Button type="submit">Guardar cambios</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -417,7 +412,7 @@ const ModalIssues = ({
 
   return (
     <Dialog open={modalShow} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Nueva Salida</DialogTitle>
         </DialogHeader>
@@ -427,27 +422,15 @@ const ModalIssues = ({
         >
           <DialogBody>
             {loadingProducts && <Loading fullScreen={false} />}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
               {error && (
-                <div className="alert-minimal alert-danger-minimal">
+                <Alert variant="destructive" className="lg:col-span-2">
                   {error}
-                </div>
+                </Alert>
               )}
 
-              <div>
-                <Label htmlFor="date">Fecha *</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  name="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="cart-item-form">
-                <div>
+              <div className="grid grid-cols-1 gap-4 rounded-lg border border-dashed border-border p-4 sm:grid-cols-2 lg:items-start">
+                <div className="sm:col-span-2">
                   <Label htmlFor="productName">Producto</Label>
                   <ProductCombobox
                     id="productName"
@@ -458,6 +441,18 @@ const ModalIssues = ({
                     }
                     placeholder="Selecciona producto"
                     showStock
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="date">Fecha *</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    name="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    required
                   />
                 </div>
 
@@ -474,7 +469,7 @@ const ModalIssues = ({
                     min="0"
                   />
                   {itemSelectedProduct && (
-                    <small style={{ color: '#7f8c8d' }}>
+                    <small className="text-muted-foreground">
                       Stock disponible: {getAvailableStock(itemSelectedProduct)}
                     </small>
                   )}
@@ -503,96 +498,95 @@ const ModalIssues = ({
 
                 <Button
                   type="button"
+                  className="sm:col-span-2"
                   onClick={handleAddToCart}
-                  className="bg-cyan-900 text-white hover:bg-cyan-950"
                 >
                   + Agregar al carrito
                 </Button>
               </div>
 
-              {cart.length > 0 && (
-                <div className="cart-list">
-                  <Label>Productos a registrar ({cart.length})</Label>
-                  <div className="table-wrapper">
-                    <table className="table-minimal">
-                      <thead>
-                        <tr>
-                          <th>Producto</th>
-                          <th style={{ textAlign: 'center' }}>Cant.</th>
-                          <th style={{ textAlign: 'right' }}>Total</th>
-                          <th />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {cart.map((item) => (
-                          <tr key={item.tempId}>
-                            <td>{item.productLabel}</td>
-                            <td style={{ textAlign: 'center' }}>
-                              {item.quantity}
-                            </td>
-                            <td style={{ textAlign: 'right' }}>
-                              ${parseFloat(item.totalAmount || 0).toFixed(2)}
-                            </td>
-                            <td style={{ textAlign: 'center' }}>
-                              <button
-                                type="button"
-                                className="btn-action btn-danger-sm"
-                                onClick={() =>
-                                  handleRemoveFromCart(item.tempId)
-                                }
-                                title="Quitar"
-                              >
-                                ✕
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+              <div className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-4 lg:self-stretch">
+                <Label>Carrito ({cart.length})</Label>
+                {cart.length === 0 ? (
+                  <div className="flex flex-1 items-center justify-center py-10 text-center text-sm text-muted-foreground">
+                    Aún no hay productos en el carrito
                   </div>
-                  <div className="cart-total">
-                    Total: <strong>${cartTotal.toFixed(2)}</strong>
-                  </div>
-                  <div>
-                    <Label htmlFor="cartPaymentType">
-                      Tipo de pago de la salida *
-                    </Label>
-                    <Select
-                      value={cartPaymentType}
-                      onValueChange={(value) => {
-                        setCartPaymentType(value)
-                        setError('')
-                      }}
-                    >
-                      <SelectTrigger id="cartPaymentType">
-                        <SelectValue placeholder="Selecciona un tipo de pago" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {paymentTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
+                ) : (
+                  <>
+                    <div className="rounded-lg border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Producto</TableHead>
+                            <TableHead className="text-center">Cant.</TableHead>
+                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead />
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {cart.map((item) => (
+                            <TableRow key={item.tempId}>
+                              <TableCell>{item.productLabel}</TableCell>
+                              <TableCell className="text-center">
+                                {item.quantity}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                ${parseFloat(item.totalAmount || 0).toFixed(2)}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleRemoveFromCart(item.tempId)
+                                  }
+                                  title="Quitar"
+                                >
+                                  ✕
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <div className="px-2 py-1 text-right text-sm">
+                      Total: <strong>${cartTotal.toFixed(2)}</strong>
+                    </div>
+                    <div>
+                      <Label htmlFor="cartPaymentType">
+                        Tipo de pago de la salida *
+                      </Label>
+                      <Select
+                        value={cartPaymentType}
+                        onValueChange={(value) => {
+                          setCartPaymentType(value)
+                          setError('')
+                        }}
+                      >
+                        <SelectTrigger id="cartPaymentType">
+                          <SelectValue placeholder="Selecciona un tipo de pago" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {paymentTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button
-              type="button"
-              onClick={handleClose}
-              className="bg-red-400 text-white hover:bg-red-500"
-            >
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={cart.length === 0 || isSubmitting}
-              className="bg-cyan-900 text-white hover:bg-cyan-950 disabled:opacity-100 disabled:cursor-not-allowed"
-            >
+            <Button type="submit" disabled={cart.length === 0 || isSubmitting}>
               {isSubmitting
                 ? 'Registrando...'
                 : `Registrar ${cart.length || ''} salida${

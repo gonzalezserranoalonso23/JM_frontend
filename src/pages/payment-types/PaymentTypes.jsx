@@ -1,3 +1,14 @@
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
+import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { useState } from 'react'
 import {
   useCreatePaymentType,
@@ -37,22 +48,20 @@ const PaymentTypes = () => {
   if (isLoading) return <Loading />
 
   return (
-    <div className="bg-light py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
-        <section
-          className="section-container"
+    <div className="py-6">
+      <div className="page-content-shell">
+        <Card
+          role="region"
           aria-labelledby="payment-types-title"
+          className="gap-4 p-4 sm:p-6"
         >
-          <header className="section-header">
-            <h1 id="payment-types-title" className="section-title">
+          <header className="flex flex-wrap items-center justify-between gap-2">
+            <h1 id="payment-types-title" className="text-xl font-semibold">
               Métodos de pago
             </h1>
-            <button
-              className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-              onClick={() => setModalShow(true)}
-            >
+            <Button onClick={() => setModalShow(true)}>
               + Crear método de pago
-            </button>
+            </Button>
           </header>
 
           <ModalPaymentTypes
@@ -65,27 +74,25 @@ const PaymentTypes = () => {
           />
 
           {isError ? (
-            <div className="alert-minimal alert-danger-minimal">
+            <Alert variant="destructive">
               Error al cargar los métodos de pago
-            </div>
+            </Alert>
           ) : paymentTypes.length === 0 ? (
-            <div className="alert-minimal alert-warning-minimal">
-              No hay métodos de pago para mostrar
-            </div>
+            <Alert>No hay métodos de pago para mostrar</Alert>
           ) : (
-            <div className="table-wrapper">
-              <table className="table-minimal">
-                <thead>
-                  <tr>
-                    <th>Método de pago</th>
-                    <th className="text-center">Opciones</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Método de pago</TableHead>
+                    <TableHead className="text-center">Opciones</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {paymentTypes.map((item) => (
-                    <tr key={item.value}>
-                      <td>{item.label}</td>
-                      <td className="text-center">
+                    <TableRow key={item.value}>
+                      <TableCell>{item.label}</TableCell>
+                      <TableCell className="text-center">
                         <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
                           <ActionIconButton
                             action="edit"
@@ -98,17 +105,17 @@ const PaymentTypes = () => {
                             onClick={() => handleDelete(item.value)}
                           />
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-                <caption className="text-sm text-gray-500 mt-2">
+                </TableBody>
+                <caption className="mt-2 pb-2 text-sm text-muted-foreground">
                   Total: {paymentTypes.length}
                 </caption>
-              </table>
+              </Table>
             </div>
           )}
-        </section>
+        </Card>
       </div>
     </div>
   )

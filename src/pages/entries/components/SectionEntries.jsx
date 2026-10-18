@@ -1,7 +1,7 @@
 import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import {
-  useGetInventoryRecords,
+  useGetInventoryRecordPages,
   useDeleteInventoryRecord,
   useCreateInventoryRecord,
   useCreateInventoryRecords,
@@ -9,21 +9,49 @@ import {
 } from '@/features/inventory.features'
 import ModalEntries from './ModalEntries'
 import Loading from '@/ui/Loading'
-import '../../../styles/inventory.css'
+import { Button } from '@/components/ui/button'
+import { Alert } from '@/components/ui/alert'
+import { Card } from '@/components/ui/card'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 import ActionIconButton from '@/components/ActionIconButton'
+import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
-import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
-import { isEntryRecord } from '@/utils/typeInventory'
 
 const SectionEntries = () => {
-  const { data: records, isLoading, isError } = useGetInventoryRecords()
   const createRecord = useCreateInventoryRecord()
   const createRecords = useCreateInventoryRecords()
   const updateRecord = useUpdateInventoryRecord()
   const deleteRecord = useDeleteInventoryRecord()
 
   const [dataFilter, setDataFilter] = useFilterQuery()
+  const search = useDebouncedValue(dataFilter.trim())
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useGetInventoryRecordPages({
+    direction: 1,
+    search
+  })
+  const records = data?.pages.flatMap((page) => page.data) ?? []
+  const total = data?.pages[0]?.total ?? 0
+  const { sentinelRef, supportsIntersectionObserver } =
+    useIntersectionPagination(
+      fetchNextPage,
+      Boolean(hasNextPage) && !isFetchingNextPage
+    )
   const [modalShow, setModalShow] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -56,124 +84,124 @@ const SectionEntries = () => {
     }
   }
 
-  const matcher = buildMatcher(dataFilter)
-
-  const filteredRecords = records?.filter((record) => {
-    const isEntry = isEntryRecord(record)
-
-    if (!isEntry) return false
-
-    return matchesCells(
-      [record.productName?.productName, ...dateCells(record.date)],
-      matcher
-    )
-  })
-
   if (isLoading) return <Loading />
   if (isError)
     return (
-      <div
-        className="alert-minimal alert-danger-minimal"
-        style={{ margin: '2rem' }}
-      >
+      <Alert variant="destructive" className="m-8">
         Error al cargar las entradas
-      </div>
+      </Alert>
     )
 
   return (
-    <section className="section-container" aria-labelledby="entries-title">
-      {/* Header */}
-      <header className="section-header">
-        <div>
-          <h1 id="entries-title" className="section-title">
-            Entradas
-          </h1>
-          <p className="section-subtitle">
-            Registros de compras y movimientos positivos
+    <section aria-labelledby="entries-title">
+      <Card className="p-4 sm:p-6">
+        {/* Header */}
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 id="entries-title" className="text-2xl font-semibold">
+              Entradas
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Registros de compras y movimientos positivos
+            </p>
+          </div>
+          <Button onClick={handleShow}>↓ Nueva Entrada</Button>
+        </header>
+
+        {/* Filtro */}
+        <FormFilter
+          id="entry-filter"
+          label="Buscar entradas"
+          value={dataFilter}
+          onChange={setDataFilter}
+        />
+
+        {/* Modal */}
+        <ModalEntries
+          modalShow={modalShow}
+          handleClose={handleClose}
+          action={isEditing ? updateRecord : createRecord}
+          createBulkAction={createRecords}
+          record={selectedRecord}
+          isEditing={isEditing}
+        />
+
+        {/* Tabla */}
+        {records.length > 0 ? (
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Fecha</TableHead>
+                  <TableHead>Producto</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-center">Cantidad</TableHead>
+                  <TableHead className="text-right">Precio</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-center">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {records.map((record) => (
+                  <TableRow key={record._id}>
+                    <TableCell>{formatDate(record.date)}</TableCell>
+                    <TableCell>
+                      <strong>{record.productName?.productName}</strong>
+                    </TableCell>
+                    <TableCell>{record.typeInventory?.typeInventory}</TableCell>
+                    <TableCell className="text-center">
+                      {record.quantity}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      ${parseFloat(record.productPrice).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <strong>
+                        ${parseFloat(record.totalAmount).toFixed(2)}
+                      </strong>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                        <ActionIconButton
+                          action="edit"
+                          label="Editar"
+                          onClick={() => handleShowEdit(record)}
+                        />
+                        <ActionIconButton
+                          action="delete"
+                          label="Eliminar"
+                          onClick={() => handleDelete(record._id)}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <Alert>No hay entradas registradas</Alert>
+        )}
+        {hasNextPage &&
+          (supportsIntersectionObserver ? (
+            <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              Cargar más
+            </Button>
+          ))}
+        {total > 0 && (
+          <p className="text-center text-sm text-muted-foreground">
+            Mostrando {records.length} de {total} entradas
           </p>
-        </div>
-        <button
-          className="btn-custom btn-success-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-          onClick={handleShow}
-        >
-          ↓ Nueva Entrada
-        </button>
-      </header>
-
-      {/* Filtro */}
-      <FormFilter
-        id="entry-filter"
-        label="Buscar entradas"
-        value={dataFilter}
-        onChange={setDataFilter}
-      />
-
-      {/* Modal */}
-      <ModalEntries
-        modalShow={modalShow}
-        handleClose={handleClose}
-        action={isEditing ? updateRecord : createRecord}
-        createBulkAction={createRecords}
-        record={selectedRecord}
-        isEditing={isEditing}
-      />
-
-      {/* Tabla */}
-      {filteredRecords && filteredRecords.length > 0 ? (
-        <div className="table-wrapper">
-          <table className="table-minimal">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Producto</th>
-                <th>Tipo</th>
-                <th style={{ textAlign: 'center' }}>Cantidad</th>
-                <th style={{ textAlign: 'right' }}>Precio</th>
-                <th style={{ textAlign: 'right' }}>Total</th>
-                <th style={{ textAlign: 'center' }}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRecords.map((record) => (
-                <tr key={record._id}>
-                  <td>{formatDate(record.date)}</td>
-                  <td>
-                    <strong>{record.productName?.productName}</strong>
-                  </td>
-                  <td>{record.typeInventory?.typeInventory}</td>
-                  <td style={{ textAlign: 'center' }}>{record.quantity}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    ${parseFloat(record.productPrice).toFixed(2)}
-                  </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <strong>
-                      ${parseFloat(record.totalAmount).toFixed(2)}
-                    </strong>
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                      <ActionIconButton
-                        action="edit"
-                        label="Editar"
-                        onClick={() => handleShowEdit(record)}
-                      />
-                      <ActionIconButton
-                        action="delete"
-                        label="Eliminar"
-                        onClick={() => handleDelete(record._id)}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="alert-minimal alert-info-minimal">
-          No hay entradas registradas
-        </div>
-      )}
+        )}
+      </Card>
     </section>
   )
 }

@@ -1,3 +1,6 @@
+import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { useState } from 'react'
 import {
   useCreateCategory,
@@ -46,27 +49,23 @@ const SectionCategories = () => {
   if (isLoading) return <Loading />
   if (isError)
     return (
-      <div
-        className="alert-minimal alert-danger-minimal"
-        style={{ margin: '2rem' }}
-      >
+      <Alert variant="destructive" className="m-8 w-auto">
         Error al cargar las categorías
-      </div>
+      </Alert>
     )
 
   return (
     <>
-      <section className="section-container" aria-labelledby="categories-title">
-        <header className="section-header">
-          <h1 id="categories-title" className="section-title">
+      <Card
+        role="region"
+        aria-labelledby="categories-title"
+        className="gap-4 p-4 sm:p-6"
+      >
+        <header className="flex flex-wrap items-center justify-between gap-2">
+          <h1 id="categories-title" className="text-xl font-semibold">
             Categorías
           </h1>
-          <button
-            className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-            onClick={handleShow}
-          >
-            + Crear Categoría
-          </button>
+          <Button onClick={handleShow}>+ Crear Categoría</Button>
         </header>
         {!update ? (
           <ModalCategories
@@ -98,11 +97,9 @@ const SectionCategories = () => {
             handleDelete={handleDelete}
           />
         ) : (
-          <div className="alert-minimal alert-warning-minimal">
-            No hay categorías para mostrar
-          </div>
+          <Alert>No hay categorías para mostrar</Alert>
         )}
-      </section>
+      </Card>
     </>
   )
 }

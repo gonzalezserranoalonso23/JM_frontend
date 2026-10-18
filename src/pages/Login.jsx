@@ -5,6 +5,15 @@ import { useEffect } from 'react'
 import { verifyLogin } from '@/helpers/validations'
 import { useLogin } from '@/features/users.features'
 import { useAuthStore } from '@/store/auth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader
+} from '@/components/ui/card'
 
 const REMEMBER_KEY = 'jm-remembered-user'
 
@@ -76,140 +85,56 @@ const Login = () => {
   }
 
   return (
-    <div
-      className="flex min-h-[calc(var(--app-vh,1svh)*100)] w-full items-center justify-center px-4 py-8 sm:px-6"
-      style={{ background: '#000' }}
-    >
-      <div className="w-full max-w-[400px] rounded-2xl bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.4)] sm:p-10">
-        {/* Logo / Título */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
-            style={{
-              width: '64px',
-              height: '64px',
-              background: '#f39c12',
-              borderRadius: '16px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '1rem',
-              fontSize: '1.75rem'
-            }}
-          >
-            🛒
-          </div>
-          <h1
-            style={{
-              fontSize: '1.5rem',
-              fontWeight: '700',
-              color: '#2c3e50',
-              margin: 0
-            }}
-          >
-            Mini Super JM
-          </h1>
-          <p
-            style={{
-              color: '#7f8c8d',
-              fontSize: '0.875rem',
-              margin: '0.5rem 0 0 0'
-            }}
-          >
-            Inicia sesión para continuar
-          </p>
-        </div>
-
-        <form
-          onSubmit={formik.handleSubmit}
-          style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
-        >
-          <div className="form-group" style={{ marginBottom: 0 }}>
+    <div className="flex min-h-[calc(var(--app-vh,1svh)*100)] w-full items-center justify-center bg-background px-4 py-8 sm:px-6">
+      <Card className="w-full max-w-[400px]">
+        <CardHeader className="text-center">
+          <h1 className="text-2xl leading-none font-bold">Mini Super JM</h1>
+          <CardDescription>Inicia sesión para continuar</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={formik.handleSubmit} className="flex flex-col gap-5">
+            <div className="space-y-2">
+              <Label htmlFor="username">Usuario</Label>
+              <Input
+                {...formik.getFieldProps('username')}
+                id="username"
+                name="username"
+                autoComplete="username"
+                type="text"
+                placeholder="Ingresa tu usuario"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input
+                {...formik.getFieldProps('password')}
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+              />
+            </div>
             <label
-              htmlFor="username"
-              style={{
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                color: '#2c3e50',
-                display: 'block',
-                marginBottom: '0.5rem'
-              }}
+              htmlFor="remember"
+              className="flex cursor-pointer items-center gap-2 text-sm"
             >
-              Usuario
+              <input
+                id="remember"
+                name="remember"
+                type="checkbox"
+                className="accent-primary"
+                checked={formik.values.remember}
+                onChange={formik.handleChange}
+              />
+              Recuérdame
             </label>
-            <input
-              {...formik.getFieldProps('username')}
-              id="username"
-              name="username"
-              autoComplete="username"
-              type="text"
-              placeholder="Ingresa tu usuario"
-              className="form-control"
-            />
-          </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label
-              htmlFor="password"
-              style={{
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                color: '#2c3e50',
-                display: 'block',
-                marginBottom: '0.5rem'
-              }}
-            >
-              Contraseña
-            </label>
-            <input
-              {...formik.getFieldProps('password')}
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              className="form-control"
-            />
-          </div>
-          <label
-            htmlFor="remember"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontSize: '0.875rem',
-              color: '#2c3e50',
-              cursor: 'pointer'
-            }}
-          >
-            <input
-              id="remember"
-              name="remember"
-              type="checkbox"
-              checked={formik.values.remember}
-              onChange={formik.handleChange}
-            />
-            Recuérdame
-          </label>
-          <button
-            type="submit"
-            disabled={login.isPending}
-            style={{
-              background: '#f39c12',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '0.85rem',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: login.isPending ? 'not-allowed' : 'pointer',
-              opacity: login.isPending ? 0.7 : 1,
-              marginTop: '0.5rem',
-              transition: 'all 0.2s'
-            }}
-          >
-            {login.isPending ? 'Iniciando...' : 'Iniciar Sesión'}
-          </button>
-        </form>
-      </div>
+            <Button type="submit" disabled={login.isPending}>
+              {login.isPending ? 'Iniciando...' : 'Iniciar Sesión'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -1,15 +1,16 @@
+import { Card, CardHeader } from '@/components/ui/card'
+
 const ToDoListDetails = () => {
   return (
-    <div className="bg-light py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
-        <section
-          className="section-container"
-          aria-labelledby="task-details-title"
-        >
-          <h1 id="task-details-title" className="section-title">
-            Detalle de tarea
-          </h1>
-        </section>
+    <div className="py-6">
+      <div className="page-content-shell">
+        <Card role="region" aria-labelledby="task-details-title">
+          <CardHeader>
+            <h1 id="task-details-title" className="text-2xl font-semibold">
+              Detalle de tarea
+            </h1>
+          </CardHeader>
+        </Card>
       </div>
     </div>
   )

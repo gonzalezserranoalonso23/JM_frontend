@@ -7,8 +7,29 @@ import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import { exportMovementsToExcel } from '@/utils/exportExcel'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import Loading from '@/ui/Loading'
-import '../../../styles/inventory.css'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/ui/table'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
+
+const ALL_OPTION = 'all'
 
 const isExitType = (type) => type?.stockDirection === -1
 
@@ -88,264 +109,227 @@ const ReportsSalesAndMovements = () => {
   }
 
   return (
-    <section className="section-container" aria-labelledby="reports-title">
-      <header className="section-header">
-        <div>
-          <h1
-            id="reports-title"
-            style={{
-              fontSize: '1.25rem',
-              fontWeight: '700',
-              color: '#111827',
-              margin: 0
-            }}
+    <section aria-labelledby="reports-title">
+      <Card className="p-4 sm:p-6">
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 id="reports-title" className="text-xl font-bold">
+              Reportes
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Movimientos y ventas por período
+            </p>
+          </div>
+          <Button
+            type="button"
+            onClick={handleExport}
+            disabled={isDateRangeInvalid || isExporting || totalRecords === 0}
           >
-            Reportes
-          </h1>
-          <p
-            style={{
-              fontSize: '0.875rem',
-              color: '#6b7280',
-              margin: '0.25rem 0 0 0'
-            }}
-          >
-            Movimientos y ventas por período
-          </p>
-        </div>
-        <button
-          type="button"
-          className="btn-custom btn-primary-custom"
-          onClick={handleExport}
-          disabled={isDateRangeInvalid || isExporting || totalRecords === 0}
-        >
-          {isExporting ? 'Exportando...' : 'Exportar a Excel'}
-        </button>
-      </header>
+            {isExporting ? 'Exportando...' : 'Exportar a Excel'}
+          </Button>
+        </header>
 
-      {/* Filtros */}
-      <div className="filter-section">
-        <div className="filter-group">
-          <label htmlFor="report-start-date">Desde</label>
-          <input
-            id="report-start-date"
-            type="date"
-            className="form-control"
-            aria-invalid={isDateRangeInvalid}
-            aria-describedby={
-              isDateRangeInvalid ? 'report-date-error' : undefined
-            }
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-        <div className="filter-group">
-          <label htmlFor="report-end-date">Hasta</label>
-          <input
-            id="report-end-date"
-            type="date"
-            className="form-control"
-            aria-invalid={isDateRangeInvalid}
-            aria-describedby={
-              isDateRangeInvalid ? 'report-date-error' : undefined
-            }
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-        </div>
-        <div className="filter-group">
-          <label>Tipo de movimiento</label>
-          <select
-            value={selectedType}
-            onChange={(e) => setTypeChoice(e.target.value)}
-            className="form-select"
-          >
-            <option value="">Todos</option>
-            {types.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        {showPaymentFilter && (
-          <div className="filter-group">
-            <label>Forma de pago</label>
-            <select
-              value={selectedPaymentType}
-              onChange={(e) => setPaymentChoice(e.target.value)}
-              className="form-select"
+        {/* Filtros */}
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="report-start-date">Desde</Label>
+            <Input
+              id="report-start-date"
+              type="date"
+              aria-invalid={isDateRangeInvalid}
+              aria-describedby={
+                isDateRangeInvalid ? 'report-date-error' : undefined
+              }
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="report-end-date">Hasta</Label>
+            <Input
+              id="report-end-date"
+              type="date"
+              aria-invalid={isDateRangeInvalid}
+              aria-describedby={
+                isDateRangeInvalid ? 'report-date-error' : undefined
+              }
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+          <div className="flex min-w-[200px] flex-col gap-2">
+            <Label htmlFor="report-type">Tipo de movimiento</Label>
+            <Select
+              value={selectedType || ALL_OPTION}
+              onValueChange={(value) =>
+                setTypeChoice(value === ALL_OPTION ? '' : value)
+              }
             >
-              <option value="">Todas</option>
-              {paymentTypes.map((payment) => (
-                <option key={payment.value} value={payment.value}>
-                  {payment.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger id="report-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_OPTION}>Todos</SelectItem>
+                {types.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+          {showPaymentFilter && (
+            <div className="flex min-w-[200px] flex-col gap-2">
+              <Label htmlFor="report-payment">Forma de pago</Label>
+              <Select
+                value={selectedPaymentType || ALL_OPTION}
+                onValueChange={(value) =>
+                  setPaymentChoice(value === ALL_OPTION ? '' : value)
+                }
+              >
+                <SelectTrigger id="report-payment">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_OPTION}>Todas</SelectItem>
+                  {paymentTypes.map((payment) => (
+                    <SelectItem key={payment.value} value={payment.value}>
+                      {payment.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+        {isDateRangeInvalid && (
+          <p id="report-date-error" role="alert" className="text-destructive">
+            La fecha de inicio no puede ser posterior a la fecha final.
+          </p>
         )}
-      </div>
-      {isDateRangeInvalid && (
-        <p
-          id="report-date-error"
-          role="alert"
-          style={{
-            color: '#b91c1c',
-            marginTop: '-0.75rem',
-            marginBottom: '1rem'
-          }}
-        >
-          La fecha de inicio no puede ser posterior a la fecha final.
-        </p>
-      )}
 
-      {!isDateRangeInvalid && (
-        <>
-          {/* Cards de Resumen */}
-          <section
-            aria-label="Resumen del período"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '1rem',
-              marginBottom: '2rem'
-            }}
-          >
-            {totalCards.map((card) => (
-              <article
-                key={card.type}
-                style={{
-                  padding: '1.5rem',
-                  background: 'white',
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                }}
-              >
-                <h2
-                  style={{
-                    color: '#7f8c8d',
-                    margin: '0 0 0.5rem 0',
-                    fontSize: '0.85rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  {card.label}
-                </h2>
-                <strong style={{ fontSize: '1.75rem', color: '#27ae60' }}>
-                  ${sumByType(card.type).toFixed(2)}
-                </strong>
-              </article>
-            ))}
-            {selectedType && (
-              <article
-                style={{
-                  padding: '1.5rem',
-                  background: 'white',
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                }}
-              >
-                <h2
-                  style={{
-                    color: '#7f8c8d',
-                    margin: '0 0 0.5rem 0',
-                    fontSize: '0.85rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  {COUNT_LABEL(selectedTypeInfo)}
-                </h2>
-                <strong style={{ fontSize: '1.75rem', color: '#3498db' }}>
-                  {summary?.[selectedType]?.products ?? 0}
-                </strong>
-              </article>
-            )}
-          </section>
+        {!isDateRangeInvalid && (
+          <>
+            {/* Cards de Resumen */}
+            <section
+              aria-label="Resumen del período"
+              className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(250px,1fr))]"
+            >
+              {totalCards.map((card) => (
+                <Card key={card.type} className="gap-2 p-6">
+                  <h2 className="text-sm font-semibold text-muted-foreground">
+                    {card.label}
+                  </h2>
+                  <strong className="text-3xl text-emerald-400">
+                    ${sumByType(card.type).toFixed(2)}
+                  </strong>
+                </Card>
+              ))}
+              {selectedType && (
+                <Card className="gap-2 p-6">
+                  <h2 className="text-sm font-semibold text-muted-foreground">
+                    {COUNT_LABEL(selectedTypeInfo)}
+                  </h2>
+                  <strong className="text-3xl text-primary">
+                    {summary?.[selectedType]?.products ?? 0}
+                  </strong>
+                </Card>
+              )}
+            </section>
 
-          {/* Tabla de Movimientos */}
-          <div className="table-wrapper">
-            <table className="table-minimal">
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Producto</th>
-                  <th>Tipo</th>
-                  <th>Forma de pago</th>
-                  <th style={{ textAlign: 'center' }}>Cantidad</th>
-                  <th style={{ textAlign: 'right' }}>Precio Unit.</th>
-                  <th style={{ textAlign: 'right' }}>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRecords.length > 0 ? (
-                  filteredRecords.map((record) => {
-                    return (
-                      <tr key={record._id}>
-                        <td>{formatDate(record.date)}</td>
-                        <td>
-                          <strong>{record.productName?.productName}</strong>
-                        </td>
-                        <td>
-                          <span
-                            className={`badge-minimal ${isExitType(record.typeInventory) ? 'badge-danger' : 'badge-success'}`}
-                          >
-                            {record.typeInventory?.typeInventory}
-                          </span>
-                        </td>
-                        <td>{record.paymentType?.paymentType || '-'}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          {record.quantity}
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          ${parseFloat(record.productPrice).toFixed(2)}
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <strong>
-                            ${parseFloat(record.totalAmount).toFixed(2)}
-                          </strong>
-                        </td>
-                      </tr>
-                    )
-                  })
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="7"
-                      style={{
-                        textAlign: 'center',
-                        padding: '2rem',
-                        color: '#7f8c8d'
-                      }}
-                    >
-                      No hay movimientos en este período
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            {hasNextPage && supportsIntersectionObserver && (
-              <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-            )}
-            {isFetchingNextPage && supportsIntersectionObserver && (
-              <Loading fullScreen={false} />
-            )}
-            {hasNextPage && !supportsIntersectionObserver && (
-              <button
-                type="button"
-                className="w-full py-3 text-sm font-medium"
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-              >
-                {isFetchingNextPage ? (
-                  <Loading fullScreen={false} />
-                ) : (
-                  'Cargar más'
-                )}
-              </button>
-            )}
-          </div>
-        </>
-      )}
+            {/* Tabla de Movimientos */}
+            <div className="rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Producto</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Forma de pago</TableHead>
+                    <TableHead className="text-center">Cantidad</TableHead>
+                    <TableHead className="text-right">Precio Unit.</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredRecords.length > 0 ? (
+                    filteredRecords.map((record) => {
+                      return (
+                        <TableRow key={record._id}>
+                          <TableCell>{formatDate(record.date)}</TableCell>
+                          <TableCell>
+                            <strong>{record.productName?.productName}</strong>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                isExitType(record.typeInventory)
+                                  ? 'destructive'
+                                  : 'outline'
+                              }
+                              className={
+                                isExitType(record.typeInventory)
+                                  ? undefined
+                                  : 'text-emerald-400'
+                              }
+                            >
+                              {record.typeInventory?.typeInventory}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {record.paymentType?.paymentType || '-'}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {record.quantity}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            ${parseFloat(record.productPrice).toFixed(2)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <strong>
+                              ${parseFloat(record.totalAmount).toFixed(2)}
+                            </strong>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="p-8 text-center text-muted-foreground"
+                      >
+                        No hay movimientos en este período
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              {hasNextPage && supportsIntersectionObserver && (
+                <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+              )}
+              {isFetchingNextPage && supportsIntersectionObserver && (
+                <Loading fullScreen={false} />
+              )}
+              {hasNextPage && !supportsIntersectionObserver && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                >
+                  {isFetchingNextPage ? (
+                    <Loading fullScreen={false} />
+                  ) : (
+                    'Cargar más'
+                  )}
+                </Button>
+              )}
+            </div>
+          </>
+        )}
+      </Card>
     </section>
   )
 }

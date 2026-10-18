@@ -12,11 +12,6 @@ export const getCategoriesPage = async ({ page, limit }) => {
   return data
 }
 
-export const getCategory = async (id) => {
-  const { data } = await axios.get(`/api/categories/${id}`)
-  return data
-}
-
 export const createCategory = async (body) => {
   const { data } = await axios.post('/api/categories', body)
   return data

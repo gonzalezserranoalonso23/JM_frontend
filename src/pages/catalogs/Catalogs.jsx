@@ -1,21 +1,23 @@
+import { Card } from '@/components/ui/card'
 import TableCatalogs from './components/TableCatalogs'
 
 const Catalogs = () => {
   return (
     <>
-      <div className="bg-light py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 page-content-shell">
-          <section
-            className="section-container"
+      <div className="py-6">
+        <div className="page-content-shell">
+          <Card
+            role="region"
             aria-labelledby="catalog-title"
+            className="gap-4 p-4 sm:p-6"
           >
-            <header className="section-header">
-              <h1 id="catalog-title" className="section-title">
+            <header className="flex flex-wrap items-center justify-between gap-2">
+              <h1 id="catalog-title" className="text-xl font-semibold">
                 Catálogo
               </h1>
             </header>
             <TableCatalogs />
-          </section>
+          </Card>
         </div>
       </div>
     </>

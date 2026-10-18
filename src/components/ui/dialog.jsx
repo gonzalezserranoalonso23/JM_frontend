@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Dialog as DialogPrimitive } from 'radix-ui'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -11,7 +11,7 @@ const DialogClose = DialogPrimitive.Close
 const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn('fixed inset-0 z-50 bg-black/70', className)}
+    className={cn('fixed inset-0 z-50 bg-black/50', className)}
     {...props}
   />
 ))
@@ -157,8 +157,8 @@ const DialogContent = React.forwardRef(
         <DialogPrimitive.Content
           ref={setContentRef}
           className={cn(
-            'fixed z-50 flex flex-col bg-[var(--bg-card)] text-[var(--text-primary)] shadow-lg',
-            'left-1/2 top-1/2 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border-0 max-h-[90vh] overflow-hidden',
+            'fixed z-50 flex flex-col bg-background text-foreground shadow-lg',
+            'left-1/2 top-1/2 w-full max-w-lg sm:max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border max-h-[90vh] overflow-hidden',
             // Mobile: static full-screen sheet; no animations or movement
             'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:h-[var(--dialog-h,100svh)] max-sm:max-h-[var(--dialog-h,100svh)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain',
             className
@@ -181,7 +181,7 @@ const DialogContent = React.forwardRef(
             onClick={(event) => {
               if (!canDiscard()) event.preventDefault()
             }}
-            className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-md text-white opacity-80 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white disabled:pointer-events-none max-sm:right-1 max-sm:top-1"
+            className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground opacity-80 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none max-sm:right-1 max-sm:top-1"
           >
             <X className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Cerrar</span>
@@ -196,7 +196,7 @@ DialogContent.displayName = DialogPrimitive.Content.displayName
 const DialogHeader = ({ className, ...props }) => (
   <header
     className={cn(
-      'flex shrink-0 flex-col gap-1.5 border-b border-black bg-black p-5 pr-14 text-white max-sm:p-4 max-sm:pr-14',
+      'flex shrink-0 flex-col gap-1.5 border-b p-5 pr-14 max-sm:p-4 max-sm:pr-14',
       className
     )}
     {...props}
@@ -220,9 +220,7 @@ DialogBody.displayName = 'DialogBody'
 const DialogFooter = ({ className, ...props }) => (
   <footer
     className={cn(
-      'flex shrink-0 flex-row justify-end gap-3 border-t border-black bg-black p-5 max-sm:gap-2 max-sm:p-3 max-sm:[&_button]:flex-1 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))] max-sm:[&_button]:h-12',
-      '[&_button:not([type=submit])]:border-white/60 [&_button:not([type=submit])]:text-white',
-      '[&_button[type=submit]]:bg-cyan-900 [&_button[type=submit]]:text-white [&_button[type=submit]]:hover:bg-cyan-950',
+      'flex shrink-0 flex-row justify-end gap-3 border-t p-5 max-sm:gap-2 max-sm:p-3 max-sm:[&_button]:flex-1 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))] max-sm:[&_button]:h-12',
       className
     )}
     {...props}
@@ -242,7 +240,7 @@ DialogTitle.displayName = DialogPrimitive.Title.displayName
 const DialogDescription = React.forwardRef(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-[var(--text-muted)]', className)}
+    className={cn('text-sm text-muted-foreground', className)}
     {...props}
   />
 ))

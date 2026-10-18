@@ -85,11 +85,11 @@ const ModalUsers = ({
                   type="text"
                   placeholder="nombre_usuario"
                   className={
-                    formik.errors.username ? 'border-red-500' : undefined
+                    formik.errors.username ? 'border-destructive' : undefined
                   }
                 />
                 {formik.errors.username && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p className="mt-1 text-sm text-destructive">
                     {formik.errors.username}
                   </p>
                 )}
@@ -110,10 +110,12 @@ const ModalUsers = ({
                   id="email"
                   type="email"
                   placeholder="correo@ejemplo.com"
-                  className={formik.errors.email ? 'border-red-500' : undefined}
+                  className={
+                    formik.errors.email ? 'border-destructive' : undefined
+                  }
                 />
                 {formik.errors.email && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p className="mt-1 text-sm text-destructive">
                     {formik.errors.email}
                   </p>
                 )}
@@ -132,21 +134,22 @@ const ModalUsers = ({
                     placeholder="••••••••"
                     className={
                       formik.errors.password
-                        ? 'flex-1 border-red-500'
+                        ? 'flex-1 border-destructive'
                         : 'flex-1'
                     }
                   />
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="btn-action btn-info-sm"
                     title={showPassword ? 'Ocultar' : 'Mostrar'}
                   >
                     {showPassword ? '🙈' : '👁️'}
-                  </button>
+                  </Button>
                 </div>
                 {formik.errors.password && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p className="mt-1 text-sm text-destructive">
                     {formik.errors.password}
                   </p>
                 )}
@@ -174,11 +177,7 @@ const ModalUsers = ({
             <Button type="button" variant="outline" onClick={handleCloseReset}>
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={action.isPending}
-              className="bg-cyan-900 text-white hover:bg-cyan-950"
-            >
+            <Button type="submit" disabled={action.isPending}>
               {type} usuario
             </Button>
           </DialogFooter>

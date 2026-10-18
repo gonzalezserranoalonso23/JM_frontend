@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { useSearchProducts } from '@/features/products.features'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 const formatPrice = (value) =>
   Number(value || 0).toLocaleString('es-MX', {
@@ -14,39 +18,36 @@ const ProductLookup = () => {
   const products = term ? data?.data || [] : []
 
   return (
-    <section
-      className="dashboard-card home-dashboard-card rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] overflow-hidden mb-8 border border-slate-200"
+    <Card
+      className="mb-8 gap-0 overflow-hidden py-0"
+      role="region"
       aria-labelledby="product-lookup-title"
     >
-      <header className="low-stock-header px-6 py-4">
-        <h2 id="product-lookup-title" className="font-semibold">
-          🔎 Consultar precio y stock
-        </h2>
-      </header>
-      <div className="px-6 py-5 border-b border-slate-200">
-        <label
-          htmlFor="product-lookup"
-          className="block text-sm font-medium text-slate-700 mb-2"
-        >
-          Buscar producto
-        </label>
-        <input
+      <CardHeader className="border-b py-4">
+        <CardTitle>
+          <h2 id="product-lookup-title" className="font-semibold">
+            🔎 Consultar precio y stock
+          </h2>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 py-5">
+        <Label htmlFor="product-lookup">Buscar producto</Label>
+        <Input
           id="product-lookup"
           type="search"
-          className="w-full rounded-lg border-2 border-amber-400 bg-white px-4 py-3 text-base text-slate-900 shadow-sm focus:outline-none focus:ring-4 focus:ring-amber-200"
           placeholder="Escribe el nombre del producto..."
           autoComplete="off"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-      </div>
+      </CardContent>
       {term && products.length === 0 && (
-        <p className="px-6 py-4 text-sm text-slate-500">
+        <p className="border-t px-6 py-4 text-sm text-muted-foreground">
           {isFetching ? 'Buscando...' : 'Sin resultados'}
         </p>
       )}
       {products.length > 0 && (
-        <ul className="low-stock-list divide-y divide-slate-200 list-none p-0 m-0">
+        <ul className="m-0 list-none divide-y border-t p-0">
           {products.map((product) => {
             const isOut = product.productStock === 0
             const isLow = product.productStock < product.minimumProductStock
@@ -54,45 +55,46 @@ const ProductLookup = () => {
             return (
               <li
                 key={product._id}
-                className="low-stock-item stock-row-item px-6 py-4 flex justify-between items-center gap-4"
+                className="flex items-center justify-between gap-4 px-6 py-4"
               >
                 <div className="flex-1">
-                  <h3 className="low-stock-item-title font-medium text-slate-900">
+                  <h3 className="font-medium text-foreground">
                     {product.productName}
                   </h3>
                   {product.productDescription && (
-                    <p className="text-sm text-slate-400 mt-1">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {product.productDescription}
                     </p>
                   )}
-                  <p className="low-stock-item-meta text-sm text-slate-500 mt-1">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Precio:{' '}
-                    <strong className="low-stock-item-value text-slate-700">
+                    <strong className="text-foreground">
                       {formatPrice(product.productPrice)}
                     </strong>{' '}
                     · Stock:{' '}
-                    <strong className="low-stock-item-value text-slate-700">
+                    <strong className="text-foreground">
                       {product.productStock}
                     </strong>
                   </p>
                 </div>
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                    isOut
-                      ? 'low-stock-badge low-stock-badge-out'
-                      : isLow
-                        ? 'low-stock-badge'
-                        : 'bg-slate-100 text-slate-600'
-                  }`}
+                <Badge
+                  variant={
+                    isOut ? 'destructive' : isLow ? 'default' : 'secondary'
+                  }
+                  className={
+                    isLow && !isOut
+                      ? 'border-transparent bg-yellow-600 text-white'
+                      : undefined
+                  }
                 >
                   {isOut ? 'Agotado' : isLow ? 'Bajo' : 'Disponible'}
-                </span>
+                </Badge>
               </li>
             )
           })}
         </ul>
       )}
-    </section>
+    </Card>
   )
 }
 

@@ -7,18 +7,13 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
-  getInventoryRecords,
-  getInventoryRecord,
+  getInventoryRecordsPage,
   createInventoryRecord,
   createInventoryRecords,
   updateInventoryRecord,
   deleteInventoryRecord,
-  getDailySalesSummary,
-  getLowStockProducts,
   getLowStockProductsPage,
-  getSalesByDateRange,
   getSalesByDateRangePage,
-  getInventoryByType,
   getInventoryStats
 } from '@/services/inventory.services'
 
@@ -35,21 +30,26 @@ const invalidateStockQueries = (queryClient) => {
 }
 
 // Registros
-export const useGetInventoryRecords = () => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['InventoryRecords'],
-    queryFn: getInventoryRecords
+export const useGetInventoryRecordPages = ({
+  direction,
+  search = '',
+  paymentType = ''
+}) =>
+  useInfiniteQuery({
+    queryKey: ['InventoryRecords', 'pages', direction, search, paymentType],
+    queryFn: ({ pageParam }) =>
+      getInventoryRecordsPage({
+        page: pageParam,
+        limit: 30,
+        search,
+        direction,
+        paymentType
+      }),
+    placeholderData: keepPreviousData,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
-  return { data, isLoading, isError }
-}
-
-export const useGetInventoryRecord = (id) => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['InventoryRecord', id],
-    queryFn: () => getInventoryRecord(id)
-  })
-  return { data, isLoading, isError }
-}
 
 export const useCreateInventoryRecord = () => {
   const queryClient = useQueryClient()
@@ -125,22 +125,6 @@ export const useDeleteInventoryRecord = () => {
 }
 
 // Reportes
-export const useGetDailySalesSummary = (date) => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['DailySalesSummary', date],
-    queryFn: () => getDailySalesSummary(date)
-  })
-  return { data, isLoading, isError }
-}
-
-export const useGetLowStockProducts = () => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['LowStockProducts'],
-    queryFn: getLowStockProducts
-  })
-  return { data, isLoading, isError }
-}
-
 export const useGetLowStockProductPages = (search = '', category = '') =>
   useInfiniteQuery({
     queryKey: ['LowStockProducts', 'pages', search, category],
@@ -156,15 +140,6 @@ export const useGetLowStockProductPages = (search = '', category = '') =>
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
-
-export const useGetSalesByDateRange = (startDate, endDate) => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['SalesByDateRange', startDate, endDate],
-    queryFn: () => getSalesByDateRange(startDate, endDate),
-    enabled: !!(startDate && endDate)
-  })
-  return { data, isLoading, isError }
-}
 
 export const useGetSalesByDateRangePages = (
   startDate,
@@ -197,15 +172,6 @@ export const useGetSalesByDateRangePages = (
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
-
-export const useGetInventoryByType = (type) => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['InventoryByType', type],
-    queryFn: () => getInventoryByType(type),
-    enabled: !!type
-  })
-  return { data, isLoading, isError }
-}
 
 export const useGetInventoryStats = () => {
   const { data, isLoading, isError } = useQuery({

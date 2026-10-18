@@ -8,6 +8,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import './SolpedPrint.css'
 
 const ItemsTable = ({ items }) => (
@@ -119,7 +120,7 @@ const SolpedPrint = ({
                   </p>
                   {(order.supplier?.suppliersContact ||
                     order.supplier?.contactInfo) && (
-                    <small className="text-gray-500">
+                    <small className="text-neutral-500">
                       {order.supplier.suppliersContact ||
                         order.supplier.contactInfo}
                     </small>
@@ -128,15 +129,16 @@ const SolpedPrint = ({
                 <div className="solped-section">
                   <h6 className="solped-label">ESTADO</h6>
                   <p className="solped-value">
-                    <span
-                      className={`badge-minimal ${
+                    <Badge
+                      variant="outline"
+                      className={
                         currentStatus === 'confirmado'
-                          ? 'badge-success'
-                          : 'badge-warning'
-                      }`}
+                          ? 'text-emerald-700'
+                          : 'text-amber-700'
+                      }
                     >
                       {currentStatus}
-                    </span>
+                    </Badge>
                   </p>
                 </div>
               </div>
@@ -155,7 +157,7 @@ const SolpedPrint = ({
               <div className="flex justify-end mb-4">
                 <div className="solped-total">
                   <div className="flex justify-between gap-8 mb-2">
-                    <small className="text-gray-500">SUBTOTAL:</small>
+                    <small className="text-neutral-500">SUBTOTAL:</small>
                     <small>${getTotalAmount().toFixed(2)}</small>
                   </div>
                   <div className="solped-total-amount">
@@ -170,7 +172,7 @@ const SolpedPrint = ({
               </div>
 
               <footer className="solped-footer">
-                <p className="text-center text-gray-400 text-sm mt-4">
+                <p className="text-center text-neutral-500 text-sm mt-4">
                   Esta es una solicitud de pedido generada automáticamente por
                   el sistema de inventario.
                 </p>

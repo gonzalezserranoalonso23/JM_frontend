@@ -9,6 +9,9 @@ import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 import Loading from '@/ui/Loading'
+import { Button } from '@/components/ui/button'
+import { Alert } from '@/components/ui/alert'
+import { Card } from '@/components/ui/card'
 import ModalDailyInformation from './ModalDailyInformation'
 import TableDailyInformation from './TableDailyInformation'
 
@@ -54,55 +57,50 @@ const SectionDailyInformation = () => {
   if (isLoading) return <Loading />
   if (isError) {
     return (
-      <div className="alert-minimal alert-danger-minimal m-8">
+      <Alert variant="destructive" className="m-8">
         Error al cargar la información diaria
-      </div>
+      </Alert>
     )
   }
 
   return (
-    <section
-      className="section-container"
-      aria-labelledby="daily-information-title"
-    >
-      <header className="section-header">
-        <h1 id="daily-information-title" className="section-title">
-          Información diaria
-        </h1>
-        <button
-          type="button"
-          className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-          onClick={handleCreate}
-        >
-          + Nuevo registro
-        </button>
-      </header>
+    <section aria-labelledby="daily-information-title">
+      <Card className="p-4 sm:p-6">
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <h1 id="daily-information-title" className="text-2xl font-semibold">
+            Información diaria
+          </h1>
+          <Button type="button" onClick={handleCreate}>
+            + Nuevo registro
+          </Button>
+        </header>
 
-      <ModalDailyInformation
-        record={record}
-        modalShow={modalShow}
-        handleClose={handleClose}
-        action={record ? updateAction : createAction}
-      />
-
-      <FormFilter
-        id="daily-filter"
-        label="Buscar información diaria"
-        value={textFilter}
-        onChange={setTextFilter}
-      />
-
-      {filteredRecords.length ? (
-        <TableDailyInformation
-          records={filteredRecords}
-          handleUpdate={handleUpdate}
-          handleDelete={handleDelete}
+        <ModalDailyInformation
+          record={record}
+          modalShow={modalShow}
+          handleClose={handleClose}
+          action={record ? updateAction : createAction}
         />
-      ) : (
-        <div className="alert-minimal alert-warning-minimal">
-          No hay registros que coincidan
-        </div>
-      )}
+
+        <FormFilter
+          id="daily-filter"
+          label="Buscar información diaria"
+          value={textFilter}
+          onChange={setTextFilter}
+        />
+
+        {filteredRecords.length ? (
+          <TableDailyInformation
+            records={filteredRecords}
+            handleUpdate={handleUpdate}
+            handleDelete={handleDelete}
+          />
+        ) : (
+          <Alert className="text-amber-400">
+            No hay registros que coincidan
+          </Alert>
+        )}
+      </Card>
     </section>
   )
 }

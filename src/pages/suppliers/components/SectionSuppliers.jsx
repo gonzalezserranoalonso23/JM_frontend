@@ -1,3 +1,6 @@
+import { Alert } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { useState } from 'react'
 import {
   useCreateSupplier,
@@ -49,27 +52,23 @@ const SectionSuppliers = () => {
   if (isLoading) return <Loading />
   if (isError)
     return (
-      <div
-        className="alert-minimal alert-danger-minimal"
-        style={{ margin: '2rem' }}
-      >
+      <Alert variant="destructive" className="m-8 w-auto">
         Error al cargar los proveedores
-      </div>
+      </Alert>
     )
 
   return (
     <>
-      <section className="section-container" aria-labelledby="suppliers-title">
-        <header className="section-header">
-          <h1 id="suppliers-title" className="section-title">
+      <Card
+        role="region"
+        aria-labelledby="suppliers-title"
+        className="gap-4 p-4 sm:p-6"
+      >
+        <header className="flex flex-wrap items-center justify-between gap-2">
+          <h1 id="suppliers-title" className="text-xl font-semibold">
             Proveedores
           </h1>
-          <button
-            className="btn-custom btn-primary-custom bg-cyan-900! text-white! hover:bg-cyan-950!"
-            onClick={handleShow}
-          >
-            + Crear Proveedor
-          </button>
+          <Button onClick={handleShow}>+ Crear Proveedor</Button>
         </header>
         <FormFilter
           id="supplier-filter"
@@ -107,11 +106,9 @@ const SectionSuppliers = () => {
             handleDelete={handleDelete}
           />
         ) : (
-          <div className="alert-minimal alert-warning-minimal">
-            No hay proveedores para mostrar
-          </div>
+          <Alert>No hay proveedores para mostrar</Alert>
         )}
-      </section>
+      </Card>
     </>
   )
 }
