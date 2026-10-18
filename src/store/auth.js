@@ -1,12 +1,14 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { jwtDecode } from 'jwt-decode'
+import { clearQueryCache } from '@/lib/queryClient'
 
 const AUTH_STORAGE_KEY = 'auth'
 const AUTH_COOKIE_NAME = 'jm-auth-backup'
 const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 
 const clearAuthPersistence = () => {
+  clearQueryCache()
   removeCookie(AUTH_COOKIE_NAME)
   try {
     localStorage.removeItem(AUTH_STORAGE_KEY)

@@ -3,9 +3,10 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useGetSalesByDateRangePages } from '@/features/inventory.features'
 import { getSalesByDateRange } from '@/services/inventory.services'
-import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
 import { exportMovementsToExcel } from '@/utils/exportExcel'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
+import RecordCards from '@/components/RecordCards'
 import Loading from '@/ui/Loading'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -68,8 +69,6 @@ const ReportsSalesAndMovements = () => {
     selectedPaymentType,
     typeChoice !== undefined || Boolean(issueType)
   )
-  const { sentinelRef, supportsIntersectionObserver } =
-    useIntersectionPagination(fetchNextPage, hasNextPage && !isFetchingNextPage)
 
   if (salesLoading) return <Loading />
 
@@ -238,7 +237,14 @@ const ReportsSalesAndMovements = () => {
             </section>
 
             {/* Tabla de Movimientos */}
-            <div className="rounded-lg border">
+            {filteredRecords.length > 0 ? (
+              <RecordCards records={filteredRecords} showPayment />
+            ) : (
+              <p className="rounded-lg border p-8 text-center text-muted-foreground lg:hidden">
+                No hay movimientos en este período
+              </p>
+            )}
+            <div className="hidden rounded-lg border lg:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -305,27 +311,13 @@ const ReportsSalesAndMovements = () => {
                   )}
                 </TableBody>
               </Table>
-              {hasNextPage && supportsIntersectionObserver && (
-                <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-              )}
-              {isFetchingNextPage && supportsIntersectionObserver && (
-                <Loading fullScreen={false} />
-              )}
-              {hasNextPage && !supportsIntersectionObserver && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                >
-                  {isFetchingNextPage ? (
-                    <Loading fullScreen={false} />
-                  ) : (
-                    'Cargar más'
-                  )}
-                </Button>
-              )}
+            </div>
+            <div className="rounded-b-lg">
+              <InfiniteScrollFooter
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                fetchNextPage={fetchNextPage}
+              />
             </div>
           </>
         )}

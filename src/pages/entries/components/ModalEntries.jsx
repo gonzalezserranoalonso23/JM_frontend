@@ -59,7 +59,16 @@ const ModalEntries = ({
   record,
   isEditing
 }) => {
-  const { data: products, isLoading: loadingProducts } = useGetProducts()
+  const {
+    data: products,
+    isLoading: loadingProducts,
+    refetch: refetchProducts
+  } = useGetProducts({ poll: Boolean(modalShow) })
+
+  // Otra persona pudo mover el stock mientras la página estaba abierta
+  useEffect(() => {
+    if (modalShow) refetchProducts()
+  }, [modalShow, refetchProducts])
   const { entryType } = useGetTypeInventories()
 
   // Carrito: los productos se van sumando localmente, sin hacer una
@@ -138,6 +147,32 @@ const ModalEntries = ({
 
     const product = products?.find((p) => p._id === itemForm.productName)
 
+    // Mismo producto y mismo precio: se suma a la línea existente
+    const sameLine = (item) =>
+      item.productName === itemForm.productName &&
+      Number(item.productPrice) === Number(itemForm.productPrice)
+    const round2 = (value) => Number(value.toFixed(2))
+
+    if (cart.some(sameLine)) {
+      setCart((prev) =>
+        prev.map((item) => {
+          if (!sameLine(item)) return item
+          const quantity = round2(
+            Number(item.quantity) + Number(itemForm.quantity)
+          )
+          return {
+            ...item,
+            quantity: String(quantity),
+            totalAmount: round2(
+              Number(item.totalAmount || 0) + Number(itemForm.totalAmount || 0)
+            ).toFixed(2)
+          }
+        })
+      )
+      setItemForm(getEmptyItem())
+      return
+    }
+
     setCart((prev) => [
       ...prev,
       {
@@ -147,6 +182,19 @@ const ModalEntries = ({
       }
     ])
     setItemForm(getEmptyItem())
+  }
+
+  const hasUnsavedCart =
+    cart.length > 0 || Boolean(itemForm.productName || itemForm.quantity)
+
+  const handleCancel = () => {
+    if (
+      hasUnsavedCart &&
+      !window.confirm('Hay cambios sin guardar. ¿Deseas cerrar y descartarlos?')
+    ) {
+      return
+    }
+    handleClose()
   }
 
   const handleRemoveFromCart = (tempId) => {
@@ -325,7 +373,10 @@ const ModalEntries = ({
 
   return (
     <Dialog open={modalShow} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-5xl">
+      <DialogContent
+        className="sm:max-w-5xl"
+        hasUnsavedChanges={hasUnsavedCart}
+      >
         <DialogHeader>
           <DialogTitle>Nueva Entrada</DialogTitle>
         </DialogHeader>
@@ -415,7 +466,34 @@ const ModalEntries = ({
                   </div>
                 ) : (
                   <>
-                    <div className="rounded-lg border">
+                    <ul className="space-y-2 lg:hidden">
+                      {cart.map((item) => (
+                        <li
+                          key={item.tempId}
+                          className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"
+                        >
+                          <div className="min-w-0">
+                            <p className="break-words text-sm font-medium">
+                              {item.productLabel}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Cant. {item.quantity} · $
+                              {parseFloat(item.totalAmount || 0).toFixed(2)}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleRemoveFromCart(item.tempId)}
+                            title="Quitar"
+                          >
+                            ✕
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="hidden rounded-lg border lg:block">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -462,7 +540,7 @@ const ModalEntries = ({
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancelar
             </Button>
             <Button type="submit" disabled={cart.length === 0 || isSubmitting}>

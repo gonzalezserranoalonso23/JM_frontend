@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/table'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { useState } from 'react'
 import {
   useCreatePaymentType,
@@ -80,39 +80,63 @@ const PaymentTypes = () => {
           ) : paymentTypes.length === 0 ? (
             <Alert>No hay métodos de pago para mostrar</Alert>
           ) : (
-            <div className="rounded-lg border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Método de pago</TableHead>
-                    <TableHead className="text-center">Opciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paymentTypes.map((item) => (
-                    <TableRow key={item.value}>
-                      <TableCell>{item.label}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                          <ActionIconButton
-                            action="edit"
-                            label="Editar"
-                            onClick={() => handleUpdate(item)}
-                          />
-                          <ActionIconButton
-                            action="delete"
-                            label="Eliminar"
-                            onClick={() => handleDelete(item.value)}
-                          />
-                        </div>
-                      </TableCell>
+            <div>
+              <div className="space-y-3 lg:hidden">
+                {paymentTypes.map((item) => (
+                  <Card key={item.value} className="gap-3 py-4">
+                    <CardContent className="space-y-3 px-4">
+                      <p className="break-words font-medium">{item.label}</p>
+
+                      <div className="flex items-center justify-end gap-2 border-t pt-3">
+                        <ActionIconButton
+                          action="edit"
+                          label="Editar"
+                          onClick={() => handleUpdate(item)}
+                        />
+                        <ActionIconButton
+                          action="delete"
+                          label="Eliminar"
+                          onClick={() => handleDelete(item.value)}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              <div className="hidden rounded-lg border lg:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Método de pago</TableHead>
+                      <TableHead className="text-center">Opciones</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-                <caption className="mt-2 pb-2 text-sm text-muted-foreground">
-                  Total: {paymentTypes.length}
-                </caption>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {paymentTypes.map((item) => (
+                      <TableRow key={item.value}>
+                        <TableCell>{item.label}</TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                            <ActionIconButton
+                              action="edit"
+                              label="Editar"
+                              onClick={() => handleUpdate(item)}
+                            />
+                            <ActionIconButton
+                              action="delete"
+                              label="Eliminar"
+                              onClick={() => handleDelete(item.value)}
+                            />
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                  <caption className="mt-2 pb-2 text-sm text-muted-foreground">
+                    Total: {paymentTypes.length}
+                  </caption>
+                </Table>
+              </div>
             </div>
           )}
         </Card>

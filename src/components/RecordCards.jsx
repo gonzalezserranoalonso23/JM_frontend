@@ -43,18 +43,20 @@ const RecordCards = ({ records, showPayment = false, onEdit, onDelete }) => (
               </div>
             )}
           </dl>
-          <div className="flex items-center justify-end gap-2 border-t pt-3">
-            <ActionIconButton
-              action="edit"
-              label="Editar"
-              onClick={() => onEdit(record)}
-            />
-            <ActionIconButton
-              action="delete"
-              label="Eliminar"
-              onClick={() => onDelete(record._id)}
-            />
-          </div>
+          {onEdit && onDelete && (
+            <div className="flex items-center justify-end gap-2 border-t pt-3">
+              <ActionIconButton
+                action="edit"
+                label="Editar"
+                onClick={() => onEdit(record)}
+              />
+              <ActionIconButton
+                action="delete"
+                label="Eliminar"
+                onClick={() => onDelete(record._id)}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
     ))}

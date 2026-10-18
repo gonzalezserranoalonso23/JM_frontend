@@ -1,3 +1,4 @@
+import { lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 // Auth
@@ -7,28 +8,30 @@ import Protected from './auth/Protected'
 import Login from './pages/Login'
 
 // Protected Roues
-import Home from './pages/home/Home'
-import Entries from './pages/entries/Entries'
-import EntryDetails from './pages/entries/EntryDetails'
-import Issues from './pages/issues/Issues'
-import IssueDetails from './pages/issues/IssueDetails'
-import Orders from './pages/orders/Orders'
-import OrderDetails from './pages/orders/OrderDetails'
-import Reports from './pages/reports/Reports'
-import ReportDetails from './pages/reports/ReportDetails'
-import ToDoList from './pages/todolist/ToDoList'
-import ToDoListDetails from './pages/todolist/ToDoListDetails'
-import Catalog from './pages/catalogs/Catalogs'
-import Users from './pages/users/Users'
-import UserDetails from './pages/users/UserDetails'
-import Products from './pages/products/Products'
-import Suppliers from './pages/suppliers/Suppliers'
-import SupplierDetails from './pages/suppliers/SupplierDetails'
-import Categories from './pages/categories/Categories'
-import PaymentTypes from './pages/payment-types/PaymentTypes'
-import DailyInformation from './pages/daily-information/DailyInformation'
-import Cash from './pages/cash/Cash'
-import Shortages from './pages/shortages/Shortages'
+const Home = lazy(() => import('./pages/home/Home'))
+const Entries = lazy(() => import('./pages/entries/Entries'))
+const EntryDetails = lazy(() => import('./pages/entries/EntryDetails'))
+const Issues = lazy(() => import('./pages/issues/Issues'))
+const IssueDetails = lazy(() => import('./pages/issues/IssueDetails'))
+const Orders = lazy(() => import('./pages/orders/Orders'))
+const OrderDetails = lazy(() => import('./pages/orders/OrderDetails'))
+const Reports = lazy(() => import('./pages/reports/Reports'))
+const ReportDetails = lazy(() => import('./pages/reports/ReportDetails'))
+const ToDoList = lazy(() => import('./pages/todolist/ToDoList'))
+const ToDoListDetails = lazy(() => import('./pages/todolist/ToDoListDetails'))
+const Catalog = lazy(() => import('./pages/catalogs/Catalogs'))
+const Users = lazy(() => import('./pages/users/Users'))
+const UserDetails = lazy(() => import('./pages/users/UserDetails'))
+const Products = lazy(() => import('./pages/products/Products'))
+const Suppliers = lazy(() => import('./pages/suppliers/Suppliers'))
+const SupplierDetails = lazy(() => import('./pages/suppliers/SupplierDetails'))
+const Categories = lazy(() => import('./pages/categories/Categories'))
+const PaymentTypes = lazy(() => import('./pages/payment-types/PaymentTypes'))
+const DailyInformation = lazy(
+  () => import('./pages/daily-information/DailyInformation')
+)
+const Cash = lazy(() => import('./pages/cash/Cash'))
+const Shortages = lazy(() => import('./pages/shortages/Shortages'))
 
 import { Toaster } from 'react-hot-toast'
 import ProtectedLayout from './layouts/ProtectedLayout'

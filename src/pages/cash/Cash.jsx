@@ -50,7 +50,38 @@ const Cash = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-hidden rounded-lg border">
+            <div className="space-y-3 lg:hidden">
+              {DENOMINATIONS.map((denomination) => (
+                <Card key={denomination} className="py-3">
+                  <CardContent className="grid grid-cols-[1fr_6rem_1fr] items-center gap-3 px-4">
+                    <strong>{formatDenomination(denomination)}</strong>
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      step="1"
+                      placeholder="0"
+                      className="h-9 w-full px-2 text-center"
+                      aria-label={`Cantidad de ${formatDenomination(denomination)}`}
+                      value={quantities[denomination] ?? ''}
+                      onChange={(e) =>
+                        handleChange(denomination, e.target.value)
+                      }
+                    />
+                    <span className="text-right text-sm">
+                      {formatAmount(denomination * getQuantity(denomination))}
+                    </span>
+                  </CardContent>
+                </Card>
+              ))}
+              <Card className="bg-muted/30 py-3">
+                <CardContent className="flex items-center justify-between px-4">
+                  <strong>Total en caja</strong>
+                  <strong>{formatAmount(total)}</strong>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="hidden overflow-x-hidden rounded-lg border lg:block">
               <Table className="table-fixed">
                 <TableHeader>
                   <TableRow>

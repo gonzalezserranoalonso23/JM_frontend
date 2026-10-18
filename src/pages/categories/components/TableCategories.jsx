@@ -1,3 +1,4 @@
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Table,
   TableHeader,
@@ -6,10 +7,8 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
 import ActionIconButton from '@/components/ActionIconButton'
-import Loading from '@/ui/Loading'
 
 const TableCategories = ({
   categories,
@@ -20,60 +19,69 @@ const TableCategories = ({
   handleUpdate,
   handleDelete
 }) => {
-  const { sentinelRef, supportsIntersectionObserver } =
-    useIntersectionPagination(fetchNextPage, hasNextPage && !isFetchingNextPage)
-
   return (
-    <div className="rounded-lg border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Categoría</TableHead>
-            <TableHead className="text-center">Opciones</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {categories.map((category) => (
-            <TableRow key={category?._id}>
-              <TableCell>{category?.categories}</TableCell>
-              <TableCell className="text-center">
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                  <ActionIconButton
-                    action="edit"
-                    label="Editar"
-                    onClick={() => handleUpdate(category)}
-                  />
-                  <ActionIconButton
-                    action="delete"
-                    label="Eliminar"
-                    onClick={() => handleDelete(category?._id)}
-                  />
-                </div>
-              </TableCell>
+    <div>
+      <div className="space-y-3 lg:hidden">
+        {categories.map((category) => (
+          <Card key={category?._id} className="gap-3 py-4">
+            <CardContent className="space-y-3 px-4">
+              <p className="break-words font-medium">{category?.categories}</p>
+
+              <div className="flex items-center justify-end gap-2 border-t pt-3">
+                <ActionIconButton
+                  action="edit"
+                  label="Editar"
+                  onClick={() => handleUpdate(category)}
+                />
+                <ActionIconButton
+                  action="delete"
+                  label="Eliminar"
+                  onClick={() => handleDelete(category?._id)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="hidden rounded-lg border lg:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Categoría</TableHead>
+              <TableHead className="text-center">Opciones</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-        <caption className="mt-2 pb-2 text-sm text-muted-foreground">
-          Total: {total ?? categories.length}
-        </caption>
-      </Table>
-      {hasNextPage && supportsIntersectionObserver && (
-        <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-      )}
-      {isFetchingNextPage && supportsIntersectionObserver && (
-        <Loading fullScreen={false} />
-      )}
-      {hasNextPage && !supportsIntersectionObserver && (
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full"
-          onClick={() => fetchNextPage()}
-          disabled={isFetchingNextPage}
-        >
-          {isFetchingNextPage ? <Loading fullScreen={false} /> : 'Cargar más'}
-        </Button>
-      )}
+          </TableHeader>
+          <TableBody>
+            {categories.map((category) => (
+              <TableRow key={category?._id}>
+                <TableCell>{category?.categories}</TableCell>
+                <TableCell className="text-center">
+                  <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                    <ActionIconButton
+                      action="edit"
+                      label="Editar"
+                      onClick={() => handleUpdate(category)}
+                    />
+                    <ActionIconButton
+                      action="delete"
+                      label="Eliminar"
+                      onClick={() => handleDelete(category?._id)}
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <caption className="mt-2 pb-2 text-sm text-muted-foreground">
+            Total: {total ?? categories.length}
+          </caption>
+        </Table>
+      </div>
+      <InfiniteScrollFooter
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
+      />
     </div>
   )
 }

@@ -151,76 +151,144 @@ const SectionOrders = () => {
 
         {/* Tabla */}
         {sortedOrders.length > 0 ? (
-          <div className="rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nº Solicitud</TableHead>
-                  <TableHead>Proveedor</TableHead>
-                  <TableHead className="text-center">Productos</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead className="text-center">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedOrders.map((order) => (
-                  <TableRow key={order._id}>
-                    <TableCell>
-                      <strong>#{order._id.slice(-6).toUpperCase()}</strong>
-                    </TableCell>
-                    <TableCell>
-                      {order.supplier?.suppliersName ||
-                        order.supplier?.name ||
-                        'N/A'}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {order.items?.length || 0}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <strong>${(order.totalAmount || 0).toFixed(2)}</strong>
-                    </TableCell>
-                    <TableCell>
+          <>
+            <div className="space-y-3 lg:hidden">
+              {sortedOrders.map((order) => (
+                <Card key={order._id} className="gap-3 py-4">
+                  <CardContent className="space-y-3 px-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-medium">
+                          #{order._id.slice(-6).toUpperCase()}
+                        </p>
+                        <p className="break-words text-xs text-muted-foreground">
+                          {order.supplier?.suppliersName ||
+                            order.supplier?.name ||
+                            'N/A'}
+                        </p>
+                      </div>
                       <Badge
                         variant="outline"
-                        className={getStatusColor(order.status)}
+                        className={`shrink-0 ${getStatusColor(order.status)}`}
                       >
                         {order.status || 'pendiente'}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <small>{formatDate(order.date)}</small>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                        {order.status !== 'confirmado' && (
-                          <ActionIconButton
-                            action="open"
-                            label="Abrir"
-                            onClick={() => handleViewSolped(order)}
-                          />
-                        )}
-                        {order.status === 'confirmado' && (
-                          <ActionIconButton
-                            action="reopen"
-                            label="Reabrir"
-                            onClick={() => handleStatusChange(order)}
-                            disabled={updateOrder.isPending}
-                          />
-                        )}
-                        <ActionIconButton
-                          action="delete"
-                          label="Eliminar"
-                          onClick={() => handleDelete(order._id)}
-                        />
+                    </div>
+                    <dl className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
+                      <div>
+                        <dt className="text-xs text-muted-foreground">Fecha</dt>
+                        <dd>{formatDate(order.date)}</dd>
                       </div>
-                    </TableCell>
+                      <div>
+                        <dt className="text-xs text-muted-foreground">
+                          Productos
+                        </dt>
+                        <dd>{order.items?.length || 0}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted-foreground">Total</dt>
+                        <dd className="font-semibold">
+                          ${(order.totalAmount || 0).toFixed(2)}
+                        </dd>
+                      </div>
+                    </dl>
+                    <div className="flex items-center justify-end gap-2 border-t pt-3">
+                      {order.status !== 'confirmado' && (
+                        <ActionIconButton
+                          action="open"
+                          label="Abrir"
+                          onClick={() => handleViewSolped(order)}
+                        />
+                      )}
+                      {order.status === 'confirmado' && (
+                        <ActionIconButton
+                          action="reopen"
+                          label="Reabrir"
+                          onClick={() => handleStatusChange(order)}
+                          disabled={updateOrder.isPending}
+                        />
+                      )}
+                      <ActionIconButton
+                        action="delete"
+                        label="Eliminar"
+                        onClick={() => handleDelete(order._id)}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="hidden rounded-lg border lg:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nº Solicitud</TableHead>
+                    <TableHead>Proveedor</TableHead>
+                    <TableHead className="text-center">Productos</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {sortedOrders.map((order) => (
+                    <TableRow key={order._id}>
+                      <TableCell>
+                        <strong>#{order._id.slice(-6).toUpperCase()}</strong>
+                      </TableCell>
+                      <TableCell>
+                        {order.supplier?.suppliersName ||
+                          order.supplier?.name ||
+                          'N/A'}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {order.items?.length || 0}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <strong>${(order.totalAmount || 0).toFixed(2)}</strong>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={getStatusColor(order.status)}
+                        >
+                          {order.status || 'pendiente'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <small>{formatDate(order.date)}</small>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                          {order.status !== 'confirmado' && (
+                            <ActionIconButton
+                              action="open"
+                              label="Abrir"
+                              onClick={() => handleViewSolped(order)}
+                            />
+                          )}
+                          {order.status === 'confirmado' && (
+                            <ActionIconButton
+                              action="reopen"
+                              label="Reabrir"
+                              onClick={() => handleStatusChange(order)}
+                              disabled={updateOrder.isPending}
+                            />
+                          )}
+                          <ActionIconButton
+                            action="delete"
+                            label="Eliminar"
+                            onClick={() => handleDelete(order._id)}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         ) : (
           <Alert>
             <AlertDescription>No hay solicitudes registradas</AlertDescription>

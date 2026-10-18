@@ -1,10 +1,9 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { queryClient, persistOptions } from '@/lib/queryClient'
 import { TooltipProvider } from '@/components/ui/tooltip'
-
-const queryClient = new QueryClient()
 
 // Some mobile browsers (notably Chrome on iOS) miscalculate svh/dvh against the
 // actually visible viewport once toolbars are on screen, cutting off content.
@@ -43,9 +42,12 @@ document.addEventListener(
 )
 
 createRoot(document.getElementById('root')).render(
-  <QueryClientProvider client={queryClient}>
+  <PersistQueryClientProvider
+    client={queryClient}
+    persistOptions={persistOptions}
+  >
     <TooltipProvider delayDuration={150}>
       <App />
     </TooltipProvider>
-  </QueryClientProvider>
+  </PersistQueryClientProvider>
 )

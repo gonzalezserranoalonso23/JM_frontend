@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/table'
 import RecordCards from '@/components/RecordCards'
 import ActionIconButton from '@/components/ActionIconButton'
-import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
 import useDebouncedValue from '@/hooks/useDebouncedValue'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
@@ -62,11 +62,6 @@ const SectionIssues = () => {
   })
   const records = data?.pages.flatMap((page) => page.data) ?? []
   const total = data?.pages[0]?.total ?? 0
-  const { sentinelRef, supportsIntersectionObserver } =
-    useIntersectionPagination(
-      fetchNextPage,
-      Boolean(hasNextPage) && !isFetchingNextPage
-    )
   const [modalShow, setModalShow] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -237,20 +232,11 @@ const SectionIssues = () => {
         ) : (
           <Alert>No hay salidas registradas</Alert>
         )}
-        {hasNextPage &&
-          (supportsIntersectionObserver ? (
-            <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-          ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-            >
-              Cargar más
-            </Button>
-          ))}
+        <InfiniteScrollFooter
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
+        />
         {total > 0 && (
           <p className="text-center text-sm text-muted-foreground">
             Mostrando {records.length} de {total} salidas

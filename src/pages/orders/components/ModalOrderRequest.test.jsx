@@ -25,7 +25,11 @@ const products = [
 ]
 
 vi.mock('@/features/products.features', () => ({
-  useGetProducts: () => ({ data: products, isLoading: false })
+  useGetProducts: () => ({
+    data: products,
+    isLoading: false,
+    refetch: () => Promise.resolve({ data: products })
+  })
 }))
 vi.mock('@/features/suppliers.features', () => ({
   useGetSuppliers: () => ({
@@ -90,7 +94,7 @@ describe('ModalOrderRequest', () => {
     await user.type(screen.getByLabelText('Cantidad'), '2')
     await user.click(screen.getByRole('button', { name: /agregar producto/i }))
     expect(screen.getAllByText(/Coca Cola 600ml/).length).toBeGreaterThan(0)
-    expect(screen.getByText('Proveedor 1')).toBeInTheDocument()
+    expect(screen.getAllByText('Proveedor 1').length).toBeGreaterThan(0)
   })
 
   it('reubica la lista de productos al cambiar el espacio del modal en móvil', async () => {

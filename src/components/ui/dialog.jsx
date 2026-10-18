@@ -19,7 +19,14 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef(
   (
-    { className, children, onInteractOutside, onEscapeKeyDown, ...props },
+    {
+      className,
+      children,
+      onInteractOutside,
+      onEscapeKeyDown,
+      hasUnsavedChanges = false,
+      ...props
+    },
     ref
   ) => {
     const [content, setContent] = React.useState(null)
@@ -27,7 +34,7 @@ const DialogContent = React.forwardRef(
 
     // Pide confirmación solo si el usuario ya capturó algo; true = se puede cerrar.
     const canDiscard = () =>
-      !dirtyRef.current ||
+      !(dirtyRef.current || hasUnsavedChanges) ||
       window.confirm('Hay cambios sin guardar. ¿Deseas cerrar y descartarlos?')
 
     React.useEffect(() => {

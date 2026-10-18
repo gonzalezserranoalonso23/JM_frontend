@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Navigate from '@/ui/Navigate'
+import Loading from '@/ui/Loading'
 
 const PAGE_TITLES = {
   '/home': 'Inicio',
@@ -54,7 +55,9 @@ const ProtectedLayout = () => {
     <>
       <Navigate />
       <main className="min-h-dvh bg-background pt-[var(--app-nav-height)]">
-        <Outlet />
+        <Suspense fallback={<Loading />}>
+          <Outlet />
+        </Suspense>
       </main>
     </>
   )

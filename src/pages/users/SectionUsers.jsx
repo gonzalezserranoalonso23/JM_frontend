@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { useState } from 'react'
 import {
   useGetUserPages,
@@ -19,7 +19,7 @@ import {
 } from '@/features/users.features'
 import Loading from '@/ui/Loading'
 import ModalUsers from './components/ModalUsers'
-import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import ActionIconButton from '@/components/ActionIconButton'
@@ -43,11 +43,6 @@ const SectionUsers = () => {
   const [modalShow, setModalShow] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [update, setUpdate] = useState(false)
-  const { sentinelRef, supportsIntersectionObserver } =
-    useIntersectionPagination(
-      fetchNextPage,
-      Boolean(hasNextPage) && !isFetchingNextPage
-    )
 
   const handleClose = () => setModalShow(false)
   const handleShowCreate = () => {
@@ -111,81 +106,106 @@ const SectionUsers = () => {
 
       {/* Tabla */}
       {totalUsers > 0 ? (
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Usuario</TableHead>
-                <TableHead>Nombre completo</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Rol</TableHead>
-                <TableHead className="text-center">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>
-                    <strong>{user.username}</strong>
-                  </TableCell>
-                  <TableCell>
-                    {user.fullName || (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <small>{user.email}</small>
-                  </TableCell>
-                  <TableCell>
+        <div>
+          <div className="space-y-3 lg:hidden">
+            {users.map((user) => (
+              <Card key={user._id} className="gap-3 py-4">
+                <CardContent className="space-y-3 px-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="break-words font-medium">{user.username}</p>
+                      <p className="break-words text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
                     <Badge
                       variant={user.isAdmin ? 'outline' : 'secondary'}
-                      className={user.isAdmin ? 'text-amber-400' : undefined}
+                      className={
+                        user.isAdmin ? 'shrink-0 text-amber-400' : 'shrink-0'
+                      }
                     >
                       {user.isAdmin ? 'Admin' : 'Usuario'}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                      <ActionIconButton
-                        action="edit"
-                        label="Editar"
-                        onClick={() => handleShowEdit(user)}
-                      />
-                      <ActionIconButton
-                        action="delete"
-                        label="Eliminar"
-                        onClick={() => handleDelete(user._id)}
-                      />
-                    </div>
-                  </TableCell>
+                  </div>
+                  {user.fullName && (
+                    <p className="break-words text-sm">{user.fullName}</p>
+                  )}
+                  <div className="flex items-center justify-end gap-2 border-t pt-3">
+                    <ActionIconButton
+                      action="edit"
+                      label="Editar"
+                      onClick={() => handleShowEdit(user)}
+                    />
+                    <ActionIconButton
+                      action="delete"
+                      label="Eliminar"
+                      onClick={() => handleDelete(user._id)}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="hidden rounded-lg border lg:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Usuario</TableHead>
+                  <TableHead>Nombre completo</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Rol</TableHead>
+                  <TableHead className="text-center">Acciones</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-            <caption className="mt-2 pb-2 text-sm text-muted-foreground">
-              Total: {totalUsers} usuario{totalUsers !== 1 ? 's' : ''}
-            </caption>
-          </Table>
-          {hasNextPage && supportsIntersectionObserver && (
-            <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-          )}
-          {isFetchingNextPage && supportsIntersectionObserver && (
-            <Loading fullScreen={false} />
-          )}
-          {hasNextPage && !supportsIntersectionObserver && (
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-            >
-              {isFetchingNextPage ? (
-                <Loading fullScreen={false} />
-              ) : (
-                'Cargar más'
-              )}
-            </Button>
-          )}
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell>
+                      <strong>{user.username}</strong>
+                    </TableCell>
+                    <TableCell>
+                      {user.fullName || (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <small>{user.email}</small>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={user.isAdmin ? 'outline' : 'secondary'}
+                        className={user.isAdmin ? 'text-amber-400' : undefined}
+                      >
+                        {user.isAdmin ? 'Admin' : 'Usuario'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                        <ActionIconButton
+                          action="edit"
+                          label="Editar"
+                          onClick={() => handleShowEdit(user)}
+                        />
+                        <ActionIconButton
+                          action="delete"
+                          label="Eliminar"
+                          onClick={() => handleDelete(user._id)}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <caption className="mt-2 pb-2 text-sm text-muted-foreground">
+                Total: {totalUsers} usuario{totalUsers !== 1 ? 's' : ''}
+              </caption>
+            </Table>
+          </div>
+          <InfiniteScrollFooter
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+          />
         </div>
       ) : (
         <Alert>

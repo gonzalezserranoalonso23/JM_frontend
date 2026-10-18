@@ -3,9 +3,8 @@ import { useGetLowStockProductPages } from '@/features/inventory.features'
 import { useGetCategories } from '@/features/categories.features'
 import FormFilter from '@/components/FormFilter'
 import useFilterQuery from '@/hooks/useFilterQuery'
-import useIntersectionPagination from '@/hooks/useIntersectionPagination'
+import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
@@ -37,11 +36,6 @@ const Shortages = () => {
     hasNextPage,
     isFetchingNextPage
   } = useGetLowStockProductPages(dataFilter.trim(), category)
-  const { sentinelRef, supportsIntersectionObserver } =
-    useIntersectionPagination(
-      fetchNextPage,
-      Boolean(hasNextPage) && !isFetchingNextPage
-    )
 
   if (isLoading) return <Loading />
 
@@ -96,7 +90,71 @@ const Shortages = () => {
               </div>
             </FormFilter>
 
-            <div className="rounded-lg border">
+            <div className="space-y-3 lg:hidden">
+              {products.length > 0 ? (
+                products.map((product) => (
+                  <Card key={product._id} className="gap-3 py-4">
+                    <CardContent className="space-y-3 px-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="break-words font-medium">
+                            {product.productName}
+                          </p>
+                          {product.productDescription && (
+                            <p className="break-words text-xs text-muted-foreground">
+                              {product.productDescription}
+                            </p>
+                          )}
+                        </div>
+                        {product.productStock === 0 ? (
+                          <Badge variant="destructive" className="shrink-0">
+                            Agotado
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="shrink-0 text-amber-400"
+                          >
+                            Bajo
+                          </Badge>
+                        )}
+                      </div>
+                      <dl className="grid grid-cols-3 gap-x-4 text-sm">
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Stock
+                          </dt>
+                          <dd>{product.productStock}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Mínimo
+                          </dt>
+                          <dd>{product.minimumProductStock}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-muted-foreground">
+                            Categoría
+                          </dt>
+                          <dd className="break-words">
+                            {product.category?.categories || 'N/A'}
+                          </dd>
+                        </div>
+                      </dl>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <p className="rounded-lg border p-8 text-center text-muted-foreground">
+                  No hay productos faltantes
+                </p>
+              )}
+              <p className="text-center text-sm text-muted-foreground">
+                Total: {total}
+              </p>
+            </div>
+
+            <div className="hidden rounded-lg border lg:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -152,27 +210,13 @@ const Shortages = () => {
                 </TableBody>
                 <TableCaption>Total: {total}</TableCaption>
               </Table>
-              {hasNextPage && supportsIntersectionObserver && (
-                <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-              )}
-              {isFetchingNextPage && supportsIntersectionObserver && (
-                <Loading fullScreen={false} />
-              )}
-              {hasNextPage && !supportsIntersectionObserver && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full rounded-none"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                >
-                  {isFetchingNextPage ? (
-                    <Loading fullScreen={false} />
-                  ) : (
-                    'Cargar más'
-                  )}
-                </Button>
-              )}
+            </div>
+            <div>
+              <InfiniteScrollFooter
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                fetchNextPage={fetchNextPage}
+              />
             </div>
           </CardContent>
         </Card>

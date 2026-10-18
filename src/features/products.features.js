@@ -14,12 +14,19 @@ import {
   deleteProduct
 } from '@/services/products.services'
 
-export const useGetProducts = () => {
-  const { data, isLoading, isError } = useQuery({
+// El stock cambia con cada movimiento: aquí siempre se revalida al montar y al
+// volver a la pestaña, y los modales vuelven a pedirlo al abrirse (refetch).
+// Con `poll` activo (modal abierto) se refresca cada 10 s para ver movimientos de otros usuarios.
+export const useGetProducts = ({ poll = false } = {}) => {
+  const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ['Products'],
-    queryFn: getProducts
+    queryFn: getProducts,
+    refetchInterval: poll ? 10000 : false,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true
   })
-  return { data, isLoading, isError }
+  return { data, isLoading, isError, isFetching, refetch }
 }
 
 export const useGetProductPages = (search = '') =>

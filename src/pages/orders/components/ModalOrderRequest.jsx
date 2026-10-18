@@ -26,7 +26,16 @@ import {
 import Loading from '@/ui/Loading'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
-  const { data: products, isLoading: loadingProducts } = useGetProducts()
+  const {
+    data: products,
+    isLoading: loadingProducts,
+    refetch: refetchProducts
+  } = useGetProducts({ poll: Boolean(modalShow) })
+
+  // Otra persona pudo mover el stock mientras la página estaba abierta
+  useEffect(() => {
+    if (modalShow) refetchProducts()
+  }, [modalShow, refetchProducts])
   const { data: suppliers } = useGetSuppliers()
   const suppliersById = Object.fromEntries(
     (suppliers ?? []).map((s) => [s._id, s.suppliersName || s.name])
@@ -300,7 +309,83 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
               </div>
 
               {formData.items.length > 0 && (
-                <div className="rounded-lg border">
+                <ul className="space-y-2 lg:hidden">
+                  {formData.items.map((item, idx) => {
+                    const productId =
+                      typeof item.productId === 'object'
+                        ? item.productId?._id
+                        : item.productId
+                    const product = products?.find((p) => p._id === productId)
+                    const supplierId =
+                      typeof item.supplier === 'object'
+                        ? item.supplier?._id
+                        : item.supplier
+                    return (
+                      <li key={idx} className="space-y-2 rounded-lg border p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="break-words text-sm font-medium">
+                              {item?.productName}
+                            </p>
+                            <p className="break-words text-xs text-muted-foreground">
+                              {suppliersById[supplierId] || '-'}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeItem(idx)}
+                          >
+                            Borrar
+                          </Button>
+                        </div>
+                        <dl className="grid grid-cols-3 gap-x-3 gap-y-2 text-sm">
+                          <div>
+                            <dt className="text-xs text-muted-foreground">
+                              Cantidad
+                            </dt>
+                            <dd>{item.quantity}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-muted-foreground">
+                              Stock actual
+                            </dt>
+                            <dd>{product?.productStock ?? 0}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-muted-foreground">
+                              Stock mín.
+                            </dt>
+                            <dd>{product?.minimumProductStock ?? 0}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-muted-foreground">
+                              Precio
+                            </dt>
+                            <dd>${Number(item.price || 0).toFixed(2)}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-muted-foreground">
+                              Subtotal
+                            </dt>
+                            <dd className="font-semibold">
+                              $
+                              {(
+                                Number(item.subtotal) ||
+                                Number(item.quantity) * Number(item.price)
+                              ).toFixed(2)}
+                            </dd>
+                          </div>
+                        </dl>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+
+              {formData.items.length > 0 && (
+                <div className="hidden rounded-lg border lg:block">
                   <Table>
                     <TableHeader>
                       <TableRow>

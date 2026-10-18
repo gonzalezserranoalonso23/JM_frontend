@@ -64,7 +64,16 @@ const ModalIssues = ({
 }) => {
   const { data: paymentTypes } = useGetPaymentTypes()
   const { issueType } = useGetTypeInventories()
-  const { data: products, isLoading: loadingProducts } = useGetProducts()
+  const {
+    data: products,
+    isLoading: loadingProducts,
+    refetch: refetchProducts
+  } = useGetProducts({ poll: Boolean(modalShow) })
+
+  // Otra persona pudo mover el stock mientras la página estaba abierta
+  useEffect(() => {
+    if (modalShow) refetchProducts()
+  }, [modalShow, refetchProducts])
 
   // Carrito: los productos se van sumando localmente, sin hacer una
   // petición POST por cada uno. Solo al "Registrar" se envían todos.
@@ -180,6 +189,33 @@ const ModalIssues = ({
       return
     }
 
+    // Mismo producto y mismo precio: se suma a la línea existente
+    const sameLine = (item) =>
+      item.productName === itemForm.productName &&
+      Number(item.productPrice) === Number(itemForm.productPrice)
+    const round2 = (value) => Number(value.toFixed(2))
+
+    if (cart.some(sameLine)) {
+      setCart((prev) =>
+        prev.map((item) => {
+          if (!sameLine(item)) return item
+          const quantity = round2(
+            Number(item.quantity) + Number(itemForm.quantity)
+          )
+          return {
+            ...item,
+            quantity: String(quantity),
+            totalAmount: round2(
+              Number(item.totalAmount || 0) + Number(itemForm.totalAmount || 0)
+            ).toFixed(2)
+          }
+        })
+      )
+      setItemForm(getEmptyItem())
+      setError('')
+      return
+    }
+
     setCart((prev) => [
       ...prev,
       {
@@ -190,6 +226,19 @@ const ModalIssues = ({
     ])
     setItemForm(getEmptyItem())
     setError('')
+  }
+
+  const hasUnsavedCart =
+    cart.length > 0 || Boolean(itemForm.productName || itemForm.quantity)
+
+  const handleCancel = () => {
+    if (
+      hasUnsavedCart &&
+      !window.confirm('Hay cambios sin guardar. ¿Deseas cerrar y descartarlos?')
+    ) {
+      return
+    }
+    handleClose()
   }
 
   const handleRemoveFromCart = (tempId) => {
@@ -220,15 +269,40 @@ const ModalIssues = ({
       return
     }
 
+    // Revalida contra el stock actual: otra salida pudo vaciarlo mientras armabas el carrito
+    setIsSubmitting(true)
+    const { data: freshProducts } = await refetchProducts()
+    const requested = cart.reduce((acc, item) => {
+      acc[item.productName] =
+        (acc[item.productName] || 0) + (parseFloat(item.quantity) || 0)
+      return acc
+    }, {})
+    const short = Object.entries(requested)
+      .map(([id, qty]) => ({
+        product: freshProducts?.find((p) => p._id === id),
+        qty
+      }))
+      .find(({ product, qty }) => !product || product.productStock < qty)
+
+    if (short) {
+      setIsSubmitting(false)
+      setError(
+        short.product
+          ? `Stock insuficiente de ${short.product.productName}. Disponible: ${short.product.productStock}`
+          : 'Un producto del carrito ya no existe'
+      )
+      return
+    }
+
     if (
       !window.confirm(
         `¿Estás seguro que deseas registrar ${cart.length} salida(s)?`
       )
     ) {
+      setIsSubmitting(false)
       return
     }
 
-    setIsSubmitting(true)
     const records = cart.map(({ tempId, productLabel, ...payload }) => ({
       ...payload,
       quantity: Number(payload.quantity),
@@ -412,7 +486,10 @@ const ModalIssues = ({
 
   return (
     <Dialog open={modalShow} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-5xl">
+      <DialogContent
+        className="sm:max-w-5xl"
+        hasUnsavedChanges={hasUnsavedCart}
+      >
         <DialogHeader>
           <DialogTitle>Nueva Salida</DialogTitle>
         </DialogHeader>
@@ -513,7 +590,34 @@ const ModalIssues = ({
                   </div>
                 ) : (
                   <>
-                    <div className="rounded-lg border">
+                    <ul className="space-y-2 lg:hidden">
+                      {cart.map((item) => (
+                        <li
+                          key={item.tempId}
+                          className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"
+                        >
+                          <div className="min-w-0">
+                            <p className="break-words text-sm font-medium">
+                              {item.productLabel}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Cant. {item.quantity} · $
+                              {parseFloat(item.totalAmount || 0).toFixed(2)}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleRemoveFromCart(item.tempId)}
+                            title="Quitar"
+                          >
+                            ✕
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="hidden rounded-lg border lg:block">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -583,7 +687,7 @@ const ModalIssues = ({
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={handleCancel}>
               Cancelar
             </Button>
             <Button type="submit" disabled={cart.length === 0 || isSubmitting}>
