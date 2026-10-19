@@ -279,6 +279,7 @@ const ModalEntries = ({
             <DialogTitle>Editar Entrada</DialogTitle>
           </DialogHeader>
           <form
+            autoComplete="off"
             onSubmit={handleSubmitEdit}
             className="flex flex-1 flex-col overflow-hidden"
           >
@@ -388,6 +389,7 @@ const ModalEntries = ({
           <DialogTitle>Nueva Entrada</DialogTitle>
         </DialogHeader>
         <form
+          autoComplete="off"
           onSubmit={handleSubmitCart}
           className="flex flex-1 flex-col overflow-hidden"
         >

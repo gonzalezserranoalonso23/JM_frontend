@@ -359,6 +359,7 @@ const ModalIssues = ({
             <DialogTitle>Editar Salida</DialogTitle>
           </DialogHeader>
           <form
+            autoComplete="off"
             onSubmit={handleSubmitEdit}
             className="flex flex-1 flex-col overflow-hidden"
           >
@@ -494,6 +495,7 @@ const ModalIssues = ({
           <DialogTitle>Nueva Salida</DialogTitle>
         </DialogHeader>
         <form
+          autoComplete="off"
           onSubmit={handleSubmitCart}
           className="flex flex-1 flex-col overflow-hidden"
         >

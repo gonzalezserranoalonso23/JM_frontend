@@ -72,6 +72,7 @@ const ModalProducts = ({
           <DialogTitle>{type} producto</DialogTitle>
         </DialogHeader>
         <form
+          autoComplete="off"
           onSubmit={formik.handleSubmit}
           className="flex flex-1 flex-col overflow-hidden"
         >

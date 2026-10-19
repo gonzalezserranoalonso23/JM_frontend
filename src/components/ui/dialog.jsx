@@ -112,15 +112,20 @@ const DialogContent = React.forwardRef(
         width: body.style.width
       }
       const lockedScrollY = window.scrollY
-      // Sigue al viewport visual (barra del navegador y teclado) para que el footer quede al fondo
+      // La altura ignora el teclado (solo crece o cambia al rotar) para que el footer quede fijo al fondo
+      let sheetHeight = 0
+      let sheetWidth = 0
       const syncHeight = () => {
-        const height = window.visualViewport?.height ?? window.innerHeight
-        content.style.setProperty('--dialog-h', `${Math.round(height)}px`)
+        const { innerHeight, innerWidth } = window
+        if (innerWidth !== sheetWidth || innerHeight > sheetHeight) {
+          sheetWidth = innerWidth
+          sheetHeight = innerHeight
+          content.style.setProperty('--dialog-h', `${sheetHeight}px`)
+        }
       }
       syncHeight()
       let resizeTimer
       const handleResize = () => {
-        syncHeight()
         window.clearTimeout(resizeTimer)
         resizeTimer = window.setTimeout(revealFocusedField, 150)
       }
@@ -226,6 +231,8 @@ const DialogBody = ({ className, ...props }) => (
     className={cn(
       'min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-5 [overflow-anchor:none] max-sm:p-4',
       // Los hijos de grid/flex no deben ensanchar la columna más allá de la pantalla
+      // Separación entre cada etiqueta y su campo
+      '[&_label]:mb-2',
       '[&_.grid>*]:min-w-0 [&_.flex>*]:min-w-0 [&_input]:max-w-full [&_textarea]:max-w-full [&_button[role=combobox]]:max-w-full',
       className
     )}
