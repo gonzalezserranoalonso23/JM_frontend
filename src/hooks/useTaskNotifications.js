@@ -3,6 +3,15 @@ import { jwtDecode } from 'jwt-decode'
 import { useAuthStore } from '@/store/auth'
 
 const STORAGE_PREFIX = 'jm-notified-tasks:'
+const ASKED_KEY = 'jm-notifications-asked'
+
+const wasAsked = () => {
+  try {
+    return localStorage.getItem(ASKED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 const supportsNotifications = () =>
   typeof window !== 'undefined' && 'Notification' in window
@@ -32,8 +41,26 @@ const useTaskNotifications = (pendingTasks) => {
   const token = useAuthStore((state) => state.auth)
   const [permission, setPermission] = useState(getPermission)
 
+  const [asked, setAsked] = useState(wasAsked)
+
+  // El botón se muestra solo la primera vez: se guarda al verlo, sin ocultarlo en esta sesión
+  useEffect(() => {
+    if (permission !== 'default' || wasAsked()) return
+    try {
+      localStorage.setItem(ASKED_KEY, '1')
+    } catch {
+      // no-op
+    }
+  }, [permission])
+
   const requestPermission = useCallback(async () => {
     if (!supportsNotifications()) return
+    try {
+      localStorage.setItem(ASKED_KEY, '1')
+    } catch {
+      // no-op
+    }
+    setAsked(true)
     setPermission(await window.Notification.requestPermission())
   }, [])
 
@@ -77,7 +104,10 @@ const useTaskNotifications = (pendingTasks) => {
     writeSeen(key, [...seen, ...fresh.map((task) => task._id)])
   }, [pendingTasks, token])
 
-  return { permission, requestPermission }
+  return {
+    permission: asked && permission === 'default' ? 'dismissed' : permission,
+    requestPermission
+  }
 }
 
 export default useTaskNotifications

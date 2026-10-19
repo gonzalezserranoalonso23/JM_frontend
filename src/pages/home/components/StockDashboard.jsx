@@ -55,6 +55,8 @@ const StockDashboard = () => {
             <p className="mt-2 text-muted-foreground">Resumen del sistema</p>
           </header>
 
+          <ProductLookup />
+
           <DailyInformationDashboard />
 
           <section
@@ -70,8 +72,6 @@ const StockDashboard = () => {
               </Card>
             ))}
           </section>
-
-          <ProductLookup />
 
           {(lowStockTotal > 0 || dataFilter) && (
             <Card
