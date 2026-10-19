@@ -9,6 +9,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Alert } from '@/components/ui/alert'
 import {
   Table,
   TableHeader,
@@ -77,6 +78,7 @@ const ModalEntries = ({
   const [itemForm, setItemForm] = useState(getEmptyItem())
   const [cart, setCart] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   // Estado exclusivo para editar un registro existente
   const [editFormData, setEditFormData] = useState(getEmptyEditForm())
@@ -136,12 +138,13 @@ const ModalEntries = ({
       setItemForm(getEmptyItem())
       setCart([])
       setEditFormData(getEmptyEditForm())
+      setError('')
     }
   }, [modalShow])
 
   const handleAddToCart = () => {
     if (!itemForm.productName || !itemForm.quantity) {
-      window.alert('Selecciona un producto y una cantidad')
+      setError('Selecciona un producto y una cantidad')
       return
     }
 
@@ -170,6 +173,7 @@ const ModalEntries = ({
         })
       )
       setItemForm(getEmptyItem())
+      setError('')
       return
     }
 
@@ -182,6 +186,7 @@ const ModalEntries = ({
       }
     ])
     setItemForm(getEmptyItem())
+    setError('')
   }
 
   const hasUnsavedCart =
@@ -211,12 +216,12 @@ const ModalEntries = ({
     e.preventDefault()
 
     if (cart.length === 0) {
-      window.alert('Agrega al menos un producto al carrito')
+      setError('Agrega al menos un producto al carrito')
       return
     }
 
     if (!entryType) {
-      window.alert('No se pudo cargar el tipo de entrada, intenta de nuevo')
+      setError('No se pudo cargar el tipo de entrada, intenta de nuevo')
       return
     }
 
@@ -256,7 +261,7 @@ const ModalEntries = ({
       !editFormData.productName ||
       !editFormData.quantity
     ) {
-      window.alert('Completa los campos requeridos')
+      setError('Completa los campos requeridos')
       return
     }
 
@@ -280,6 +285,8 @@ const ModalEntries = ({
             <DialogBody>
               {loadingProducts && <Loading fullScreen={false} />}
               <div className="flex flex-col gap-4">
+                {error && <Alert variant="destructive">{error}</Alert>}
+
                 <div>
                   <Label htmlFor="date">Fecha *</Label>
                   <Input
@@ -387,6 +394,12 @@ const ModalEntries = ({
           <DialogBody>
             {loadingProducts && <Loading fullScreen={false} />}
             <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
+              {error && (
+                <Alert variant="destructive" className="lg:col-span-2">
+                  {error}
+                </Alert>
+              )}
+
               <div className="grid grid-cols-1 gap-4 rounded-lg border border-dashed border-border p-4 sm:grid-cols-2 lg:items-start">
                 <div className="sm:col-span-2">
                   <Label htmlFor="date">Fecha *</Label>
