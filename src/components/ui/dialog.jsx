@@ -112,9 +112,15 @@ const DialogContent = React.forwardRef(
         width: body.style.width
       }
       const lockedScrollY = window.scrollY
-      content.style.setProperty('--dialog-h', `${window.innerHeight}px`)
+      // Sigue al viewport visual (barra del navegador y teclado) para que el footer quede al fondo
+      const syncHeight = () => {
+        const height = window.visualViewport?.height ?? window.innerHeight
+        content.style.setProperty('--dialog-h', `${Math.round(height)}px`)
+      }
+      syncHeight()
       let resizeTimer
       const handleResize = () => {
+        syncHeight()
         window.clearTimeout(resizeTimer)
         resizeTimer = window.setTimeout(revealFocusedField, 150)
       }
@@ -124,6 +130,8 @@ const DialogContent = React.forwardRef(
         body.style.width = '100%'
         window.visualViewport?.addEventListener('resize', handleResize)
         window.visualViewport?.addEventListener('scroll', revealFocusedField)
+        window.addEventListener('resize', syncHeight)
+        window.addEventListener('orientationchange', syncHeight)
       }
 
       content.addEventListener('focusin', handleFocus)
@@ -134,6 +142,8 @@ const DialogContent = React.forwardRef(
         content.removeEventListener('change', markDirty)
         if (isMobile) {
           window.visualViewport?.removeEventListener('resize', handleResize)
+          window.removeEventListener('resize', syncHeight)
+          window.removeEventListener('orientationchange', syncHeight)
           window.visualViewport?.removeEventListener(
             'scroll',
             revealFocusedField
@@ -167,7 +177,7 @@ const DialogContent = React.forwardRef(
             'fixed z-50 flex flex-col bg-background text-foreground shadow-lg',
             'left-1/2 top-1/2 w-full max-w-lg sm:max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border max-h-[90vh] overflow-hidden',
             // Mobile: static full-screen sheet; no animations or movement
-            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:h-[var(--dialog-h,100svh)] max-sm:max-h-[var(--dialog-h,100svh)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain',
+            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:h-[var(--dialog-h,100dvh)] max-sm:max-h-[var(--dialog-h,100dvh)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain',
             className
           )}
           onInteractOutside={(event) => {
@@ -227,7 +237,7 @@ DialogBody.displayName = 'DialogBody'
 const DialogFooter = ({ className, ...props }) => (
   <footer
     className={cn(
-      'flex shrink-0 flex-row justify-end gap-3 border-t p-5 max-sm:gap-2 max-sm:p-3 max-sm:[&_button]:flex-1 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))] max-sm:[&_button]:h-12',
+      'flex shrink-0 flex-row justify-end gap-3 border-t p-5 max-sm:gap-2 max-sm:p-3 max-sm:[&_button]:flex-1 max-sm:pb-[max(0.5rem,env(safe-area-inset-bottom))] max-sm:[&_button]:h-12',
       className
     )}
     {...props}

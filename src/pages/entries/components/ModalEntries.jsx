@@ -338,7 +338,7 @@ const ModalEntries = ({
                 </div>
 
                 <div>
-                  <Label htmlFor="productPrice">Precio Unitario</Label>
+                  <Label htmlFor="productPrice">Precio de compra</Label>
                   <Input
                     id="productPrice"
                     type="number"
@@ -389,6 +389,18 @@ const ModalEntries = ({
             <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
               <div className="grid grid-cols-1 gap-4 rounded-lg border border-dashed border-border p-4 sm:grid-cols-2 lg:items-start">
                 <div className="sm:col-span-2">
+                  <Label htmlFor="date">Fecha *</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    name="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
                   <Label htmlFor="productName">Producto</Label>
                   <ProductCombobox
                     id="productName"
@@ -399,18 +411,6 @@ const ModalEntries = ({
                     }
                     placeholder="Selecciona producto"
                     showStock
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="date">Fecha *</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    name="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
                   />
                 </div>
 
@@ -429,7 +429,7 @@ const ModalEntries = ({
                 </div>
 
                 <div>
-                  <Label htmlFor="productPrice">Precio Unitario</Label>
+                  <Label htmlFor="productPrice">Precio de compra</Label>
                   <Input
                     id="productPrice"
                     type="number"
@@ -451,7 +451,7 @@ const ModalEntries = ({
 
                 <Button
                   type="button"
-                  className="sm:col-span-2"
+                  className="sm:col-span-2 lg:col-span-1 lg:self-end"
                   onClick={handleAddToCart}
                 >
                   + Agregar al carrito
@@ -493,7 +493,7 @@ const ModalEntries = ({
                         </li>
                       ))}
                     </ul>
-                    <div className="hidden rounded-lg border lg:block">
+                    <div className="hidden max-h-72 overflow-y-auto overscroll-contain rounded-lg border lg:block">
                       <Table>
                         <TableHeader>
                           <TableRow>

@@ -430,7 +430,7 @@ const ModalIssues = ({
                 </div>
 
                 <div>
-                  <Label htmlFor="productPrice">Precio Unitario</Label>
+                  <Label htmlFor="productPrice">Precio de venta</Label>
                   <Input
                     id="productPrice"
                     type="number"
@@ -508,6 +508,18 @@ const ModalIssues = ({
 
               <div className="grid grid-cols-1 gap-4 rounded-lg border border-dashed border-border p-4 sm:grid-cols-2 lg:items-start">
                 <div className="sm:col-span-2">
+                  <Label htmlFor="date">Fecha *</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    name="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
                   <Label htmlFor="productName">Producto</Label>
                   <ProductCombobox
                     id="productName"
@@ -518,18 +530,6 @@ const ModalIssues = ({
                     }
                     placeholder="Selecciona producto"
                     showStock
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="date">Fecha *</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    name="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
                   />
                 </div>
 
@@ -553,7 +553,7 @@ const ModalIssues = ({
                 </div>
 
                 <div>
-                  <Label htmlFor="productPrice">Precio Unitario</Label>
+                  <Label htmlFor="productPrice">Precio de venta</Label>
                   <Input
                     id="productPrice"
                     type="number"
@@ -575,7 +575,7 @@ const ModalIssues = ({
 
                 <Button
                   type="button"
-                  className="sm:col-span-2"
+                  className="sm:col-span-2 lg:col-span-1 lg:self-end"
                   onClick={handleAddToCart}
                 >
                   + Agregar al carrito
@@ -617,7 +617,7 @@ const ModalIssues = ({
                         </li>
                       ))}
                     </ul>
-                    <div className="hidden rounded-lg border lg:block">
+                    <div className="hidden max-h-72 overflow-y-auto overscroll-contain rounded-lg border lg:block">
                       <Table>
                         <TableHeader>
                           <TableRow>
