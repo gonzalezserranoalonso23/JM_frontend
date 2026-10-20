@@ -108,6 +108,7 @@ const SectionEntries = () => {
         <FormFilter
           id="entry-filter"
           label="Buscar entradas"
+          placeholder="Producto o fecha (20/10/2026)"
           value={dataFilter}
           onChange={setDataFilter}
         />

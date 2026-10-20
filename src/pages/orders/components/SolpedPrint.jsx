@@ -11,6 +11,35 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import './SolpedPrint.css'
 
+const ItemCards = ({ items }) => (
+  <ul className="space-y-2 md:hidden print:hidden">
+    {items.map((item, index) => (
+      <li
+        key={`${item.productId || item.productName}-${index}`}
+        className="rounded-lg border border-[var(--sp-line)] bg-[var(--sp-card)] p-3"
+      >
+        <p className="break-words text-sm font-medium">{item.productName}</p>
+        <dl className="mt-2 grid grid-cols-3 gap-2 text-xs">
+          <div>
+            <dt className="text-[var(--sp-muted)]">Cantidad</dt>
+            <dd>{item.quantity}</dd>
+          </div>
+          <div>
+            <dt className="text-[var(--sp-muted)]">Precio</dt>
+            <dd>${Number(item.price).toFixed(2)}</dd>
+          </div>
+          <div className="text-right">
+            <dt className="text-[var(--sp-muted)]">Subtotal</dt>
+            <dd className="font-semibold">
+              ${(item.subtotal || item.quantity * item.price).toFixed(2)}
+            </dd>
+          </div>
+        </dl>
+      </li>
+    ))}
+  </ul>
+)
+
 const ItemsTable = ({ items }) => (
   <table className="solped-table">
     <thead>
@@ -80,18 +109,16 @@ const SolpedPrint = ({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="solped-dialog max-w-4xl p-0">
-        <DialogHeader className="solped-modal-heading no-print">
+      <DialogContent className="solped-dialog sm:max-w-4xl">
+        <DialogHeader className="no-print">
           <div>
-            <DialogTitle className="solped-modal-title">
-              Solicitud de Pedido
-            </DialogTitle>
-            <p className="solped-modal-subtitle">
+            <DialogTitle>Solicitud de Pedido</DialogTitle>
+            <p className="text-sm text-muted-foreground">
               Vista previa · Nº {solpedNumber}
             </p>
           </div>
         </DialogHeader>
-        <DialogBody className="solped-print-body min-h-0 bg-white p-0">
+        <DialogBody className="solped-print-body p-0 max-sm:p-0">
           <div className="solped-container">
             <div className="solped-document">
               <div className="solped-header">
@@ -120,7 +147,7 @@ const SolpedPrint = ({
                   </p>
                   {(order.supplier?.suppliersContact ||
                     order.supplier?.contactInfo) && (
-                    <small className="text-neutral-500">
+                    <small className="text-[var(--sp-muted)]">
                       {order.supplier.suppliersContact ||
                         order.supplier.contactInfo}
                     </small>
@@ -133,8 +160,8 @@ const SolpedPrint = ({
                       variant="outline"
                       className={
                         currentStatus === 'confirmado'
-                          ? 'text-emerald-700'
-                          : 'text-amber-700'
+                          ? 'text-emerald-500 print:text-emerald-700'
+                          : 'text-amber-500 print:text-amber-700'
                       }
                     >
                       {currentStatus}
@@ -147,7 +174,8 @@ const SolpedPrint = ({
 
               <div className="solped-items">
                 <h6 className="solped-label mb-3">PRODUCTOS SOLICITADOS</h6>
-                <div className="solped-table-wrap">
+                <ItemCards items={order.items || []} />
+                <div className="solped-table-wrap hidden md:block print:block">
                   <ItemsTable items={order.items || []} />
                 </div>
               </div>
@@ -157,7 +185,7 @@ const SolpedPrint = ({
               <div className="flex justify-end mb-4">
                 <div className="solped-total">
                   <div className="flex justify-between gap-8 mb-2">
-                    <small className="text-neutral-500">SUBTOTAL:</small>
+                    <small className="text-[var(--sp-muted)]">SUBTOTAL:</small>
                     <small>${getTotalAmount().toFixed(2)}</small>
                   </div>
                   <div className="solped-total-amount">
@@ -172,7 +200,7 @@ const SolpedPrint = ({
               </div>
 
               <footer className="solped-footer">
-                <p className="text-center text-neutral-500 text-sm mt-4">
+                <p className="text-center text-[var(--sp-muted)] text-sm mt-4">
                   Esta es una solicitud de pedido generada automáticamente por
                   el sistema de inventario.
                 </p>
@@ -180,28 +208,16 @@ const SolpedPrint = ({
             </div>
           </div>
         </DialogBody>
-        <DialogFooter className="solped-modal-footer no-print max-md:grid max-md:grid-cols-2 max-sm:[&_button]:flex-none">
-          <Button
-            variant="outline"
-            className="solped-footer-button"
-            onClick={onEdit}
-          >
+        <DialogFooter className="no-print max-md:grid max-md:grid-cols-2">
+          <Button variant="outline" onClick={onEdit}>
             Editar
           </Button>
-          <Button
-            variant="outline"
-            className="solped-footer-button"
-            onClick={onClose}
-          >
+          <Button variant="outline" onClick={onClose}>
             Cerrar
           </Button>
           <Button
             variant={currentStatus === 'pendiente' ? 'default' : 'outline'}
-            className={
-              currentStatus === 'pendiente'
-                ? 'solped-footer-button-primary disabled:opacity-100'
-                : 'solped-footer-button'
-            }
+            className="disabled:opacity-100"
             onClick={() => handleStatusChange('pendiente')}
             disabled={currentStatus === 'pendiente' || updateOrder.isPending}
             title="Cambiar el estado a pendiente"
@@ -210,11 +226,7 @@ const SolpedPrint = ({
           </Button>
           <Button
             variant={currentStatus === 'confirmado' ? 'default' : 'outline'}
-            className={
-              currentStatus === 'confirmado'
-                ? 'solped-footer-button-primary disabled:opacity-100'
-                : 'solped-footer-button'
-            }
+            className="disabled:opacity-100"
             onClick={() => handleStatusChange('confirmado')}
             disabled={currentStatus === 'confirmado' || updateOrder.isPending}
             title="Cambiar el estado a confirmado"

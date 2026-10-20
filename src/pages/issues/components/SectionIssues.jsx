@@ -122,6 +122,7 @@ const SectionIssues = () => {
         <FormFilter
           id="issue-filter"
           label="Buscar salidas"
+          placeholder="Producto o fecha (20/10/2026)"
           value={dataFilter}
           onChange={setDataFilter}
         >
