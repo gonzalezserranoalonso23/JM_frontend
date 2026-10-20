@@ -187,6 +187,23 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     return itemsTotal
   }
 
+  const hasUnsavedChanges = Boolean(
+    currentItem.product ||
+    currentItem.quantity ||
+    (order
+      ? formData.items.length !== (order.items || []).length
+      : formData.items.length > 0)
+  )
+
+  const handleCancel = () => {
+    if (
+      hasUnsavedChanges &&
+      !window.confirm('Hay cambios sin guardar. ¿Cerrar y descartarlos?')
+    )
+      return
+    handleClose()
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
 
@@ -194,6 +211,12 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
       window.alert('Agrega productos')
       return
     }
+
+    const count = formData.items.length
+    const message = order
+      ? '¿Guardar los cambios de la solicitud?'
+      : `¿Enviar la solicitud con ${count} producto${count === 1 ? '' : 's'}?`
+    if (!window.confirm(message)) return
 
     const dataToSubmit = {
       ...formData,
@@ -219,7 +242,10 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
 
   return (
     <Dialog open={modalShow} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-5xl">
+      <DialogContent
+        className="sm:max-w-5xl"
+        hasUnsavedChanges={hasUnsavedChanges}
+      >
         <DialogHeader>
           <DialogTitle>
             {order ? 'Editar Solicitud de Pedido' : 'Nueva Solicitud de Pedido'}
@@ -479,7 +505,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
             <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3 max-sm:flex-row max-sm:gap-2">
               <Button
                 type="button"
-                onClick={handleClose}
+                onClick={handleCancel}
                 variant="outline"
                 className="w-full sm:w-auto"
               >
