@@ -283,6 +283,19 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                   />
                 </div>
                 <div>
+                  <Label htmlFor="quantity">Cantidad</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    name="quantity"
+                    placeholder="Cantidad"
+                    value={currentItem.quantity}
+                    onChange={handleItemChange}
+                    min="1"
+                    step="0.01"
+                  />
+                </div>
+                <div>
                   <Label htmlFor="currentProductStock">Stock actual</Label>
                   <Input
                     id="currentProductStock"
@@ -298,19 +311,6 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     type="number"
                     value={selectedProduct?.minimumProductStock ?? ''}
                     readOnly
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="quantity">Cantidad</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    name="quantity"
-                    placeholder="Cantidad"
-                    value={currentItem.quantity}
-                    onChange={handleItemChange}
-                    min="1"
-                    step="0.01"
                   />
                 </div>
                 <div>
