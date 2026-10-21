@@ -1,3 +1,4 @@
+import { formatMoney } from '@/utils/commonFunctions'
 import { todayLocal, isoDay } from '@/utils/dateDisplay'
 import { useEffect, useState } from 'react'
 import {
@@ -292,7 +293,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     value={currentItem.quantity}
                     onChange={handleItemChange}
                     min="1"
-                    step="0.01"
+                    step="0.001"
                   />
                 </div>
                 <div>
@@ -390,7 +391,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                             <dt className="text-xs text-muted-foreground">
                               Precio
                             </dt>
-                            <dd>${Number(item.price || 0).toFixed(2)}</dd>
+                            <dd>{formatMoney(item.price)}</dd>
                           </div>
                           <div>
                             <dt className="text-xs text-muted-foreground">
@@ -469,7 +470,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                             )?.minimumProductStock ?? 0}
                           </TableCell>
                           <TableCell className="text-right">
-                            ${Number(item.price || 0).toFixed(2)}
+                            {formatMoney(item.price)}
                           </TableCell>
                           <TableCell className="text-right">
                             $
@@ -499,7 +500,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
           <DialogFooter className="flex-col max-sm:gap-1 max-sm:p-2 max-sm:[&_button]:h-10">
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-end sm:justify-between max-sm:items-stretch max-sm:gap-2">
               <strong className="text-base text-foreground max-sm:self-end">
-                Total: ${getTotalAmount().toFixed(2)}
+                Total: {formatMoney(getTotalAmount())}
               </strong>
             </div>
             <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3 max-sm:flex-row max-sm:gap-2">

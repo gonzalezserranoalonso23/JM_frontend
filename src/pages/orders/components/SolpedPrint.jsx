@@ -1,3 +1,4 @@
+import { formatMoney } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
 import {
   Dialog,
@@ -26,12 +27,12 @@ const ItemCards = ({ items }) => (
           </div>
           <div>
             <dt className="text-[var(--sp-muted)]">Precio</dt>
-            <dd>${Number(item.price).toFixed(2)}</dd>
+            <dd>{formatMoney(item.price)}</dd>
           </div>
           <div className="text-right">
             <dt className="text-[var(--sp-muted)]">Subtotal</dt>
             <dd className="font-semibold">
-              ${(item.subtotal || item.quantity * item.price).toFixed(2)}
+              {formatMoney(item.subtotal || item.quantity * item.price)}
             </dd>
           </div>
         </dl>
@@ -61,9 +62,9 @@ const ItemsTable = ({ items }) => (
         <tr key={`${item.productId || item.productName}-${index}`}>
           <td>{item.productName}</td>
           <td className="text-center">{item.quantity}</td>
-          <td className="text-right">${Number(item.price).toFixed(2)}</td>
+          <td className="text-right">{formatMoney(item.price)}</td>
           <td className="text-right">
-            ${(item.subtotal || item.quantity * item.price).toFixed(2)}
+            {formatMoney(item.subtotal || item.quantity * item.price)}
           </td>
         </tr>
       ))}
@@ -186,13 +187,13 @@ const SolpedPrint = ({
                 <div className="solped-total">
                   <div className="flex justify-between gap-8 mb-2">
                     <small className="text-[var(--sp-muted)]">SUBTOTAL:</small>
-                    <small>${getTotalAmount().toFixed(2)}</small>
+                    <small>{formatMoney(getTotalAmount())}</small>
                   </div>
                   <div className="solped-total-amount">
                     <div className="flex justify-between gap-8">
                       <strong>TOTAL:</strong>
                       <strong className="solped-amount">
-                        ${getTotalAmount().toFixed(2)}
+                        {formatMoney(getTotalAmount())}
                       </strong>
                     </div>
                   </div>

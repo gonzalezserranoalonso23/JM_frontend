@@ -1,3 +1,4 @@
+import { formatMoney } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import {
@@ -85,24 +86,17 @@ const SectionOrders = () => {
       </Alert>
     )
 
-  // Pendientes primero y, dentro de cada grupo, la fecha más reciente arriba
+  // El backend ya entrega pendientes primero y la fecha más reciente arriba
   const matcher = buildMatcher(filter)
-  const sortedOrders = [...(orders || [])]
-    .filter((order) =>
-      matchesCells(
-        [
-          order.supplier?.suppliersName || order.supplier?.name,
-          ...dateCells(order.date)
-        ],
-        matcher
-      )
+  const sortedOrders = (orders || []).filter((order) =>
+    matchesCells(
+      [
+        order.supplier?.suppliersName || order.supplier?.name,
+        ...dateCells(order.date)
+      ],
+      matcher
     )
-    .sort((a, b) => {
-      const aPending = a.status !== 'confirmado'
-      const bPending = b.status !== 'confirmado'
-      if (aPending !== bPending) return aPending ? -1 : 1
-      return new Date(b.date) - new Date(a.date)
-    })
+  )
 
   const getStatusColor = (status) =>
     status === 'confirmado' ? 'text-emerald-400' : 'text-amber-400'
@@ -188,7 +182,7 @@ const SectionOrders = () => {
                       <div>
                         <dt className="text-xs text-muted-foreground">Total</dt>
                         <dd className="font-semibold">
-                          ${(order.totalAmount || 0).toFixed(2)}
+                          {formatMoney(order.totalAmount || 0)}
                         </dd>
                       </div>
                     </dl>
@@ -246,7 +240,7 @@ const SectionOrders = () => {
                         {order.items?.length || 0}
                       </TableCell>
                       <TableCell className="text-right">
-                        <strong>${(order.totalAmount || 0).toFixed(2)}</strong>
+                        <strong>{formatMoney(order.totalAmount || 0)}</strong>
                       </TableCell>
                       <TableCell>
                         <Badge

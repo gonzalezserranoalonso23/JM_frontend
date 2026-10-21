@@ -107,6 +107,8 @@ const ModalProducts = ({
                     id="purchasePrice"
                     type="number"
                     name="purchasePrice"
+                    min="0"
+                    step="0.001"
                   />
                 </div>
                 <div>
@@ -116,6 +118,8 @@ const ModalProducts = ({
                     id="productPrice"
                     type="number"
                     name="productPrice"
+                    min="0"
+                    step="0.001"
                   />
                 </div>
               </div>
@@ -127,6 +131,7 @@ const ModalProducts = ({
                   type="number"
                   name="minimumProductStock"
                   min="0"
+                  step="0.001"
                 />
               </div>
               <div>
@@ -137,6 +142,7 @@ const ModalProducts = ({
                   type="number"
                   name="productStock"
                   min="0"
+                  step="0.001"
                 />
               </div>
               <div>

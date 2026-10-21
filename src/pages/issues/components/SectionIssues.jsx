@@ -1,3 +1,4 @@
+import { formatMoney } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import {
@@ -198,12 +199,10 @@ const SectionIssues = () => {
                         {record.quantity}
                       </TableCell>
                       <TableCell className="text-right">
-                        ${parseFloat(record.productPrice).toFixed(2)}
+                        {formatMoney(record.productPrice)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <strong>
-                          ${parseFloat(record.totalAmount).toFixed(2)}
-                        </strong>
+                        <strong>{formatMoney(record.totalAmount)}</strong>
                       </TableCell>
                       <TableCell>
                         <small className="text-muted-foreground">

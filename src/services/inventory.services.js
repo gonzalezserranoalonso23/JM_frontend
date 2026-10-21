@@ -63,12 +63,18 @@ export const getLowStockProductsPage = async ({
 export const getSalesByDateRange = async (
   startDate,
   endDate,
-  paymentType = ''
+  paymentType = '',
+  type = ''
 ) => {
   const { data } = await axios.get(
     '/api/inventory-records/reports/date-range',
     {
-      params: { startDate, endDate, ...(paymentType && { paymentType }) }
+      params: {
+        startDate,
+        endDate,
+        ...(paymentType && { paymentType }),
+        ...(type && { type })
+      }
     }
   )
   return data

@@ -1,3 +1,4 @@
+import { formatMoney } from '@/utils/commonFunctions'
 import { formatDate, todayLocal } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
@@ -42,8 +43,8 @@ const TOTAL_LABEL = (type) =>
 
 const ReportsSalesAndMovements = () => {
   const { data: paymentTypes } = useGetPaymentTypes()
-  const [startDate, setStartDate] = useState(todayLocal(-1))
-  const [endDate, setEndDate] = useState(todayLocal(-1))
+  const [startDate, setStartDate] = useState(todayLocal())
+  const [endDate, setEndDate] = useState(todayLocal())
   const { types, issueType } = useGetTypeInventories()
   // undefined = aún sin elegir: por defecto las salidas; '' = todos
   const [typeChoice, setTypeChoice] = useState()
@@ -91,13 +92,11 @@ const ReportsSalesAndMovements = () => {
       const { allRecords = [] } = await getSalesByDateRange(
         startDate,
         endDate,
-        selectedPaymentType
-      )
-      const records = allRecords.filter(
-        (r) => !selectedType || r.typeInventory?._id === selectedType
+        selectedPaymentType,
+        selectedType
       )
       await exportMovementsToExcel(
-        records,
+        allRecords,
         `reporte-movimientos_${startDate}_${endDate}.xlsx`
       )
     } catch {
@@ -220,7 +219,7 @@ const ReportsSalesAndMovements = () => {
                     {card.label}
                   </h2>
                   <strong className="text-3xl text-emerald-400">
-                    ${sumByType(card.type).toFixed(2)}
+                    {formatMoney(sumByType(card.type))}
                   </strong>
                 </Card>
               ))}
@@ -289,12 +288,10 @@ const ReportsSalesAndMovements = () => {
                             {record.quantity}
                           </TableCell>
                           <TableCell className="text-right">
-                            ${parseFloat(record.productPrice).toFixed(2)}
+                            {formatMoney(record.productPrice)}
                           </TableCell>
                           <TableCell className="text-right">
-                            <strong>
-                              ${parseFloat(record.totalAmount).toFixed(2)}
-                            </strong>
+                            <strong>{formatMoney(record.totalAmount)}</strong>
                           </TableCell>
                         </TableRow>
                       )

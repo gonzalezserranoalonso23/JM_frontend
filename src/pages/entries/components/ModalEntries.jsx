@@ -30,6 +30,12 @@ import {
 } from '@/components/ui/select'
 import { useGetProducts } from '@/features/products.features'
 import Loading from '@/ui/Loading'
+import {
+  formatMoney,
+  calcLineTotal,
+  confirmDiscardChanges
+} from '@/utils/commonFunctions'
+import { useCart } from '@/hooks/useCart'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
 
 const getToday = () => todayLocal()
@@ -76,7 +82,7 @@ const ModalEntries = ({
   // petición POST por cada uno. Solo al "Registrar" se envían todos.
   const [date, setDate] = useState(getToday())
   const [itemForm, setItemForm] = useState(getEmptyItem())
-  const [cart, setCart] = useState([])
+  const { cart, addItem, removeItem, clearCart, total: cartTotal } = useCart()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -97,11 +103,8 @@ const ModalEntries = ({
       }
     }
 
-    const qty = parseFloat(next.quantity)
-    const price = parseFloat(next.productPrice)
-    if (Number.isFinite(qty) && Number.isFinite(price)) {
-      next = { ...next, totalAmount: (qty * price).toFixed(2) }
-    }
+    const totalAmount = calcLineTotal(next.quantity, next.productPrice)
+    if (totalAmount !== '') next = { ...next, totalAmount }
 
     return next
   }
@@ -136,7 +139,7 @@ const ModalEntries = ({
     if (!modalShow) {
       setDate(getToday())
       setItemForm(getEmptyItem())
-      setCart([])
+      clearCart()
       setEditFormData(getEmptyEditForm())
       setError('')
     }
@@ -150,41 +153,10 @@ const ModalEntries = ({
 
     const product = products?.find((p) => p._id === itemForm.productName)
 
-    // Mismo producto y mismo precio: se suma a la línea existente
-    const sameLine = (item) =>
-      item.productName === itemForm.productName &&
-      Number(item.productPrice) === Number(itemForm.productPrice)
-    const round2 = (value) => Number(value.toFixed(2))
-
-    if (cart.some(sameLine)) {
-      setCart((prev) =>
-        prev.map((item) => {
-          if (!sameLine(item)) return item
-          const quantity = round2(
-            Number(item.quantity) + Number(itemForm.quantity)
-          )
-          return {
-            ...item,
-            quantity: String(quantity),
-            totalAmount: round2(
-              Number(item.totalAmount || 0) + Number(itemForm.totalAmount || 0)
-            ).toFixed(2)
-          }
-        })
-      )
-      setItemForm(getEmptyItem())
-      setError('')
-      return
-    }
-
-    setCart((prev) => [
-      ...prev,
-      {
-        ...itemForm,
-        tempId: `${Date.now()}-${Math.random()}`,
-        productLabel: product?.productName || ''
-      }
-    ])
+    addItem({
+      ...itemForm,
+      productLabel: product?.productName || ''
+    })
     setItemForm(getEmptyItem())
     setError('')
   }
@@ -193,24 +165,13 @@ const ModalEntries = ({
     cart.length > 0 || Boolean(itemForm.productName || itemForm.quantity)
 
   const handleCancel = () => {
-    if (
-      hasUnsavedCart &&
-      !window.confirm('Hay cambios sin guardar. ¿Deseas cerrar y descartarlos?')
-    ) {
+    if (hasUnsavedCart && !confirmDiscardChanges()) {
       return
     }
     handleClose()
   }
 
-  const handleRemoveFromCart = (tempId) => {
-    if (!window.confirm('¿Quitar este producto del carrito?')) return
-    setCart((prev) => prev.filter((item) => item.tempId !== tempId))
-  }
-
-  const cartTotal = cart.reduce(
-    (sum, item) => sum + (parseFloat(item.totalAmount) || 0),
-    0
-  )
+  const handleRemoveFromCart = removeItem
 
   const handleSubmitCart = async (e) => {
     e.preventDefault()
@@ -244,7 +205,7 @@ const ModalEntries = ({
 
     try {
       await createBulkAction.mutateAsync(records)
-      setCart([])
+      clearCart()
       handleClose()
     } catch {
       // El carrito se conserva para que el usuario pueda reintentar
@@ -339,7 +300,7 @@ const ModalEntries = ({
                     value={editFormData.quantity}
                     onChange={handleEditChange}
                     placeholder="0"
-                    step="0.01"
+                    step="0.001"
                     min="0"
                     required
                   />
@@ -438,7 +399,7 @@ const ModalEntries = ({
                     value={itemForm.quantity}
                     onChange={handleItemChange}
                     placeholder="0"
-                    step="0.01"
+                    step="0.001"
                     min="0"
                   />
                 </div>
@@ -526,7 +487,7 @@ const ModalEntries = ({
                                 {item.quantity}
                               </TableCell>
                               <TableCell className="text-right">
-                                ${parseFloat(item.totalAmount || 0).toFixed(2)}
+                                {formatMoney(item.totalAmount)}
                               </TableCell>
                               <TableCell className="text-center">
                                 <Button
@@ -547,7 +508,7 @@ const ModalEntries = ({
                       </Table>
                     </div>
                     <div className="px-2 py-1 text-right text-sm">
-                      Total: <strong>${cartTotal.toFixed(2)}</strong>
+                      Total: <strong>{formatMoney(cartTotal)}</strong>
                     </div>
                   </>
                 )}
