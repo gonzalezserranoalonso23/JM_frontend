@@ -102,6 +102,8 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  /* Quita la espera de ~300 ms del navegador antes de aceptar un toque. */
+  touch-action: manipulation;
 }
 
 html,
@@ -140,10 +142,43 @@ button,
 [role='tab'],
 [role='option'],
 [role='combobox'],
+[data-slot='select-trigger'],
+[data-slot='select-item'],
 label,
-summary {
+summary,
+input,
+textarea,
+select {
   touch-action: manipulation;
   -webkit-touch-callout: none;
+}
+
+/* En pantalla táctil el :hover se queda pegado y el primer toque no cuenta.
+   El :active responde en cuanto el dedo toca, sin esperar la animación. */
+@media (hover: none) and (pointer: coarse) {
+  a,
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='option'],
+  [role='combobox'],
+  [data-slot='select-trigger'],
+  [data-slot='select-item'],
+  label,
+  summary {
+    transition: none;
+  }
+
+  a:active,
+  button:active,
+  [role='button']:active,
+  [role='tab']:active,
+  [role='option']:active,
+  [role='combobox']:active,
+  [data-slot='select-trigger']:active,
+  [data-slot='select-item']:active {
+    opacity: 0.65;
+  }
 }
 
 button,
