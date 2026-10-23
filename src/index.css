@@ -25,10 +25,11 @@
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
 
-  --app-nav-height: calc(4rem + env(safe-area-inset-top));
+  --app-nav-height: calc(3.5rem + env(safe-area-inset-top, 0px));
+  --app-tab-height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   --app-page-space-y: 1.5rem;
   /* Overwritten by JS (main.jsx) with window.innerHeight-based value; svh is just the pre-JS fallback. */
-  --app-vh: 1svh;
+  --app-vh: 1dvh;
   --app-panel-min-height: clamp(30rem, calc(var(--app-vh) * 68), 44rem);
 }
 
@@ -102,11 +103,40 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+html,
+body,
+#root {
+  min-height: calc(var(--app-vh) * 100);
+}
+
 body {
-  overflow-y: scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 1279px) {
+  html,
+  body,
+  #root {
+    height: calc(var(--app-vh) * 100);
+    max-height: calc(var(--app-vh) * 100);
+    overflow: hidden;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --app-nav-height: calc(4rem + env(safe-area-inset-top, 0px));
+    --app-tab-height: 0px;
+  }
 }
 
 /* Native-app feel: no 300ms tap delay, no text selection or iOS callout on
@@ -164,14 +194,16 @@ body::-webkit-scrollbar {
 }
 
 .page-content-shell {
+  box-sizing: border-box;
   margin-inline: auto;
   width: 100%;
   max-width: 1760px;
-  padding-inline: max(0.75rem, env(safe-area-inset-left));
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: var(--app-page-space-y);
+  padding-bottom: var(--app-page-space-y);
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
   min-height: calc(
-    (var(--app-vh) * 100) - var(--app-nav-height) -
-      (var(--app-page-space-y) * 2)
+    var(--app-vh) * 100 - var(--app-nav-height) - var(--app-tab-height)
   );
 }
 
@@ -188,7 +220,11 @@ body::-webkit-scrollbar {
 }
 
 .app-nav {
-  padding-top: env(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.app-tab-bar {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Date/time inputs on iOS/Android have an intrinsic width and overflow their

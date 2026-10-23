@@ -48,7 +48,7 @@ const TableProducts = ({
   return (
     <div
       ref={tableContainerRef}
-      className="lg:h-[70vh] lg:min-h-[18rem] lg:overflow-y-auto lg:rounded-lg lg:border"
+      className="lg:h-[calc(var(--app-vh)*70)] lg:min-h-[18rem] lg:overflow-y-auto lg:rounded-lg lg:border"
       aria-busy={isLoading || isFetchingNextPage}
     >
       {isLoading ? (

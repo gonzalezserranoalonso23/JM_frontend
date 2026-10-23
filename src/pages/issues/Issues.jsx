@@ -1,15 +1,10 @@
+import PageShell from '@/components/PageShell'
 import SectionIssues from './components/SectionIssues'
 
-const Issues = () => {
-  return (
-    <>
-      <div className="py-6">
-        <div className="page-content-shell">
-          <SectionIssues />
-        </div>
-      </div>
-    </>
-  )
-}
+const Issues = () => (
+  <PageShell>
+    <SectionIssues />
+  </PageShell>
+)
 
 export default Issues

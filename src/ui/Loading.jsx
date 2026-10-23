@@ -1,7 +1,7 @@
 const Loading = ({ fullScreen = true }) => {
   return (
     <div
-      className={`flex justify-center items-center ${fullScreen ? 'min-h-screen' : 'py-6'}`}
+      className={`flex items-center justify-center ${fullScreen ? 'min-h-[calc(var(--app-vh)*100-var(--app-nav-height)-var(--app-tab-height))]' : 'py-6'}`}
       role="status"
       aria-label="Cargando"
     >

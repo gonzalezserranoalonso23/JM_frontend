@@ -1,19 +1,11 @@
-import { Card } from '@/components/ui/card'
+import MovementDetails from '@/components/MovementDetails'
 
-const EntryDetails = () => {
-  return (
-    <div className="py-6">
-      <div className="page-content-shell">
-        <section aria-labelledby="entry-details-title">
-          <Card className="p-4 sm:p-6">
-            <h1 id="entry-details-title" className="text-2xl font-semibold">
-              Detalle de entrada
-            </h1>
-          </Card>
-        </section>
-      </div>
-    </div>
-  )
-}
+const EntryDetails = () => (
+  <MovementDetails
+    listPath="/entries"
+    listLabel="Entradas"
+    expectIssue={false}
+  />
+)
 
 export default EntryDetails

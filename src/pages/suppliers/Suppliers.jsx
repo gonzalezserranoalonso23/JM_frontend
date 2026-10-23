@@ -1,17 +1,10 @@
+import PageShell from '@/components/PageShell'
 import SectionSuppliers from './components/SectionSuppliers'
 
-const Suppliers = () => {
-  return (
-    <>
-      <div className="py-6">
-        <div className="page-content-shell">
-          <div className="mb-6">
-            <SectionSuppliers />
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
+const Suppliers = () => (
+  <PageShell>
+    <SectionSuppliers />
+  </PageShell>
+)
 
 export default Suppliers

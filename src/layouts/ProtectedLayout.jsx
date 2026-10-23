@@ -52,14 +52,14 @@ const ProtectedLayout = () => {
   }, [pathname])
 
   return (
-    <>
+    <div className="flex min-h-[calc(var(--app-vh)*100)] flex-1 flex-col bg-background">
       <Navigate />
-      <main className="min-h-dvh bg-background pt-[var(--app-nav-height)]">
+      <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-[var(--app-nav-height)] pb-[var(--app-tab-height)] [-webkit-overflow-scrolling:touch]">
         <Suspense fallback={<Loading />}>
           <Outlet />
         </Suspense>
       </main>
-    </>
+    </div>
   )
 }
 

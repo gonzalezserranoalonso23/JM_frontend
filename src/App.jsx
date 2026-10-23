@@ -7,7 +7,7 @@ import Protected from './auth/Protected'
 // Unprotected Routes
 import Login from './pages/Login'
 
-// Protected Roues
+// Protected Routes
 const Home = lazy(() => import('./pages/home/Home'))
 const Entries = lazy(() => import('./pages/entries/Entries'))
 const EntryDetails = lazy(() => import('./pages/entries/EntryDetails'))

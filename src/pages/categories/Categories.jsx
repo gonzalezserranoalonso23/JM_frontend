@@ -1,17 +1,10 @@
+import PageShell from '@/components/PageShell'
 import SectionCategories from './components/SectionCategories'
 
-const Categories = () => {
-  return (
-    <>
-      <div className="py-6">
-        <div className="page-content-shell">
-          <div>
-            <SectionCategories />
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
+const Categories = () => (
+  <PageShell>
+    <SectionCategories />
+  </PageShell>
+)
 
 export default Categories

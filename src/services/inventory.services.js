@@ -1,6 +1,11 @@
 import axios from '@/libs/axios'
 
 // Registros de inventario
+export const getInventoryRecord = async (id) => {
+  const { data } = await axios.get(`/api/inventory-records/${id}`)
+  return data
+}
+
 export const getInventoryRecordsPage = async ({
   page,
   limit,

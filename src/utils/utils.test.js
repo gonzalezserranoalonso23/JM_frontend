@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { isoDay, formatDate, todayLocal } from './dateDisplay'
 import { buildMatcher, matchesCells } from './filterMatcher'
+import {
+  clampNumberInputValue,
+  formatQty,
+  limitNumberInputDecimals,
+  roundTo
+} from './commonFunctions'
 
 describe('dateDisplay', () => {
   it('isoDay conserva el día guardado sin cambiar zona horaria', () => {
@@ -38,5 +44,33 @@ describe('filterMatcher', () => {
   it('un patrón inválido no truena', () => {
     const m = buildMatcher('(')
     expect(m('a (b')).toBe(true)
+  })
+})
+
+describe('clampNumberInputValue', () => {
+  it('permite hasta 3 decimales y recorta el resto', () => {
+    expect(clampNumberInputValue('1.234')).toBe('1.234')
+    expect(clampNumberInputValue('1.2345')).toBe('1.234')
+    expect(clampNumberInputValue('-0.0019')).toBe('-0.001')
+    expect(clampNumberInputValue('12')).toBe('12')
+    expect(clampNumberInputValue('1.2')).toBe('1.2')
+  })
+
+  it('solo aplica a inputs number', () => {
+    const numberInput = { tagName: 'INPUT', type: 'number', value: '1.23456' }
+    const textInput = { tagName: 'INPUT', type: 'text', value: '1.23456' }
+    limitNumberInputDecimals(numberInput)
+    limitNumberInputDecimals(textInput)
+    expect(numberInput.value).toBe('1.234')
+    expect(textInput.value).toBe('1.23456')
+  })
+})
+
+describe('roundTo', () => {
+  it('recorta cantidades a 3 decimales sin arrastrar basura flotante', () => {
+    expect(formatQty(0.30000000000000004)).toBe(0.3)
+    expect(formatQty(1.2346)).toBe(1.235)
+    expect(roundTo(12.3456, 2)).toBe(12.35)
+    expect(roundTo('1.005', 2)).toBe(1.01)
   })
 })

@@ -85,7 +85,7 @@ const Login = () => {
   }
 
   return (
-    <div className="flex min-h-[calc(var(--app-vh,1svh)*100)] w-full items-center justify-center bg-background px-4 py-8 sm:px-6">
+    <div className="flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-y-auto bg-background px-4 py-8 sm:px-6">
       <Card className="w-full max-w-[400px]">
         <CardHeader className="text-center">
           <h1 className="text-2xl leading-none font-bold">Mini Super JM</h1>

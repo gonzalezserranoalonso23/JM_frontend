@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
+  getInventoryRecord,
   getInventoryRecordsPage,
   createInventoryRecord,
   createInventoryRecords,
@@ -28,6 +29,13 @@ const invalidateStockQueries = (queryClient) => {
     queryClient.invalidateQueries({ queryKey: [key] })
   }
 }
+
+export const useGetInventoryRecord = (id) =>
+  useQuery({
+    queryKey: ['InventoryRecords', id],
+    queryFn: () => getInventoryRecord(id),
+    enabled: Boolean(id)
+  })
 
 // Registros
 export const useGetInventoryRecordPages = ({

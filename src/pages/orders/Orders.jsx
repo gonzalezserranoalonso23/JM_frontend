@@ -1,15 +1,10 @@
+import PageShell from '@/components/PageShell'
 import SectionOrders from './components/SectionOrders'
 
-const Orders = () => {
-  return (
-    <>
-      <div className="py-6">
-        <div className="page-content-shell">
-          <SectionOrders />
-        </div>
-      </div>
-    </>
-  )
-}
+const Orders = () => (
+  <PageShell>
+    <SectionOrders />
+  </PageShell>
+)
 
 export default Orders

@@ -1,15 +1,10 @@
+import PageShell from '@/components/PageShell'
 import SectionUsers from './SectionUsers'
 
-const Users = () => {
-  return (
-    <>
-      <div className="py-6">
-        <div className="page-content-shell">
-          <SectionUsers />
-        </div>
-      </div>
-    </>
-  )
-}
+const Users = () => (
+  <PageShell>
+    <SectionUsers />
+  </PageShell>
+)
 
 export default Users

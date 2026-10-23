@@ -1,4 +1,4 @@
-const CACHE = 'jm-shell-v3'
+const CACHE = 'jm-shell-v5'
 const SHELL = ['/offline.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {
@@ -59,4 +59,52 @@ self.addEventListener('fetch', (event) => {
       )
     )
   }
+})
+
+self.addEventListener('push', (event) => {
+  let payload = {
+    title: 'JM Panel',
+    body: 'Tienes una nueva notificación',
+    url: '/todolist'
+  }
+
+  try {
+    if (event.data) payload = { ...payload, ...event.data.json() }
+  } catch {
+    if (event.data) payload.body = event.data.text()
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title, {
+      body: payload.body,
+      icon: payload.icon || '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: payload.tag || 'jm-push',
+      data: { url: payload.url || '/todolist' }
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const targetUrl = new URL(
+    event.notification.data?.url || '/todolist',
+    self.location.origin
+  ).href
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clients) => {
+        const openClient = clients.find((client) =>
+          client.url.startsWith(self.location.origin)
+        )
+        if (openClient) {
+          openClient.focus()
+          if ('navigate' in openClient) return openClient.navigate(targetUrl)
+          return undefined
+        }
+        return self.clients.openWindow(targetUrl)
+      })
+  )
 })

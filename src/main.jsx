@@ -4,40 +4,33 @@ import App from './App.jsx'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { queryClient, persistOptions } from '@/lib/queryClient'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { limitNumberInputDecimals } from '@/utils/commonFunctions'
 
-// Some mobile browsers (notably Chrome on iOS) miscalculate svh/dvh against the
-// actually visible viewport once toolbars are on screen, cutting off content.
-// window.innerHeight is always accurate, so mirror it into a CSS var as the real source of truth.
+// innerHeight (layout viewport) is stable while the URL bar animates.
+// visualViewport.height jumps on every toolbar/keyboard frame and reflows the app.
 const setAppViewportHeight = () => {
-  const visualViewport = window.visualViewport
-  const height = visualViewport?.height || window.innerHeight
-  const viewportTop = visualViewport?.offsetTop || 0
-  const layoutHeight =
-    document.documentElement.clientHeight || window.innerHeight
-  const viewportBottomGap = Math.max(0, layoutHeight - viewportTop - height)
-
-  document.documentElement.style.setProperty('--app-vh', `${height * 0.01}px`)
   document.documentElement.style.setProperty(
-    '--app-viewport-bottom-gap',
-    `${viewportBottomGap}px`
+    '--app-vh',
+    `${window.innerHeight * 0.01}px`
   )
 }
 
-setAppViewportHeight()
-window.addEventListener('resize', setAppViewportHeight)
-window.addEventListener('orientationchange', setAppViewportHeight)
-window.visualViewport?.addEventListener('resize', setAppViewportHeight)
+let viewportFrame = 0
+const scheduleAppViewportHeight = () => {
+  if (viewportFrame) return
+  viewportFrame = window.requestAnimationFrame(() => {
+    viewportFrame = 0
+    setAppViewportHeight()
+  })
+}
 
-// Limit every numeric input to two decimals. Runs in the capture phase so
-// React's onChange already receives the truncated value.
+setAppViewportHeight()
+window.addEventListener('resize', scheduleAppViewportHeight)
+window.addEventListener('orientationchange', scheduleAppViewportHeight)
+
 document.addEventListener(
   'input',
-  (event) => {
-    const input = event.target
-    if (input?.tagName !== 'INPUT' || input.type !== 'number') return
-    const match = input.value.match(/^(-?\d*\.\d{2})\d+$/)
-    if (match) input.value = match[1]
-  },
+  (event) => limitNumberInputDecimals(event.target),
   true
 )
 
@@ -46,7 +39,7 @@ createRoot(document.getElementById('root')).render(
     client={queryClient}
     persistOptions={persistOptions}
   >
-    <TooltipProvider delayDuration={150}>
+    <TooltipProvider delayDuration={400} skipDelayDuration={0}>
       <App />
     </TooltipProvider>
   </PersistQueryClientProvider>

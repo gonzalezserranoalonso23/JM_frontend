@@ -1,14 +1,18 @@
-import ReportsSalesAndMovements from './components/ReportsSalesAndMovements'
+import { lazy, Suspense } from 'react'
+import PageShell from '@/components/PageShell'
+import Loading from '@/ui/Loading'
+
+const ReportsSalesAndMovements = lazy(
+  () => import('./components/ReportsSalesAndMovements')
+)
 
 const Reports = () => {
   return (
-    <>
-      <div className="py-6">
-        <div className="page-content-shell">
-          <ReportsSalesAndMovements />
-        </div>
-      </div>
-    </>
+    <PageShell>
+      <Suspense fallback={<Loading fullScreen={false} />}>
+        <ReportsSalesAndMovements />
+      </Suspense>
+    </PageShell>
   )
 }
 

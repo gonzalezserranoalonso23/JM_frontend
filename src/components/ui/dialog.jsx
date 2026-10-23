@@ -11,7 +11,7 @@ const DialogClose = DialogPrimitive.Close
 const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn('fixed inset-0 z-50 bg-black/50', className)}
+    className={cn('fixed inset-0 z-[60] bg-black/50', className)}
     {...props}
   />
 ))
@@ -179,7 +179,7 @@ const DialogContent = React.forwardRef(
         <DialogPrimitive.Content
           ref={setContentRef}
           className={cn(
-            'fixed z-50 flex flex-col bg-background text-foreground shadow-lg',
+            'fixed z-[60] flex flex-col bg-background text-foreground shadow-lg',
             'left-1/2 top-1/2 w-full max-w-lg sm:max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border max-h-[90vh] overflow-hidden',
             // Mobile: static full-screen sheet; no animations or movement
             'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:h-[var(--dialog-h,100dvh)] max-sm:max-h-[var(--dialog-h,100dvh)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain',

@@ -1,19 +1,5 @@
-import { Card, CardHeader } from '@/components/ui/card'
+import PlaceholderPage from '@/components/PlaceholderPage'
 
-const OrderDetails = () => {
-  return (
-    <div className="py-6">
-      <div className="page-content-shell">
-        <Card role="region" aria-labelledby="order-details-title">
-          <CardHeader>
-            <h1 id="order-details-title" className="text-2xl font-semibold">
-              Detalle de orden
-            </h1>
-          </CardHeader>
-        </Card>
-      </div>
-    </div>
-  )
-}
+const OrderDetails = () => <PlaceholderPage title="Detalle de orden" />
 
 export default OrderDetails

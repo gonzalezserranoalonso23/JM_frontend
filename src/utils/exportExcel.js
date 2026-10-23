@@ -1,14 +1,44 @@
+import { formatQty, roundTo, yieldToMain } from '@/utils/commonFunctions'
 import { isoDay } from '@/utils/dateDisplay'
 import { isIssueRecord } from '@/utils/typeInventory'
 
 const HEADER_STYLE = { fontWeight: 'bold', backgroundColor: '#fbbf24' }
-
-const toNumber = (value) => {
-  const number = parseFloat(value)
-  return Number.isFinite(number) ? number : 0
-}
+const EXPORT_CHUNK_SIZE = 250
 
 const headerCell = (value) => ({ value, ...HEADER_STYLE })
+
+const toMovementRow = (record) => [
+  { value: isoDay(record.date), type: String },
+  { value: record.productName?.productName || '', type: String },
+  {
+    value:
+      record.typeInventory?.typeInventory ||
+      (isIssueRecord(record) ? 'Salida' : 'Entrada'),
+    type: String
+  },
+  { value: formatQty(record.quantity), type: Number, format: '#,##0.000' },
+  {
+    value: roundTo(record.productPrice, 3),
+    type: Number,
+    format: '#,##0.000'
+  },
+  {
+    value: roundTo(record.totalAmount, 2),
+    type: Number,
+    format: '#,##0.00'
+  },
+  { value: record.paymentType?.paymentType || '', type: String }
+]
+
+const mapRecordsInChunks = async (records) => {
+  const rows = []
+  for (let index = 0; index < records.length; index += EXPORT_CHUNK_SIZE) {
+    const chunk = records.slice(index, index + EXPORT_CHUNK_SIZE)
+    for (const record of chunk) rows.push(toMovementRow(record))
+    if (index + EXPORT_CHUNK_SIZE < records.length) await yieldToMain()
+  }
+  return rows
+}
 
 // La librería se carga solo al exportar para no aumentar el bundle inicial.
 export const exportMovementsToExcel = async (records, fileName) => {
@@ -24,20 +54,7 @@ export const exportMovementsToExcel = async (records, fileName) => {
     'Tipo de pago'
   ].map(headerCell)
 
-  const rows = records.map((record) => [
-    { value: isoDay(record.date), type: String },
-    { value: record.productName?.productName || '', type: String },
-    {
-      value:
-        record.typeInventory?.typeInventory ||
-        (isIssueRecord(record) ? 'Salida' : 'Entrada'),
-      type: String
-    },
-    { value: toNumber(record.quantity), type: Number },
-    { value: toNumber(record.productPrice), type: Number, format: '#,##0.00' },
-    { value: toNumber(record.totalAmount), type: Number, format: '#,##0.00' },
-    { value: record.paymentType?.paymentType || '', type: String }
-  ])
+  const rows = await mapRecordsInChunks(records)
 
   const columns = [
     { width: 12 },

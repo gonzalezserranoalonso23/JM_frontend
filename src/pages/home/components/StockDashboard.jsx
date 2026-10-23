@@ -1,3 +1,4 @@
+import PageShell from '@/components/PageShell'
 import { formatQty } from '@/utils/commonFunctions'
 import {
   useGetInventoryStats,
@@ -43,133 +44,131 @@ const StockDashboard = () => {
   if (statsLoading || lowStockLoading) return <Loading />
 
   return (
-    <div className="bg-background">
-      <div className="page-content-shell">
-        <section className="mt-6 mb-8" aria-labelledby="dashboard-title">
-          <header className="mb-8">
-            <h1
-              id="dashboard-title"
-              className="text-3xl font-bold text-foreground"
-            >
-              Dashboard
-            </h1>
-            <p className="mt-2 text-muted-foreground">Resumen del sistema</p>
-          </header>
-
-          <ProductLookup />
-
-          <DailyInformationDashboard />
-
-          <section
-            className="mb-8 grid auto-rows-fr grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
-            aria-label="Indicadores de inventario"
+    <PageShell>
+      <section className="mb-8" aria-labelledby="dashboard-title">
+        <header className="mb-8">
+          <h1
+            id="dashboard-title"
+            className="text-3xl font-bold text-foreground"
           >
-            {KPIS(stats).map(([label, value]) => (
-              <Card key={label} className="h-full gap-2 p-4 sm:p-6">
-                <h2 className="text-sm font-medium text-muted-foreground">
-                  {label}
-                </h2>
-                <p className="text-3xl font-bold text-foreground">{value}</p>
-              </Card>
-            ))}
-          </section>
+            Dashboard
+          </h1>
+          <p className="mt-2 text-muted-foreground">Resumen del sistema</p>
+        </header>
 
-          {(lowStockTotal > 0 || dataFilter) && (
-            <Card
-              className="mb-8 gap-0 overflow-hidden py-0"
-              role="region"
-              aria-labelledby="low-stock-title"
-            >
-              <CardHeader className="border-b py-4">
-                <CardTitle>
-                  <h2 id="low-stock-title" className="font-semibold">
-                    ⚠️ {lowStockTotal} productos con stock bajo
-                  </h2>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <FormFilter
-                  id="low-stock-filter"
-                  label="Buscar producto"
-                  placeholder="Buscar en stock bajo..."
-                  value={dataFilter}
-                  onChange={setDataFilter}
-                />
-              </CardContent>
-              {lowStockProducts.length === 0 && (
-                <p className="px-6 py-4 text-sm text-muted-foreground">
-                  Sin resultados
-                </p>
-              )}
-              <ul className="m-0 list-none divide-y border-t p-0">
-                {lowStockProducts.map((product) => (
-                  <li
-                    key={product._id}
-                    className="flex items-center justify-between px-6 py-4"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">
-                        {product.productName}
-                      </h3>
-                      {product.productDescription && (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {product.productDescription}
-                        </p>
-                      )}
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        Stock:{' '}
-                        <strong className="text-foreground">
-                          {formatQty(product.productStock)}
-                        </strong>{' '}
-                        / Mín: {product.minimumProductStock}
-                      </p>
-                    </div>
-                    <div>
-                      {product.productStock === 0 ? (
-                        <Badge variant="destructive">Agotado</Badge>
-                      ) : (
-                        <Badge className="border-transparent bg-yellow-600 text-white">
-                          Bajo
-                        </Badge>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              {hasNextPage && supportsIntersectionObserver && (
-                <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-              )}
-              {isFetchingNextPage && supportsIntersectionObserver && (
-                <Loading fullScreen={false} />
-              )}
-              {hasNextPage && !supportsIntersectionObserver && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full rounded-none"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                >
-                  {isFetchingNextPage ? (
-                    <Loading fullScreen={false} />
-                  ) : (
-                    'Cargar más'
-                  )}
-                </Button>
-              )}
+        <ProductLookup />
+
+        <DailyInformationDashboard />
+
+        <section
+          className="mb-8 grid auto-rows-fr grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+          aria-label="Indicadores de inventario"
+        >
+          {KPIS(stats).map(([label, value]) => (
+            <Card key={label} className="h-full gap-2 p-4 sm:p-6">
+              <h2 className="text-sm font-medium text-muted-foreground">
+                {label}
+              </h2>
+              <p className="text-3xl font-bold text-foreground">{value}</p>
             </Card>
-          )}
-
-          {!lowStockLoading && lowStockTotal === 0 && !dataFilter && (
-            <Alert>
-              <AlertDescription className="font-medium">
-                ✓ Todo está bien - Todos los productos tienen stock suficiente
-              </AlertDescription>
-            </Alert>
-          )}
+          ))}
         </section>
-      </div>
-    </div>
+
+        {(lowStockTotal > 0 || dataFilter) && (
+          <Card
+            className="mb-8 gap-0 overflow-hidden py-0"
+            role="region"
+            aria-labelledby="low-stock-title"
+          >
+            <CardHeader className="border-b py-4">
+              <CardTitle>
+                <h2 id="low-stock-title" className="font-semibold">
+                  ⚠️ {lowStockTotal} productos con stock bajo
+                </h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <FormFilter
+                id="low-stock-filter"
+                label="Buscar producto"
+                placeholder="Buscar en stock bajo..."
+                value={dataFilter}
+                onChange={setDataFilter}
+              />
+            </CardContent>
+            {lowStockProducts.length === 0 && (
+              <p className="px-6 py-4 text-sm text-muted-foreground">
+                Sin resultados
+              </p>
+            )}
+            <ul className="m-0 list-none divide-y border-t p-0">
+              {lowStockProducts.map((product) => (
+                <li
+                  key={product._id}
+                  className="flex items-center justify-between px-6 py-4"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-medium text-foreground">
+                      {product.productName}
+                    </h3>
+                    {product.productDescription && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {product.productDescription}
+                      </p>
+                    )}
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Stock:{' '}
+                      <strong className="text-foreground">
+                        {formatQty(product.productStock)}
+                      </strong>{' '}
+                      / Mín: {product.minimumProductStock}
+                    </p>
+                  </div>
+                  <div>
+                    {product.productStock === 0 ? (
+                      <Badge variant="destructive">Agotado</Badge>
+                    ) : (
+                      <Badge className="border-transparent bg-yellow-600 text-white">
+                        Bajo
+                      </Badge>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {hasNextPage && supportsIntersectionObserver && (
+              <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+            )}
+            {isFetchingNextPage && supportsIntersectionObserver && (
+              <Loading fullScreen={false} />
+            )}
+            {hasNextPage && !supportsIntersectionObserver && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full rounded-none"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? (
+                  <Loading fullScreen={false} />
+                ) : (
+                  'Cargar más'
+                )}
+              </Button>
+            )}
+          </Card>
+        )}
+
+        {!lowStockLoading && lowStockTotal === 0 && !dataFilter && (
+          <Alert>
+            <AlertDescription className="font-medium">
+              ✓ Todo está bien - Todos los productos tienen stock suficiente
+            </AlertDescription>
+          </Alert>
+        )}
+      </section>
+    </PageShell>
   )
 }
 

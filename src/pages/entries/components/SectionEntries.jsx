@@ -1,6 +1,7 @@
 import { formatMoney } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   useGetInventoryRecordPages,
   useDeleteInventoryRecord,
@@ -29,6 +30,7 @@ import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 
 const SectionEntries = () => {
+  const navigate = useNavigate()
   const createRecord = useCreateInventoryRecord()
   const createRecords = useCreateInventoryRecords()
   const updateRecord = useUpdateInventoryRecord()
@@ -129,6 +131,7 @@ const SectionEntries = () => {
           <>
             <RecordCards
               records={records}
+              detailsPath="/entries"
               onEdit={handleShowEdit}
               onDelete={handleDelete}
             />
@@ -150,7 +153,12 @@ const SectionEntries = () => {
                     <TableRow key={record._id}>
                       <TableCell>{formatDate(record.date)}</TableCell>
                       <TableCell>
-                        <strong>{record.productName?.productName}</strong>
+                        <Link
+                          to={`/entries/${record._id}`}
+                          className="font-semibold underline-offset-2 hover:underline"
+                        >
+                          {record.productName?.productName}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         {record.typeInventory?.typeInventory}
@@ -165,7 +173,12 @@ const SectionEntries = () => {
                         <strong>{formatMoney(record.totalAmount)}</strong>
                       </TableCell>
                       <TableCell className="text-center">
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                        <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
+                          <ActionIconButton
+                            action="open"
+                            label="Ver detalle"
+                            onClick={() => navigate(`/entries/${record._id}`)}
+                          />
                           <ActionIconButton
                             action="edit"
                             label="Editar"

@@ -1,16 +1,12 @@
-import { formatMoney } from '@/utils/commonFunctions'
-import { formatDate, todayLocal } from '@/utils/dateDisplay'
-import { useState } from 'react'
+import { formatMoney, roundTo } from '@/utils/commonFunctions'
+import { todayLocal } from '@/utils/dateDisplay'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useGetSalesByDateRangePages } from '@/features/inventory.features'
 import { getSalesByDateRange } from '@/services/inventory.services'
-import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
-import { exportMovementsToExcel } from '@/utils/exportExcel'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
-import RecordCards from '@/components/RecordCards'
 import Loading from '@/ui/Loading'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,19 +17,12 @@ import {
   SelectContent,
   SelectItem
 } from '@/components/ui/select'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell
-} from '@/components/ui/table'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
+import { isExitType } from '@/utils/typeInventory'
+
+const ReportsMovementsTable = lazy(() => import('./ReportsMovementsTable'))
 
 const ALL_OPTION = 'all'
-
-const isExitType = (type) => type?.stockDirection === -1
 
 const COUNT_LABEL = (type) =>
   isExitType(type) ? 'Productos vendidos' : 'Productos ingresados'
@@ -71,30 +60,40 @@ const ReportsSalesAndMovements = () => {
     typeChoice !== undefined || Boolean(issueType)
   )
 
-  if (salesLoading) return <Loading />
-
-  const filteredRecords = salesPages?.pages.flatMap((page) => page.data) || []
+  const filteredRecords = useMemo(
+    () => salesPages?.pages.flatMap((page) => page.data) || [],
+    [salesPages]
+  )
   const totalRecords = salesPages?.pages[0]?.total ?? 0
   const summary = salesPages?.pages[0]?.summary
 
-  const sumByType = (type) => Number(summary?.[type]?.totalAmount || 0)
-
-  // Con "Todos" se separan para no mezclar entradas con salidas en un solo total
-  const totalCards = types
-    .filter((type) => !selectedType || type.value === selectedType)
-    .map((type) => ({ label: TOTAL_LABEL(type), type: type.value }))
+  const totalCards = useMemo(
+    () =>
+      types
+        .filter((type) => !selectedType || type.value === selectedType)
+        .map((type) => ({
+          label: TOTAL_LABEL(type),
+          type: type.value,
+          amount: roundTo(summary?.[type.value]?.totalAmount, 2)
+        })),
+    [types, selectedType, summary]
+  )
 
   const handleExport = async () => {
     if (isDateRangeInvalid) return
 
     setIsExporting(true)
     try {
-      const { allRecords = [] } = await getSalesByDateRange(
-        startDate,
-        endDate,
-        selectedPaymentType,
-        selectedType
-      )
+      const [{ allRecords = [] }, { exportMovementsToExcel }] =
+        await Promise.all([
+          getSalesByDateRange(
+            startDate,
+            endDate,
+            selectedPaymentType,
+            selectedType
+          ),
+          import('@/utils/exportExcel')
+        ])
       await exportMovementsToExcel(
         allRecords,
         `reporte-movimientos_${startDate}_${endDate}.xlsx`
@@ -105,6 +104,8 @@ const ReportsSalesAndMovements = () => {
       setIsExporting(false)
     }
   }
+
+  if (salesLoading) return <Loading fullScreen={false} />
 
   return (
     <section aria-labelledby="reports-title">
@@ -127,7 +128,6 @@ const ReportsSalesAndMovements = () => {
           </Button>
         </header>
 
-        {/* Filtros */}
         <div className="flex flex-wrap items-end gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="report-start-date">Desde</Label>
@@ -208,7 +208,6 @@ const ReportsSalesAndMovements = () => {
 
         {!isDateRangeInvalid && (
           <>
-            {/* Cards de Resumen */}
             <section
               aria-label="Resumen del período"
               className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(250px,1fr))]"
@@ -219,7 +218,7 @@ const ReportsSalesAndMovements = () => {
                     {card.label}
                   </h2>
                   <strong className="text-3xl text-emerald-400">
-                    {formatMoney(sumByType(card.type))}
+                    {formatMoney(card.amount)}
                   </strong>
                 </Card>
               ))}
@@ -235,87 +234,14 @@ const ReportsSalesAndMovements = () => {
               )}
             </section>
 
-            {/* Tabla de Movimientos */}
-            {filteredRecords.length > 0 ? (
-              <RecordCards records={filteredRecords} showPayment />
-            ) : (
-              <p className="rounded-lg border p-8 text-center text-muted-foreground lg:hidden">
-                No hay movimientos en este período
-              </p>
-            )}
-            <div className="hidden rounded-lg border lg:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Producto</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Forma de pago</TableHead>
-                    <TableHead className="text-center">Cantidad</TableHead>
-                    <TableHead className="text-right">Precio Unit.</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRecords.length > 0 ? (
-                    filteredRecords.map((record) => {
-                      return (
-                        <TableRow key={record._id}>
-                          <TableCell>{formatDate(record.date)}</TableCell>
-                          <TableCell>
-                            <strong>{record.productName?.productName}</strong>
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                isExitType(record.typeInventory)
-                                  ? 'destructive'
-                                  : 'outline'
-                              }
-                              className={
-                                isExitType(record.typeInventory)
-                                  ? undefined
-                                  : 'text-emerald-400'
-                              }
-                            >
-                              {record.typeInventory?.typeInventory}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {record.paymentType?.paymentType || '-'}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {record.quantity}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {formatMoney(record.productPrice)}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <strong>{formatMoney(record.totalAmount)}</strong>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    })
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={7}
-                        className="p-8 text-center text-muted-foreground"
-                      >
-                        No hay movimientos en este período
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="rounded-b-lg">
-              <InfiniteScrollFooter
+            <Suspense fallback={<Loading fullScreen={false} />}>
+              <ReportsMovementsTable
+                records={filteredRecords}
                 hasNextPage={hasNextPage}
-                isFetchingNextPage={isFetchingNextPage}
                 fetchNextPage={fetchNextPage}
+                isFetchingNextPage={isFetchingNextPage}
               />
-            </div>
+            </Suspense>
           </>
         )}
       </Card>

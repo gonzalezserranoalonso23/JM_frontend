@@ -1,6 +1,7 @@
 import { formatMoney } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   useGetInventoryRecordPages,
   useDeleteInventoryRecord,
@@ -40,6 +41,7 @@ import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 const ALL_PAYMENTS = 'all'
 
 const SectionIssues = () => {
+  const navigate = useNavigate()
   const { data: paymentTypes } = useGetPaymentTypes()
   const createRecord = useCreateInventoryRecord()
   const createRecords = useCreateInventoryRecords()
@@ -168,6 +170,7 @@ const SectionIssues = () => {
             <RecordCards
               records={records}
               showPayment
+              detailsPath="/issues"
               onEdit={handleShowEdit}
               onDelete={handleDelete}
             />
@@ -190,7 +193,12 @@ const SectionIssues = () => {
                     <TableRow key={record._id}>
                       <TableCell>{formatDate(record.date)}</TableCell>
                       <TableCell>
-                        <strong>{record.productName?.productName}</strong>
+                        <Link
+                          to={`/issues/${record._id}`}
+                          className="font-semibold underline-offset-2 hover:underline"
+                        >
+                          {record.productName?.productName}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         {record.typeInventory?.typeInventory}
@@ -210,7 +218,12 @@ const SectionIssues = () => {
                         </small>
                       </TableCell>
                       <TableCell className="text-center">
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                        <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
+                          <ActionIconButton
+                            action="open"
+                            label="Ver detalle"
+                            onClick={() => navigate(`/issues/${record._id}`)}
+                          />
                           <ActionIconButton
                             action="edit"
                             label="Editar"
