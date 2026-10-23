@@ -5,6 +5,7 @@ import {
   useGetLowStockProductPages
 } from '@/features/inventory.features'
 import ProductLookup from './ProductLookup'
+import TodaySalesCard from './TodaySalesCard'
 import DailyInformationDashboard from './DailyInformationDashboard'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -17,9 +18,13 @@ import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 
 const KPIS = (stats) => [
   ['Productos', stats?.totalProducts || 0],
-  ['Valor Inv.', `$${(stats?.totalInventoryValue || 0).toFixed(0)}`],
-  ['Stock Bajo', stats?.lowStockProducts || 0],
-  ['Sin Stock', stats?.outOfStockProducts || 0]
+  [
+    'Dinero en stock',
+    `$${(stats?.totalInventoryValue || 0).toLocaleString('es-MX', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`
+  ]
 ]
 
 const StockDashboard = () => {
@@ -46,22 +51,25 @@ const StockDashboard = () => {
   return (
     <PageShell>
       <section className="mb-8" aria-labelledby="dashboard-title">
-        <header className="mb-8">
+        <header className="mb-6">
           <h1
             id="dashboard-title"
-            className="text-3xl font-bold text-foreground"
+            className="text-2xl font-bold text-foreground sm:text-3xl"
           >
             Dashboard
           </h1>
           <p className="mt-2 text-muted-foreground">Resumen del sistema</p>
         </header>
 
-        <ProductLookup />
+        <div className="mb-6 flex flex-col gap-6 xl:grid xl:grid-cols-2 xl:items-start">
+          <TodaySalesCard />
+          <ProductLookup />
+        </div>
 
         <DailyInformationDashboard />
 
         <section
-          className="mb-8 grid auto-rows-fr grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+          className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4"
           aria-label="Indicadores de inventario"
         >
           {KPIS(stats).map(([label, value]) => (

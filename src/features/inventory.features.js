@@ -15,7 +15,8 @@ import {
   deleteInventoryRecord,
   getLowStockProductsPage,
   getSalesByDateRangePage,
-  getInventoryStats
+  getInventoryStats,
+  getLiveInformation
 } from '@/services/inventory.services'
 
 // Un movimiento cambia el stock de los productos y los reportes derivados
@@ -24,7 +25,8 @@ const invalidateStockQueries = (queryClient) => {
     'InventoryRecords',
     'InventoryStats',
     'LowStockProducts',
-    'Products'
+    'Products',
+    'LiveInformation'
   ]) {
     queryClient.invalidateQueries({ queryKey: [key] })
   }
@@ -188,3 +190,10 @@ export const useGetInventoryStats = () => {
   })
   return { data, isLoading, isError }
 }
+
+export const useGetLiveInformation = (date) =>
+  useQuery({
+    queryKey: ['LiveInformation', date],
+    queryFn: () => getLiveInformation(date),
+    enabled: Boolean(date)
+  })

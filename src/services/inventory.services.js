@@ -93,6 +93,13 @@ export const getSalesByDateRangePage = async (params) => {
   return data
 }
 
+export const getLiveInformation = async (date) => {
+  const { data } = await axios.get('/api/inventory-records/liveInformation', {
+    params: { date }
+  })
+  return data
+}
+
 export const getInventoryStats = async () => {
   const { data } = await axios.get('/api/inventory-records/reports/stats')
   return data

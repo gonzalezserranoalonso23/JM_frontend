@@ -38,11 +38,11 @@ const DailyInformationDashboard = () => {
     orderedRecords[0]
 
   return (
-    <Card className="mb-8" aria-labelledby="daily-summary-title" role="region">
+    <Card className="mb-6" aria-labelledby="daily-summary-title" role="region">
       <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <CardTitle>
           <h2 id="daily-summary-title" className="text-xl font-semibold">
-            Información diaria
+            Información ventas
           </h2>
         </CardTitle>
         {!isLoading && !isError && orderedRecords.length > 0 && (

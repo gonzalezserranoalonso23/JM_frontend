@@ -20,7 +20,7 @@ const ProductLookup = () => {
 
   return (
     <Card
-      className="mb-8 gap-0 overflow-hidden py-0"
+      className="gap-0 overflow-hidden py-0"
       role="region"
       aria-labelledby="product-lookup-title"
     >
