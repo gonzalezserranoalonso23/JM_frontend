@@ -186,6 +186,14 @@ const DialogContent = React.forwardRef(
             className
           )}
           onInteractOutside={(event) => {
+            const target = event.target
+            if (
+              target instanceof Element &&
+              target.closest('[data-slot="select-content"]')
+            ) {
+              event.preventDefault()
+              return
+            }
             onInteractOutside?.(event)
             event.preventDefault()
           }}

@@ -66,16 +66,9 @@ const ModalEntries = ({
   record,
   isEditing
 }) => {
-  const {
-    data: products,
-    isLoading: loadingProducts,
-    refetch: refetchProducts
-  } = useGetProducts({ poll: Boolean(modalShow) })
-
-  // Otra persona pudo mover el stock mientras la página estaba abierta
-  useEffect(() => {
-    if (modalShow) refetchProducts()
-  }, [modalShow, refetchProducts])
+  const { data: products, isLoading: loadingProducts } = useGetProducts({
+    poll: Boolean(modalShow)
+  })
   const { entryType } = useGetTypeInventories()
 
   // Carrito: los productos se van sumando localmente, sin hacer una

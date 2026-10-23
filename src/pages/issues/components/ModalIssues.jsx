@@ -77,11 +77,6 @@ const ModalIssues = ({
     refetch: refetchProducts
   } = useGetProducts({ poll: Boolean(modalShow) })
 
-  // Otra persona pudo mover el stock mientras la página estaba abierta
-  useEffect(() => {
-    if (modalShow) refetchProducts()
-  }, [modalShow, refetchProducts])
-
   // Carrito: los productos se van sumando localmente, sin hacer una
   // petición POST por cada uno. Solo al "Registrar" se envían todos.
   const [date, setDate] = useState(getToday())
@@ -417,7 +412,7 @@ const ModalIssues = ({
                 <div>
                   <Label htmlFor="paymentTypeEdit">Tipo de pago</Label>
                   <Select
-                    value={editFormData.paymentType}
+                    value={editFormData.paymentType || undefined}
                     onValueChange={(value) =>
                       setEditField('paymentType', value)
                     }
@@ -628,7 +623,7 @@ const ModalIssues = ({
                         Tipo de pago de la salida *
                       </Label>
                       <Select
-                        value={cartPaymentType}
+                        value={cartPaymentType || undefined}
                         onValueChange={(value) => {
                           setCartPaymentType(value)
                           setError('')

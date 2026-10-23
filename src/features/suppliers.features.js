@@ -17,7 +17,8 @@ import {
 export const useGetSuppliers = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['Suppliers'],
-    queryFn: getSuppliers
+    queryFn: getSuppliers,
+    staleTime: 60 * 60 * 1000
   })
   return { data, isLoading, isError }
 }

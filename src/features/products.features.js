@@ -21,10 +21,10 @@ export const useGetProducts = ({ poll = false } = {}) => {
   const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ['Products'],
     queryFn: getProducts,
-    refetchInterval: poll ? 10000 : false,
-    staleTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true
+    refetchInterval: poll ? 30000 : false,
+    staleTime: 30 * 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false
   })
   return { data, isLoading, isError, isFetching, refetch }
 }

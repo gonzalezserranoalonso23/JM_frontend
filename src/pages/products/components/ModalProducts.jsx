@@ -20,7 +20,6 @@ import { useFormik } from 'formik'
 import { validateProduct } from '@/helpers/validations'
 import { useGetCategories } from '@/features/categories.features'
 import { useGetSuppliers } from '@/features/suppliers.features'
-import Loading from '@/ui/Loading'
 
 const ModalProducts = ({
   product,
@@ -45,8 +44,8 @@ const ModalProducts = ({
         product?.productStock != null
           ? Number(Number(product.productStock).toFixed(3))
           : '',
-      supplier: product?.supplier || '',
-      category: product?.category || ''
+      supplier: product?.supplier?._id || product?.supplier || '',
+      category: product?.category?._id || product?.category || ''
     },
     validate: validateProduct,
     validateOnBlur: false,
@@ -80,9 +79,6 @@ const ModalProducts = ({
           className="flex flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
-            {(loadingCategories || loadingSuppliers) && (
-              <Loading fullScreen={false} />
-            )}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <Label htmlFor="productName">Nombre</Label>
@@ -151,13 +147,19 @@ const ModalProducts = ({
               <div>
                 <Label htmlFor="supplier">Proveedor</Label>
                 <Select
-                  value={formik.values.supplier}
+                  value={formik.values.supplier || undefined}
                   onValueChange={(value) =>
                     formik.setFieldValue('supplier', value)
                   }
                 >
-                  <SelectTrigger id="supplier">
-                    <SelectValue placeholder="Selecciona el proveedor" />
+                  <SelectTrigger id="supplier" disabled={loadingSuppliers}>
+                    <SelectValue
+                      placeholder={
+                        loadingSuppliers
+                          ? 'Cargando proveedores...'
+                          : 'Selecciona el proveedor'
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {suppliers?.map((s) => (
@@ -171,13 +173,19 @@ const ModalProducts = ({
               <div>
                 <Label htmlFor="category">Categoría</Label>
                 <Select
-                  value={formik.values.category}
+                  value={formik.values.category || undefined}
                   onValueChange={(value) =>
                     formik.setFieldValue('category', value)
                   }
                 >
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Selecciona la categoría" />
+                  <SelectTrigger id="category" disabled={loadingCategories}>
+                    <SelectValue
+                      placeholder={
+                        loadingCategories
+                          ? 'Cargando categorías...'
+                          : 'Selecciona la categoría'
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {categories?.map((c) => (

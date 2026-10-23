@@ -27,16 +27,9 @@ import {
 import Loading from '@/ui/Loading'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
-  const {
-    data: products,
-    isLoading: loadingProducts,
-    refetch: refetchProducts
-  } = useGetProducts({ poll: Boolean(modalShow) })
-
-  // Otra persona pudo mover el stock mientras la página estaba abierta
-  useEffect(() => {
-    if (modalShow) refetchProducts()
-  }, [modalShow, refetchProducts])
+  const { data: products, isLoading: loadingProducts } = useGetProducts({
+    poll: Boolean(modalShow)
+  })
   const { data: suppliers } = useGetSuppliers()
   const suppliersById = Object.fromEntries(
     (suppliers ?? []).map((s) => [s._id, s.suppliersName || s.name])
