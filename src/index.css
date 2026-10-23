@@ -106,30 +106,20 @@ html {
 html,
 body,
 #root {
-  min-height: calc(var(--app-vh) * 100);
+  height: calc(var(--app-vh) * 100);
+  max-height: calc(var(--app-vh) * 100);
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
 }
 
 body {
-  overflow-x: hidden;
-  overflow-y: auto;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-@media (max-width: 1279px) {
-  html,
-  body,
-  #root {
-    height: calc(var(--app-vh) * 100);
-    max-height: calc(var(--app-vh) * 100);
-    overflow: hidden;
-  }
-
-  #root {
-    display: flex;
-    flex-direction: column;
-  }
 }
 
 @media (min-width: 1280px) {
@@ -193,6 +183,10 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+.app-page-scroll {
+  scrollbar-width: thin;
+}
+
 .page-content-shell {
   box-sizing: border-box;
   margin-inline: auto;
@@ -202,9 +196,7 @@ body::-webkit-scrollbar {
   padding-bottom: var(--app-page-space-y);
   padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
   padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
-  min-height: calc(
-    var(--app-vh) * 100 - var(--app-nav-height) - var(--app-tab-height)
-  );
+  min-height: 100%;
 }
 
 @media (min-width: 640px) {
