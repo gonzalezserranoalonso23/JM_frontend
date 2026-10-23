@@ -14,7 +14,8 @@ const Navigate = () => {
   const logOut = useAuthStore((state) => state.logOut)
   const isAdmin = useAuthStore((state) => state.isAdmin)
   const { data: pendingTasks } = useGetPendingTasks()
-  const { permission, requestPermission } = useTaskNotifications()
+  const { showNotifications, requestPermission } =
+    useTaskNotifications(pendingTasks)
   const navigate = useNavigate()
   const pendingCount = pendingTasks?.length ?? 0
   const links = getNavLinks(isAdmin)
@@ -71,7 +72,7 @@ const Navigate = () => {
                   </NavLink>
                 ))}
               </div>
-              {permission === 'default' && (
+              {showNotifications && (
                 <Button
                   type="button"
                   variant="outline"
@@ -97,7 +98,7 @@ const Navigate = () => {
       <MobileTabBar
         links={links}
         pendingCount={pendingCount}
-        permission={permission}
+        showNotifications={showNotifications}
         requestPermission={requestPermission}
         onLogout={handleLogOut}
       />

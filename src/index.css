@@ -26,7 +26,8 @@
   --ring: oklch(0.708 0 0);
 
   --app-nav-height: calc(3.5rem + env(safe-area-inset-top, 0px));
-  --app-tab-height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+  --app-safe-bottom: min(env(safe-area-inset-bottom, 0px), 0.5rem);
+  --app-tab-height: calc(2.75rem + var(--app-safe-bottom));
   --app-page-space-y: 1.5rem;
   /* Overwritten by JS (main.jsx) with window.innerHeight-based value; svh is just the pre-JS fallback. */
   --app-vh: 1dvh;
@@ -106,8 +107,10 @@ html {
 html,
 body,
 #root {
-  height: calc(var(--app-vh) * 100);
-  max-height: calc(var(--app-vh) * 100);
+  height: 100%;
+  height: -webkit-fill-available;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
 }
 
@@ -216,7 +219,7 @@ body::-webkit-scrollbar {
 }
 
 .app-tab-bar {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--app-safe-bottom);
 }
 
 /* Date/time inputs on iOS/Android have an intrinsic width and overflow their

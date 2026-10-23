@@ -22,7 +22,7 @@ const TAB_ICONS = {
 const MobileTabBar = ({
   links,
   pendingCount,
-  permission,
+  showNotifications,
   requestPermission,
   onLogout
 }) => {
@@ -76,7 +76,7 @@ const MobileTabBar = ({
                 </NavLink>
               ))}
             </nav>
-            {permission === 'default' && (
+            {showNotifications && (
               <Button
                 type="button"
                 variant="outline"
@@ -108,7 +108,7 @@ const MobileTabBar = ({
         aria-label="Navegación inferior"
         className="app-tab-bar fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] backdrop-blur-md xl:hidden"
       >
-        <div className="grid h-[3.5rem] grid-cols-5">
+        <div className="grid h-11 grid-cols-5">
           {primary.map(({ to, label, end, badge }) => {
             const Icon = TAB_ICONS[to]
             return (

@@ -7,6 +7,15 @@ const urlBase64ToUint8Array = (base64String) => {
   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)))
 }
 
+const sameApplicationKey = (subscription, publicKey) => {
+  const current = subscription?.options?.applicationServerKey
+  if (!current) return true
+  const next = urlBase64ToUint8Array(publicKey)
+  const bytes = new Uint8Array(current)
+  if (bytes.length !== next.length) return false
+  return bytes.every((byte, index) => byte === next[index])
+}
+
 const getVapidPublicKey = async () => {
   const { data } = await axios.get('/api/push/vapid-public-key')
   return data.publicKey
@@ -20,20 +29,22 @@ const savePushSubscription = async (subscription) => {
 export const subscribeBrowserPush = async () => {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null
 
-  let registration = await navigator.serviceWorker.getRegistration()
-  if (!registration) {
-    registration = await navigator.serviceWorker.register('/sw.js')
-  }
+  const registration = await navigator.serviceWorker.register('/sw.js')
   await navigator.serviceWorker.ready
 
   const publicKey = await getVapidPublicKey()
-  const existing = await registration.pushManager.getSubscription()
-  const subscription =
-    existing ||
-    (await registration.pushManager.subscribe({
+  let subscription = await registration.pushManager.getSubscription()
+  if (subscription && !sameApplicationKey(subscription, publicKey)) {
+    await subscription.unsubscribe()
+    subscription = null
+  }
+
+  if (!subscription) {
+    subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicKey)
-    }))
+    })
+  }
 
   await savePushSubscription(subscription.toJSON())
   return subscription

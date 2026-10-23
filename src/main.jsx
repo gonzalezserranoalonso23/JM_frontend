@@ -13,9 +13,8 @@ const standaloneDisplayQuery = window.matchMedia(
 const isStandalonePwa = () =>
   standaloneDisplayQuery.matches || window.navigator.standalone === true
 
-// In Safari the layout viewport (innerHeight) stays stable while the URL bar
-// animates. In an installed PWA that same innerHeight still subtracts the
-// browser chrome, so we measure the large viewport instead.
+// 100dvh follows the visible screen, including an installed PWA where
+// innerHeight still reserves the browser toolbar.
 const measureCssHeight = (heightValue) => {
   const probe = document.createElement('div')
   probe.setAttribute('aria-hidden', 'true')
@@ -26,19 +25,12 @@ const measureCssHeight = (heightValue) => {
   return height || 0
 }
 
-const measureViewportPx = () => {
-  if (!isStandalonePwa()) return window.innerHeight
-
-  return Math.round(
-    Math.max(
-      measureCssHeight('100lvh'),
-      measureCssHeight('100dvh'),
-      measureCssHeight('-webkit-fill-available'),
-      window.innerHeight,
-      window.visualViewport?.height ?? 0
-    )
+const measureViewportPx = () =>
+  Math.round(
+    measureCssHeight('100dvh') ||
+      window.visualViewport?.height ||
+      window.innerHeight
   )
-}
 
 const setAppViewportHeight = () => {
   document.documentElement.classList.toggle('is-pwa', isStandalonePwa())
