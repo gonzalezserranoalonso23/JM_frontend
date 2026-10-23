@@ -16,6 +16,10 @@ export const calcLineTotal = (quantity, price) => {
   return (qty * unit).toFixed(2)
 }
 
+// Cantidad/stock con máximo 3 decimales y sin ceros sobrantes: 0.30000000000000004 -> 0.3
+export const formatQty = (value) =>
+  Math.round((Number(value) || 0) * 1000) / 1000
+
 export const sumBy = (items, getValue) =>
   items.reduce((sum, item) => sum + toNumber(getValue(item)), 0)
 

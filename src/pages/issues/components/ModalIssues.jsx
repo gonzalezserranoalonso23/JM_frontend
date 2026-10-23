@@ -33,6 +33,7 @@ import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import Loading from '@/ui/Loading'
 import {
   formatMoney,
+  formatQty,
   calcLineTotal,
   confirmDiscardChanges
 } from '@/utils/commonFunctions'
@@ -188,7 +189,7 @@ const ModalIssues = ({
 
     const available = getAvailableStock(itemSelectedProduct)
     if (available < parseFloat(itemForm.quantity)) {
-      setError(`Stock insuficiente. Disponible: ${available}`)
+      setError(`Stock insuficiente. Disponible: ${formatQty(available)}`)
       return
     }
 
@@ -249,7 +250,7 @@ const ModalIssues = ({
       setIsSubmitting(false)
       setError(
         short.product
-          ? `Stock insuficiente de ${short.product.productName}. Disponible: ${short.product.productStock}`
+          ? `Stock insuficiente de ${short.product.productName}. Disponible: ${formatQty(short.product.productStock)}`
           : 'Un producto del carrito ya no existe'
       )
       return
@@ -301,7 +302,7 @@ const ModalIssues = ({
       editSelectedProduct.productStock < parseFloat(editFormData.quantity)
     ) {
       setError(
-        `Stock insuficiente. Disponible: ${editSelectedProduct.productStock}`
+        `Stock insuficiente. Disponible: ${formatQty(editSelectedProduct.productStock)}`
       )
       return
     }
@@ -386,7 +387,8 @@ const ModalIssues = ({
                   />
                   {editSelectedProduct && (
                     <small className="text-muted-foreground">
-                      Stock disponible: {editSelectedProduct.productStock}
+                      Stock disponible:{' '}
+                      {formatQty(editSelectedProduct.productStock)}
                     </small>
                   )}
                 </div>

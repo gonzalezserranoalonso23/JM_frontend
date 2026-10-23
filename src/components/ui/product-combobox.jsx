@@ -1,3 +1,4 @@
+import { formatQty } from '@/utils/commonFunctions'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Input } from '@/components/ui/input'
@@ -24,7 +25,7 @@ const ProductCombobox = ({
   const selectedProduct = productList.find((product) => product._id === value)
   const selectedLabel = selectedProduct
     ? `${selectedProduct.productName}${
-        showStock ? ` (Stock: ${selectedProduct.productStock})` : ''
+        showStock ? ` (Stock: ${formatQty(selectedProduct.productStock)})` : ''
       }`
     : ''
   const searchedProducts = productList.filter((product) => {
@@ -152,7 +153,8 @@ const ProductCombobox = ({
                 >
                   <span className="block truncate text-sm">
                     {product.productName}
-                    {showStock && ` (Stock: ${product.productStock})`}
+                    {showStock &&
+                      ` (Stock: ${formatQty(product.productStock)})`}
                   </span>
                   {product.productDescription && (
                     <span className="block truncate text-xs text-muted-foreground">

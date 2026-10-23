@@ -1,3 +1,4 @@
+import { formatQty } from '@/utils/commonFunctions'
 import { useState } from 'react'
 import { useSearchProducts } from '@/features/products.features'
 import { Badge } from '@/components/ui/badge'
@@ -73,7 +74,7 @@ const ProductLookup = () => {
                     </strong>{' '}
                     · Stock:{' '}
                     <strong className="text-foreground">
-                      {product.productStock}
+                      {formatQty(product.productStock)}
                     </strong>
                   </p>
                 </div>

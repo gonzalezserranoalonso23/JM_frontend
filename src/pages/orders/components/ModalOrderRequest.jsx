@@ -1,4 +1,4 @@
-import { formatMoney } from '@/utils/commonFunctions'
+import { formatMoney, formatQty } from '@/utils/commonFunctions'
 import { todayLocal, isoDay } from '@/utils/dateDisplay'
 import { useEffect, useState } from 'react'
 import {
@@ -301,7 +301,11 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                   <Input
                     id="currentProductStock"
                     type="number"
-                    value={selectedProduct?.productStock ?? ''}
+                    value={
+                      selectedProduct
+                        ? formatQty(selectedProduct.productStock)
+                        : ''
+                    }
                     readOnly
                   />
                 </div>
@@ -379,7 +383,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                             <dt className="text-xs text-muted-foreground">
                               Stock actual
                             </dt>
-                            <dd>{product?.productStock ?? 0}</dd>
+                            <dd>{formatQty(product?.productStock)}</dd>
                           </div>
                           <div>
                             <dt className="text-xs text-muted-foreground">

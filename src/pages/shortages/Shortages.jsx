@@ -1,3 +1,4 @@
+import { formatQty } from '@/utils/commonFunctions'
 import { useState } from 'react'
 import { useGetLowStockProductPages } from '@/features/inventory.features'
 import { useGetCategories } from '@/features/categories.features'
@@ -124,7 +125,7 @@ const Shortages = () => {
                           <dt className="text-xs text-muted-foreground">
                             Stock
                           </dt>
-                          <dd>{product.productStock}</dd>
+                          <dd>{formatQty(product.productStock)}</dd>
                         </div>
                         <div>
                           <dt className="text-xs text-muted-foreground">
@@ -181,7 +182,7 @@ const Shortages = () => {
                           {product.category?.categories || 'N/A'}
                         </TableCell>
                         <TableCell className="text-center">
-                          {product.productStock}
+                          {formatQty(product.productStock)}
                         </TableCell>
                         <TableCell className="text-center">
                           {product.minimumProductStock}

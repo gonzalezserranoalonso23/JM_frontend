@@ -1,3 +1,4 @@
+import { formatQty } from '@/utils/commonFunctions'
 import {
   useGetInventoryStats,
   useGetLowStockProductPages
@@ -118,7 +119,7 @@ const StockDashboard = () => {
                       <p className="mt-1 text-sm text-muted-foreground">
                         Stock:{' '}
                         <strong className="text-foreground">
-                          {product.productStock}
+                          {formatQty(product.productStock)}
                         </strong>{' '}
                         / Mín: {product.minimumProductStock}
                       </p>

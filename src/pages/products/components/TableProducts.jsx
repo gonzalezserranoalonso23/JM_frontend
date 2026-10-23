@@ -1,3 +1,4 @@
+import { formatQty } from '@/utils/commonFunctions'
 import { useRef } from 'react'
 import { Check, X } from 'lucide-react'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
@@ -15,8 +16,6 @@ import {
   TableHead,
   TableCell
 } from '@/components/ui/table'
-
-const fmt = (value) => Math.round(Number(value ?? 0) * 100) / 100
 
 const TableProducts = ({
   products,
@@ -96,23 +95,23 @@ const TableProducts = ({
                             }`
                       }
                     >
-                      Stock {fmt(product?.productStock)}
+                      Stock {formatQty(product?.productStock)}
                     </Badge>
                   </div>
                   <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                     <div>
                       <dt className="text-xs text-muted-foreground">Compra</dt>
-                      <dd>${fmt(product?.purchasePrice)}</dd>
+                      <dd>${formatQty(product?.purchasePrice)}</dd>
                     </div>
                     <div>
                       <dt className="text-xs text-muted-foreground">Venta</dt>
-                      <dd>${fmt(product?.productPrice)}</dd>
+                      <dd>${formatQty(product?.productPrice)}</dd>
                     </div>
                     <div>
                       <dt className="text-xs text-muted-foreground">
                         Stock mín.
                       </dt>
-                      <dd>{fmt(product?.minimumProductStock)}</dd>
+                      <dd>{formatQty(product?.minimumProductStock)}</dd>
                     </div>
                     <div>
                       <dt className="text-xs text-muted-foreground">Estado</dt>
@@ -211,8 +210,8 @@ const TableProducts = ({
                         <p>{product.productDescription}</p>
                       )}
                       <p>
-                        Compra ${fmt(product?.purchasePrice)} · Venta $
-                        {fmt(product?.productPrice)}
+                        Compra ${formatQty(product?.purchasePrice)} · Venta $
+                        {formatQty(product?.productPrice)}
                       </p>
                       <p>
                         {product?.supplier?.suppliersName ||
@@ -236,10 +235,10 @@ const TableProducts = ({
                     <small>{product?.productDescription}</small>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
-                    ${fmt(product?.purchasePrice)}
+                    ${formatQty(product?.purchasePrice)}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
-                    ${fmt(product?.productPrice)}
+                    ${formatQty(product?.productPrice)}
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -254,14 +253,14 @@ const TableProducts = ({
                             : 'text-emerald-400'
                       }
                     >
-                      {fmt(product?.productStock)}
+                      {formatQty(product?.productStock)}
                     </Badge>
                     <span className="mt-1 block text-xs text-muted-foreground lg:hidden">
-                      Mín. {fmt(product?.minimumProductStock)}
+                      Mín. {formatQty(product?.minimumProductStock)}
                     </span>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
-                    {fmt(product?.minimumProductStock)}
+                    {formatQty(product?.minimumProductStock)}
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
                     <small>{product?.supplier?.suppliersName}</small>

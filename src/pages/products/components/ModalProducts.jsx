@@ -41,7 +41,10 @@ const ModalProducts = ({
       purchasePrice: product?.purchasePrice || '',
       productPrice: product?.productPrice || '',
       minimumProductStock: product?.minimumProductStock ?? '',
-      productStock: product?.productStock ?? '',
+      productStock:
+        product?.productStock != null
+          ? Number(Number(product.productStock).toFixed(3))
+          : '',
       supplier: product?.supplier || '',
       category: product?.category || ''
     },
