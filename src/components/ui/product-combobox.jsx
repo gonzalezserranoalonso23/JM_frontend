@@ -61,9 +61,19 @@ const ProductCombobox = ({
       const inputRect = input.getBoundingClientRect()
       const dialogRect = dialog.getBoundingClientRect()
       const viewport = window.visualViewport
-      const visibleTop = Math.max(dialogRect.top, viewport?.offsetTop ?? 0)
+      const header = dialog.querySelector('header')
+      const footer = dialog.querySelector('footer')
+      const headerBottom =
+        header?.getBoundingClientRect().bottom ?? dialogRect.top
+      const footerTop = footer?.getBoundingClientRect().top ?? dialogRect.bottom
+      const visibleTop = Math.max(
+        dialogRect.top,
+        headerBottom,
+        viewport?.offsetTop ?? 0
+      )
       const visibleBottom = Math.min(
         dialogRect.bottom,
+        footerTop,
         (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight)
       )
       const spaceBelow = visibleBottom - inputRect.bottom - GAP
