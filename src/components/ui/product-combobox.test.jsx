@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ProductCombobox from './product-combobox'
 
@@ -80,5 +80,15 @@ describe('ProductCombobox', () => {
 
     expect(onValueChange).toHaveBeenCalledWith('p2')
     expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('no abre la lista cuando el foco vuelve al agregar al carrito', () => {
+    setup()
+    const input = screen.getByRole('combobox', { name: 'Producto' })
+    input.dataset.keepClosed = 'true'
+    fireEvent.focus(input)
+
+    expect(screen.queryByRole('listbox')).toBeNull()
+    expect(input.dataset.keepClosed).toBeUndefined()
   })
 })

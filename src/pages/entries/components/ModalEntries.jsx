@@ -152,7 +152,7 @@ const ModalEntries = ({
     })
     setItemForm(getEmptyItem())
     setError('')
-    focusField('productName')
+    focusField('productName', { keepClosed: true })
   }
 
   const hasUnsavedCart =
@@ -167,11 +167,13 @@ const ModalEntries = ({
 
   const handleRemoveFromCart = removeItem
 
-  const focusField = (fieldId) => {
+  const focusField = (fieldId, { keepClosed = false } = {}) => {
     requestAnimationFrame(() => {
       const field = document.getElementById(fieldId)
-      field?.focus()
-      field?.select?.()
+      if (!field) return
+      if (keepClosed) field.dataset.keepClosed = 'true'
+      field.focus()
+      if (!keepClosed) field.select?.()
     })
   }
 

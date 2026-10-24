@@ -168,7 +168,17 @@ const ProductCombobox = ({
         className={`truncate ${isOpen && selectedLabel ? 'placeholder:text-foreground' : ''}`}
         value={isOpen ? search : selectedLabel}
         placeholder={isOpen && selectedLabel ? selectedLabel : placeholder}
-        onFocus={() => {
+        onFocus={(event) => {
+          if (event.currentTarget.dataset.keepClosed === 'true') {
+            delete event.currentTarget.dataset.keepClosed
+            setIsOpen(false)
+            return
+          }
+          setSearch('')
+          setActiveIndex(0)
+          setIsOpen(true)
+        }}
+        onPointerDown={() => {
           setSearch('')
           setActiveIndex(0)
           setIsOpen(true)
