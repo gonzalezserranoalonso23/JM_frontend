@@ -57,66 +57,80 @@ const ProductCombobox = ({
     if (!input || !dialog) return
 
     const GAP = 4
+    let frame = 0
     const place = () => {
-      const inputRect = input.getBoundingClientRect()
-      const dialogRect = dialog.getBoundingClientRect()
-      const viewport = window.visualViewport
+      const body = input.closest('[data-slot="dialog-body"]')
       const header = dialog.querySelector('header')
       const footer = dialog.querySelector('footer')
+      const viewport = window.visualViewport
+      const dialogRect = dialog.getBoundingClientRect()
       const headerBottom =
         header?.getBoundingClientRect().bottom ?? dialogRect.top
       const footerTop = footer?.getBoundingClientRect().top ?? dialogRect.bottom
-      const visibleTop = Math.max(
-        dialogRect.top,
-        headerBottom,
-        viewport?.offsetTop ?? 0
-      )
+      const visibleTop =
+        Math.max(headerBottom, viewport?.offsetTop ?? 0) + GAP
       const visibleBottom = Math.min(
-        dialogRect.bottom,
         footerTop,
         (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight)
       )
+
+      const before = input.getBoundingClientRect()
+      if (body && visibleBottom - before.bottom < 160) {
+        const shift = before.top - visibleTop
+        if (shift > 4) body.scrollTop += shift
+      }
+
+      const inputRect = input.getBoundingClientRect()
+      const freshDialog = dialog.getBoundingClientRect()
       const spaceBelow = visibleBottom - inputRect.bottom - GAP
-      const spaceAbove = inputRect.top - visibleTop - GAP
-      const openUp = spaceBelow < 200 && spaceAbove > spaceBelow
-      const width = Math.min(inputRect.width, dialogRect.width)
+      const width = Math.min(inputRect.width, freshDialog.width - 16)
       const left = Math.min(
-        Math.max(inputRect.left - dialogRect.left, 0),
-        dialogRect.width - width
+        Math.max(inputRect.left - freshDialog.left, 8),
+        Math.max(freshDialog.width - width - 8, 8)
       )
 
       setListPos({
         dialog,
         left,
         width,
-        maxHeight: Math.max(
-          Math.min(openUp ? spaceAbove : spaceBelow, 192),
-          96
-        ),
-        ...(openUp
-          ? { bottom: dialogRect.bottom - inputRect.top + GAP }
-          : { top: inputRect.bottom - dialogRect.top + GAP })
+        maxHeight: Math.min(Math.max(spaceBelow, 120), 280),
+        top: inputRect.bottom - freshDialog.top + GAP
       })
     }
 
-    place()
-    window.addEventListener('resize', place)
-    window.visualViewport?.addEventListener('resize', place)
-    window.visualViewport?.addEventListener('scroll', place)
-    document.addEventListener('scroll', place, true)
+    const schedule = () => {
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(place)
+    }
+
+    schedule()
+    window.addEventListener('resize', schedule)
+    window.visualViewport?.addEventListener('resize', schedule)
+    document.addEventListener('scroll', schedule, true)
     return () => {
-      window.removeEventListener('resize', place)
-      window.visualViewport?.removeEventListener('resize', place)
-      window.visualViewport?.removeEventListener('scroll', place)
-      document.removeEventListener('scroll', place, true)
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('resize', schedule)
+      window.visualViewport?.removeEventListener('resize', schedule)
+      document.removeEventListener('scroll', schedule, true)
     }
   }, [isOpen])
 
-  const handleSelect = (product) => {
+  const suppressOpen = useRef(false)
+
+  const handleSelect = (product, { pointer = false } = {}) => {
+    suppressOpen.current = true
     onValueChange(product._id)
     setIsOpen(false)
     setSearch('')
     setActiveIndex(0)
+    const touch =
+      window.matchMedia?.('(hover: none) and (pointer: coarse)')?.matches ===
+      true
+    if (pointer || touch) inputRef.current?.blur()
+    else document.getElementById('quantity')?.focus()
+    window.setTimeout(() => {
+      suppressOpen.current = false
+    }, 400)
   }
 
   const moveActive = (direction) => {
@@ -169,7 +183,10 @@ const ProductCombobox = ({
         value={isOpen ? search : selectedLabel}
         placeholder={isOpen && selectedLabel ? selectedLabel : placeholder}
         onFocus={(event) => {
-          if (event.currentTarget.dataset.keepClosed === 'true') {
+          if (
+            suppressOpen.current ||
+            event.currentTarget.dataset.keepClosed === 'true'
+          ) {
             delete event.currentTarget.dataset.keepClosed
             return
           }
@@ -178,6 +195,7 @@ const ProductCombobox = ({
           setIsOpen(true)
         }}
         onClick={() => {
+          if (suppressOpen.current) return
           setSearch('')
           setActiveIndex(0)
           setIsOpen(true)
@@ -186,7 +204,14 @@ const ProductCombobox = ({
           setSearch(event.target.value)
           setIsOpen(true)
         }}
-        onBlur={() => setIsOpen(false)}
+        onBlur={(event) => {
+          const next = event.relatedTarget
+          if (next instanceof Element && next.closest('[role="listbox"]')) return
+          window.setTimeout(() => {
+            if (document.activeElement === inputRef.current) return
+            setIsOpen(false)
+          }, 180)
+        }}
         onKeyDown={handleKeyDown}
       />
       {isOpen &&
@@ -200,7 +225,6 @@ const ProductCombobox = ({
               left: listPos.left,
               width: listPos.width,
               top: listPos.top,
-              bottom: listPos.bottom,
               maxHeight: listPos.maxHeight
             }}
             className="z-[100] overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-lg [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
@@ -221,13 +245,13 @@ const ProductCombobox = ({
                     optionRefs.current[index] = node
                   }}
                   className={cn(
-                    'block w-full min-w-0 px-3 py-2 text-left',
+                    'block w-full min-h-11 min-w-0 px-3 py-2 text-left',
                     index === activeIndex && 'bg-accent text-accent-foreground'
                   )}
                   onMouseEnter={() => setActiveIndex(index)}
                   onPointerDown={(event) => {
                     event.preventDefault()
-                    handleSelect(product)
+                    handleSelect(product, { pointer: true })
                   }}
                 >
                   <span className="block truncate text-sm">

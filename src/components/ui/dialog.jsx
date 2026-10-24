@@ -59,6 +59,7 @@ const DialogContent = React.forwardRef(
             !HTMLElementConstructor ||
             !(focused instanceof HTMLElementConstructor) ||
             !content.contains(focused) ||
+            focused.getAttribute('role') === 'combobox' ||
             !focused.matches(
               'input, textarea, select, [contenteditable="true"]'
             )

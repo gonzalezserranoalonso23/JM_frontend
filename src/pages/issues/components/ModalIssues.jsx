@@ -194,7 +194,6 @@ const ModalIssues = ({
     })
     setItemForm(getEmptyItem())
     setError('')
-    focusField('productName', { keepClosed: true })
   }
 
   const hasUnsavedCart =
@@ -208,14 +207,6 @@ const ModalIssues = ({
   }
 
   const handleRemoveFromCart = removeItem
-
-  const focusField = (fieldId, { keepClosed = false } = {}) => {
-    const field = document.getElementById(fieldId)
-    if (!field) return
-    if (keepClosed) field.dataset.keepClosed = 'true'
-    field.focus()
-    if (!keepClosed) field.select?.()
-  }
 
   const handleCartFormSubmit = (event) => {
     event.preventDefault()
@@ -503,10 +494,7 @@ const ModalIssues = ({
                     id="productName"
                     products={products}
                     value={itemForm.productName}
-                    onValueChange={(value) => {
-                      setItemField('productName', value)
-                      if (value) focusField('quantity')
-                    }}
+                    onValueChange={(value) => setItemField('productName', value)}
                     placeholder="Selecciona producto"
                     showStock
                   />
