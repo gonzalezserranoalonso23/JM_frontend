@@ -170,7 +170,6 @@ select {
   [role='button'],
   [role='tab'],
   [role='option'],
-  [role='combobox'],
   [data-slot='select-trigger'],
   [data-slot='select-item'],
   label,
@@ -178,12 +177,15 @@ select {
     transition: none;
   }
 
+  [data-slot='dialog-body'] {
+    cursor: pointer;
+  }
+
   a:active,
   button:active,
   [role='button']:active,
   [role='tab']:active,
   [role='option']:active,
-  [role='combobox']:active,
   [data-slot='select-trigger']:active,
   [data-slot='select-item']:active {
     opacity: 0.65;

@@ -168,13 +168,11 @@ const ModalEntries = ({
   const handleRemoveFromCart = removeItem
 
   const focusField = (fieldId, { keepClosed = false } = {}) => {
-    requestAnimationFrame(() => {
-      const field = document.getElementById(fieldId)
-      if (!field) return
-      if (keepClosed) field.dataset.keepClosed = 'true'
-      field.focus()
-      if (!keepClosed) field.select?.()
-    })
+    const field = document.getElementById(fieldId)
+    if (!field) return
+    if (keepClosed) field.dataset.keepClosed = 'true'
+    field.focus()
+    if (!keepClosed) field.select?.()
   }
 
   const handleCartFormSubmit = (event) => {

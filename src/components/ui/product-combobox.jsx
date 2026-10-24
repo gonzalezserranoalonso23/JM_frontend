@@ -171,14 +171,13 @@ const ProductCombobox = ({
         onFocus={(event) => {
           if (event.currentTarget.dataset.keepClosed === 'true') {
             delete event.currentTarget.dataset.keepClosed
-            setIsOpen(false)
             return
           }
           setSearch('')
           setActiveIndex(0)
           setIsOpen(true)
         }}
-        onPointerDown={() => {
+        onClick={() => {
           setSearch('')
           setActiveIndex(0)
           setIsOpen(true)
@@ -226,7 +225,7 @@ const ProductCombobox = ({
                     index === activeIndex && 'bg-accent text-accent-foreground'
                   )}
                   onMouseEnter={() => setActiveIndex(index)}
-                  onMouseDown={(event) => {
+                  onPointerDown={(event) => {
                     event.preventDefault()
                     handleSelect(product)
                   }}

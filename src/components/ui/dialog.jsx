@@ -41,7 +41,6 @@ const DialogContent = React.forwardRef(
       if (!content) return
 
       let frameId
-      let focusTimer
 
       dirtyRef.current = false
       const markDirty = () => {
@@ -97,13 +96,6 @@ const DialogContent = React.forwardRef(
         })
       }
 
-      const FIELD = 'input, textarea, select, [contenteditable="true"]'
-      const handleFocus = (event) => {
-        window.clearTimeout(focusTimer)
-        if (!event.target.matches?.(FIELD)) return
-        focusTimer = window.setTimeout(revealFocusedField, 250)
-      }
-
       const isMobile = window.matchMedia('(max-width: 639px)').matches
       const { body } = document
       const previousBody = {
@@ -144,10 +136,7 @@ const DialogContent = React.forwardRef(
         window.addEventListener('orientationchange', syncHeight)
       }
 
-      content.addEventListener('focusin', handleFocus)
-
       return () => {
-        content.removeEventListener('focusin', handleFocus)
         content.removeEventListener('input', markDirty)
         content.removeEventListener('change', markDirty)
         if (isMobile) {
@@ -161,7 +150,6 @@ const DialogContent = React.forwardRef(
           window.scrollTo(0, lockedScrollY)
         }
         window.cancelAnimationFrame(frameId)
-        window.clearTimeout(focusTimer)
         window.clearTimeout(resizeTimer)
       }
     }, [content])
@@ -238,6 +226,8 @@ DialogHeader.displayName = 'DialogHeader'
 
 const DialogBody = ({ className, ...props }) => (
   <div
+    data-slot="dialog-body"
+    onTouchStart={() => {}}
     className={cn(
       'min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-5 [overflow-anchor:none] max-sm:p-4',
       // Los hijos de grid/flex no deben ensanchar la columna más allá de la pantalla
