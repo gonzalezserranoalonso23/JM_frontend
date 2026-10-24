@@ -59,27 +59,14 @@ const ProductCombobox = ({
     const GAP = 4
     let frame = 0
     const place = () => {
-      const body = input.closest('[data-slot="dialog-body"]')
-      const header = dialog.querySelector('header')
       const footer = dialog.querySelector('footer')
       const viewport = window.visualViewport
       const dialogRect = dialog.getBoundingClientRect()
-      const headerBottom =
-        header?.getBoundingClientRect().bottom ?? dialogRect.top
       const footerTop = footer?.getBoundingClientRect().top ?? dialogRect.bottom
-      const visibleTop =
-        Math.max(headerBottom, viewport?.offsetTop ?? 0) + GAP
       const visibleBottom = Math.min(
         footerTop,
         (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight)
       )
-
-      const before = input.getBoundingClientRect()
-      if (body && visibleBottom - before.bottom < 160) {
-        const shift = before.top - visibleTop
-        if (shift > 4) body.scrollTop += shift
-      }
-
       const inputRect = input.getBoundingClientRect()
       const freshDialog = dialog.getBoundingClientRect()
       const spaceBelow = visibleBottom - inputRect.bottom - GAP
@@ -98,12 +85,14 @@ const ProductCombobox = ({
       })
     }
 
-    const schedule = () => {
+    const schedule = (event) => {
+      const target = event?.target
+      if (target instanceof Element && target.closest('[role="listbox"]')) return
       window.cancelAnimationFrame(frame)
       frame = window.requestAnimationFrame(place)
     }
 
-    schedule()
+    place()
     window.addEventListener('resize', schedule)
     window.visualViewport?.addEventListener('resize', schedule)
     document.addEventListener('scroll', schedule, true)
@@ -116,6 +105,7 @@ const ProductCombobox = ({
   }, [isOpen])
 
   const suppressOpen = useRef(false)
+  const listTouch = useRef({ y: 0, moved: false, active: false })
 
   const handleSelect = (product, { pointer = false } = {}) => {
     suppressOpen.current = true
@@ -208,9 +198,10 @@ const ProductCombobox = ({
           const next = event.relatedTarget
           if (next instanceof Element && next.closest('[role="listbox"]')) return
           window.setTimeout(() => {
+            if (listTouch.current.active) return
             if (document.activeElement === inputRef.current) return
             setIsOpen(false)
-          }, 180)
+          }, 200)
         }}
         onKeyDown={handleKeyDown}
       />
@@ -227,7 +218,25 @@ const ProductCombobox = ({
               top: listPos.top,
               maxHeight: listPos.maxHeight
             }}
-            className="z-[100] overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-lg [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
+            className="z-[100] touch-pan-y overflow-y-auto overscroll-contain rounded-md border bg-popover text-popover-foreground shadow-lg [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
+            onPointerDown={(event) => {
+              if (event.pointerType !== 'touch') return
+              listTouch.current = { y: event.clientY, moved: false, active: true }
+            }}
+            onPointerMove={(event) => {
+              if (!listTouch.current.active) return
+              if (Math.abs(event.clientY - listTouch.current.y) > 8) {
+                listTouch.current.moved = true
+              }
+            }}
+            onPointerUp={() => {
+              window.setTimeout(() => {
+                listTouch.current.active = false
+              }, 250)
+            }}
+            onPointerCancel={() => {
+              listTouch.current = { y: 0, moved: false, active: false }
+            }}
           >
             {searchedProducts.length === 0 ? (
               <div className="px-3 py-2 text-sm text-muted-foreground">
@@ -245,12 +254,19 @@ const ProductCombobox = ({
                     optionRefs.current[index] = node
                   }}
                   className={cn(
-                    'block w-full min-h-11 min-w-0 px-3 py-2 text-left',
+                    'block w-full min-h-11 min-w-0 touch-pan-y px-3 py-2 text-left',
                     index === activeIndex && 'bg-accent text-accent-foreground'
                   )}
                   onMouseEnter={() => setActiveIndex(index)}
-                  onPointerDown={(event) => {
+                  onMouseDown={(event) => {
+                    if (event.pointerType === 'touch') return
                     event.preventDefault()
+                  }}
+                  onClick={() => {
+                    if (listTouch.current.moved) {
+                      listTouch.current.moved = false
+                      return
+                    }
                     handleSelect(product, { pointer: true })
                   }}
                 >
