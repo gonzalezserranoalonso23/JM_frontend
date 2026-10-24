@@ -9,15 +9,17 @@ import {
 import { Link } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/store/auth'
 
 const TableCatalogs = () => {
+  const isAdmin = useAuthStore((state) => state.isAdmin)
   const items = [
     { name: 'Productos', path: '../products' },
     { name: 'Proveedores', path: '../suppliers' },
-    { name: 'Categorías', path: '../categories' },
-    { name: 'Métodos de pago', path: '../payment-types' },
-    { name: 'Usuarios', path: '../users' }
-  ]
+    { name: 'Categorías', path: '../categories', adminOnly: true },
+    { name: 'Métodos de pago', path: '../payment-types', adminOnly: true },
+    { name: 'Usuarios', path: '../users', adminOnly: true }
+  ].filter((item) => isAdmin || !item.adminOnly)
 
   return (
     <div>

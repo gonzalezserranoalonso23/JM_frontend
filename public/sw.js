@@ -1,4 +1,4 @@
-const CACHE = 'jm-shell-v5'
+const CACHE = 'jm-shell-v6'
 const SHELL = ['/offline.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {

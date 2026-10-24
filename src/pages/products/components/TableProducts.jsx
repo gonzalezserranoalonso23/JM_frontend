@@ -27,7 +27,8 @@ const TableProducts = ({
   isError,
   handleUpdate,
   handleDelete,
-  handleToggleActive
+  handleToggleActive,
+  canManage = true
 }) => {
   const tableContainerRef = useRef(null)
   // Only the desktop table scrolls internally; on mobile the page scrolls.
@@ -145,27 +146,33 @@ const TableProducts = ({
                       </dd>
                     </div>
                   </dl>
-                  <div className="flex items-center justify-end gap-2 border-t pt-3">
-                    <ActionIconButton
-                      action="edit"
-                      label="Editar"
-                      onClick={() => handleUpdate(product)}
-                    />
-                    <ActionIconButton
-                      action={
-                        product?.isActive === false ? 'activate' : 'deactivate'
-                      }
-                      label={
-                        product?.isActive === false ? 'Activar' : 'Desactivar'
-                      }
-                      onClick={() => handleToggleActive(product)}
-                    />
-                    <ActionIconButton
-                      action="delete"
-                      label="Eliminar"
-                      onClick={() => handleDelete(product?._id)}
-                    />
-                  </div>
+                  {canManage && (
+                    <div className="flex items-center justify-end gap-2 border-t pt-3">
+                      <ActionIconButton
+                        action="edit"
+                        label="Editar"
+                        onClick={() => handleUpdate(product)}
+                      />
+                      <ActionIconButton
+                        action={
+                          product?.isActive === false
+                            ? 'activate'
+                            : 'deactivate'
+                        }
+                        label={
+                          product?.isActive === false
+                            ? 'Activar'
+                            : 'Desactivar'
+                        }
+                        onClick={() => handleToggleActive(product)}
+                      />
+                      <ActionIconButton
+                        action="delete"
+                        label="Eliminar"
+                        onClick={() => handleDelete(product?._id)}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -195,7 +202,9 @@ const TableProducts = ({
                 <TableHead className="hidden text-center lg:table-cell">
                   Estado
                 </TableHead>
-                <TableHead className="text-center">Acciones</TableHead>
+                {canManage && (
+                  <TableHead className="text-center">Acciones</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -281,31 +290,35 @@ const TableProducts = ({
                       />
                     )}
                   </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex w-full flex-row items-center justify-center gap-1">
-                      <ActionIconButton
-                        action="edit"
-                        label="Editar"
-                        onClick={() => handleUpdate(product)}
-                      />
-                      <ActionIconButton
-                        action={
-                          product?.isActive === false
-                            ? 'activate'
-                            : 'deactivate'
-                        }
-                        label={
-                          product?.isActive === false ? 'Activar' : 'Desactivar'
-                        }
-                        onClick={() => handleToggleActive(product)}
-                      />
-                      <ActionIconButton
-                        action="delete"
-                        label="Eliminar"
-                        onClick={() => handleDelete(product?._id)}
-                      />
-                    </div>
-                  </TableCell>
+                  {canManage && (
+                    <TableCell className="text-center">
+                      <div className="flex w-full flex-row items-center justify-center gap-1">
+                        <ActionIconButton
+                          action="edit"
+                          label="Editar"
+                          onClick={() => handleUpdate(product)}
+                        />
+                        <ActionIconButton
+                          action={
+                            product?.isActive === false
+                              ? 'activate'
+                              : 'deactivate'
+                          }
+                          label={
+                            product?.isActive === false
+                              ? 'Activar'
+                              : 'Desactivar'
+                          }
+                          onClick={() => handleToggleActive(product)}
+                        />
+                        <ActionIconButton
+                          action="delete"
+                          label="Eliminar"
+                          onClick={() => handleDelete(product?._id)}
+                        />
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

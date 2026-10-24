@@ -53,4 +53,32 @@ describe('ProductCombobox', () => {
 
     expect(onValueChange).toHaveBeenCalledWith('p1')
   })
+
+  it('con flecha y Enter elige el producto y no registra el formulario', async () => {
+    const user = userEvent.setup({ pointerEventsCheck: 0 })
+    const onValueChange = vi.fn()
+    const onSubmit = vi.fn((event) => event.preventDefault())
+
+    render(
+      <form onSubmit={onSubmit}>
+        <div role="dialog">
+          <label htmlFor="product">Producto</label>
+          <ProductCombobox
+            id="product"
+            products={products}
+            value=""
+            onValueChange={onValueChange}
+            showStock
+          />
+          <button type="submit">Registrar</button>
+        </div>
+      </form>
+    )
+
+    await user.click(screen.getByRole('combobox', { name: 'Producto' }))
+    await user.keyboard('{ArrowDown}{Enter}')
+
+    expect(onValueChange).toHaveBeenCalledWith('p2')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
 })

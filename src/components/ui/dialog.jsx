@@ -112,20 +112,19 @@ const DialogContent = React.forwardRef(
         width: body.style.width
       }
       const lockedScrollY = window.scrollY
-      // La altura ignora el teclado (solo crece o cambia al rotar) para que el footer quede fijo al fondo
-      let sheetHeight = 0
-      let sheetWidth = 0
       const syncHeight = () => {
-        const { innerHeight, innerWidth } = window
-        if (innerWidth !== sheetWidth || innerHeight > sheetHeight) {
-          sheetWidth = innerWidth
-          sheetHeight = innerHeight
-          content.style.setProperty('--dialog-h', `${sheetHeight}px`)
-        }
+        const viewport = window.visualViewport
+        const height = Math.round(
+          viewport?.height || document.documentElement.clientHeight
+        )
+        const top = Math.round(viewport?.offsetTop || 0)
+        content.style.setProperty('--dialog-h', `${height}px`)
+        content.style.setProperty('--dialog-top', `${top}px`)
       }
       syncHeight()
       let resizeTimer
       const handleResize = () => {
+        syncHeight()
         window.clearTimeout(resizeTimer)
         resizeTimer = window.setTimeout(revealFocusedField, 150)
       }
@@ -134,7 +133,7 @@ const DialogContent = React.forwardRef(
         body.style.top = `-${lockedScrollY}px`
         body.style.width = '100%'
         window.visualViewport?.addEventListener('resize', handleResize)
-        window.visualViewport?.addEventListener('scroll', revealFocusedField)
+        window.visualViewport?.addEventListener('scroll', handleResize)
         window.addEventListener('resize', syncHeight)
         window.addEventListener('orientationchange', syncHeight)
       }
@@ -149,10 +148,7 @@ const DialogContent = React.forwardRef(
           window.visualViewport?.removeEventListener('resize', handleResize)
           window.removeEventListener('resize', syncHeight)
           window.removeEventListener('orientationchange', syncHeight)
-          window.visualViewport?.removeEventListener(
-            'scroll',
-            revealFocusedField
-          )
+          window.visualViewport?.removeEventListener('scroll', handleResize)
           body.style.position = previousBody.position
           body.style.top = previousBody.top
           body.style.width = previousBody.width
@@ -182,7 +178,7 @@ const DialogContent = React.forwardRef(
             'fixed z-[60] flex flex-col bg-background text-foreground shadow-lg',
             'left-1/2 top-1/2 w-full max-w-lg sm:max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border max-h-[90vh] overflow-hidden',
             // Mobile: static full-screen sheet; no animations or movement
-            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:h-[var(--dialog-h,100dvh)] max-sm:max-h-[var(--dialog-h,100dvh)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain max-sm:pt-[env(safe-area-inset-top,0px)]',
+            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-[var(--dialog-top,0px)] max-sm:h-[var(--dialog-h,100dvh)] max-sm:max-h-[var(--dialog-h,100dvh)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain max-sm:pt-[env(safe-area-inset-top,0px)] max-sm:pl-[env(safe-area-inset-left,0px)] max-sm:pr-[env(safe-area-inset-right,0px)]',
             className
           )}
           onInteractOutside={(event) => {

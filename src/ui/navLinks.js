@@ -5,7 +5,7 @@ export const getNavLinks = (isAdmin) =>
     { to: '/entries', label: 'Entradas' },
     { to: '/orders', label: 'Órdenes' },
     { to: '/todolist', label: 'Pendientes', badge: true },
-    { to: '/reports', label: 'Reportes', adminOnly: true },
+    { to: '/reports', label: 'Reportes' },
     {
       to: '/daily-information',
       label: 'Información diaria',
@@ -13,7 +13,7 @@ export const getNavLinks = (isAdmin) =>
     },
     { to: '/shortages', label: 'Faltantes' },
     { to: '/cash', label: 'Caja' },
-    { to: '/catalogs', label: 'Catálogo', adminOnly: true }
+    { to: '/catalogs', label: 'Catálogo' }
   ].filter((link) => isAdmin || !link.adminOnly)
 
 export const PRIMARY_TABS = ['/home', '/issues', '/entries', '/todolist']

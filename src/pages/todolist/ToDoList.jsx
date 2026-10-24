@@ -1,6 +1,8 @@
 import PageShell from '@/components/PageShell'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { jwtDecode } from 'jwt-decode'
 import toast from 'react-hot-toast'
+import { useAuthStore } from '@/store/auth'
 import {
   useGetPendingTasks,
   useGetCompletedTasks,
@@ -37,6 +39,12 @@ const priorityBadge = {
   high: 'text-destructive'
 }
 
+const taskUserId = (value) => {
+  if (!value) return ''
+  if (typeof value === 'object') return String(value._id || '')
+  return String(value)
+}
+
 const ToDoList = () => {
   const { data: pendingTasks, isLoading: loadingPending } = useGetPendingTasks()
   const { data: completedTasks, isLoading: loadingCompleted } =
@@ -45,6 +53,21 @@ const ToDoList = () => {
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
   const deleteTask = useDeleteTask()
+  const token = useAuthStore((state) => state.auth)
+  const isAdmin = useAuthStore((state) => state.isAdmin)
+  const userId = useMemo(() => {
+    if (!token) return ''
+    try {
+      return String(jwtDecode(token).id || '')
+    } catch {
+      return ''
+    }
+  }, [token])
+
+  const canManageTask = (task) =>
+    isAdmin ||
+    taskUserId(task.createdBy) === userId ||
+    taskUserId(task.assignedTo) === userId
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -211,25 +234,27 @@ const ToDoList = () => {
                           {priorityLabel[task.priority] || 'Alta'}
                         </Badge>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="text-emerald-400"
-                          onClick={() => handleCompleteTask(task._id)}
-                          title="Marcar como completada"
-                        >
-                          ✓
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => handleDeleteTask(task._id)}
-                          title="Eliminar"
-                        >
-                          ✕
-                        </Button>
-                      </div>
+                      {canManageTask(task) && (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="text-emerald-400"
+                            onClick={() => handleCompleteTask(task._id)}
+                            title="Marcar como completada"
+                          >
+                            ✓
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDeleteTask(task._id)}
+                            title="Eliminar"
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
                     {task.description && (
@@ -245,21 +270,29 @@ const ToDoList = () => {
                       </small>
                       <small className="flex items-center gap-2">
                         Asignada a:{' '}
-                        <select
-                          value={task.assignedTo?._id || ''}
-                          onChange={(e) =>
-                            handleAssignTask(task._id, e.target.value)
-                          }
-                          className={cn(selectClass, 'h-8 w-auto')}
-                          aria-label="Reasignar tarea"
-                        >
-                          <option value="">Sin asignar</option>
-                          {users?.map((user) => (
-                            <option key={user._id} value={user._id}>
-                              {user.fullName || user.username}
-                            </option>
-                          ))}
-                        </select>
+                        {canManageTask(task) ? (
+                          <select
+                            value={task.assignedTo?._id || ''}
+                            onChange={(e) =>
+                              handleAssignTask(task._id, e.target.value)
+                            }
+                            className={cn(selectClass, 'h-8 w-auto')}
+                            aria-label="Reasignar tarea"
+                          >
+                            <option value="">Sin asignar</option>
+                            {users?.map((user) => (
+                              <option key={user._id} value={user._id}>
+                                {user.fullName || user.username}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <strong>
+                            {task.assignedTo?.fullName ||
+                              task.assignedTo?.username ||
+                              'Sin asignar'}
+                          </strong>
+                        )}
                       </small>
                       <small>
                         {new Date(task.createdAt).toLocaleDateString()}
@@ -292,24 +325,26 @@ const ToDoList = () => {
                           {task.title}
                         </h5>
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleReactivateTask(task._id)}
-                          title="Reactivar"
-                        >
-                          ↺
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => handleDeleteTask(task._id)}
-                          title="Eliminar"
-                        >
-                          ✕
-                        </Button>
-                      </div>
+                      {canManageTask(task) && (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleReactivateTask(task._id)}
+                            title="Reactivar"
+                          >
+                            ↺
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDeleteTask(task._id)}
+                            title="Eliminar"
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
                     {task.description && (

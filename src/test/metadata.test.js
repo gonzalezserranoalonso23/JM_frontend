@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
 const html = readFileSync('index.html', 'utf8')
 const manifest = JSON.parse(readFileSync('public/manifest.webmanifest', 'utf8'))
@@ -20,6 +20,22 @@ describe('metadatos', () => {
 
   it('es responsive y no se indexa', () => {
     expect(html).toMatch(/width=device-width/)
+    expect(html).toMatch(/viewport-fit=cover/)
     expect(html).toMatch(/noindex/)
+  })
+
+  it('los iconos del manifiesto existen', () => {
+    expect(manifest.display).toBe('standalone')
+    expect(manifest.display_override[0]).toBe('standalone')
+    const sources = [
+      ...manifest.icons.map((icon) => icon.src),
+      ...manifest.shortcuts.flatMap((shortcut) =>
+        (shortcut.icons || []).map((icon) => icon.src)
+      )
+    ]
+    for (const src of sources) {
+      expect(existsSync(`public${src}`), src).toBe(true)
+    }
+    expect(existsSync('public/apple-touch-icon.png')).toBe(true)
   })
 })

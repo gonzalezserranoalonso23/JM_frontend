@@ -85,7 +85,7 @@ const Login = () => {
   }
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-y-auto bg-background px-4 py-8 sm:px-6">
+    <div className="flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-y-auto bg-background px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6">
       <Card className="w-full max-w-[400px]">
         <CardHeader className="text-center">
           <h1 className="text-2xl leading-none font-bold">Mini Super JM</h1>
@@ -117,7 +117,7 @@ const Login = () => {
             </div>
             <label
               htmlFor="remember"
-              className="flex cursor-pointer items-center gap-2 text-sm"
+              className="flex min-h-11 cursor-pointer items-center gap-2 text-sm"
             >
               <input
                 id="remember"

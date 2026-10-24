@@ -50,7 +50,7 @@ const App = () => {
         containerStyle={{
           position: 'fixed',
           zIndex: 10000,
-          top: 'max(1rem, env(safe-area-inset-top))'
+          top: 'calc(var(--app-nav-height) + 0.5rem)'
         }}
       />
       <BrowserRouter>
@@ -70,18 +70,17 @@ const App = () => {
               <Route path="/reports/:id" element={<ReportDetails />} />
               <Route path="/todolist" element={<ToDoList />} />
               <Route path="/todolist/:id" element={<ToDoListDetails />} />
+              <Route path="/catalogs" element={<Catalog />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/suppliers" element={<Suppliers />} />
+              <Route path="/suppliers/:id" element={<SupplierDetails />} />
               <Route element={<Protected adminOnly />}>
-                <Route path="/catalogs" element={<Catalog />} />
                 <Route path="/payment-types" element={<PaymentTypes />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/users/:id" element={<UserDetails />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/daily-information" element={<DailyInformation />} />
               </Route>
-              <Route path="/products" element={<Products />} />
-
-              <Route path="/suppliers" element={<Suppliers />} />
-              <Route path="/suppliers/:id" element={<SupplierDetails />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/daily-information" element={<DailyInformation />} />
               <Route path="/shortages" element={<Shortages />} />
               <Route path="/cash" element={<Cash />} />
             </Route>

@@ -9,7 +9,7 @@
   "id": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "display_override": ["standalone", "minimal-ui", "browser"],
+  "display_override": ["standalone", "fullscreen"],
   "prefer_related_applications": false,
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",

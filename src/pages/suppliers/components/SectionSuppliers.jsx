@@ -13,6 +13,7 @@ import Loading from '@/ui/Loading'
 import TableSuppliers from './TableSuppliers'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
+import { useAuthStore } from '@/store/auth'
 
 const SectionSuppliers = () => {
   const [dataFilter, setDataFilter] = useFilterQuery()
@@ -27,6 +28,7 @@ const SectionSuppliers = () => {
   const suppliers = supplierPages?.pages.flatMap((page) => page.data) || []
   const totalSuppliers = supplierPages?.pages[0]?.total || 0
 
+  const isAdmin = useAuthStore((state) => state.isAdmin)
   const createSupplier = useCreateSupplier()
   const updateSupplier = useUpdateSupplier()
   const deleteSupplier = useDeleteSupplier()
@@ -68,7 +70,9 @@ const SectionSuppliers = () => {
           <h1 id="suppliers-title" className="text-xl font-semibold">
             Proveedores
           </h1>
-          <Button onClick={handleShow}>+ Crear Proveedor</Button>
+          {isAdmin && (
+            <Button onClick={handleShow}>+ Crear Proveedor</Button>
+          )}
         </header>
         <FormFilter
           id="supplier-filter"
@@ -104,6 +108,7 @@ const SectionSuppliers = () => {
             isFetchingNextPage={isFetchingNextPage}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
+            canManage={isAdmin}
           />
         ) : (
           <Alert>No hay proveedores para mostrar</Alert>

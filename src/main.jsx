@@ -52,6 +52,8 @@ const scheduleAppViewportHeight = () => {
 setAppViewportHeight()
 window.addEventListener('resize', scheduleAppViewportHeight)
 window.addEventListener('orientationchange', scheduleAppViewportHeight)
+window.visualViewport?.addEventListener('resize', scheduleAppViewportHeight)
+window.visualViewport?.addEventListener('scroll', scheduleAppViewportHeight)
 standaloneDisplayQuery.addEventListener?.('change', scheduleAppViewportHeight)
 
 document.addEventListener(

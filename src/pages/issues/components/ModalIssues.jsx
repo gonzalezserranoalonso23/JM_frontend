@@ -194,6 +194,7 @@ const ModalIssues = ({
     })
     setItemForm(getEmptyItem())
     setError('')
+    focusField('productName')
   }
 
   const hasUnsavedCart =
@@ -207,6 +208,23 @@ const ModalIssues = ({
   }
 
   const handleRemoveFromCart = removeItem
+
+  const focusField = (fieldId) => {
+    requestAnimationFrame(() => {
+      const field = document.getElementById(fieldId)
+      field?.focus()
+      field?.select?.()
+    })
+  }
+
+  const handleCartFormSubmit = (event) => {
+    event.preventDefault()
+    if (event.nativeEvent.submitter?.name === 'register') {
+      handleSubmitCart(event)
+      return
+    }
+    handleAddToCart()
+  }
 
   const handleSubmitCart = async (e) => {
     e.preventDefault()
@@ -454,7 +472,7 @@ const ModalIssues = ({
         </DialogHeader>
         <form
           autoComplete="off"
-          onSubmit={handleSubmitCart}
+          onSubmit={handleCartFormSubmit}
           className="flex flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
@@ -485,9 +503,10 @@ const ModalIssues = ({
                     id="productName"
                     products={products}
                     value={itemForm.productName}
-                    onValueChange={(value) =>
+                    onValueChange={(value) => {
                       setItemField('productName', value)
-                    }
+                      if (value) focusField('quantity')
+                    }}
                     placeholder="Selecciona producto"
                     showStock
                   />
@@ -534,9 +553,9 @@ const ModalIssues = ({
                 </div>
 
                 <Button
-                  type="button"
+                  type="submit"
+                  name="add"
                   className="sm:col-span-2 lg:col-span-1 lg:self-end"
-                  onClick={handleAddToCart}
                 >
                   + Agregar al carrito
                 </Button>
@@ -650,7 +669,11 @@ const ModalIssues = ({
             <Button type="button" variant="outline" onClick={handleCancel}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={cart.length === 0 || isSubmitting}>
+            <Button
+              type="submit"
+              name="register"
+              disabled={cart.length === 0 || isSubmitting}
+            >
               {isSubmitting
                 ? 'Registrando...'
                 : `Registrar ${cart.length || ''} salida${

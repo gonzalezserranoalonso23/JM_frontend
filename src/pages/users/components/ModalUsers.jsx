@@ -47,7 +47,10 @@ const ModalUsers = ({
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: (values) => {
-      const payload = { ...values }
+      const payload = {
+        ...values,
+        isAdmin: values.isAdmin === 'true'
+      }
       // Al editar, solo incluir password si se llenó
       if (user?._id && !values.password) delete payload.password
       action.mutate(!user?._id ? payload : { id: user._id, data: payload }, {

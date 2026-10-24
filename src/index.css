@@ -26,10 +26,10 @@
   --ring: oklch(0.708 0 0);
 
   --app-nav-height: calc(3.5rem + env(safe-area-inset-top, 0px));
-  --app-safe-bottom: min(env(safe-area-inset-bottom, 0px), 0.5rem);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
   --app-tab-height: calc(2.75rem + var(--app-safe-bottom));
-  --app-page-space-y: 1.5rem;
-  /* Overwritten by JS (main.jsx) with window.innerHeight-based value; svh is just the pre-JS fallback. */
+  --app-page-space-y: 0.75rem;
+  /* main.jsx lo reescribe midiendo 100dvh; 1dvh cubre el primer render. */
   --app-vh: 1dvh;
   --app-panel-min-height: clamp(30rem, calc(var(--app-vh) * 68), 44rem);
 }
@@ -96,7 +96,6 @@
 }
 
 html {
-  scrollbar-gutter: stable;
   background-color: var(--background);
   overscroll-behavior-y: none;
   -webkit-text-size-adjust: 100%;
@@ -127,10 +126,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media (min-width: 640px) {
+  :root {
+    --app-page-space-y: 1.5rem;
+  }
+}
+
 @media (min-width: 1280px) {
   :root {
     --app-nav-height: calc(4rem + env(safe-area-inset-top, 0px));
     --app-tab-height: 0px;
+  }
+
+  html {
+    scrollbar-gutter: stable;
   }
 }
 
@@ -251,6 +260,8 @@ body::-webkit-scrollbar {
 
 .app-nav {
   padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 .app-tab-bar {
@@ -269,7 +280,7 @@ input[type='month'] {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  min-height: 2.25rem;
+  min-height: 2.75rem;
   box-sizing: border-box;
   text-align: left;
 }
@@ -313,6 +324,20 @@ html body[data-scroll-locked] .width-before-scroll-bar {
   [contenteditable='true'] {
     font-size: 16px !important;
     line-height: 1.25;
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  select,
+  textarea,
+  [data-slot='select-trigger'] {
+    min-height: 2.75rem;
+  }
+
+  button:not([data-slot='button']),
+  [data-slot='button'][data-size='default'],
+  [data-slot='button'][data-size='sm'],
+  [data-slot='button'][data-size='lg'] {
+    min-height: 2.75rem;
   }
 }
 

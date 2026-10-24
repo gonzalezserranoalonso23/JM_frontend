@@ -50,7 +50,7 @@ const MobileTabBar = ({
           <div
             role="dialog"
             aria-label="Más opciones"
-            className="absolute inset-x-0 bottom-[var(--app-tab-height)] rounded-t-2xl border-t bg-background p-4 shadow-lg"
+            className="absolute inset-x-0 bottom-[var(--app-tab-height)] max-h-[calc(100dvh-var(--app-tab-height)-env(safe-area-inset-top,0px))] overflow-y-auto rounded-t-2xl border-t bg-background p-4 pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] shadow-lg"
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
             <nav className="grid gap-1">

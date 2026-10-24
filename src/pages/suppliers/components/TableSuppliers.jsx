@@ -18,7 +18,8 @@ const TableSuppliers = ({
   fetchNextPage,
   isFetchingNextPage,
   handleUpdate,
-  handleDelete
+  handleDelete,
+  canManage = true
 }) => {
   return (
     <div>
@@ -65,18 +66,20 @@ const TableSuppliers = ({
                   </dd>
                 </div>
               </dl>
-              <div className="flex items-center justify-end gap-2 border-t pt-3">
-                <ActionIconButton
-                  action="edit"
-                  label="Editar"
-                  onClick={() => handleUpdate(supplier)}
-                />
-                <ActionIconButton
-                  action="delete"
-                  label="Eliminar"
-                  onClick={() => handleDelete(supplier?._id)}
-                />
-              </div>
+              {canManage && (
+                <div className="flex items-center justify-end gap-2 border-t pt-3">
+                  <ActionIconButton
+                    action="edit"
+                    label="Editar"
+                    onClick={() => handleUpdate(supplier)}
+                  />
+                  <ActionIconButton
+                    action="delete"
+                    label="Eliminar"
+                    onClick={() => handleDelete(supplier?._id)}
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -91,7 +94,9 @@ const TableSuppliers = ({
               <TableHead>Pedido</TableHead>
               <TableHead>Entrega</TableHead>
               <TableHead>Activo</TableHead>
-              <TableHead className="text-center">Opciones</TableHead>
+              {canManage && (
+                <TableHead className="text-center">Opciones</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -112,20 +117,22 @@ const TableSuppliers = ({
                     {supplier?.isActive ? 'Activo' : 'Inactivo'}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                    <ActionIconButton
-                      action="edit"
-                      label="Editar"
-                      onClick={() => handleUpdate(supplier)}
-                    />
-                    <ActionIconButton
-                      action="delete"
-                      label="Eliminar"
-                      onClick={() => handleDelete(supplier?._id)}
-                    />
-                  </div>
-                </TableCell>
+                {canManage && (
+                  <TableCell className="text-center">
+                    <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
+                      <ActionIconButton
+                        action="edit"
+                        label="Editar"
+                        onClick={() => handleUpdate(supplier)}
+                      />
+                      <ActionIconButton
+                        action="delete"
+                        label="Eliminar"
+                        onClick={() => handleDelete(supplier?._id)}
+                      />
+                    </div>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

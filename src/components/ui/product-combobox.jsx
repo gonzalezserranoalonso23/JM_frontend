@@ -2,6 +2,7 @@ import { formatQty } from '@/utils/commonFunctions'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
 const normalize = (value) =>
   String(value ?? '')
@@ -20,8 +21,10 @@ const ProductCombobox = ({
   const productList = products ?? []
   const [search, setSearch] = useState('')
   const [isOpen, setIsOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
   const [listPos, setListPos] = useState(null)
   const inputRef = useRef(null)
+  const optionRefs = useRef([])
   const selectedProduct = productList.find((product) => product._id === value)
   const selectedLabel = selectedProduct
     ? `${selectedProduct.productName}${
@@ -36,6 +39,16 @@ const ProductCombobox = ({
       normalize(product.productDescription).includes(query)
     )
   })
+  const activeProduct = searchedProducts[activeIndex]
+
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [search])
+
+  useEffect(() => {
+    if (!isOpen) return
+    optionRefs.current[activeIndex]?.scrollIntoView({ block: 'nearest' })
+  }, [activeIndex, isOpen])
 
   useEffect(() => {
     if (!isOpen) return
@@ -93,6 +106,40 @@ const ProductCombobox = ({
     onValueChange(product._id)
     setIsOpen(false)
     setSearch('')
+    setActiveIndex(0)
+  }
+
+  const moveActive = (direction) => {
+    if (!searchedProducts.length) return
+    setIsOpen(true)
+    setActiveIndex((current) => {
+      const next = current + direction
+      if (next < 0) return searchedProducts.length - 1
+      if (next >= searchedProducts.length) return 0
+      return next
+    })
+  }
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      moveActive(1)
+      return
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault()
+      moveActive(-1)
+      return
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      setIsOpen(false)
+      return
+    }
+    if (event.key !== 'Enter') return
+
+    event.preventDefault()
+    if (activeProduct) handleSelect(activeProduct)
   }
 
   return (
@@ -104,12 +151,16 @@ const ProductCombobox = ({
         aria-autocomplete="list"
         aria-expanded={isOpen}
         aria-controls={`${id}-options`}
+        aria-activedescendant={
+          isOpen && activeProduct ? `${id}-option-${activeProduct._id}` : undefined
+        }
         autoComplete="off"
         className={`truncate ${isOpen && selectedLabel ? 'placeholder:text-foreground' : ''}`}
         value={isOpen ? search : selectedLabel}
         placeholder={isOpen && selectedLabel ? selectedLabel : placeholder}
         onFocus={() => {
           setSearch('')
+          setActiveIndex(0)
           setIsOpen(true)
         }}
         onChange={(event) => {
@@ -117,6 +168,7 @@ const ProductCombobox = ({
           setIsOpen(true)
         }}
         onBlur={() => setIsOpen(false)}
+        onKeyDown={handleKeyDown}
       />
       {isOpen &&
         listPos &&
@@ -139,13 +191,21 @@ const ProductCombobox = ({
                 Sin resultados
               </div>
             ) : (
-              searchedProducts.map((product) => (
+              searchedProducts.map((product, index) => (
                 <button
                   type="button"
                   role="option"
-                  aria-selected={product._id === value}
+                  id={`${id}-option-${product._id}`}
+                  aria-selected={index === activeIndex}
                   key={product._id}
-                  className="block w-full min-w-0 px-3 py-2 text-left hover:bg-accent"
+                  ref={(node) => {
+                    optionRefs.current[index] = node
+                  }}
+                  className={cn(
+                    'block w-full min-w-0 px-3 py-2 text-left',
+                    index === activeIndex && 'bg-accent text-accent-foreground'
+                  )}
+                  onMouseEnter={() => setActiveIndex(index)}
                   onMouseDown={(event) => {
                     event.preventDefault()
                     handleSelect(product)
