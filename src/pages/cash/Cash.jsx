@@ -152,7 +152,10 @@ const Calculator = () => {
 
 const draftFromVault = (vault) =>
   Object.fromEntries(
-    (vault?.denominations ?? []).map((item) => [item.value, String(item.quantity)])
+    (vault?.denominations ?? []).map((item) => [
+      item.value,
+      Number(item.quantity) > 0 ? String(item.quantity) : ''
+    ])
   )
 
 const Vault = () => {
@@ -250,6 +253,7 @@ const Vault = () => {
                       inputMode="numeric"
                       min="0"
                       step="1"
+                      placeholder="0"
                       className="h-9 w-full px-2 text-center"
                       aria-label={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
                       value={draft[item.value] ?? ''}
@@ -288,6 +292,7 @@ const Vault = () => {
                           inputMode="numeric"
                           min="0"
                           step="1"
+                          placeholder="0"
                           className="mx-auto h-9 w-full max-w-28 px-2 text-center"
                           aria-label={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
                           value={draft[item.value] ?? ''}
