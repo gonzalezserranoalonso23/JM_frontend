@@ -1,6 +1,5 @@
 import { formatQty } from '@/utils/commonFunctions'
 import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
@@ -22,9 +21,11 @@ const ProductCombobox = ({
   const [search, setSearch] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [listPos, setListPos] = useState(null)
   const inputRef = useRef(null)
+  const listRef = useRef(null)
   const optionRefs = useRef([])
+  const suppressOpen = useRef(false)
+  const listTouch = useRef({ y: 0, moved: false, active: false })
   const selectedProduct = productList.find((product) => product._id === value)
   const selectedLabel = selectedProduct
     ? `${selectedProduct.productName}${
@@ -46,66 +47,23 @@ const ProductCombobox = ({
   }, [search])
 
   useEffect(() => {
-    if (!isOpen) return
-    optionRefs.current[activeIndex]?.scrollIntoView({ block: 'nearest' })
+    const list = listRef.current
+    const option = optionRefs.current[activeIndex]
+    if (!isOpen || !list || !option) return
+    const listRect = list.getBoundingClientRect()
+    const optionRect = option.getBoundingClientRect()
+    if (optionRect.bottom > listRect.bottom) {
+      list.scrollTop += optionRect.bottom - listRect.bottom
+    } else if (optionRect.top < listRect.top) {
+      list.scrollTop -= listRect.top - optionRect.top
+    }
   }, [activeIndex, isOpen])
 
-  useEffect(() => {
-    if (!isOpen) return
-    const input = inputRef.current
-    const dialog = input?.closest('[role="dialog"]')
-    if (!input || !dialog) return
-
-    const GAP = 4
-    let frame = 0
-    const place = () => {
-      const footer = dialog.querySelector('footer')
-      const viewport = window.visualViewport
-      const dialogRect = dialog.getBoundingClientRect()
-      const footerTop = footer?.getBoundingClientRect().top ?? dialogRect.bottom
-      const visibleBottom = Math.min(
-        footerTop,
-        (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight)
-      )
-      const inputRect = input.getBoundingClientRect()
-      const freshDialog = dialog.getBoundingClientRect()
-      const spaceBelow = visibleBottom - inputRect.bottom - GAP
-      const width = Math.min(inputRect.width, freshDialog.width - 16)
-      const left = Math.min(
-        Math.max(inputRect.left - freshDialog.left, 8),
-        Math.max(freshDialog.width - width - 8, 8)
-      )
-
-      setListPos({
-        dialog,
-        left,
-        width,
-        maxHeight: Math.min(Math.max(spaceBelow, 120), 280),
-        top: inputRect.bottom - freshDialog.top + GAP
-      })
-    }
-
-    const schedule = (event) => {
-      const target = event?.target
-      if (target instanceof Element && target.closest('[role="listbox"]')) return
-      window.cancelAnimationFrame(frame)
-      frame = window.requestAnimationFrame(place)
-    }
-
-    place()
-    window.addEventListener('resize', schedule)
-    window.visualViewport?.addEventListener('resize', schedule)
-    document.addEventListener('scroll', schedule, true)
-    return () => {
-      window.cancelAnimationFrame(frame)
-      window.removeEventListener('resize', schedule)
-      window.visualViewport?.removeEventListener('resize', schedule)
-      document.removeEventListener('scroll', schedule, true)
-    }
-  }, [isOpen])
-
-  const suppressOpen = useRef(false)
-  const listTouch = useRef({ y: 0, moved: false, active: false })
+  const openList = () => {
+    setSearch('')
+    setActiveIndex(0)
+    setIsOpen(true)
+  }
 
   const handleSelect = (product, { pointer = false } = {}) => {
     suppressOpen.current = true
@@ -120,7 +78,7 @@ const ProductCombobox = ({
     else document.getElementById('quantity')?.focus()
     window.setTimeout(() => {
       suppressOpen.current = false
-    }, 400)
+    }, 300)
   }
 
   const moveActive = (direction) => {
@@ -157,7 +115,7 @@ const ProductCombobox = ({
   }
 
   return (
-    <>
+    <div className="relative">
       <Input
         id={id}
         ref={inputRef}
@@ -180,15 +138,11 @@ const ProductCombobox = ({
             delete event.currentTarget.dataset.keepClosed
             return
           }
-          setSearch('')
-          setActiveIndex(0)
-          setIsOpen(true)
+          openList()
         }}
         onClick={() => {
           if (suppressOpen.current) return
-          setSearch('')
-          setActiveIndex(0)
-          setIsOpen(true)
+          openList()
         }}
         onChange={(event) => {
           setSearch(event.target.value)
@@ -201,92 +155,86 @@ const ProductCombobox = ({
             if (listTouch.current.active) return
             if (document.activeElement === inputRef.current) return
             setIsOpen(false)
-          }, 200)
+          }, 150)
         }}
         onKeyDown={handleKeyDown}
       />
-      {isOpen &&
-        listPos &&
-        createPortal(
-          <div
-            id={`${id}-options`}
-            role="listbox"
-            style={{
-              position: 'absolute',
-              left: listPos.left,
-              width: listPos.width,
-              top: listPos.top,
-              maxHeight: listPos.maxHeight
-            }}
-            className="z-[100] touch-pan-y overflow-y-auto overscroll-contain rounded-md border bg-popover text-popover-foreground shadow-lg [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-400 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-2"
-            onPointerDown={(event) => {
-              if (event.pointerType !== 'touch') return
-              listTouch.current = { y: event.clientY, moved: false, active: true }
-            }}
-            onPointerMove={(event) => {
-              if (!listTouch.current.active) return
-              if (Math.abs(event.clientY - listTouch.current.y) > 8) {
-                listTouch.current.moved = true
-              }
-            }}
-            onPointerUp={() => {
-              window.setTimeout(() => {
-                listTouch.current.active = false
-              }, 250)
-            }}
-            onPointerCancel={() => {
-              listTouch.current = { y: 0, moved: false, active: false }
-            }}
-          >
-            {searchedProducts.length === 0 ? (
-              <div className="px-3 py-2 text-sm text-muted-foreground">
-                Sin resultados
-              </div>
-            ) : (
-              searchedProducts.map((product, index) => (
-                <button
-                  type="button"
-                  role="option"
-                  id={`${id}-option-${product._id}`}
-                  aria-selected={index === activeIndex}
-                  key={product._id}
-                  ref={(node) => {
-                    optionRefs.current[index] = node
-                  }}
-                  className={cn(
-                    'block w-full min-h-11 min-w-0 touch-pan-y px-3 py-2 text-left',
-                    index === activeIndex && 'bg-accent text-accent-foreground'
-                  )}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onMouseDown={(event) => {
-                    if (event.pointerType === 'touch') return
-                    event.preventDefault()
-                  }}
-                  onClick={() => {
-                    if (listTouch.current.moved) {
-                      listTouch.current.moved = false
-                      return
-                    }
-                    handleSelect(product, { pointer: true })
-                  }}
-                >
-                  <span className="block truncate text-sm">
-                    {product.productName}
-                    {showStock &&
-                      ` (Stock: ${formatQty(product.productStock)})`}
+      {isOpen && (
+        <div
+          id={`${id}-options`}
+          ref={listRef}
+          role="listbox"
+          className="z-[100] mt-1 max-h-60 touch-pan-y overflow-y-auto overscroll-contain rounded-md border bg-popover text-popover-foreground shadow-md [-webkit-overflow-scrolling:touch]"
+          onPointerDown={(event) => {
+            if (event.pointerType !== 'touch') return
+            listTouch.current = {
+              y: event.clientY,
+              moved: false,
+              active: true
+            }
+          }}
+          onPointerMove={(event) => {
+            if (!listTouch.current.active) return
+            if (Math.abs(event.clientY - listTouch.current.y) > 8) {
+              listTouch.current.moved = true
+            }
+          }}
+          onPointerUp={() => {
+            window.setTimeout(() => {
+              listTouch.current.active = false
+            }, 250)
+          }}
+          onPointerCancel={() => {
+            listTouch.current = { y: 0, moved: false, active: false }
+          }}
+        >
+          {searchedProducts.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              Sin resultados
+            </div>
+          ) : (
+            searchedProducts.map((product, index) => (
+              <button
+                type="button"
+                role="option"
+                id={`${id}-option-${product._id}`}
+                aria-selected={index === activeIndex}
+                key={product._id}
+                ref={(node) => {
+                  optionRefs.current[index] = node
+                }}
+                className={cn(
+                  'block w-full min-h-11 min-w-0 touch-pan-y px-3 py-2 text-left',
+                  index === activeIndex && 'bg-accent text-accent-foreground'
+                )}
+                onMouseEnter={() => setActiveIndex(index)}
+                onMouseDown={(event) => {
+                  if (event.pointerType === 'touch') return
+                  event.preventDefault()
+                }}
+                onClick={() => {
+                  if (listTouch.current.moved) {
+                    listTouch.current.moved = false
+                    return
+                  }
+                  handleSelect(product, { pointer: true })
+                }}
+              >
+                <span className="block truncate text-sm">
+                  {product.productName}
+                  {showStock && ` (Stock: ${formatQty(product.productStock)})`}
+                </span>
+                {product.productDescription && (
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {product.productDescription}
                   </span>
-                  {product.productDescription && (
-                    <span className="block truncate text-xs text-muted-foreground">
-                      {product.productDescription}
-                    </span>
-                  )}
-                </button>
-              ))
-            )}
-          </div>,
-          listPos.dialog
-        )}
-    </>
+                )}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 

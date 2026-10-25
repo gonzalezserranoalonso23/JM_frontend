@@ -301,6 +301,37 @@ input[type='time']::-webkit-datetime-edit {
   min-width: 0;
 }
 
+/* iOS pinta la fecha pegada a la izquierda aunque el input tenga text-align. */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 1024px) {
+    input[type='date'],
+    input[type='time'],
+    input[type='datetime-local'],
+    input[type='month'] {
+      text-align: center;
+    }
+
+    input[type='date']::-webkit-date-and-time-value,
+    input[type='time']::-webkit-date-and-time-value,
+    input[type='datetime-local']::-webkit-date-and-time-value {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      text-align: center;
+    }
+
+    input[type='date']::-webkit-datetime-edit,
+    input[type='time']::-webkit-datetime-edit,
+    input[type='date']::-webkit-datetime-edit-fields-wrapper,
+    input[type='time']::-webkit-datetime-edit-fields-wrapper {
+      justify-content: center;
+      width: 100%;
+      padding: 0;
+      text-align: center;
+    }
+  }
+}
+
 /* The scrollbar is hidden, so Radix's scroll-lock compensation (padding/margin
    on body while a Dialog/Select is open) only makes the layout jump. */
 html body[data-scroll-locked] {
