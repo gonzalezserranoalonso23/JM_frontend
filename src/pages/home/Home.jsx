@@ -1,7 +1,6 @@
 import PageShell from '@/components/PageShell'
 import { useAuthStore } from '@/store/auth'
 import StockDashboard from './components/StockDashboard'
-import ProductLookup from './components/ProductLookup'
 import TodaySalesCard from './components/TodaySalesCard'
 
 const Home = () => {
@@ -19,12 +18,9 @@ const Home = () => {
           >
             Inicio
           </h1>
-          <p className="mt-2 text-muted-foreground">Consulta de productos</p>
+          <p className="mt-2 text-muted-foreground">Ventas del día</p>
         </header>
-        <div className="flex flex-col gap-6 xl:grid xl:grid-cols-2 xl:items-start">
-          <TodaySalesCard />
-          <ProductLookup />
-        </div>
+        <TodaySalesCard />
       </section>
     </PageShell>
   )

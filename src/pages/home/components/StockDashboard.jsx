@@ -4,7 +4,6 @@ import {
   useGetInventoryStats,
   useGetLowStockProductPages
 } from '@/features/inventory.features'
-import ProductLookup from './ProductLookup'
 import TodaySalesCard from './TodaySalesCard'
 import DailyInformationDashboard from './DailyInformationDashboard'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -62,9 +61,8 @@ const StockDashboard = () => {
           <p className="mt-2 text-muted-foreground">Resumen del sistema</p>
         </header>
 
-        <div className="mb-6 flex flex-col gap-6 xl:grid xl:grid-cols-2 xl:items-start">
+        <div className="mb-6">
           <TodaySalesCard />
-          <ProductLookup />
         </div>
 
         <DailyInformationDashboard />

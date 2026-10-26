@@ -9,6 +9,7 @@ import { logout } from '@/services/users.services'
 import useTaskNotifications from '@/hooks/useTaskNotifications'
 import MobileTabBar from '@/ui/MobileTabBar'
 import { getNavLinks } from '@/ui/navLinks'
+import ProductLookup from '@/pages/home/components/ProductLookup'
 
 const Navigate = () => {
   const logOut = useAuthStore((state) => state.logOut)
@@ -50,53 +51,56 @@ const Navigate = () => {
                 JM Panel
               </Link>
 
-              <div className="hidden min-w-0 items-center gap-1 xl:flex">
-                <div className="flex min-w-0 items-center gap-1">
-                  {links.map(({ to, label, end, badge }) => (
-                    <NavLink
-                      key={to}
-                      to={to}
-                      end={end}
-                      className={({ isActive }) =>
-                        cn(
-                          'relative inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
-                          isActive
-                            ? 'bg-accent text-accent-foreground'
-                            : 'text-muted-foreground'
-                        )
-                      }
+              <div className="flex min-w-0 items-center gap-1">
+                <ProductLookup />
+                <div className="hidden min-w-0 items-center gap-1 xl:flex">
+                  <div className="flex min-w-0 items-center gap-1">
+                    {links.map(({ to, label, end, badge }) => (
+                      <NavLink
+                        key={to}
+                        to={to}
+                        end={end}
+                        className={({ isActive }) =>
+                          cn(
+                            'relative inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                            isActive
+                              ? 'bg-accent text-accent-foreground'
+                              : 'text-muted-foreground'
+                          )
+                        }
+                      >
+                        {label}
+                        {badge && pendingCount > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="pointer-events-none absolute -right-1 top-0"
+                          >
+                            {pendingCount}
+                          </Badge>
+                        )}
+                      </NavLink>
+                    ))}
+                  </div>
+                  {showNotifications && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={requestPermission}
+                      className="ml-2 shrink-0"
                     >
-                      {label}
-                      {badge && pendingCount > 0 && (
-                        <Badge
-                          variant="secondary"
-                          className="pointer-events-none absolute -right-1 top-0"
-                        >
-                          {pendingCount}
-                        </Badge>
-                      )}
-                    </NavLink>
-                  ))}
-                </div>
-                {showNotifications && (
+                      Activar notificaciones
+                    </Button>
+                  )}
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={requestPermission}
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleLogOut}
                     className="ml-2 shrink-0"
                   >
-                    Activar notificaciones
+                    Cerrar sesión
                   </Button>
-                )}
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleLogOut}
-                  className="ml-2 shrink-0"
-                >
-                  Cerrar sesión
-                </Button>
+                </div>
               </div>
             </div>
           </div>

@@ -25,6 +25,7 @@ const DialogContent = React.forwardRef(
       onInteractOutside,
       onEscapeKeyDown,
       hasUnsavedChanges = false,
+      trackChanges = true,
       ...props
     },
     ref
@@ -46,8 +47,10 @@ const DialogContent = React.forwardRef(
       const markDirty = () => {
         dirtyRef.current = true
       }
-      content.addEventListener('input', markDirty)
-      content.addEventListener('change', markDirty)
+      if (trackChanges) {
+        content.addEventListener('input', markDirty)
+        content.addEventListener('change', markDirty)
+      }
 
       const revealFocusedField = () => {
         window.cancelAnimationFrame(frameId)
@@ -138,8 +141,10 @@ const DialogContent = React.forwardRef(
       }
 
       return () => {
-        content.removeEventListener('input', markDirty)
-        content.removeEventListener('change', markDirty)
+        if (trackChanges) {
+          content.removeEventListener('input', markDirty)
+          content.removeEventListener('change', markDirty)
+        }
         if (isMobile) {
           window.visualViewport?.removeEventListener('resize', handleResize)
           window.removeEventListener('resize', syncHeight)
@@ -153,7 +158,7 @@ const DialogContent = React.forwardRef(
         window.cancelAnimationFrame(frameId)
         window.clearTimeout(resizeTimer)
       }
-    }, [content])
+    }, [content, trackChanges])
 
     const setContentRef = React.useCallback(
       (node) => {
@@ -179,7 +184,7 @@ const DialogContent = React.forwardRef(
           onInteractOutside={(event) => {
             const target = event.target
             if (
-              target instanceof Element &&
+              target instanceof window.Element &&
               target.closest('[data-slot="select-content"]')
             ) {
               event.preventDefault()
