@@ -17,7 +17,7 @@ import {
   useUpdateUser,
   useDeleteUser
 } from '@/features/users.features'
-import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
 import ModalUsers from './components/ModalUsers'
 import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
 import useFilterQuery from '@/hooks/useFilterQuery'
@@ -59,17 +59,9 @@ const SectionUsers = () => {
     if (window.confirm('¿Eliminar este usuario?')) deleteUser.mutate(id)
   }
 
-  if (isLoading) return <Loading />
-  if (isError)
-    return (
-      <Alert variant="destructive" className="m-8 w-auto">
-        Error al cargar los usuarios
-      </Alert>
-    )
-
   return (
     <Card
-      role="region"
+      as="section"
       aria-labelledby="users-title"
       className="gap-4 p-4 sm:p-6"
     >
@@ -105,15 +97,21 @@ const SectionUsers = () => {
       />
 
       {/* Tabla */}
-      {totalUsers > 0 ? (
+      {isLoading ? (
+        <ListSkeleton />
+      ) : isError ? (
+        <Alert variant="destructive">Error al cargar los usuarios</Alert>
+      ) : totalUsers > 0 ? (
         <div>
-          <div className="space-y-3 lg:hidden">
+          <div className="space-y-3 xl:hidden">
             {users.map((user) => (
-              <Card key={user._id} className="gap-3 py-4">
+              <Card as="article" key={user._id} className="gap-3 py-4">
                 <CardContent className="space-y-3 px-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="break-words font-medium">{user.username}</p>
+                      <h2 className="break-words font-medium">
+                        {user.username}
+                      </h2>
                       <p className="break-words text-xs text-muted-foreground">
                         {user.email}
                       </p>
@@ -146,7 +144,7 @@ const SectionUsers = () => {
               </Card>
             ))}
           </div>
-          <div className="hidden rounded-lg border lg:block">
+          <div className="hidden rounded-lg border xl:block">
             <Table>
               <TableHeader>
                 <TableRow>

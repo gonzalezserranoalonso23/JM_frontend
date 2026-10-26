@@ -17,7 +17,7 @@ const InfiniteScrollFooter = ({
   if (!hasNextPage && !isFetchingNextPage) return null
 
   return (
-    <>
+    <div className="flex min-h-24 flex-col items-center justify-center">
       {hasNextPage && supportsIntersectionObserver && (
         <div ref={sentinelRef} className="h-1" aria-hidden="true" />
       )}
@@ -33,7 +33,7 @@ const InfiniteScrollFooter = ({
           Cargar más
         </Button>
       )}
-    </>
+    </div>
   )
 }
 

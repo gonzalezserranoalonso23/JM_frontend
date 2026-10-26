@@ -11,7 +11,11 @@ import {
 } from '@/components/ui/table'
 import { formatMoney, formatQty } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
-import { isExitType, isIssueRecord, movementPrices } from '@/utils/typeInventory'
+import {
+  isExitType,
+  isIssueRecord,
+  movementPrices
+} from '@/utils/typeInventory'
 
 const moneyOrDash = (value) => (value == null ? '-' : formatMoney(value))
 
@@ -28,11 +32,11 @@ const ReportsMovementsTable = ({
       {records.length > 0 ? (
         <RecordCards records={records} showPayment showProfit={showProfit} />
       ) : (
-        <p className="rounded-lg border p-8 text-center text-muted-foreground lg:hidden">
+        <p className="rounded-lg border p-8 text-center text-muted-foreground xl:hidden">
           No hay movimientos en este período
         </p>
       )}
-      <div className="hidden rounded-lg border lg:block">
+      <div className="hidden rounded-lg border xl:block">
         <Table>
           <TableHeader>
             <TableRow>

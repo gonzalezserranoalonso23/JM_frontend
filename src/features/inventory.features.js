@@ -176,7 +176,9 @@ export const useGetSalesByDateRangePages = (
         ...(type && { type }),
         ...(paymentType && { paymentType })
       }),
-    // Sin placeholderData: al cambiar de tipo no deben verse filas del filtro anterior
+    // Conserva la respuesta anterior para no desmontar la pantalla. La vista
+    // no pinta esas filas: solo sostiene el alto mientras llega el filtro nuevo.
+    placeholderData: keepPreviousData,
     enabled: enabled && !!(startDate && endDate && startDate <= endDate),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>

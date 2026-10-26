@@ -14,17 +14,12 @@ const EntryDetails = lazy(() => import('./pages/entries/EntryDetails'))
 const Issues = lazy(() => import('./pages/issues/Issues'))
 const IssueDetails = lazy(() => import('./pages/issues/IssueDetails'))
 const Orders = lazy(() => import('./pages/orders/Orders'))
-const OrderDetails = lazy(() => import('./pages/orders/OrderDetails'))
 const Reports = lazy(() => import('./pages/reports/Reports'))
-const ReportDetails = lazy(() => import('./pages/reports/ReportDetails'))
 const ToDoList = lazy(() => import('./pages/todolist/ToDoList'))
-const ToDoListDetails = lazy(() => import('./pages/todolist/ToDoListDetails'))
 const Catalog = lazy(() => import('./pages/catalogs/Catalogs'))
 const Users = lazy(() => import('./pages/users/Users'))
-const UserDetails = lazy(() => import('./pages/users/UserDetails'))
 const Products = lazy(() => import('./pages/products/Products'))
 const Suppliers = lazy(() => import('./pages/suppliers/Suppliers'))
-const SupplierDetails = lazy(() => import('./pages/suppliers/SupplierDetails'))
 const Categories = lazy(() => import('./pages/categories/Categories'))
 const PaymentTypes = lazy(() => import('./pages/payment-types/PaymentTypes'))
 const DailyInformation = lazy(
@@ -65,27 +60,32 @@ const App = () => {
               <Route path="/issues" element={<Issues />} />
               <Route path="/issues/:id" element={<IssueDetails />} />
               <Route path="/orders" element={<Orders />} />
-              <Route path="/orders/:id" element={<OrderDetails />} />
               <Route path="/reports" element={<Reports />} />
-              <Route path="/reports/:id" element={<ReportDetails />} />
               <Route path="/todolist" element={<ToDoList />} />
-              <Route path="/todolist/:id" element={<ToDoListDetails />} />
               <Route path="/catalogs" element={<Catalog />} />
               <Route path="/products" element={<Products />} />
               <Route path="/suppliers" element={<Suppliers />} />
-              <Route path="/suppliers/:id" element={<SupplierDetails />} />
               <Route element={<Protected adminOnly />}>
                 <Route path="/payment-types" element={<PaymentTypes />} />
                 <Route path="/users" element={<Users />} />
-                <Route path="/users/:id" element={<UserDetails />} />
                 <Route path="/categories" element={<Categories />} />
-                <Route path="/daily-information" element={<DailyInformation />} />
+                <Route
+                  path="/daily-information"
+                  element={<DailyInformation />}
+                />
               </Route>
               <Route path="/shortages" element={<Shortages />} />
               <Route path="/cash" element={<Cash />} />
             </Route>
           </Route>
-          <Route path="*" element={<h1>Not Found!</h1>} />
+          <Route
+            path="*"
+            element={
+              <main className="flex flex-1 items-center justify-center p-6">
+                <h1 className="text-2xl font-semibold">Not Found!</h1>
+              </main>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </>

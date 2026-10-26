@@ -21,11 +21,13 @@ const TableCategories = ({
 }) => {
   return (
     <div>
-      <div className="space-y-3 lg:hidden">
+      <div className="space-y-3 xl:hidden">
         {categories.map((category) => (
-          <Card key={category?._id} className="gap-3 py-4">
+          <Card as="article" key={category?._id} className="gap-3 py-4">
             <CardContent className="space-y-3 px-4">
-              <p className="break-words font-medium">{category?.categories}</p>
+              <h2 className="break-words font-medium">
+                {category?.categories}
+              </h2>
 
               <div className="flex items-center justify-end gap-2 border-t pt-3">
                 <ActionIconButton
@@ -43,7 +45,7 @@ const TableCategories = ({
           </Card>
         ))}
       </div>
-      <div className="hidden rounded-lg border lg:block">
+      <div className="hidden rounded-lg border xl:block">
         <Table>
           <TableHeader>
             <TableRow>

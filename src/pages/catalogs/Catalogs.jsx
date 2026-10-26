@@ -6,7 +6,7 @@ const Catalogs = () => {
   return (
     <PageShell>
       <Card
-        role="region"
+        as="section"
         aria-labelledby="catalog-title"
         className="gap-4 p-4 sm:p-6"
       >

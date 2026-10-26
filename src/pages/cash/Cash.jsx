@@ -51,24 +51,29 @@ const Calculator = () => {
     setQuantities((prev) => ({ ...prev, [denomination]: value }))
 
   const total = DENOMINATIONS.reduce(
-    (sum, denomination) => sum + denomination * quantityOf(quantities, denomination),
+    (sum, denomination) =>
+      sum + denomination * quantityOf(quantities, denomination),
     0
   )
 
   return (
-    <Card role="region" aria-labelledby="calculator-title">
+    <Card as="section" aria-labelledby="calculator-title">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>
           <h1 id="calculator-title" className="text-xl font-bold">
             Calculadora de caja
           </h1>
         </CardTitle>
-        <Button type="button" variant="outline" onClick={() => setQuantities({})}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setQuantities({})}
+        >
           Limpiar
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3 lg:hidden">
+        <div className="space-y-3 xl:hidden">
           {DENOMINATIONS.map((denomination) => (
             <Card key={denomination} className="py-3">
               <CardContent className="grid grid-cols-[1fr_6rem_1fr] items-center gap-3 px-4">
@@ -82,10 +87,14 @@ const Calculator = () => {
                   className="h-9 w-full px-2 text-center"
                   aria-label={`Cantidad de ${formatDenomination(denomination)}`}
                   value={quantities[denomination] ?? ''}
-                  onChange={(event) => handleChange(denomination, event.target.value)}
+                  onChange={(event) =>
+                    handleChange(denomination, event.target.value)
+                  }
                 />
                 <span className="text-right text-sm">
-                  {formatAmount(denomination * quantityOf(quantities, denomination))}
+                  {formatAmount(
+                    denomination * quantityOf(quantities, denomination)
+                  )}
                 </span>
               </CardContent>
             </Card>
@@ -97,7 +106,7 @@ const Calculator = () => {
             </CardContent>
           </Card>
         </div>
-        <div className="hidden overflow-x-hidden rounded-lg border lg:block">
+        <div className="hidden overflow-x-hidden rounded-lg border xl:block">
           <Table className="table-fixed">
             <TableHeader>
               <TableRow>
@@ -128,7 +137,9 @@ const Calculator = () => {
                     />
                   </TableCell>
                   <TableCell className="text-right">
-                    {formatAmount(denomination * quantityOf(quantities, denomination))}
+                    {formatAmount(
+                      denomination * quantityOf(quantities, denomination)
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -211,7 +222,7 @@ const Vault = () => {
   }
 
   return (
-    <Card role="region" aria-labelledby="vault-title">
+    <Card as="section" aria-labelledby="vault-title">
       <CardHeader className="gap-2">
         <CardTitle>
           <h2 id="vault-title" className="text-xl font-bold">
@@ -226,7 +237,10 @@ const Vault = () => {
       </CardHeader>
       <CardContent>
         {!vault ? (
-          <form onSubmit={handleOpen} className="flex flex-col gap-3 sm:max-w-sm">
+          <form
+            onSubmit={handleOpen}
+            className="flex flex-col gap-3 sm:max-w-sm"
+          >
             <div className="flex flex-col gap-2">
               <Label htmlFor="vault-secret">Clave</Label>
               <Input
@@ -243,7 +257,7 @@ const Vault = () => {
           </form>
         ) : (
           <form onSubmit={handleSave} className="flex flex-col gap-4">
-            <div className="space-y-3 lg:hidden">
+            <div className="space-y-3 xl:hidden">
               {rows.map((item) => (
                 <Card key={item.value} className="py-3">
                   <CardContent className="grid grid-cols-[1fr_6rem_1fr] items-center gap-3 px-4">
@@ -271,13 +285,17 @@ const Vault = () => {
                 </Card>
               ))}
             </div>
-            <div className="hidden overflow-x-hidden rounded-lg border lg:block">
+            <div className="hidden overflow-x-hidden rounded-lg border xl:block">
               <Table className="table-fixed">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[30%]">Denominación</TableHead>
-                    <TableHead className="w-[34%] text-center">Cantidad</TableHead>
-                    <TableHead className="w-[36%] text-right">Subtotal</TableHead>
+                    <TableHead className="w-[34%] text-center">
+                      Cantidad
+                    </TableHead>
+                    <TableHead className="w-[36%] text-right">
+                      Subtotal
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -305,7 +323,9 @@ const Vault = () => {
                         />
                       </TableCell>
                       <TableCell className="text-right">
-                        {formatAmount(item.value * quantityOf(draft, item.value))}
+                        {formatAmount(
+                          item.value * quantityOf(draft, item.value)
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

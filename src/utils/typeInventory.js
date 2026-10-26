@@ -8,13 +8,15 @@ const priceOf = (value) => {
   return Number.isFinite(number) ? number : null
 }
 
-// Solo las salidas tienen utilidad: el precio cobrado está en el registro
-// y el costo en el producto.
+// Solo las salidas tienen utilidad. El costo guardado en el movimiento
+// gana sobre el costo actual del catálogo.
 export const movementPrices = (record) => {
   if (!isIssueRecord(record)) {
     return { purchasePrice: null, productPrice: null, profit: null }
   }
-  const purchasePrice = priceOf(record?.productName?.purchasePrice)
+  const purchasePrice = priceOf(
+    record?.purchasePrice ?? record?.productName?.purchasePrice
+  )
   const productPrice = priceOf(record?.productPrice)
   const quantity = Number(record?.quantity) || 0
   const profit =

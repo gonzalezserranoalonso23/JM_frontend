@@ -10,7 +10,7 @@ import {
   useUpdateInventoryRecord
 } from '@/features/inventory.features'
 import ModalIssues from './ModalIssues'
-import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
 import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
@@ -97,14 +97,6 @@ const SectionIssues = () => {
     }
   }
 
-  if (isLoading) return <Loading />
-  if (isError)
-    return (
-      <Alert variant="destructive" className="m-8">
-        Error al cargar las salidas
-      </Alert>
-    )
-
   return (
     <section aria-labelledby="issues-title">
       <Card className="p-4 sm:p-6">
@@ -165,7 +157,11 @@ const SectionIssues = () => {
         />
 
         {/* Tabla */}
-        {records.length > 0 ? (
+        {isLoading ? (
+          <ListSkeleton />
+        ) : isError ? (
+          <Alert variant="destructive">Error al cargar las salidas</Alert>
+        ) : records.length > 0 ? (
           <>
             <RecordCards
               records={records}
@@ -174,7 +170,7 @@ const SectionIssues = () => {
               onEdit={handleShowEdit}
               onDelete={handleDelete}
             />
-            <div className="hidden rounded-lg border lg:block">
+            <div className="hidden rounded-lg border xl:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -245,16 +241,18 @@ const SectionIssues = () => {
         ) : (
           <Alert>No hay salidas registradas</Alert>
         )}
-        <InfiniteScrollFooter
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          fetchNextPage={fetchNextPage}
-        />
-        {total > 0 && (
-          <p className="text-center text-sm text-muted-foreground">
-            Mostrando {records.length} de {total} salidas
-          </p>
-        )}
+        <footer>
+          <InfiniteScrollFooter
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+          />
+          {total > 0 && (
+            <p className="text-center text-sm text-muted-foreground">
+              Mostrando {records.length} de {total} salidas
+            </p>
+          )}
+        </footer>
       </Card>
     </section>
   )

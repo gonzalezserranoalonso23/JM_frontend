@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useGetInventoryRecord } from '@/features/inventory.features'
-import Loading from '@/ui/Loading'
+import Skeleton from '@/components/ui/skeleton'
 import { formatMoney, formatQty } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
 import { isIssueRecord } from '@/utils/typeInventory'
@@ -23,7 +23,34 @@ const MovementDetails = ({ listPath, listLabel, expectIssue }) => {
   const { data: record, isLoading, isError } = useGetInventoryRecord(id)
   const isIssue = isIssueRecord(record)
 
-  if (isLoading) return <Loading />
+  if (isLoading) {
+    return (
+      <PageShell>
+        <Card as="section" aria-labelledby="movement-title">
+          <CardHeader>
+            <p className="text-sm text-muted-foreground">{listLabel}</p>
+            <h1 id="movement-title" className="text-2xl font-semibold">
+              Movimiento
+            </h1>
+          </CardHeader>
+          <CardContent>
+            <div
+              role="status"
+              aria-label="Cargando"
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {Array.from({ length: 6 }, (_, index) => (
+                <div key={index}>
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="mt-2 h-5 w-32" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </PageShell>
+    )
+  }
 
   if (isError || !record || isIssue !== expectIssue) {
     return (
@@ -40,7 +67,7 @@ const MovementDetails = ({ listPath, listLabel, expectIssue }) => {
 
   return (
     <PageShell>
-      <Card role="region" aria-labelledby="movement-title">
+      <Card as="section" aria-labelledby="movement-title">
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-sm text-muted-foreground">{listLabel}</p>

@@ -44,7 +44,11 @@ const useTaskNotifications = (pendingTasks) => {
   const token = useAuthStore((state) => state.auth)
   const [permission, setPermission] = useState(getPermission)
   const [asked, setAsked] = useState(wasAsked)
-  const { ready: pushReady, subscribe } = usePushNotifications(permission)
+  const {
+    ready: pushReady,
+    settled: pushSettled,
+    subscribe
+  } = usePushNotifications(permission)
 
   useEffect(() => {
     if (permission !== 'default' || wasAsked()) return
@@ -123,7 +127,7 @@ const useTaskNotifications = (pendingTasks) => {
     permission: shownPermission,
     showNotifications:
       shownPermission === 'default' ||
-      (shownPermission === 'granted' && !pushReady),
+      (shownPermission === 'granted' && pushSettled && !pushReady),
     requestPermission
   }
 }

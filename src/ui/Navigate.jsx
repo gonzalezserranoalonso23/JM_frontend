@@ -29,72 +29,79 @@ const Navigate = () => {
 
   return (
     <>
-      <nav
-        aria-label="Navegación principal"
-        className="app-nav fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/95 text-foreground backdrop-blur-md"
-      >
-        <div className="mx-auto w-full max-w-[1760px] px-3 sm:px-6 lg:px-8">
-          <div className="flex h-14 items-center justify-between gap-4 xl:h-16">
-            <Link
-              to="/home"
-              className="flex shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold text-foreground"
-            >
-              <img
-                src="/logo.svg"
-                alt=""
-                width="32"
-                height="32"
-                className="h-8 w-8 rounded-md"
-              />
-              JM Panel
-            </Link>
+      <header>
+        <nav
+          aria-label="Navegación principal"
+          className="app-nav fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/95 text-foreground backdrop-blur-md"
+        >
+          <div className="mx-auto w-full max-w-[1760px] px-3 sm:px-6 xl:px-8">
+            <div className="flex h-14 items-center justify-between gap-4 xl:h-16">
+              <Link
+                to="/home"
+                className="flex shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold text-foreground"
+              >
+                <img
+                  src="/logo.svg"
+                  alt=""
+                  width="32"
+                  height="32"
+                  className="h-8 w-8 rounded-md"
+                />
+                JM Panel
+              </Link>
 
-            <div className="hidden min-w-0 items-center gap-1 xl:flex">
-              <div className="flex min-w-0 items-center gap-1">
-                {links.map(({ to, label, end, badge }) => (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    end={end}
-                    className={({ isActive }) =>
-                      cn(
-                        'inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
-                        isActive
-                          ? 'bg-accent text-accent-foreground'
-                          : 'text-muted-foreground'
-                      )
-                    }
+              <div className="hidden min-w-0 items-center gap-1 xl:flex">
+                <div className="flex min-w-0 items-center gap-1">
+                  {links.map(({ to, label, end, badge }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      end={end}
+                      className={({ isActive }) =>
+                        cn(
+                          'relative inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+                          isActive
+                            ? 'bg-accent text-accent-foreground'
+                            : 'text-muted-foreground'
+                        )
+                      }
+                    >
+                      {label}
+                      {badge && pendingCount > 0 && (
+                        <Badge
+                          variant="secondary"
+                          className="pointer-events-none absolute -right-1 top-0"
+                        >
+                          {pendingCount}
+                        </Badge>
+                      )}
+                    </NavLink>
+                  ))}
+                </div>
+                {showNotifications && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={requestPermission}
+                    className="ml-2 shrink-0"
                   >
-                    {label}
-                    {badge && pendingCount > 0 && (
-                      <Badge variant="secondary">{pendingCount}</Badge>
-                    )}
-                  </NavLink>
-                ))}
-              </div>
-              {showNotifications && (
+                    Activar notificaciones
+                  </Button>
+                )}
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={requestPermission}
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleLogOut}
                   className="ml-2 shrink-0"
                 >
-                  Activar notificaciones
+                  Cerrar sesión
                 </Button>
-              )}
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={handleLogOut}
-                className="ml-2 shrink-0"
-              >
-                Cerrar sesión
-              </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </header>
       <MobileTabBar
         links={links}
         pendingCount={pendingCount}

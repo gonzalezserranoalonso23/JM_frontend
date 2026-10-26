@@ -23,14 +23,14 @@ const TableSuppliers = ({
 }) => {
   return (
     <div>
-      <div className="space-y-3 lg:hidden">
+      <div className="space-y-3 xl:hidden">
         {suppliers.map((supplier) => (
-          <Card key={supplier?._id} className="gap-3 py-4">
+          <Card as="article" key={supplier?._id} className="gap-3 py-4">
             <CardContent className="space-y-3 px-4">
               <div className="flex items-start justify-between gap-3">
-                <p className="break-words font-medium">
+                <h2 className="break-words font-medium">
                   {supplier?.suppliersName}
-                </p>
+                </h2>
                 <Badge
                   variant={supplier?.isActive ? 'outline' : 'destructive'}
                   className={
@@ -84,7 +84,7 @@ const TableSuppliers = ({
           </Card>
         ))}
       </div>
-      <div className="hidden rounded-lg border lg:block">
+      <div className="hidden rounded-lg border xl:block">
         <Table>
           <TableHeader>
             <TableRow>

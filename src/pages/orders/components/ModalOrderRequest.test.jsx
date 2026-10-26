@@ -86,10 +86,7 @@ describe('ModalOrderRequest', () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 })
     setup({ supplier: 's1', items: [], date: '2026-01-01' })
     await user.click(screen.getByLabelText('Producto'))
-    await user.pointer({
-      keys: '[MouseLeft>]',
-      target: await screen.findByText('Coca Cola 600ml')
-    })
+    await user.click(await screen.findByText('Coca Cola 600ml'))
     expect(screen.getByLabelText('Precio compra')).toHaveValue(15)
     await user.type(screen.getByLabelText('Cantidad'), '2')
     await user.click(screen.getByRole('button', { name: /agregar producto/i }))

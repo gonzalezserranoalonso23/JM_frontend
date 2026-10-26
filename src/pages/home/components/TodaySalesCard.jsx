@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Skeleton from '@/components/ui/skeleton'
 import { useGetLiveInformation } from '@/features/inventory.features'
 import { formatMoney } from '@/utils/commonFunctions'
 import { todayLocal } from '@/utils/dateDisplay'
@@ -13,7 +14,11 @@ const TodaySalesCard = () => {
   ]
 
   return (
-    <Card className="gap-3 p-4" aria-labelledby="today-sales-title">
+    <Card
+      as="section"
+      className="gap-3 p-4"
+      aria-labelledby="today-sales-title"
+    >
       <CardHeader className="px-0">
         <CardTitle>
           <h2 id="today-sales-title" className="text-base font-semibold">
@@ -21,10 +26,8 @@ const TodaySalesCard = () => {
           </h2>
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-0">
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">Cargando ventas...</p>
-        ) : isError ? (
+      <CardContent className="min-h-16 px-0">
+        {isError ? (
           <p className="text-sm text-destructive">
             No se pudieron cargar las ventas del día.
           </p>
@@ -36,7 +39,11 @@ const TodaySalesCard = () => {
                   {label}
                 </dt>
                 <dd className="mt-1 text-lg font-bold text-foreground">
-                  {formatMoney(value)}
+                  {isLoading ? (
+                    <Skeleton className="h-7 w-24" />
+                  ) : (
+                    formatMoney(value)
+                  )}
                 </dd>
               </div>
             ))}

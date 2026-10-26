@@ -57,7 +57,7 @@ const SectionProducts = () => {
 
   return (
     <Card
-      role="region"
+      as="section"
       className="gap-4 p-4 sm:p-6"
       aria-labelledby="products-title"
     >

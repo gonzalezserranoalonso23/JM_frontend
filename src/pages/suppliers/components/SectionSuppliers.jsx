@@ -1,15 +1,15 @@
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { useState } from 'react'
 import {
   useCreateSupplier,
   useDeleteSupplier,
   useUpdateSupplier,
   useGetSupplierPages
 } from '@/features/suppliers.features'
+import { useCatalogEditor } from '@/hooks/useCatalogEditor'
 import ModalSuppliers from './ModalSuppliers'
-import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
 import TableSuppliers from './TableSuppliers'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
@@ -32,37 +32,23 @@ const SectionSuppliers = () => {
   const createSupplier = useCreateSupplier()
   const updateSupplier = useUpdateSupplier()
   const deleteSupplier = useDeleteSupplier()
+  const {
+    modalShow,
+    item: supplier,
+    editing: update,
+    setEditing: setUpdate,
+    openCreate: handleShow,
+    openEdit: handleUpdate,
+    close: handleClose,
+    remove
+  } = useCatalogEditor()
 
-  const [modalShow, setModalShow] = useState(false)
-  const [supplier, setSupplier] = useState([])
-  const [update, setUpdate] = useState(false)
-
-  const handleClose = () => setModalShow(false)
-  const handleShow = () => setModalShow(true)
-
-  const handleDelete = (id) => {
-    const sure = window.confirm('Esta seguro que desea borrar?')
-    if (sure) return deleteSupplier.mutate(id)
-  }
-
-  const handleUpdate = (data) => {
-    handleShow()
-    setSupplier(data)
-    setUpdate(true)
-  }
-
-  if (isLoading) return <Loading />
-  if (isError)
-    return (
-      <Alert variant="destructive" className="m-8 w-auto">
-        Error al cargar los proveedores
-      </Alert>
-    )
+  const handleDelete = (id) => remove(deleteSupplier.mutate, id)
 
   return (
     <>
       <Card
-        role="region"
+        as="section"
         aria-labelledby="suppliers-title"
         className="gap-4 p-4 sm:p-6"
       >
@@ -70,9 +56,7 @@ const SectionSuppliers = () => {
           <h1 id="suppliers-title" className="text-xl font-semibold">
             Proveedores
           </h1>
-          {isAdmin && (
-            <Button onClick={handleShow}>+ Crear Proveedor</Button>
-          )}
+          {isAdmin && <Button onClick={handleShow}>+ Crear Proveedor</Button>}
         </header>
         <FormFilter
           id="supplier-filter"
@@ -99,7 +83,11 @@ const SectionSuppliers = () => {
           />
         )}
 
-        {suppliers?.length > 0 ? (
+        {isLoading ? (
+          <ListSkeleton />
+        ) : isError ? (
+          <Alert variant="destructive">Error al cargar los proveedores</Alert>
+        ) : suppliers?.length > 0 ? (
           <TableSuppliers
             suppliers={suppliers}
             total={totalSuppliers}

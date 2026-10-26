@@ -1,11 +1,12 @@
 import { formatMoney, roundTo } from '@/utils/commonFunctions'
 import { todayLocal } from '@/utils/dateDisplay'
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useGetSalesByDateRangePages } from '@/features/inventory.features'
 import { getSalesByDateRange } from '@/services/inventory.services'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
-import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
+import Skeleton from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -19,22 +20,15 @@ import {
 } from '@/components/ui/select'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
 import { isExitType } from '@/utils/typeInventory'
-
-const ReportsMovementsTable = lazy(() => import('./ReportsMovementsTable'))
+import ReportsMovementsTable from './ReportsMovementsTable'
 
 const ALL_OPTION = 'all'
-
-const COUNT_LABEL = (type) =>
-  isExitType(type) ? 'Productos vendidos' : 'Productos ingresados'
-
-const TOTAL_LABEL = (type) =>
-  isExitType(type) ? 'Total de ventas' : 'Total de compras'
 
 const ReportsSalesAndMovements = () => {
   const { data: paymentTypes } = useGetPaymentTypes()
   const [startDate, setStartDate] = useState(todayLocal())
   const [endDate, setEndDate] = useState(todayLocal())
-  const { types, issueType } = useGetTypeInventories()
+  const { types, issueType, entryType } = useGetTypeInventories()
   // undefined = aún sin elegir: por defecto las salidas; '' = todos
   const [typeChoice, setTypeChoice] = useState()
   const selectedType = typeChoice ?? issueType?.value ?? ''
@@ -49,6 +43,7 @@ const ReportsSalesAndMovements = () => {
   const {
     data: salesPages,
     isLoading: salesLoading,
+    isPlaceholderData,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage
@@ -59,41 +54,65 @@ const ReportsSalesAndMovements = () => {
     selectedPaymentType,
     typeChoice !== undefined || Boolean(issueType)
   )
+  const waitingForDefault = typeChoice === undefined && !issueType
+  const pending =
+    !isDateRangeInvalid &&
+    (salesLoading || isPlaceholderData || waitingForDefault)
 
-  const filteredRecords = useMemo(
-    () => salesPages?.pages.flatMap((page) => page.data) || [],
-    [salesPages]
-  )
-  const totalRecords = salesPages?.pages[0]?.total ?? 0
-  const summary = salesPages?.pages[0]?.summary
+  const filteredRecords = useMemo(() => {
+    if (pending) return []
+    return salesPages?.pages.flatMap((page) => page.data) || []
+  }, [pending, salesPages])
+  const totalRecords = pending ? 0 : (salesPages?.pages[0]?.total ?? 0)
+  const summary = pending ? null : salesPages?.pages[0]?.summary
 
   const showProfit = !selectedTypeInfo || isExitType(selectedTypeInfo)
-  const totalCards = useMemo(
-    () =>
-      types
-        .filter((type) => !selectedType || type.value === selectedType)
-        .map((type) => ({
-          label: TOTAL_LABEL(type),
-          type: type.value,
-          amount: roundTo(summary?.[type.value]?.totalAmount, 2)
-        })),
-    [types, selectedType, summary]
+  const profitTotal = roundTo(
+    types
+      .filter(
+        (type) =>
+          isExitType(type) && (!selectedType || type.value === selectedType)
+      )
+      .reduce(
+        (sum, type) => sum + Number(summary?.[type.value]?.profit || 0),
+        0
+      ),
+    2
   )
-  const profitTotal = useMemo(() => {
-    if (!showProfit) return 0
-    return roundTo(
-      types
-        .filter(
-          (type) =>
-            isExitType(type) && (!selectedType || type.value === selectedType)
-        )
-        .reduce(
-          (sum, type) => sum + Number(summary?.[type.value]?.profit || 0),
-          0
-        ),
-      2
-    )
-  }, [showProfit, types, selectedType, summary])
+  const amountText = (amount) =>
+    pending || amount == null ? '—' : formatMoney(roundTo(Number(amount), 2))
+  const countText = (typeId) =>
+    pending ? '—' : String(summary?.[typeId]?.products ?? 0)
+  const summaryCards =
+    !selectedType || waitingForDefault || isExitType(selectedTypeInfo)
+      ? selectedType || waitingForDefault
+        ? [
+            {
+              label: 'Total de ventas',
+              value: amountText(summary?.[selectedType]?.totalAmount)
+            },
+            { label: 'Utilidad', value: amountText(profitTotal) },
+            { label: 'Productos vendidos', value: countText(selectedType) }
+          ]
+        : [
+            {
+              label: 'Total de compras',
+              value: amountText(summary?.[entryType?.value]?.totalAmount)
+            },
+            {
+              label: 'Total de ventas',
+              value: amountText(summary?.[issueType?.value]?.totalAmount)
+            },
+            { label: 'Utilidad', value: amountText(profitTotal) }
+          ]
+      : [
+          {
+            label: 'Total de compras',
+            value: amountText(summary?.[selectedType]?.totalAmount)
+          },
+          { label: 'Utilidad', value: '—' },
+          { label: 'Productos ingresados', value: countText(selectedType) }
+        ]
 
   const handleExport = async () => {
     if (isDateRangeInvalid) return
@@ -121,8 +140,6 @@ const ReportsSalesAndMovements = () => {
       setIsExporting(false)
     }
   }
-
-  if (salesLoading) return <Loading fullScreen={false} />
 
   return (
     <section aria-labelledby="reports-title">
@@ -193,29 +210,32 @@ const ReportsSalesAndMovements = () => {
               </SelectContent>
             </Select>
           </div>
-          {showPaymentFilter && (
-            <div className="flex min-w-[200px] flex-col gap-2">
-              <Label htmlFor="report-payment">Forma de pago</Label>
-              <Select
-                value={selectedPaymentType || ALL_OPTION}
-                onValueChange={(value) =>
-                  setPaymentChoice(value === ALL_OPTION ? '' : value)
-                }
-              >
-                <SelectTrigger id="report-payment">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_OPTION}>Todas</SelectItem>
-                  {paymentTypes.map((payment) => (
-                    <SelectItem key={payment.value} value={payment.value}>
-                      {payment.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <div className="flex min-w-[200px] flex-col gap-2">
+            <Label htmlFor="report-payment">Forma de pago</Label>
+            <Select
+              value={
+                showPaymentFilter
+                  ? selectedPaymentType || ALL_OPTION
+                  : ALL_OPTION
+              }
+              disabled={!showPaymentFilter}
+              onValueChange={(value) =>
+                setPaymentChoice(value === ALL_OPTION ? '' : value)
+              }
+            >
+              <SelectTrigger id="report-payment">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_OPTION}>Todas</SelectItem>
+                {paymentTypes.map((payment) => (
+                  <SelectItem key={payment.value} value={payment.value}>
+                    {payment.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         {isDateRangeInvalid && (
           <p id="report-date-error" role="alert" className="text-destructive">
@@ -227,41 +247,27 @@ const ReportsSalesAndMovements = () => {
           <>
             <section
               aria-label="Resumen del período"
-              className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(250px,1fr))]"
+              className="grid gap-4 sm:grid-cols-3"
             >
-              {totalCards.map((card) => (
-                <Card key={card.type} className="gap-2 p-6">
+              {summaryCards.map((card) => (
+                <Card key={card.label} className="gap-2 p-6">
                   <h2 className="text-sm font-semibold text-muted-foreground">
                     {card.label}
                   </h2>
-                  <strong className="text-3xl text-emerald-400">
-                    {formatMoney(card.amount)}
-                  </strong>
+                  {pending ? (
+                    <Skeleton className="h-9 w-36" />
+                  ) : (
+                    <strong className="text-3xl tabular-nums text-emerald-400">
+                      {card.value}
+                    </strong>
+                  )}
                 </Card>
               ))}
-              {showProfit && (
-                <Card className="gap-2 p-6">
-                  <h2 className="text-sm font-semibold text-muted-foreground">
-                    Utilidad
-                  </h2>
-                  <strong className="text-3xl text-emerald-400">
-                    {formatMoney(profitTotal)}
-                  </strong>
-                </Card>
-              )}
-              {selectedType && (
-                <Card className="gap-2 p-6">
-                  <h2 className="text-sm font-semibold text-muted-foreground">
-                    {COUNT_LABEL(selectedTypeInfo)}
-                  </h2>
-                  <strong className="text-3xl text-primary">
-                    {summary?.[selectedType]?.products ?? 0}
-                  </strong>
-                </Card>
-              )}
             </section>
 
-            <Suspense fallback={<Loading fullScreen={false} />}>
+            {pending ? (
+              <ListSkeleton />
+            ) : (
               <ReportsMovementsTable
                 records={filteredRecords}
                 showProfit={showProfit}
@@ -269,7 +275,7 @@ const ReportsSalesAndMovements = () => {
                 fetchNextPage={fetchNextPage}
                 isFetchingNextPage={isFetchingNextPage}
               />
-            </Suspense>
+            )}
           </>
         )}
       </Card>

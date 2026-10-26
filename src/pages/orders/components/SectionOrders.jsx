@@ -9,7 +9,7 @@ import {
 } from '@/features/orders.features'
 import ModalOrderRequest from './ModalOrderRequest'
 import SolpedPrint from './SolpedPrint'
-import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -78,14 +78,6 @@ const SectionOrders = () => {
     setSelectedOrder(updatedOrder)
   }
 
-  if (isLoading) return <Loading />
-  if (isError)
-    return (
-      <Alert variant="destructive" className="m-8 w-auto">
-        <AlertDescription>Error al cargar las solicitudes</AlertDescription>
-      </Alert>
-    )
-
   // El backend ya entrega pendientes primero y la fecha más reciente arriba
   const matcher = buildMatcher(filter)
   const sortedOrders = (orders || []).filter((order) =>
@@ -102,7 +94,7 @@ const SectionOrders = () => {
     status === 'confirmado' ? 'text-emerald-400' : 'text-amber-400'
 
   return (
-    <Card role="region" aria-labelledby="orders-title">
+    <Card as="section" aria-labelledby="orders-title">
       {/* Header */}
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1.5">
@@ -144,17 +136,23 @@ const SectionOrders = () => {
         />
 
         {/* Tabla */}
-        {sortedOrders.length > 0 ? (
+        {isLoading ? (
+          <ListSkeleton />
+        ) : isError ? (
+          <Alert variant="destructive">
+            <AlertDescription>Error al cargar las solicitudes</AlertDescription>
+          </Alert>
+        ) : sortedOrders.length > 0 ? (
           <>
-            <div className="space-y-3 lg:hidden">
+            <div className="space-y-3 xl:hidden">
               {sortedOrders.map((order) => (
-                <Card key={order._id} className="gap-3 py-4">
+                <Card as="article" key={order._id} className="gap-3 py-4">
                   <CardContent className="space-y-3 px-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-medium">
+                        <h2 className="font-medium">
                           #{order._id.slice(-6).toUpperCase()}
-                        </p>
+                        </h2>
                         <p className="break-words text-xs text-muted-foreground">
                           {order.supplier?.suppliersName ||
                             order.supplier?.name ||
@@ -212,7 +210,7 @@ const SectionOrders = () => {
                 </Card>
               ))}
             </div>
-            <div className="hidden rounded-lg border lg:block">
+            <div className="hidden rounded-lg border xl:block">
               <Table>
                 <TableHeader>
                   <TableRow>

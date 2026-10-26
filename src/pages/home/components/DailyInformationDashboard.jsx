@@ -7,8 +7,8 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Skeleton from '@/components/ui/skeleton'
 import { useGetDailyInformations } from '@/features/dailyInformation.features'
-import Loading from '@/ui/Loading'
 import { formatDate as displayDate, isoDay } from '@/utils/dateDisplay'
 
 const START_DATE = '2026-10-01'
@@ -38,70 +38,81 @@ const DailyInformationDashboard = () => {
     orderedRecords[0]
 
   return (
-    <Card className="mb-6" aria-labelledby="daily-summary-title" role="region">
+    <Card as="section" className="mb-6" aria-labelledby="daily-summary-title">
       <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <CardTitle>
           <h2 id="daily-summary-title" className="text-xl font-semibold">
             Información ventas
           </h2>
         </CardTitle>
-        {!isLoading && !isError && orderedRecords.length > 0 && (
-          <div className="w-full sm:w-64">
-            <label
-              htmlFor="daily-information-date"
-              className="mb-1 block text-sm font-medium text-muted-foreground"
-            >
-              Fecha
-            </label>
-            <Select
-              value={selectedRecord?._id || ''}
-              onValueChange={setSelectedId}
-            >
-              <SelectTrigger id="daily-information-date">
-                <SelectValue placeholder="Selecciona una fecha" />
-              </SelectTrigger>
-              <SelectContent>
-                {orderedRecords.map((record) => (
-                  <SelectItem key={record._id} value={record._id}>
-                    {formatDate(record.date)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        <div className="w-full sm:w-64">
+          <label
+            htmlFor="daily-information-date"
+            className="mb-1 block text-sm font-medium text-muted-foreground"
+          >
+            Fecha
+          </label>
+          <Select
+            value={selectedRecord?._id || ''}
+            onValueChange={setSelectedId}
+            disabled={isLoading || isError || orderedRecords.length === 0}
+          >
+            <SelectTrigger id="daily-information-date">
+              <SelectValue
+                placeholder={isLoading ? 'Cargando...' : 'Selecciona una fecha'}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {orderedRecords.map((record) => (
+                <SelectItem key={record._id} value={record._id}>
+                  {formatDate(record.date)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
 
       <CardContent>
-        {isLoading ? (
-          <Loading fullScreen={false} />
-        ) : isError ? (
-          <p className="text-sm text-destructive">
+        {isError && (
+          <p className="mb-3 text-sm text-destructive">
             No se pudo cargar la información diaria.
           </p>
-        ) : selectedRecord ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {[
-              ['Efectivo', formatAmount(selectedRecord.cashSales)],
-              ['Tarjeta', formatAmount(selectedRecord.cardSales)],
-              ['Ventas totales', formatAmount(selectedRecord.totalSales)],
-              ['Transacciones', selectedRecord.totalTransactions ?? 0]
-            ].map(([label, value]) => (
-              <div key={label} className="min-w-0 py-2">
-                <p className="text-sm font-medium text-muted-foreground">
-                  {label}
-                </p>
-                <p className="mt-3 text-2xl font-bold text-foreground">
-                  {value}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">
+        )}
+        {!isLoading && !isError && !selectedRecord && (
+          <p className="mb-3 text-sm text-muted-foreground">
             No hay información diaria registrada desde el 1 de octubre de 2026.
           </p>
         )}
+        <div className="grid min-h-24 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            [
+              'Efectivo',
+              selectedRecord ? formatAmount(selectedRecord.cashSales) : '—'
+            ],
+            [
+              'Tarjeta',
+              selectedRecord ? formatAmount(selectedRecord.cardSales) : '—'
+            ],
+            [
+              'Ventas totales',
+              selectedRecord ? formatAmount(selectedRecord.totalSales) : '—'
+            ],
+            [
+              'Transacciones',
+              selectedRecord ? (selectedRecord.totalTransactions ?? 0) : '—'
+            ]
+          ].map(([label, value]) => (
+            <div key={label} className="min-w-0 py-2">
+              <p className="text-sm font-medium text-muted-foreground">
+                {label}
+              </p>
+              <p className="mt-3 text-2xl font-bold text-foreground">
+                {isLoading ? <Skeleton className="h-8 w-28" /> : value}
+              </p>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   )

@@ -1,15 +1,15 @@
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { useState } from 'react'
 import {
   useCreateCategory,
   useDeleteCategory,
   useUpdateCategory,
   useGetCategoryPages
 } from '@/features/categories.features'
+import { useCatalogEditor } from '@/hooks/useCatalogEditor'
 import ModalCategories from './ModalCategories'
-import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
 import TableCategories from './TableCategories'
 
 const SectionCategories = () => {
@@ -27,37 +27,23 @@ const SectionCategories = () => {
   const createCategory = useCreateCategory()
   const updateCategory = useUpdateCategory()
   const deleteCategory = useDeleteCategory()
+  const {
+    modalShow,
+    item: category,
+    editing: update,
+    setEditing: setUpdate,
+    openCreate: handleShow,
+    openEdit: handleUpdate,
+    close: handleClose,
+    remove
+  } = useCatalogEditor()
 
-  const [modalShow, setModalShow] = useState(false)
-  const [category, setCategory] = useState([])
-  const [update, setUpdate] = useState(false)
-
-  const handleClose = () => setModalShow(false)
-  const handleShow = () => setModalShow(true)
-
-  const handleDelete = (id) => {
-    const sure = window.confirm('Esta seguro que desea borrar?')
-    if (sure) return deleteCategory.mutate(id)
-  }
-
-  const handleUpdate = (data) => {
-    handleShow()
-    setCategory(data)
-    setUpdate(true)
-  }
-
-  if (isLoading) return <Loading />
-  if (isError)
-    return (
-      <Alert variant="destructive" className="m-8 w-auto">
-        Error al cargar las categorías
-      </Alert>
-    )
+  const handleDelete = (id) => remove(deleteCategory.mutate, id)
 
   return (
     <>
       <Card
-        role="region"
+        as="section"
         aria-labelledby="categories-title"
         className="gap-4 p-4 sm:p-6"
       >
@@ -86,7 +72,11 @@ const SectionCategories = () => {
           />
         )}
 
-        {categories?.length > 0 ? (
+        {isLoading ? (
+          <ListSkeleton />
+        ) : isError ? (
+          <Alert variant="destructive">Error al cargar las categorías</Alert>
+        ) : categories?.length > 0 ? (
           <TableCategories
             categories={categories}
             total={totalCategories}

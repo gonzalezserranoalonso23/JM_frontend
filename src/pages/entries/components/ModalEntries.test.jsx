@@ -13,11 +13,14 @@ const products = [
 ]
 
 vi.mock('@/features/products.features', () => ({
-  useGetProducts: () => ({
-    data: products,
-    isLoading: false,
-    refetch: () => Promise.resolve({ data: products })
+  useProductLookup: () => ({
+    data: { data: products },
+    isLoading: false
   })
+}))
+
+vi.mock('@/features/paymentTypes.features', () => ({
+  useGetPaymentTypes: () => ({ data: [] })
 }))
 
 vi.mock('@/features/typeInventory.features', () => ({

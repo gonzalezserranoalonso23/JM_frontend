@@ -8,7 +8,7 @@ import {
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
-import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
 import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
@@ -54,15 +54,6 @@ const SectionDailyInformation = () => {
     }
   }
 
-  if (isLoading) return <Loading />
-  if (isError) {
-    return (
-      <Alert variant="destructive" className="m-8">
-        Error al cargar la información diaria
-      </Alert>
-    )
-  }
-
   return (
     <section aria-labelledby="daily-information-title">
       <Card className="p-4 sm:p-6">
@@ -89,7 +80,13 @@ const SectionDailyInformation = () => {
           onChange={setTextFilter}
         />
 
-        {filteredRecords.length ? (
+        {isLoading ? (
+          <ListSkeleton />
+        ) : isError ? (
+          <Alert variant="destructive">
+            Error al cargar la información diaria
+          </Alert>
+        ) : filteredRecords.length ? (
           <TableDailyInformation
             records={filteredRecords}
             handleUpdate={handleUpdate}

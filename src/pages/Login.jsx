@@ -85,10 +85,16 @@ const Login = () => {
   }
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-y-auto bg-background px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6">
-      <Card className="w-full max-w-[400px]">
+    <main className="flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-y-auto bg-background px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6">
+      <Card
+        as="section"
+        className="w-full max-w-[400px]"
+        aria-labelledby="login-title"
+      >
         <CardHeader className="text-center">
-          <h1 className="text-2xl leading-none font-bold">Mini Super JM</h1>
+          <h1 id="login-title" className="text-2xl leading-none font-bold">
+            Mini Super JM
+          </h1>
           <CardDescription>Inicia sesión para continuar</CardDescription>
         </CardHeader>
         <CardContent>
@@ -135,7 +141,7 @@ const Login = () => {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </main>
   )
 }
 

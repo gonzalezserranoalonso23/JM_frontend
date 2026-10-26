@@ -254,7 +254,7 @@ body::-webkit-scrollbar {
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .page-content-shell {
     padding-inline: 2rem;
   }
@@ -291,6 +291,17 @@ input[type='month'] {
   padding-bottom: 0;
   line-height: 2.75rem;
   text-align: center;
+}
+
+@media (min-width: 1280px) {
+  input[type='date'],
+  input[type='time'],
+  input[type='datetime-local'],
+  input[type='month'] {
+    height: 2.25rem;
+    min-height: 2.25rem;
+    line-height: 2.25rem;
+  }
 }
 
 input[type='date']::-webkit-date-and-time-value,
@@ -350,7 +361,7 @@ html body[data-scroll-locked] .width-before-scroll-bar {
 
 /* iOS/Android auto-zoom on focus triggers when a field's font-size is below
    16px, which breaks the layout. Force 16px on mobile/tablet to prevent it. */
-@media (max-width: 1024px) {
+@media (max-width: 1279px) {
   input,
   select,
   textarea,

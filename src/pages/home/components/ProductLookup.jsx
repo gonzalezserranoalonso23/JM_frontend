@@ -20,8 +20,8 @@ const ProductLookup = () => {
 
   return (
     <Card
+      as="section"
       className="gap-0 overflow-hidden py-0"
-      role="region"
       aria-labelledby="product-lookup-title"
     >
       <CardHeader className="border-b py-4">
@@ -54,42 +54,41 @@ const ProductLookup = () => {
             const isLow = product.productStock < product.minimumProductStock
 
             return (
-              <li
-                key={product._id}
-                className="flex items-center justify-between gap-4 px-6 py-4"
-              >
-                <div className="flex-1">
-                  <h3 className="font-medium text-foreground">
-                    {product.productName}
-                  </h3>
-                  {product.productDescription && (
+              <li key={product._id}>
+                <article className="flex items-center justify-between gap-4 px-6 py-4">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-foreground">
+                      {product.productName}
+                    </h3>
+                    {product.productDescription && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {product.productDescription}
+                      </p>
+                    )}
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {product.productDescription}
+                      Precio:{' '}
+                      <strong className="text-foreground">
+                        {formatPrice(product.productPrice)}
+                      </strong>{' '}
+                      · Stock:{' '}
+                      <strong className="text-foreground">
+                        {formatQty(product.productStock)}
+                      </strong>
                     </p>
-                  )}
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Precio:{' '}
-                    <strong className="text-foreground">
-                      {formatPrice(product.productPrice)}
-                    </strong>{' '}
-                    · Stock:{' '}
-                    <strong className="text-foreground">
-                      {formatQty(product.productStock)}
-                    </strong>
-                  </p>
-                </div>
-                <Badge
-                  variant={
-                    isOut ? 'destructive' : isLow ? 'default' : 'secondary'
-                  }
-                  className={
-                    isLow && !isOut
-                      ? 'border-transparent bg-yellow-600 text-white'
-                      : undefined
-                  }
-                >
-                  {isOut ? 'Agotado' : isLow ? 'Bajo' : 'Disponible'}
-                </Badge>
+                  </div>
+                  <Badge
+                    variant={
+                      isOut ? 'destructive' : isLow ? 'default' : 'secondary'
+                    }
+                    className={
+                      isLow && !isOut
+                        ? 'border-transparent bg-yellow-600 text-white'
+                        : undefined
+                    }
+                  >
+                    {isOut ? 'Agotado' : isLow ? 'Bajo' : 'Disponible'}
+                  </Badge>
+                </article>
               </li>
             )
           })}

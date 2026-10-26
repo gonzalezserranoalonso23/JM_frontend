@@ -23,11 +23,11 @@ const TableCatalogs = () => {
 
   return (
     <div>
-      <div className="space-y-3 lg:hidden">
+      <div className="space-y-3 xl:hidden">
         {items.map((item) => (
-          <Card key={item.name} className="py-4">
+          <Card as="article" key={item.name} className="py-4">
             <CardContent className="flex items-center justify-between gap-3 px-4">
-              <p className="font-medium">{item.name}</p>
+              <h2 className="font-medium">{item.name}</h2>
               <Button asChild variant="outline" size="sm">
                 <Link to={item.path}>Ver</Link>
               </Button>
@@ -35,7 +35,7 @@ const TableCatalogs = () => {
           </Card>
         ))}
       </div>
-      <div className="hidden rounded-lg border lg:block">
+      <div className="hidden rounded-lg border xl:block">
         <Table>
           <TableHeader>
             <TableRow>

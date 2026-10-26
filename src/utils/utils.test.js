@@ -88,6 +88,18 @@ describe('movementPrices', () => {
     ).toEqual({ purchasePrice: 6, productPrice: 10.5, profit: 9 })
   })
 
+  it('en una salida prefiere el costo guardado en el movimiento', () => {
+    expect(
+      movementPrices({
+        quantity: 2,
+        productPrice: '10',
+        purchasePrice: 4,
+        typeInventory: { stockDirection: -1 },
+        productName: { purchasePrice: 6, productPrice: 12 }
+      })
+    ).toEqual({ purchasePrice: 4, productPrice: 10, profit: 12 })
+  })
+
   it('en una entrada no calcula utilidad', () => {
     expect(
       movementPrices({

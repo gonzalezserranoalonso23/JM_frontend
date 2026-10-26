@@ -4,6 +4,7 @@ import { Check, X } from 'lucide-react'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import ActionIconButton from '@/components/ActionIconButton'
 import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
 import { Alert } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -34,7 +35,7 @@ const TableProducts = ({
   // Only the desktop table scrolls internally; on mobile the page scrolls.
   const desktopRootRef = {
     get current() {
-      return window.matchMedia('(min-width: 1024px)').matches
+      return window.matchMedia('(min-width: 1280px)').matches
         ? tableContainerRef.current
         : null
     }
@@ -49,13 +50,11 @@ const TableProducts = ({
   return (
     <div
       ref={tableContainerRef}
-      className="lg:h-[calc(var(--app-vh)*70)] lg:min-h-[18rem] lg:overflow-y-auto lg:rounded-lg lg:border"
+      className="xl:h-[calc(var(--app-vh)*70)] xl:min-h-[18rem] xl:overflow-y-auto xl:rounded-lg xl:border"
       aria-busy={isLoading || isFetchingNextPage}
     >
       {isLoading ? (
-        <div className="flex h-64 items-center justify-center lg:h-full">
-          <Loading fullScreen={false} />
-        </div>
+        <ListSkeleton />
       ) : isError ? (
         <Alert variant="destructive" className="m-4 w-auto">
           Error al cargar los productos
@@ -66,15 +65,15 @@ const TableProducts = ({
         </div>
       ) : (
         <>
-          <div className="space-y-3 lg:hidden">
+          <div className="space-y-3 xl:hidden">
             {products.map((product) => (
-              <Card key={product?._id} className="gap-3 py-4">
+              <Card as="article" key={product?._id} className="gap-3 py-4">
                 <CardContent className="space-y-3 px-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="break-words font-medium">
+                      <h2 className="break-words font-medium">
                         {product?.productName}
-                      </p>
+                      </h2>
                       {product?.productDescription && (
                         <p className="break-words text-xs text-muted-foreground">
                           {product.productDescription}
@@ -160,9 +159,7 @@ const TableProducts = ({
                             : 'deactivate'
                         }
                         label={
-                          product?.isActive === false
-                            ? 'Activar'
-                            : 'Desactivar'
+                          product?.isActive === false ? 'Activar' : 'Desactivar'
                         }
                         onClick={() => handleToggleActive(product)}
                       />
@@ -176,11 +173,11 @@ const TableProducts = ({
                 </CardContent>
               </Card>
             ))}
-            <p className="pb-2 text-center text-sm text-muted-foreground">
+            <footer className="pb-2 text-center text-sm text-muted-foreground">
               Total: {total ?? products.length} productos
-            </p>
+            </footer>
           </div>
-          <Table className="hidden lg:table">
+          <Table className="hidden xl:table">
             <TableHeader>
               <TableRow>
                 <TableHead>Producto</TableHead>

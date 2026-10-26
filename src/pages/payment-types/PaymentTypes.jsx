@@ -10,15 +10,15 @@ import {
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { useState } from 'react'
 import {
   useCreatePaymentType,
   useDeletePaymentType,
   useGetPaymentTypes,
   useUpdatePaymentType
 } from '@/features/paymentTypes.features'
+import { useCatalogEditor } from '@/hooks/useCatalogEditor'
 import ActionIconButton from '@/components/ActionIconButton'
-import Loading from '@/ui/Loading'
+import ListSkeleton from '@/components/ListSkeleton'
 import ModalPaymentTypes from './components/ModalPaymentTypes'
 
 const PaymentTypes = () => {
@@ -26,32 +26,21 @@ const PaymentTypes = () => {
   const createPaymentType = useCreatePaymentType()
   const updatePaymentType = useUpdatePaymentType()
   const deletePaymentType = useDeletePaymentType()
+  const {
+    modalShow,
+    item: selected,
+    openCreate,
+    openEdit: handleUpdate,
+    close: handleClose,
+    remove
+  } = useCatalogEditor()
 
-  const [modalShow, setModalShow] = useState(false)
-  const [selected, setSelected] = useState(null)
-
-  const handleClose = () => {
-    setModalShow(false)
-    setSelected(null)
-  }
-
-  const handleUpdate = (item) => {
-    setSelected(item)
-    setModalShow(true)
-  }
-
-  const handleDelete = (id) => {
-    if (window.confirm('Esta seguro que desea borrar?')) {
-      deletePaymentType.mutate(id)
-    }
-  }
-
-  if (isLoading) return <Loading />
+  const handleDelete = (id) => remove(deletePaymentType.mutate, id)
 
   return (
     <PageShell>
       <Card
-        role="region"
+        as="section"
         aria-labelledby="payment-types-title"
         className="gap-4 p-4 sm:p-6"
       >
@@ -59,9 +48,7 @@ const PaymentTypes = () => {
           <h1 id="payment-types-title" className="text-xl font-semibold">
             Métodos de pago
           </h1>
-          <Button onClick={() => setModalShow(true)}>
-            + Crear método de pago
-          </Button>
+          <Button onClick={openCreate}>+ Crear método de pago</Button>
         </header>
 
         <ModalPaymentTypes
@@ -73,7 +60,9 @@ const PaymentTypes = () => {
           type={selected ? 'Editar' : 'Crear'}
         />
 
-        {isError ? (
+        {isLoading ? (
+          <ListSkeleton />
+        ) : isError ? (
           <Alert variant="destructive">
             Error al cargar los métodos de pago
           </Alert>
@@ -81,11 +70,11 @@ const PaymentTypes = () => {
           <Alert>No hay métodos de pago para mostrar</Alert>
         ) : (
           <div>
-            <div className="space-y-3 lg:hidden">
+            <div className="space-y-3 xl:hidden">
               {paymentTypes.map((item) => (
-                <Card key={item.value} className="gap-3 py-4">
+                <Card as="article" key={item.value} className="gap-3 py-4">
                   <CardContent className="space-y-3 px-4">
-                    <p className="break-words font-medium">{item.label}</p>
+                    <h2 className="break-words font-medium">{item.label}</h2>
 
                     <div className="flex items-center justify-end gap-2 border-t pt-3">
                       <ActionIconButton
@@ -103,7 +92,7 @@ const PaymentTypes = () => {
                 </Card>
               ))}
             </div>
-            <div className="hidden rounded-lg border lg:block">
+            <div className="hidden rounded-lg border xl:block">
               <Table>
                 <TableHeader>
                   <TableRow>

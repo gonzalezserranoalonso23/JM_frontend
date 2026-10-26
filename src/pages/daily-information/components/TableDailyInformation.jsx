@@ -17,12 +17,12 @@ const formatAmount = (amount) =>
 
 const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
   <>
-    <div className="space-y-3 lg:hidden">
+    <div className="space-y-3 xl:hidden">
       {records.map((record) => (
-        <Card key={record._id} className="gap-3 py-4">
+        <Card as="article" key={record._id} className="gap-3 py-4">
           <CardContent className="space-y-3 px-4">
             <div className="flex items-start justify-between gap-3">
-              <p className="font-medium">{record.date}</p>
+              <h2 className="font-medium">{record.date}</h2>
               <p className="text-xs text-muted-foreground">
                 {record.totalTransactions} transacciones
               </p>
@@ -58,11 +58,11 @@ const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
           </CardContent>
         </Card>
       ))}
-      <p className="text-center text-sm text-muted-foreground">
+      <footer className="text-center text-sm text-muted-foreground">
         Total: {records.length} registros
-      </p>
+      </footer>
     </div>
-    <div className="hidden rounded-lg border lg:block">
+    <div className="hidden rounded-lg border xl:block">
       <Table>
         <TableHeader>
           <TableRow>

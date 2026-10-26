@@ -47,6 +47,16 @@ export const useSearchProducts = (search = '') =>
     placeholderData: keepPreviousData
   })
 
+// Primera página del catálogo, o el resultado de lo que se escribe en el combobox.
+export const useProductLookup = (search = '', enabled = true) =>
+  useQuery({
+    queryKey: ['Products', 'combobox', search],
+    queryFn: () => getProductsPage({ page: 1, limit: 20, search }),
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000
+  })
+
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient()
   const mutationDelete = useMutation({
