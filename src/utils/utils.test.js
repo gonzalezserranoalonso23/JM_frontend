@@ -7,6 +7,7 @@ import {
   limitNumberInputDecimals,
   roundTo
 } from './commonFunctions'
+import { movementPrices } from './typeInventory'
 
 describe('dateDisplay', () => {
   it('isoDay conserva el día guardado sin cambiar zona horaria', () => {
@@ -72,5 +73,40 @@ describe('roundTo', () => {
     expect(formatQty(1.2346)).toBe(1.235)
     expect(roundTo(12.3456, 2)).toBe(12.35)
     expect(roundTo('1.005', 2)).toBe(1.01)
+  })
+})
+
+describe('movementPrices', () => {
+  it('en una salida usa el precio cobrado y el costo del producto', () => {
+    expect(
+      movementPrices({
+        quantity: 2,
+        productPrice: '10.5',
+        typeInventory: { stockDirection: -1 },
+        productName: { purchasePrice: 6, productPrice: 12 }
+      })
+    ).toEqual({ purchasePrice: 6, productPrice: 10.5, profit: 9 })
+  })
+
+  it('en una entrada no calcula utilidad', () => {
+    expect(
+      movementPrices({
+        quantity: 3,
+        productPrice: '4',
+        typeInventory: { stockDirection: 1 },
+        productName: { purchasePrice: 9, productPrice: 7 }
+      })
+    ).toEqual({ purchasePrice: null, productPrice: null, profit: null })
+  })
+
+  it('no calcula utilidad si falta un precio', () => {
+    expect(
+      movementPrices({
+        quantity: 1,
+        productPrice: '10',
+        typeInventory: { stockDirection: -1 },
+        productName: { productName: 'Agua' }
+      }).profit
+    ).toBeNull()
   })
 })

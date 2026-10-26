@@ -67,6 +67,7 @@ const ReportsSalesAndMovements = () => {
   const totalRecords = salesPages?.pages[0]?.total ?? 0
   const summary = salesPages?.pages[0]?.summary
 
+  const showProfit = !selectedTypeInfo || isExitType(selectedTypeInfo)
   const totalCards = useMemo(
     () =>
       types
@@ -78,6 +79,21 @@ const ReportsSalesAndMovements = () => {
         })),
     [types, selectedType, summary]
   )
+  const profitTotal = useMemo(() => {
+    if (!showProfit) return 0
+    return roundTo(
+      types
+        .filter(
+          (type) =>
+            isExitType(type) && (!selectedType || type.value === selectedType)
+        )
+        .reduce(
+          (sum, type) => sum + Number(summary?.[type.value]?.profit || 0),
+          0
+        ),
+      2
+    )
+  }, [showProfit, types, selectedType, summary])
 
   const handleExport = async () => {
     if (isDateRangeInvalid) return
@@ -96,7 +112,8 @@ const ReportsSalesAndMovements = () => {
         ])
       await exportMovementsToExcel(
         allRecords,
-        `reporte-movimientos_${startDate}_${endDate}.xlsx`
+        `reporte-movimientos_${startDate}_${endDate}.xlsx`,
+        { includeProfit: showProfit }
       )
     } catch {
       toast.error('No se pudo exportar el reporte a Excel')
@@ -222,6 +239,16 @@ const ReportsSalesAndMovements = () => {
                   </strong>
                 </Card>
               ))}
+              {showProfit && (
+                <Card className="gap-2 p-6">
+                  <h2 className="text-sm font-semibold text-muted-foreground">
+                    Utilidad
+                  </h2>
+                  <strong className="text-3xl text-emerald-400">
+                    {formatMoney(profitTotal)}
+                  </strong>
+                </Card>
+              )}
               {selectedType && (
                 <Card className="gap-2 p-6">
                   <h2 className="text-sm font-semibold text-muted-foreground">
@@ -237,6 +264,7 @@ const ReportsSalesAndMovements = () => {
             <Suspense fallback={<Loading fullScreen={false} />}>
               <ReportsMovementsTable
                 records={filteredRecords}
+                showProfit={showProfit}
                 hasNextPage={hasNextPage}
                 fetchNextPage={fetchNextPage}
                 isFetchingNextPage={isFetchingNextPage}

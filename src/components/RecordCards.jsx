@@ -4,10 +4,14 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/utils/dateDisplay'
 import { formatMoney, formatQty } from '@/utils/commonFunctions'
+import { isIssueRecord, movementPrices } from '@/utils/typeInventory'
+
+const moneyOrDash = (value) => (value == null ? '-' : formatMoney(value))
 
 const RecordCards = ({
   records,
   showPayment = false,
+  showProfit = false,
   onEdit,
   onDelete,
   detailsPath
@@ -16,7 +20,10 @@ const RecordCards = ({
 
   return (
     <div className="space-y-3 lg:hidden">
-      {records.map((record) => (
+      {records.map((record) => {
+        const prices =
+          showProfit && isIssueRecord(record) ? movementPrices(record) : null
+        return (
         <Card key={record._id} className="gap-3 py-4">
           <CardContent className="space-y-3 px-4">
             <div className="flex items-start justify-between gap-3">
@@ -46,10 +53,33 @@ const RecordCards = ({
                 <dt className="text-xs text-muted-foreground">Cantidad</dt>
                 <dd>{formatQty(record.quantity)}</dd>
               </div>
-              <div>
-                <dt className="text-xs text-muted-foreground">Precio</dt>
-                <dd>${formatQty(record.productPrice)}</dd>
-              </div>
+              {prices ? (
+                <>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">
+                      Precio compra
+                    </dt>
+                    <dd>{moneyOrDash(prices.purchasePrice)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">
+                      Precio venta
+                    </dt>
+                    <dd>{moneyOrDash(prices.productPrice)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Utilidad</dt>
+                    <dd className="font-semibold">
+                      {moneyOrDash(prices.profit)}
+                    </dd>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <dt className="text-xs text-muted-foreground">Precio</dt>
+                  <dd>${formatQty(record.productPrice)}</dd>
+                </div>
+              )}
               <div>
                 <dt className="text-xs text-muted-foreground">Total</dt>
                 <dd className="font-semibold">
@@ -92,7 +122,8 @@ const RecordCards = ({
             )}
           </CardContent>
         </Card>
-      ))}
+        )
+      })}
     </div>
   )
 }
