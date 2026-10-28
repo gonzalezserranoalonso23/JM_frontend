@@ -39,13 +39,13 @@ const DailyInformationDashboard = () => {
 
   return (
     <Card as="section" className="mb-6" aria-labelledby="daily-summary-title">
-      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle>
           <h2 id="daily-summary-title" className="text-xl font-semibold">
             Información ventas
           </h2>
         </CardTitle>
-        <div className="w-full sm:w-64">
+        <div className="w-full sm:w-64 sm:shrink-0">
           <label
             htmlFor="daily-information-date"
             className="mb-1 block text-sm font-medium text-muted-foreground"
@@ -84,8 +84,12 @@ const DailyInformationDashboard = () => {
             No hay información diaria registrada desde el 1 de octubre de 2026.
           </p>
         )}
-        <div className="grid min-h-24 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <dl className="grid min-h-24 grid-cols-1 gap-4 sm:grid-cols-4">
           {[
+            [
+              'Ventas totales',
+              selectedRecord ? formatAmount(selectedRecord.totalSales) : '—'
+            ],
             [
               'Efectivo',
               selectedRecord ? formatAmount(selectedRecord.cashSales) : '—'
@@ -95,24 +99,20 @@ const DailyInformationDashboard = () => {
               selectedRecord ? formatAmount(selectedRecord.cardSales) : '—'
             ],
             [
-              'Ventas totales',
-              selectedRecord ? formatAmount(selectedRecord.totalSales) : '—'
-            ],
-            [
               'Transacciones',
               selectedRecord ? (selectedRecord.totalTransactions ?? 0) : '—'
             ]
           ].map(([label, value]) => (
             <div key={label} className="min-w-0 py-2">
-              <p className="text-sm font-medium text-muted-foreground">
+              <dt className="text-sm font-medium text-muted-foreground">
                 {label}
-              </p>
-              <p className="mt-3 text-2xl font-bold text-foreground">
+              </dt>
+              <dd className="mt-3 text-2xl font-bold text-foreground tabular-nums">
                 {isLoading ? <Skeleton className="h-8 w-28" /> : value}
-              </p>
+              </dd>
             </div>
           ))}
-        </div>
+        </dl>
       </CardContent>
     </Card>
   )

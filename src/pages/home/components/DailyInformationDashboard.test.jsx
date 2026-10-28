@@ -83,6 +83,9 @@ describe('DailyInformationDashboard', () => {
     expect(screen.queryByText('30 de septiembre de 2026')).toBeNull()
     expect(screen.getAllByText('$800.00')).toHaveLength(2)
     expect(screen.queryByText('$900.00')).toBeNull()
+    expect(screen.getAllByRole('term').map((term) => term.textContent)).toEqual(
+      ['Ventas totales', 'Efectivo', 'Tarjeta', 'Transacciones']
+    )
   })
 
   it('shows a notice when there are no daily records', () => {
