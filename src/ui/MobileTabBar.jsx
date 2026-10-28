@@ -119,18 +119,20 @@ const MobileTabBar = ({
                 onClick={() => setMoreOpen(false)}
                 className={({ isActive }) =>
                   cn(
-                    'relative flex flex-col items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-medium',
+                    'relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1.5 text-[11px] font-medium',
                     isActive ? 'text-foreground' : 'text-muted-foreground'
                   )
                 }
               >
-                <Icon className="h-5 w-5" aria-hidden="true" />
-                <span>{label}</span>
-                {badge && pendingCount > 0 && (
-                  <span className="absolute right-3 top-1 min-w-4 rounded-full bg-destructive px-1 text-center text-[10px] leading-4 text-white">
-                    {pendingCount > 99 ? '99+' : pendingCount}
-                  </span>
-                )}
+                <span className="relative">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                  {badge && pendingCount > 0 && (
+                    <span className="absolute -right-2 -top-1.5 z-10 min-w-4 rounded-full bg-destructive px-1 text-center text-[10px] leading-4 text-white">
+                      {pendingCount > 99 ? '99+' : pendingCount}
+                    </span>
+                  )}
+                </span>
+                <span className="w-full truncate text-center">{label}</span>
               </NavLink>
             )
           })}

@@ -143,9 +143,9 @@ const StockDashboard = () => {
               <ul className="m-0 list-none divide-y border-t p-0">
                 {lowStockProducts.map((product) => (
                   <li key={product._id}>
-                    <article className="flex items-center justify-between px-6 py-4">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-foreground">
+                    <article className="flex items-center justify-between gap-3 px-4 py-4 sm:px-6">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="break-words font-medium text-foreground">
                           {product.productName}
                         </h3>
                         {product.productDescription && (
@@ -161,7 +161,7 @@ const StockDashboard = () => {
                           / Mín: {product.minimumProductStock}
                         </p>
                       </div>
-                      <div>
+                      <div className="shrink-0">
                         {product.productStock === 0 ? (
                           <Badge variant="destructive">Agotado</Badge>
                         ) : (

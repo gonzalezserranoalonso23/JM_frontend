@@ -1,6 +1,7 @@
 import { formatMoney, roundTo } from '@/utils/commonFunctions'
 import { todayLocal } from '@/utils/dateDisplay'
 import { useMemo, useState } from 'react'
+import { RefreshCw } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useGetSalesByDateRangePages } from '@/features/inventory.features'
 import { getSalesByDateRange } from '@/services/inventory.services'
@@ -8,6 +9,11 @@ import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import ListSkeleton from '@/components/ListSkeleton'
 import Skeleton from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -46,7 +52,9 @@ const ReportsSalesAndMovements = () => {
     isPlaceholderData,
     hasNextPage,
     fetchNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
+    refetch,
+    isRefetching
   } = useGetSalesByDateRangePages(
     startDate,
     endDate,
@@ -153,17 +161,36 @@ const ReportsSalesAndMovements = () => {
               Movimientos y ventas por período
             </p>
           </div>
-          <Button
-            type="button"
-            onClick={handleExport}
-            disabled={isDateRangeInvalid || isExporting || totalRecords === 0}
-          >
-            {isExporting ? 'Exportando...' : 'Exportar a Excel'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label="Actualizar"
+                  onClick={() => refetch()}
+                  disabled={isDateRangeInvalid || isRefetching}
+                >
+                  <RefreshCw
+                    className={isRefetching ? 'animate-spin' : undefined}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Actualizar</TooltipContent>
+            </Tooltip>
+            <Button
+              type="button"
+              onClick={handleExport}
+              disabled={isDateRangeInvalid || isExporting || totalRecords === 0}
+            >
+              {isExporting ? 'Exportando...' : 'Exportar a Excel'}
+            </Button>
+          </div>
         </header>
 
         <div className="flex flex-wrap items-end gap-4">
-          <div className="flex flex-col gap-2">
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:w-52">
             <Label htmlFor="report-start-date">Desde</Label>
             <Input
               id="report-start-date"
@@ -176,7 +203,7 @@ const ReportsSalesAndMovements = () => {
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex w-full min-w-0 flex-col gap-2 sm:w-52">
             <Label htmlFor="report-end-date">Hasta</Label>
             <Input
               id="report-end-date"

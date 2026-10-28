@@ -73,7 +73,7 @@ const Navigate = () => {
                         {badge && pendingCount > 0 && (
                           <Badge
                             variant="secondary"
-                            className="pointer-events-none absolute -right-1 top-0"
+                            className="pointer-events-none px-1.5"
                           >
                             {pendingCount}
                           </Badge>

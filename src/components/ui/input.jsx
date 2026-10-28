@@ -1,8 +1,11 @@
 import * as React from 'react'
+import { Calendar, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+const PICKER_TYPES = new Set(['date', 'time', 'datetime-local', 'month'])
+
 function Input({ className, type, ...props }) {
-  return (
+  const field = (
     <input
       type={type}
       autoComplete="off"
@@ -15,6 +18,20 @@ function Input({ className, type, ...props }) {
       )}
       {...props}
     />
+  )
+
+  if (!PICKER_TYPES.has(type)) return field
+
+  const Icon = type === 'time' ? Clock : Calendar
+
+  return (
+    <span className="relative block w-full min-w-0">
+      {field}
+      <Icon
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 right-3 z-10 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+    </span>
   )
 }
 

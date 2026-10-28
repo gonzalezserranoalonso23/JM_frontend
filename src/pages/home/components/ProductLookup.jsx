@@ -81,9 +81,9 @@ const ProductLookup = () => {
 
                 return (
                   <li key={product._id}>
-                    <article className="flex items-center justify-between gap-4 px-4 py-3">
+                    <article className="flex items-start justify-between gap-3 px-4 py-3">
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-medium text-foreground">
+                        <h3 className="break-words font-medium text-foreground">
                           {product.productName}
                         </h3>
                         {product.productDescription && (
@@ -112,8 +112,8 @@ const ProductLookup = () => {
                         }
                         className={
                           isLow && !isOut
-                            ? 'border-transparent bg-yellow-600 text-white'
-                            : undefined
+                            ? 'mt-0.5 shrink-0 border-transparent bg-yellow-600 text-white'
+                            : 'mt-0.5 shrink-0'
                         }
                       >
                         {isOut ? 'Agotado' : isLow ? 'Bajo' : 'Disponible'}
