@@ -1,19 +1,41 @@
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient, QueryCache } from '@tanstack/react-query'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { toast } from 'react-hot-toast'
 
 const PERSIST_KEY = 'jm-query-cache'
 const DAY = 24 * 60 * 60 * 1000
 // Subir al cambiar la forma de los datos persistidos para descartar el caché viejo.
 const CACHE_VERSION = 'v1'
 
+const isCanceled = (error) =>
+  error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError'
+
+// Un timeout o un cierre de sesión no se reintenta: la pantalla debe soltarse.
+export const shouldRetryQuery = (failureCount, error) => {
+  if (isCanceled(error) || error?.code === 'ECONNABORTED') return false
+  return failureCount < 1
+}
+
+const reportQueryError = (error, query) => {
+  if (isCanceled(error) || query.state.data !== undefined) return
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return
+  toast.error(
+    error?.code === 'ECONNABORTED'
+      ? 'La solicitud tardó demasiado. Intenta de nuevo.'
+      : 'No se pudo cargar la información',
+    { id: 'query-load-error' }
+  )
+}
+
 // Los datos operativos (stock, movimientos) se refrescan con las
 // invalidaciones de cada mutación; 1 min evita peticiones repetidas al navegar.
 export const queryClient = new QueryClient({
+  queryCache: new QueryCache({ onError: reportQueryError }),
   defaultOptions: {
     queries: {
       staleTime: 60 * 1000,
       gcTime: DAY,
-      retry: 1,
+      retry: shouldRetryQuery,
       refetchOnReconnect: true
     }
   }

@@ -2,6 +2,7 @@ import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Navigate from '@/ui/Navigate'
 import Loading from '@/ui/Loading'
+import RouteErrorBoundary from '@/components/RouteErrorBoundary'
 
 const PAGE_TITLES = {
   '/home': 'Inicio',
@@ -55,9 +56,11 @@ const ProtectedLayout = () => {
     <div className="flex min-h-0 flex-1 flex-col bg-background">
       <Navigate />
       <main className="app-page-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-[var(--app-nav-height)] pb-[var(--app-tab-height)] [-webkit-overflow-scrolling:touch]">
-        <Suspense fallback={<Loading />}>
-          <Outlet />
-        </Suspense>
+        <RouteErrorBoundary resetKey={pathname}>
+          <Suspense fallback={<Loading />}>
+            <Outlet />
+          </Suspense>
+        </RouteErrorBoundary>
       </main>
     </div>
   )

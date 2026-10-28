@@ -3,7 +3,9 @@ import { isTokenExpired, useAuthStore } from '@/store/auth'
 
 const authApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true
+  withCredentials: true,
+  // Si el servidor no contesta, la pantalla deja de esperar en lugar de quedarse cargando.
+  timeout: 25000
 })
 
 authApi.interceptors.request.use((config) => {
