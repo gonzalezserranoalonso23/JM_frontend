@@ -35,6 +35,8 @@ import Loading from '@/ui/Loading'
 import {
   formatMoney,
   formatQty,
+  informativeStock,
+  roundTo,
   calcLineTotal,
   confirmDiscardChanges
 } from '@/utils/commonFunctions'
@@ -123,12 +125,16 @@ const MovementModal = ({
   const pageProducts = productPage?.data ?? []
 
   const findProduct = (id) =>
-    pageProducts.find((product) => product._id === id) ||
-    knownProducts.current.get(id)
+    pageProducts.find((product) => String(product._id) === String(id)) ||
+    knownProducts.current.get(id) ||
+    knownProducts.current.get(String(id))
 
   const withSelection = (products, selectedId) => {
     const selected = findProduct(selectedId)
-    if (!selected || products.some((product) => product._id === selected._id)) {
+    if (
+      !selected ||
+      products.some((product) => String(product._id) === String(selected._id))
+    ) {
       return products
     }
     return [selected, ...products]
@@ -155,15 +161,22 @@ const MovementModal = ({
     return next
   }
 
-  const getAvailableStock = (product, excludeTempId) => {
-    if (!product) return 0
-    const usedInCart = cart
-      .filter(
-        (item) =>
-          item.productName === product._id && item.tempId !== excludeTempId
+  const cartQty = (productId) =>
+    cart
+      .filter((item) => String(item.productName) === String(productId))
+      .reduce(
+        (sum, item) => roundTo(sum + (parseFloat(item.quantity) || 0), 3),
+        0
       )
-      .reduce((sum, item) => sum + (parseFloat(item.quantity) || 0), 0)
-    return product.productStock - usedInCart
+
+  const stockFigures = (productId, fallbackStock) => {
+    const product = findProduct(productId)
+    const saved = cart.find(
+      (item) => String(item.productName) === String(productId)
+    )?.originalStock
+    const original =
+      product?.productStock ?? saved ?? fallbackStock ?? 0
+    return informativeStock(original, cartQty(productId))
   }
 
   const setItemField = (name, value) => {
@@ -217,6 +230,13 @@ const MovementModal = ({
   }, [modalShow])
 
   const itemSelectedProduct = findProduct(itemForm.productName)
+  const selectedFigures = itemSelectedProduct
+    ? stockFigures(itemSelectedProduct._id, itemSelectedProduct.productStock)
+    : null
+  const stockText = (product) => {
+    const figures = stockFigures(product._id, product.productStock)
+    return `Stock: ${formatQty(figures.original)} · Disponible: ${formatQty(figures.available)}`
+  }
 
   const handleAddToCart = () => {
     if (!itemForm.productName || !itemForm.quantity) {
@@ -225,16 +245,22 @@ const MovementModal = ({
     }
 
     if (copy.checkStock) {
-      const available = getAvailableStock(itemSelectedProduct)
-      if (available < parseFloat(itemForm.quantity)) {
-        setError(`Stock insuficiente. Disponible: ${formatQty(available)}`)
+      const figures = stockFigures(
+        itemForm.productName,
+        itemSelectedProduct?.productStock
+      )
+      if (figures.available < roundTo(itemForm.quantity, 3)) {
+        setError(
+          `Stock insuficiente. Disponible: ${formatQty(figures.available)}`
+        )
         return
       }
     }
 
     addItem({
       ...itemForm,
-      productLabel: itemSelectedProduct?.productName || ''
+      productLabel: itemSelectedProduct?.productName || '',
+      originalStock: roundTo(itemSelectedProduct?.productStock, 3)
     })
     setItemForm(getEmptyItem())
     setError('')
@@ -277,6 +303,18 @@ const MovementModal = ({
 
     setIsSubmitting(true)
 
+    const plural = cart.length === 1 ? copy.noun : `${copy.noun}s`
+    if (
+      !window.confirm(
+        `¿Estás seguro que deseas registrar ${cart.length} ${plural}?`
+      )
+    ) {
+      setIsSubmitting(false)
+      return
+    }
+
+    // El aviso de al agregar no reserva el stock. Se vuelve a leer justo
+    // antes de enviar, porque otra salida pudo haberlo tomado mientras tanto.
     if (copy.checkStock) {
       const ids = [...new Set(cart.map((item) => item.productName))]
       const freshProducts = await Promise.all(
@@ -284,8 +322,10 @@ const MovementModal = ({
       )
       freshProducts.forEach(rememberProduct)
       const requested = cart.reduce((acc, item) => {
-        acc[item.productName] =
-          (acc[item.productName] || 0) + (parseFloat(item.quantity) || 0)
+        acc[item.productName] = roundTo(
+          (acc[item.productName] || 0) + (parseFloat(item.quantity) || 0),
+          3
+        )
         return acc
       }, {})
       const short = Object.entries(requested)
@@ -293,7 +333,10 @@ const MovementModal = ({
           product: freshProducts.find((product) => product?._id === id),
           qty
         }))
-        .find(({ product, qty }) => !product || product.productStock < qty)
+        .find(
+          ({ product, qty }) =>
+            !product || roundTo(product.productStock, 3) < qty
+        )
 
       if (short) {
         setIsSubmitting(false)
@@ -304,16 +347,6 @@ const MovementModal = ({
         )
         return
       }
-    }
-
-    const plural = cart.length === 1 ? copy.noun : `${copy.noun}s`
-    if (
-      !window.confirm(
-        `¿Estás seguro que deseas registrar ${cart.length} ${plural}?`
-      )
-    ) {
-      setIsSubmitting(false)
-      return
     }
 
     const records = cart.map(({ tempId, productLabel, ...payload }) => ({
@@ -329,8 +362,10 @@ const MovementModal = ({
       await createBulkAction.mutateAsync(records)
       clearCart()
       handleClose()
-    } catch {
+    } catch (error) {
       // El carrito se conserva para que el usuario pueda reintentar
+      const message = error.response?.data?.message
+      if (message) setError(message)
     } finally {
       setIsSubmitting(false)
     }
@@ -351,7 +386,8 @@ const MovementModal = ({
     if (
       copy.checkStock &&
       editSelectedProduct &&
-      editSelectedProduct.productStock < parseFloat(editFormData.quantity)
+      roundTo(editSelectedProduct.productStock, 3) <
+        roundTo(editFormData.quantity, 3)
     ) {
       setError(
         `Stock insuficiente. Disponible: ${formatQty(editSelectedProduct.productStock)}`
@@ -545,6 +581,7 @@ const MovementModal = ({
                     onQueryChange={setProductQuery}
                     placeholder="Selecciona producto"
                     showStock
+                    stockText={copy.checkStock ? stockText : undefined}
                   />
                 </div>
                 <div>
@@ -559,10 +596,14 @@ const MovementModal = ({
                     step="0.001"
                     min="0"
                   />
-                  {copy.checkStock && itemSelectedProduct && (
-                    <small className="text-muted-foreground">
-                      Stock disponible: {getAvailableStock(itemSelectedProduct)}
-                    </small>
+                  {copy.checkStock && selectedFigures && (
+                    <p className="text-xs text-muted-foreground">
+                      Stock: {formatQty(selectedFigures.original)}
+                      {' · '}
+                      En carrito: {formatQty(selectedFigures.inCart)}
+                      {' · '}
+                      Disponible: {formatQty(selectedFigures.available)}
+                    </p>
                   )}
                 </div>
                 <div>
@@ -594,6 +635,12 @@ const MovementModal = ({
               </div>
               <div className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-4 lg:self-stretch">
                 <Label>Carrito ({cart.length})</Label>
+                {copy.checkStock && cart.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Stock es el del almacén. Disponible resta este carrito y
+                    no cambia el almacén hasta registrar.
+                  </p>
+                )}
                 {cart.length === 0 ? (
                   <div className="flex flex-1 items-center justify-center py-10 text-center text-sm text-muted-foreground">
                     Aún no hay productos en el carrito
@@ -601,7 +648,11 @@ const MovementModal = ({
                 ) : (
                   <>
                     <ul className="space-y-2 lg:hidden">
-                      {cart.map((item) => (
+                      {cart.map((item) => {
+                        const figures = copy.checkStock
+                          ? stockFigures(item.productName, item.originalStock)
+                          : null
+                        return (
                         <li
                           key={item.tempId}
                           className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"
@@ -611,7 +662,10 @@ const MovementModal = ({
                               {item.productLabel}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              Cant. {item.quantity} · $
+                              Cant. {item.quantity}
+                              {figures &&
+                                ` · Stock: ${formatQty(figures.original)} · Disponible: ${formatQty(figures.available)}`}
+                              {' · '}$
                               {parseFloat(item.totalAmount || 0).toFixed(2)}
                             </p>
                           </div>
@@ -625,7 +679,8 @@ const MovementModal = ({
                             ✕
                           </Button>
                         </li>
-                      ))}
+                        )
+                      })}
                     </ul>
                     <div className="hidden max-h-72 overflow-y-auto overscroll-contain rounded-lg border lg:block">
                       <Table>
@@ -638,9 +693,22 @@ const MovementModal = ({
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {cart.map((item) => (
+                          {cart.map((item) => {
+                            const figures = copy.checkStock
+                              ? stockFigures(item.productName, item.originalStock)
+                              : null
+                            return (
                             <TableRow key={item.tempId}>
-                              <TableCell>{item.productLabel}</TableCell>
+                              <TableCell>
+                                {item.productLabel}
+                                {figures && (
+                                  <p className="text-xs text-muted-foreground">
+                                    Stock: {formatQty(figures.original)}
+                                    {' · '}
+                                    Disponible: {formatQty(figures.available)}
+                                  </p>
+                                )}
+                              </TableCell>
                               <TableCell className="text-center">
                                 {item.quantity}
                               </TableCell>
@@ -659,7 +727,8 @@ const MovementModal = ({
                                 </Button>
                               </TableCell>
                             </TableRow>
-                          ))}
+                            )
+                          })}
                         </TableBody>
                       </Table>
                     </div>

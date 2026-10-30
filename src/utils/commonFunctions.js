@@ -33,6 +33,18 @@ export const calcLineTotal = (quantity, price) => {
 // Cantidad/stock con máximo 3 decimales y sin ceros sobrantes: 0.30000000000000004 -> 0.3
 export const formatQty = (value) => roundTo(value, 3)
 
+// Stock del almacén y disponible de este carrito. El original no cambia;
+// el disponible resta solo las cantidades ya agregadas.
+export const informativeStock = (original, used) => {
+  const stock = roundTo(original, 3)
+  const inCart = roundTo(used, 3)
+  return {
+    original: stock,
+    inCart,
+    available: roundTo(stock - inCart, 3)
+  }
+}
+
 const extraDecimals = /^(-?\d*\.\d{3})\d+$/
 
 export const clampNumberInputValue = (value) => {

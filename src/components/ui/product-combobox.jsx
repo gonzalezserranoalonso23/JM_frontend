@@ -17,7 +17,8 @@ const ProductCombobox = ({
   onValueChange,
   onQueryChange,
   placeholder = 'Buscar producto',
-  showStock = false
+  showStock = false,
+  stockText
 }) => {
   const productList = products ?? []
   const [search, setSearch] = useState('')
@@ -30,9 +31,13 @@ const ProductCombobox = ({
   const listTouch = useRef({ y: 0, moved: false, active: false })
   const [box, setBox] = useState(null)
   const selectedProduct = productList.find((product) => product._id === value)
+  const stockLabel = (product) =>
+    stockText
+      ? stockText(product)
+      : `Stock: ${formatQty(product.productStock)}`
   const selectedLabel = selectedProduct
     ? `${selectedProduct.productName}${
-        showStock ? ` (Stock: ${formatQty(selectedProduct.productStock)})` : ''
+        showStock ? ` (${stockLabel(selectedProduct)})` : ''
       }`
     : ''
   const searchedProducts = productList.filter((product) => {
@@ -297,9 +302,12 @@ const ProductCombobox = ({
                 >
                   <span className="block truncate text-sm">
                     {product.productName}
-                    {showStock &&
-                      ` (Stock: ${formatQty(product.productStock)})`}
                   </span>
+                  {showStock && (
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {stockLabel(product)}
+                    </span>
+                  )}
                   {product.productDescription && (
                     <span className="block truncate text-xs text-muted-foreground">
                       {product.productDescription}

@@ -47,9 +47,9 @@ describe('ProductCombobox', () => {
     const onValueChange = setup()
 
     await user.click(screen.getByRole('combobox', { name: 'Producto' }))
-    await user.click(
-      await screen.findByRole('option', { name: /Café soluble \(Stock: 12\)/ })
-    )
+    const option = await screen.findByRole('option', { name: /Café soluble/ })
+    expect(option).toHaveTextContent('Stock: 12')
+    await user.click(option)
 
     expect(onValueChange).toHaveBeenCalledWith('p1')
   })

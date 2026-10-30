@@ -4,6 +4,7 @@ import { buildMatcher, matchesCells } from './filterMatcher'
 import {
   clampNumberInputValue,
   formatQty,
+  informativeStock,
   limitNumberInputDecimals,
   roundTo
 } from './commonFunctions'
@@ -64,6 +65,26 @@ describe('clampNumberInputValue', () => {
     limitNumberInputDecimals(textInput)
     expect(numberInput.value).toBe('1.234')
     expect(textInput.value).toBe('1.23456')
+  })
+})
+
+describe('informativeStock', () => {
+  it('deja el stock original y baja solo el disponible del carrito', () => {
+    expect(informativeStock(10, 0)).toEqual({
+      original: 10,
+      inCart: 0,
+      available: 10
+    })
+    expect(informativeStock(10, 3)).toEqual({
+      original: 10,
+      inCart: 3,
+      available: 7
+    })
+    expect(informativeStock(10, 3.5 + 1.5)).toEqual({
+      original: 10,
+      inCart: 5,
+      available: 5
+    })
   })
 })
 
