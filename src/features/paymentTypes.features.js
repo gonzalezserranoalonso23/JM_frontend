@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
+import { notifyError } from '@/libs/handleErrors'
 import {
   createPaymentType,
   deletePaymentType,
@@ -24,9 +25,7 @@ const usePaymentTypeMutation = (mutationFn, message) => {
   return useMutation({
     mutationFn,
     onError: (error) =>
-      toast.error(
-        error.response?.data?.message || 'No se pudo completar la operación'
-      ),
+      notifyError(error, 'No se pudo completar la operación'),
     onSuccess: () => {
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ['PaymentTypes'] })

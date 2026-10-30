@@ -2,7 +2,7 @@ import { formatMoney, roundTo } from '@/utils/commonFunctions'
 import { todayLocal } from '@/utils/dateDisplay'
 import { useMemo, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { notifyError } from '@/libs/handleErrors'
 import { useGetSalesByDateRangePages } from '@/features/inventory.features'
 import { getSalesByDateRange } from '@/services/inventory.services'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
@@ -142,8 +142,8 @@ const ReportsSalesAndMovements = () => {
         `reporte-movimientos_${startDate}_${endDate}.xlsx`,
         { includeProfit: showProfit }
       )
-    } catch {
-      toast.error('No se pudo exportar el reporte a Excel')
+    } catch (error) {
+      notifyError(error, 'No se pudo exportar el reporte a Excel')
     } finally {
       setIsExporting(false)
     }

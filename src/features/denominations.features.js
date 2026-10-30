@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import { notifyError } from '@/libs/handleErrors'
 import {
   getVaultUpdatedAt,
   openVault,
@@ -14,7 +15,7 @@ export const useVaultUpdatedAt = () =>
   })
 
 const vaultError = (error) =>
-  toast.error(error.response?.data?.message || 'No se pudo abrir la caja fuerte')
+  notifyError(error, 'No se pudo abrir la caja fuerte')
 
 export const useOpenVault = () =>
   useMutation({
@@ -32,8 +33,6 @@ export const useSaveVault = () => {
       queryClient.setQueryData(['VaultUpdatedAt'], { updatedAt: data.updatedAt })
     },
     onError: (error) =>
-      toast.error(
-        error.response?.data?.message || 'No se pudo guardar la caja fuerte'
-      )
+      notifyError(error, 'No se pudo guardar la caja fuerte')
   })
 }

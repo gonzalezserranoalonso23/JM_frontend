@@ -7,6 +7,7 @@ import {
   deleteTask
 } from '@/services/tasks.services'
 import toast from 'react-hot-toast'
+import { notifyError } from '@/libs/handleErrors'
 
 export const useGetPendingTasks = () => {
   return useQuery({
@@ -37,7 +38,7 @@ export const useCreateTask = () => {
       queryClient.invalidateQueries({ queryKey: ['pendingTasks'] })
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Error al crear la tarea')
+      notifyError(error, 'Error al crear la tarea')
     }
   })
 }
@@ -54,9 +55,7 @@ export const useUpdateTask = () => {
       queryClient.invalidateQueries({ queryKey: ['completedTasks'] })
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || 'Error al actualizar la tarea'
-      )
+      notifyError(error, 'Error al actualizar la tarea')
     }
   })
 }
@@ -73,7 +72,7 @@ export const useDeleteTask = () => {
       queryClient.invalidateQueries({ queryKey: ['completedTasks'] })
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Error al eliminar la tarea')
+      notifyError(error, 'Error al eliminar la tarea')
     }
   })
 }

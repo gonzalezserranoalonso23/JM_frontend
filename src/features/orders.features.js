@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
+import { notifyError } from '@/libs/handleErrors'
 import {
   getOrderRequests,
   createOrderRequest,
@@ -23,11 +24,7 @@ export const useCreateOrderRequest = () => {
       toast.success('Solicitud de pedido creada!')
       queryClient.invalidateQueries({ queryKey: ['OrderRequests'] })
     },
-    onError: (error) => {
-      const message =
-        error.response?.data?.message || 'Error al crear solicitud'
-      toast.error(message)
-    }
+    onError: (error) => notifyError(error, 'Error al crear solicitud')
   })
   return mutation
 }
@@ -40,11 +37,7 @@ export const useUpdateOrderRequest = () => {
       toast.success('Solicitud actualizada!')
       queryClient.invalidateQueries({ queryKey: ['OrderRequests'] })
     },
-    onError: (error) => {
-      const message =
-        error.response?.data?.message || 'Error al actualizar solicitud'
-      toast.error(message)
-    }
+    onError: (error) => notifyError(error, 'Error al actualizar solicitud')
   })
   return mutation
 }

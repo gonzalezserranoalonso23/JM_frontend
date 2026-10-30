@@ -6,6 +6,7 @@ import {
   useQuery
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
+import { notifyError } from '@/libs/handleErrors'
 import {
   getSuppliers,
   getSuppliersPage,
@@ -55,9 +56,7 @@ export const useUpdateSupplier = () => {
       queryClient.invalidateQueries({ queryKey: ['Suppliers'] })
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || 'Error al actualizar el proveedor'
-      )
+      notifyError(error, 'Error al actualizar el proveedor')
     }
   })
   return mutationUpdate
@@ -72,9 +71,7 @@ export const useCreateSupplier = () => {
       queryClient.invalidateQueries({ queryKey: ['Suppliers'] })
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || 'Error al crear el proveedor'
-      )
+      notifyError(error, 'Error al crear el proveedor')
     }
   })
   return mutationCreate

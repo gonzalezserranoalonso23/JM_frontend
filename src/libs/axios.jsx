@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { isTokenExpired, useAuthStore } from '@/store/auth'
+import { handleErrors } from '@/libs/handleErrors'
 
 const authApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -30,13 +31,17 @@ authApi.interceptors.request.use((config) => {
 authApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    const status = error?.response?.status
-    if (status === 401) {
+    const handled = handleErrors(error)
+    error.handled = handled
+    if (handled.logout) {
       const { logOut } = useAuthStore.getState()
       logOut()
       if (typeof window !== 'undefined' && window.location.pathname !== '/') {
         window.location.assign('/')
       }
+    }
+    if (handled.redirectTo && typeof window !== 'undefined') {
+      window.location.assign(handled.redirectTo)
     }
     return Promise.reject(error)
   }

@@ -41,6 +41,7 @@ import {
   confirmDiscardChanges
 } from '@/utils/commonFunctions'
 import { useCart } from '@/hooks/useCart'
+import { errorMessage } from '@/libs/handleErrors'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
 import useDebouncedValue from '@/hooks/useDebouncedValue'
 
@@ -364,7 +365,7 @@ const MovementModal = ({
       handleClose()
     } catch (error) {
       // El carrito se conserva para que el usuario pueda reintentar
-      const message = error.response?.data?.message
+      const message = errorMessage(error)
       if (message) setError(message)
     } finally {
       setIsSubmitting(false)

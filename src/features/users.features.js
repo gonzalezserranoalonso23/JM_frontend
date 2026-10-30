@@ -5,6 +5,7 @@ import {
   useQueryClient
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
+import { notifyError } from '@/libs/handleErrors'
 import { useAuthStore } from '@/store/auth'
 import {
   login,
@@ -31,7 +32,7 @@ export const useLogin = () => {
       isAdmin(data.data.isAdmin)
       navigate('../home')
     },
-    onError: () => toast.error('Error al iniciar sesión!')
+    onError: (error) => notifyError(error, 'Error al iniciar sesión!')
   })
   return mutationLogin
 }
@@ -61,9 +62,7 @@ export const useRegisterUser = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || 'Error al registrar el usuario'
-      )
+      notifyError(error, 'Error al registrar el usuario')
     }
   })
 }
@@ -77,9 +76,7 @@ export const useUpdateUser = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || 'Error al actualizar el usuario'
-      )
+      notifyError(error, 'Error al actualizar el usuario')
     }
   })
 }
@@ -93,9 +90,7 @@ export const useDeleteUser = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || 'Error al eliminar el usuario'
-      )
+      notifyError(error, 'Error al eliminar el usuario')
     }
   })
 }

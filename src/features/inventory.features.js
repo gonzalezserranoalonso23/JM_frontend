@@ -6,6 +6,7 @@ import {
   useQuery
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
+import { notifyError } from '@/libs/handleErrors'
 import {
   getInventoryRecord,
   getInventoryRecordsPage,
@@ -69,11 +70,8 @@ export const useCreateInventoryRecord = () => {
       toast.success('Movimiento de inventario registrado exitosamente!')
       invalidateStockQueries(queryClient)
     },
-    onError: (error) => {
-      const message =
-        error.response?.data?.message || 'Error al registrar el movimiento'
-      toast.error(message)
-    }
+    onError: (error) =>
+      notifyError(error, 'Error al registrar el movimiento')
   })
   return mutation
 }
@@ -89,11 +87,8 @@ export const useCreateInventoryRecords = () => {
       )
       invalidateStockQueries(queryClient)
     },
-    onError: (error) => {
-      const message =
-        error.response?.data?.message || 'Error al registrar los movimientos'
-      toast.error(message)
-    }
+    onError: (error) =>
+      notifyError(error, 'Error al registrar los movimientos')
   })
   return mutation
 }
@@ -106,11 +101,8 @@ export const useUpdateInventoryRecord = () => {
       toast.success('Movimiento actualizado exitosamente!')
       invalidateStockQueries(queryClient)
     },
-    onError: (error) => {
-      toast.error(
-        error.response?.data?.message || 'Error al actualizar el movimiento'
-      )
-    }
+    onError: (error) =>
+      notifyError(error, 'Error al actualizar el movimiento')
   })
   return mutation
 }
@@ -125,11 +117,8 @@ export const useDeleteInventoryRecord = () => {
       })
       invalidateStockQueries(queryClient)
     },
-    onError: (error) => {
-      toast.error(
-        error.response?.data?.message || 'Error al eliminar el movimiento'
-      )
-    }
+    onError: (error) =>
+      notifyError(error, 'Error al eliminar el movimiento')
   })
   return mutation
 }
