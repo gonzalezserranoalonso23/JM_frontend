@@ -331,7 +331,9 @@ const MovementModal = ({
       }, {})
       const short = Object.entries(requested)
         .map(([id, qty]) => ({
-          product: freshProducts.find((product) => product?._id === id),
+          product: freshProducts.find(
+            (product) => String(product?._id) === String(id)
+          ),
           qty
         }))
         .find(
@@ -372,6 +374,18 @@ const MovementModal = ({
     }
   }
 
+  // Esta salida ya descontó su cantidad. Al editarla, ese stock sigue disponible.
+  const editHeldQty =
+    copy.checkStock &&
+    record &&
+    String(record.productName?._id || record.productName) ===
+      String(editFormData.productName)
+      ? roundTo(record.quantity, 3)
+      : 0
+  const editAvailable = editSelectedProduct
+    ? roundTo(roundTo(editSelectedProduct.productStock, 3) + editHeldQty, 3)
+    : null
+
   const handleSubmitEdit = (event) => {
     event.preventDefault()
 
@@ -387,12 +401,9 @@ const MovementModal = ({
     if (
       copy.checkStock &&
       editSelectedProduct &&
-      roundTo(editSelectedProduct.productStock, 3) <
-        roundTo(editFormData.quantity, 3)
+      editAvailable < roundTo(editFormData.quantity, 3)
     ) {
-      setError(
-        `Stock insuficiente. Disponible: ${formatQty(editSelectedProduct.productStock)}`
-      )
+      setError(`Stock insuficiente. Disponible: ${formatQty(editAvailable)}`)
       return
     }
 
@@ -474,10 +485,9 @@ const MovementModal = ({
                     min="0"
                     required
                   />
-                  {copy.checkStock && editSelectedProduct && (
+                  {copy.checkStock && editAvailable != null && (
                     <small className="text-muted-foreground">
-                      Stock disponible:{' '}
-                      {formatQty(editSelectedProduct.productStock)}
+                      Stock disponible: {formatQty(editAvailable)}
                     </small>
                   )}
                 </div>
