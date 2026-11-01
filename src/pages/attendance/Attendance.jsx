@@ -4,7 +4,6 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/store/auth'
 import { useGetCurrentUser } from '@/features/users.features'
 import { hasSchedule } from '@/pages/users/schedule'
@@ -81,11 +80,6 @@ const StaffClock = () => {
         <h1 id="attendance-title" className="text-xl font-semibold">
           Asistencia
         </h1>
-        <p className="text-sm text-muted-foreground">
-          La fecha es la de Ciudad de México y no se puede cambiar. La entrada
-          solo se registra en tu día de trabajo y en el lugar de trabajo. La
-          salida solo se registra si ya hay una entrada.
-        </p>
       </header>
       {isLoading ? (
         <ListSkeleton />
@@ -187,10 +181,10 @@ const AdminBoard = () => {
         </p>
       </header>
       <div className="grid w-full max-w-xs gap-2">
-        <Label htmlFor="attendance-date">Fecha</Label>
         <Input
           id="attendance-date"
           type="date"
+          aria-label="Fecha"
           value={date}
           onChange={(event) => setDate(event.target.value)}
         />
