@@ -88,31 +88,34 @@ const pushManagerOf = (registration) => {
 }
 
 export const subscribeBrowserPush = async () => {
-  const ready = prepared || (await preparePush())
+  // Safari pierde el toque si hay un await antes de subscribe(). La clave y el
+  // service worker ya se prepararon al entrar; aquí no se vuelve a esperar.
+  if (!prepared) await preparePush()
+  const ready = prepared
   const pushManager = pushManagerOf(ready?.registration)
   if (!pushManager || !ready?.applicationServerKey) return null
 
-  let subscription = await pushManager.getSubscription()
-  if (subscription && !sameApplicationKey(subscription, ready.publicKey)) {
-    await subscription.unsubscribe()
-    subscription = null
+  const options = {
+    userVisibleOnly: true,
+    applicationServerKey: ready.applicationServerKey
+  }
+  const subscribeOnce = () => pushManager.subscribe(options)
+
+  let subscription
+  try {
+    subscription = await subscribeOnce()
+  } catch (error) {
+    const unavailable =
+      error?.name === 'AbortError' &&
+      /push service not available/i.test(error?.message || '')
+    if (!unavailable) throw error
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    subscription = await subscribeOnce()
   }
 
-  if (!subscription) {
-    const options = {
-      userVisibleOnly: true,
-      applicationServerKey: ready.applicationServerKey
-    }
-    try {
-      subscription = await pushManager.subscribe(options)
-    } catch (error) {
-      const unavailable =
-        error?.name === 'AbortError' &&
-        /push service not available/i.test(error?.message || '')
-      if (!unavailable) throw error
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      subscription = await pushManager.subscribe(options)
-    }
+  if (subscription && !sameApplicationKey(subscription, ready.publicKey)) {
+    await subscription.unsubscribe()
+    subscription = await subscribeOnce()
   }
 
   await savePushSubscription(subscription.toJSON())

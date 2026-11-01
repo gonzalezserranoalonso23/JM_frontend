@@ -57,12 +57,15 @@ describe('Navigate de administrador', () => {
     auth.haveSchedule = true
   })
 
-  it('abre Reportes y muestra Ventas y Asistencia', async () => {
+  it('un administrador con horario ve Asistencia y Reportes sigue en Ventas', async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 })
     renderNav()
 
+    expect(screen.getByRole('link', { name: 'Asistencia' })).toHaveAttribute(
+      'href',
+      '/attendance'
+    )
     expect(screen.queryByRole('link', { name: 'Ventas' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Asistencia' })).toBeNull()
 
     await user.click(screen.getByRole('button', { name: 'Reportes' }))
 
@@ -70,9 +73,7 @@ describe('Navigate de administrador', () => {
       'href',
       '/reports'
     )
-    expect(
-      screen.getByRole('menuitem', { name: 'Asistencia' })
-    ).toHaveAttribute('href', '/attendance')
+    expect(screen.queryByRole('menuitem', { name: 'Asistencia' })).toBeNull()
   })
 
   it('un administrador sin horario no ve Asistencia dentro de Reportes', async () => {
@@ -83,6 +84,7 @@ describe('Navigate de administrador', () => {
     await user.click(screen.getByRole('button', { name: 'Reportes' }))
 
     expect(screen.getByRole('menuitem', { name: 'Ventas' })).toBeTruthy()
+    expect(screen.queryByRole('link', { name: 'Asistencia' })).toBeNull()
     expect(screen.queryByRole('menuitem', { name: 'Asistencia' })).toBeNull()
   })
 

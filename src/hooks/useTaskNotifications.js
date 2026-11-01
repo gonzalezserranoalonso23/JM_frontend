@@ -32,8 +32,10 @@ const writeSeen = (key, ids) => {
 
 // Pide permiso al sistema. Con la app abierta avisa en el momento;
 // con la app cerrada el backend empuja al dispositivo suscrito.
-const blockedMessage =
-  'El navegador bloqueó las notificaciones. En Mac, actívalas con el candado de la barra de dirección y en Ajustes del Sistema, Notificaciones, para este navegador.'
+const blockedMessage = () =>
+  isAppleBrowser()
+    ? 'Safari bloqueó las notificaciones. En Safari, Ajustes, Sitios web, Notificaciones, permite este sitio.'
+    : 'Chrome bloqueó las notificaciones. A la izquierda de la dirección abre la configuración del sitio, Notificaciones, y elige Permitir.'
 
 const homeScreenMessage =
   'En el iPhone, toca Compartir, elige Agregar a pantalla de inicio y abre JM Panel desde ese ícono. Ahí se activan las notificaciones.'
@@ -55,11 +57,7 @@ const useTaskNotifications = (pendingTasks) => {
   const token = useAuthStore((state) => state.auth)
   const [permission, setPermission] = useState(getPermission)
   const [foregroundOnly, setForegroundOnly] = useState(false)
-  const {
-    ready: pushReady,
-    settled: pushSettled,
-    subscribe
-  } = usePushNotifications(permission)
+  const { ready: pushReady, subscribe } = usePushNotifications(permission)
 
   const requestPermission = useCallback(async () => {
     if (needsHomeScreenInstall()) {
@@ -71,23 +69,25 @@ const useTaskNotifications = (pendingTasks) => {
       return
     }
     if (getPermission() === 'denied') {
-      toast.error(blockedMessage)
+      toast.error(blockedMessage())
       return
     }
     if (!isAppleBrowser() && getPermission() === 'default') {
       const next = await window.Notification.requestPermission()
       setPermission(next)
       if (next !== 'granted') {
-        if (next === 'denied') toast.error(blockedMessage)
+        if (next === 'denied') toast.error(blockedMessage())
         return
       }
     }
     try {
       // En Safari, subscribe() muestra el permiso. Pedirlo antes gasta el toque.
       const linked = await subscribe()
-      setPermission(getPermission())
-      if (getPermission() === 'denied') {
-        toast.error(blockedMessage)
+      const next = getPermission()
+      if (linked || next === 'granted') setPermission('granted')
+      else setPermission(next)
+      if (next === 'denied') {
+        toast.error(blockedMessage())
         return
       }
       if (!linked) {
@@ -96,14 +96,17 @@ const useTaskNotifications = (pendingTasks) => {
       }
       toast.success('Notificaciones activadas')
     } catch (error) {
-      setPermission(getPermission())
-      if (pushServiceMissing(error) && getPermission() === 'granted') {
+      const next = getPermission()
+      if (next === 'granted') setPermission('granted')
+      else setPermission(next)
+      if (pushServiceMissing(error) && next === 'granted') {
         setForegroundOnly(true)
         toast.success(foregroundMessage)
         return
       }
-      if (getPermission() === 'denied' || error?.name === 'NotAllowedError') {
-        toast.error(blockedMessage)
+      if (next === 'granted') return
+      if (next === 'denied' || error?.name === 'NotAllowedError') {
+        toast.error(blockedMessage())
         return
       }
       toast.error(
@@ -154,16 +157,30 @@ const useTaskNotifications = (pendingTasks) => {
     writeSeen(key, [...seen, ...fresh.map((task) => task._id)])
   }, [pendingTasks, token, pushReady])
 
-  const active = permission === 'granted' && pushReady
+  useEffect(() => {
+    if (!supportsNotifications() || !navigator.permissions?.query) return undefined
+    let status
+    navigator.permissions
+      .query({ name: 'notifications' })
+      .then((result) => {
+        status = result
+        result.onchange = () => {
+          setPermission(result.state === 'prompt' ? 'default' : result.state)
+        }
+      })
+      .catch(() => {})
+    return () => {
+      if (status) status.onchange = null
+    }
+  }, [])
+
+  const active = permission === 'granted' || pushReady || foregroundOnly
 
   return {
     permission,
     showNotifications:
-      !foregroundOnly &&
-      (needsHomeScreenInstall() ||
-        (permission !== 'unsupported' &&
-          !active &&
-          (permission !== 'granted' || pushSettled))),
+      !active &&
+      (needsHomeScreenInstall() || permission !== 'unsupported'),
     requestPermission
   }
 }
