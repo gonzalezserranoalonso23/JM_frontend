@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/store/auth'
 import { useGetCurrentUser } from '@/features/users.features'
 import { hasSchedule } from '@/pages/users/schedule'
-import { todayMexicoCity, formatDate } from '@/utils/dateDisplay'
+import { todayMexicoCity } from '@/utils/dateDisplay'
 import { toast } from 'react-hot-toast'
 import {
   useMyAttendance,
@@ -17,6 +17,12 @@ import {
 } from '@/features/attendance.features'
 import ListSkeleton from '@/components/ListSkeleton'
 
+const formatDay = (value) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value || ''))
+  if (!match) return ''
+  return `${match[3]}-${match[2]}-${match[1]}`
+}
+
 const formatTime = (value) => {
   if (!value) return ''
   const date = new Date(value)
@@ -24,6 +30,7 @@ const formatTime = (value) => {
   return date.toLocaleTimeString('es-MX', {
     hour: '2-digit',
     minute: '2-digit',
+    hourCycle: 'h23',
     timeZone: 'America/Mexico_City'
   })
 }
@@ -88,20 +95,16 @@ const StaffClock = () => {
       ) : (
         <>
           <div className="rounded-lg border bg-muted/30 p-4">
-            <p className="text-sm text-muted-foreground">
-              Hoy en Ciudad de México, {formatDate(today, 'es-MX')}
-            </p>
-            <p className="mt-1 text-lg font-semibold">
-              {open
-                ? `En turno desde ${formatTime(open.checkInAt)}`
-                : dayOff
-                  ? 'Hoy no es tu día de trabajo'
-                  : 'Fuera de turno'}
-            </p>
+            <p className="text-lg font-semibold">{formatDay(today)}</p>
+            {open && (
+              <p className="mt-1 text-lg font-semibold">
+                {formatTime(open.checkInAt)}
+              </p>
+            )}
             {open && open.date !== today && (
               <p className="mt-1 text-sm text-muted-foreground">
-                La entrada abierta es del {formatDate(open.date, 'es-MX')}.
-                Registra la salida antes de una entrada nueva.
+                La entrada abierta es del {formatDay(open.date)}. Registra la
+                salida antes de una entrada nueva.
               </p>
             )}
           </div>
@@ -132,7 +135,7 @@ const StaffClock = () => {
                   className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                 >
                   <span className="text-sm font-medium">
-                    {formatDate(record.date, 'es-MX')}
+                    {formatDay(record.date)}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     {formatTime(record.checkInAt)}
