@@ -28,7 +28,22 @@ const ADMIN_LINKS = [
   { to: '/catalogs', label: 'Catálogo' }
 ]
 
-export const getNavLinks = (isAdmin) => (isAdmin ? ADMIN_LINKS : STAFF_LINKS)
+const withoutAttendance = (links) =>
+  links
+    .filter((link) => link.to !== '/attendance')
+    .map((link) =>
+      link.children
+        ? {
+            ...link,
+            children: link.children.filter((child) => child.to !== '/attendance')
+          }
+        : link
+    )
+
+export const getNavLinks = (isAdmin, showAttendance = false) => {
+  const links = isAdmin ? ADMIN_LINKS : STAFF_LINKS
+  return showAttendance ? links : withoutAttendance(links)
+}
 
 export const PRIMARY_TABS = ['/home', '/issues', '/entries', '/todolist']
 

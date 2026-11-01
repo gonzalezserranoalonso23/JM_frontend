@@ -54,10 +54,13 @@ const StaffClock = () => {
   const checkIn = useCheckIn()
   const checkOut = useCheckOut()
   const open = data?.open
+  const workDay = Boolean(data?.workDay)
   const today = todayMexicoCity()
   const pending = checkIn.isPending || checkOut.isPending
+  const dayOff = !open && !workDay
 
   const punch = () => {
+    if (dayOff) return
     if (open) {
       if (!window.confirm('¿Registrar tu salida?')) return
       checkOut.mutate()
@@ -78,7 +81,8 @@ const StaffClock = () => {
         </h1>
         <p className="text-sm text-muted-foreground">
           La fecha es la de Ciudad de México y no se puede cambiar. La entrada
-          solo se registra en el lugar de trabajo.
+          solo se registra en tu día de trabajo y en el lugar de trabajo. La
+          salida solo se registra si ya hay una entrada.
         </p>
       </header>
       {isLoading ? (
@@ -94,7 +98,9 @@ const StaffClock = () => {
             <p className="mt-1 text-lg font-semibold">
               {open
                 ? `En turno desde ${formatTime(open.checkInAt)}`
-                : 'Fuera de turno'}
+                : dayOff
+                  ? 'Hoy no es tu día de trabajo'
+                  : 'Fuera de turno'}
             </p>
             {open && open.date !== today && (
               <p className="mt-1 text-sm text-muted-foreground">
@@ -107,14 +113,16 @@ const StaffClock = () => {
             type="button"
             className="h-12 w-full text-base"
             variant={open ? 'destructive' : 'default'}
-            disabled={pending}
+            disabled={pending || dayOff}
             onClick={punch}
           >
             {pending
               ? 'Registrando...'
               : open
                 ? 'Registrar salida'
-                : 'Registrar entrada'}
+                : dayOff
+                  ? 'Hoy no es tu día de trabajo'
+                  : 'Registrar entrada'}
           </Button>
           <ul className="m-0 list-none divide-y rounded-lg border p-0">
             {(data?.records ?? []).length === 0 ? (
@@ -125,7 +133,7 @@ const StaffClock = () => {
               data.records.map((record) => (
                 <li
                   key={record._id}
-                  className="flex items-center justify-between gap-3 px-4 py-3"
+                  className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                 >
                   <span className="text-sm font-medium">
                     {formatDate(record.date, 'es-MX')}
@@ -176,7 +184,7 @@ const AdminBoard = () => {
           Entradas y salidas del personal
         </p>
       </header>
-      <div className="max-w-xs">
+      <div className="grid w-full max-w-xs gap-2">
         <Label htmlFor="attendance-date">Fecha</Label>
         <Input
           id="attendance-date"
@@ -194,12 +202,15 @@ const AdminBoard = () => {
       ) : (
         <ul className="m-0 list-none divide-y rounded-lg border p-0">
           {rows.map(({ user, shifts }) => (
-            <li key={user._id} className="flex items-start justify-between gap-3 px-4 py-3">
+            <li
+              key={user._id}
+              className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
+            >
               <div className="min-w-0">
                 <p className="break-words font-medium">{personName(user)}</p>
-                <p className="text-xs text-muted-foreground">{user.username}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{user.username}</p>
               </div>
-              <div className="text-right text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground sm:shrink-0 sm:text-right">
                 {shifts.length === 0 ? (
                   <span>Sin registro</span>
                 ) : (

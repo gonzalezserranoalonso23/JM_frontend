@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import Navigate from './Navigate'
 
-const auth = vi.hoisted(() => ({ isAdmin: true }))
+const auth = vi.hoisted(() => ({ isAdmin: true, haveSchedule: true }))
 
 vi.mock('@/store/auth', () => ({
   useAuthStore: (selector) =>
@@ -16,6 +16,15 @@ vi.mock('@/store/auth', () => ({
 
 vi.mock('@/features/tasks.features', () => ({
   useGetPendingTasks: () => ({ data: [] })
+}))
+
+vi.mock('@/features/users.features', () => ({
+  useGetCurrentUser: () => ({
+    data: {
+      isAdmin: auth.isAdmin,
+      haveSchedule: auth.haveSchedule
+    }
+  })
 }))
 
 vi.mock('@/hooks/useTaskNotifications', () => ({
@@ -45,6 +54,7 @@ describe('Navigate de administrador', () => {
   afterEach(() => {
     cleanup()
     auth.isAdmin = true
+    auth.haveSchedule = true
   })
 
   it('abre Reportes y muestra Ventas y Asistencia', async () => {
@@ -65,8 +75,20 @@ describe('Navigate de administrador', () => {
     ).toHaveAttribute('href', '/attendance')
   })
 
-  it('el personal conserva Asistencia como enlace directo', () => {
+  it('un administrador sin horario no ve Asistencia dentro de Reportes', async () => {
+    auth.haveSchedule = false
+    const user = userEvent.setup({ pointerEventsCheck: 0 })
+    renderNav()
+
+    await user.click(screen.getByRole('button', { name: 'Reportes' }))
+
+    expect(screen.getByRole('menuitem', { name: 'Ventas' })).toBeTruthy()
+    expect(screen.queryByRole('menuitem', { name: 'Asistencia' })).toBeNull()
+  })
+
+  it('el personal con horario conserva Asistencia como enlace directo', () => {
     auth.isAdmin = false
+    auth.haveSchedule = true
     renderNav()
 
     expect(screen.queryByRole('button', { name: 'Reportes' })).toBeNull()
@@ -74,5 +96,13 @@ describe('Navigate de administrador', () => {
       'href',
       '/attendance'
     )
+  })
+
+  it('el personal sin horario no ve Asistencia', () => {
+    auth.isAdmin = false
+    auth.haveSchedule = false
+    renderNav()
+
+    expect(screen.queryByRole('link', { name: 'Asistencia' })).toBeNull()
   })
 })

@@ -6,7 +6,9 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
+import { useGetCurrentUser } from '@/features/users.features'
 import { useGetPendingTasks } from '@/features/tasks.features'
+import { hasSchedule } from '@/pages/users/schedule'
 import { logout } from '@/services/users.services'
 import useTaskNotifications from '@/hooks/useTaskNotifications'
 import MobileTabBar from '@/ui/MobileTabBar'
@@ -96,12 +98,13 @@ const NavGroup = ({ label, children }) => {
 const Navigate = () => {
   const logOut = useAuthStore((state) => state.logOut)
   const isAdmin = useAuthStore((state) => state.isAdmin)
+  const { data: me } = useGetCurrentUser()
   const { data: pendingTasks } = useGetPendingTasks()
   const { showNotifications, requestPermission } =
     useTaskNotifications(pendingTasks)
   const navigate = useNavigate()
   const pendingCount = pendingTasks?.length ?? 0
-  const links = getNavLinks(isAdmin)
+  const links = getNavLinks(isAdmin, hasSchedule(me))
 
   const handleLogOut = async () => {
     await logout().catch(() => {})
