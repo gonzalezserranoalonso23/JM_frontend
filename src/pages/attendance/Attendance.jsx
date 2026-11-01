@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/store/auth'
+import { useGetCurrentUser } from '@/features/users.features'
+import { hasSchedule } from '@/pages/users/schedule'
 import { todayMexicoCity, formatDate } from '@/utils/dateDisplay'
 import { toast } from 'react-hot-toast'
 import {
@@ -175,10 +177,10 @@ const AdminBoard = () => {
   }))
 
   return (
-    <Card as="section" className="gap-4 p-4 sm:p-6" aria-labelledby="attendance-title">
+    <Card as="section" className="gap-4 p-4 sm:p-6" aria-labelledby="attendance-board-title">
       <header>
-        <h1 id="attendance-title" className="text-xl font-semibold">
-          Asistencia
+        <h1 id="attendance-board-title" className="text-xl font-semibold">
+          Asistencia del personal
         </h1>
         <p className="text-sm text-muted-foreground">
           Entradas y salidas del personal
@@ -229,7 +231,17 @@ const AdminBoard = () => {
 
 const Attendance = () => {
   const isAdmin = useAuthStore((state) => state.isAdmin)
-  return <PageShell>{isAdmin ? <AdminBoard /> : <StaffClock />}</PageShell>
+  const { data: me } = useGetCurrentUser()
+  const withSchedule = hasSchedule(me)
+
+  return (
+    <PageShell>
+      <div className="grid gap-4">
+        {withSchedule && <StaffClock />}
+        {isAdmin && <AdminBoard />}
+      </div>
+    </PageShell>
+  )
 }
 
 export default Attendance
