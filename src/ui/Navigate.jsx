@@ -121,10 +121,10 @@ const Navigate = () => {
           className="app-nav fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/95 text-foreground backdrop-blur-md"
         >
           <div className="mx-auto w-full max-w-[1760px] px-3 sm:px-6 xl:px-8">
-            <div className="flex h-14 items-center justify-between gap-2 xl:h-16 xl:gap-4">
+            <div className="flex h-14 min-w-0 items-center gap-2 xl:h-16 xl:gap-3">
               <Link
                 to="/home"
-                className="flex min-w-0 items-center gap-2.5 rounded-sm text-lg font-bold text-foreground"
+                className="flex shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold text-foreground"
               >
                 <img
                   src="/logo.svg"
@@ -136,58 +136,57 @@ const Navigate = () => {
                 <span className="truncate">JM Panel</span>
               </Link>
 
-              <div className="flex shrink-0 items-center gap-1">
+              <div className="hidden min-w-0 flex-1 items-center gap-1 xl:flex">
+                {links.map((link) =>
+                  link.children ? (
+                    <NavGroup
+                      key={link.label}
+                      label={link.label}
+                      children={link.children}
+                    />
+                  ) : (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      end={link.end}
+                      className={({ isActive }) => navItemClass(isActive)}
+                    >
+                      {link.label}
+                      {link.badge && pendingCount > 0 && (
+                        <Badge
+                          variant="secondary"
+                          className="pointer-events-none px-1.5"
+                        >
+                          {pendingCount}
+                        </Badge>
+                      )}
+                    </NavLink>
+                  )
+                )}
+              </div>
+
+              <div className="ml-auto flex shrink-0 items-center gap-1">
                 <ProductLookup />
                 <AccountProfile />
-                <div className="hidden min-w-0 items-center gap-1 xl:flex">
-                  <div className="flex min-w-0 items-center gap-1">
-                    {links.map((link) =>
-                      link.children ? (
-                        <NavGroup
-                          key={link.label}
-                          label={link.label}
-                          children={link.children}
-                        />
-                      ) : (
-                        <NavLink
-                          key={link.to}
-                          to={link.to}
-                          end={link.end}
-                          className={({ isActive }) => navItemClass(isActive)}
-                        >
-                          {link.label}
-                          {link.badge && pendingCount > 0 && (
-                            <Badge
-                              variant="secondary"
-                              className="pointer-events-none px-1.5"
-                            >
-                              {pendingCount}
-                            </Badge>
-                          )}
-                        </NavLink>
-                      )
-                    )}
-                  </div>
-                  {showNotifications && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={requestPermission}
-                      className="ml-2 shrink-0"
-                    >
-                      Activar notificaciones
-                    </Button>
-                  )}
+                {showNotifications && (
                   <Button
                     type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleLogOut}
-                    className="ml-2 shrink-0"
+                    variant="outline"
+                    onClick={requestPermission}
+                    className="hidden shrink-0 xl:inline-flex"
                   >
-                    Cerrar sesión
+                    Activar notificaciones
                   </Button>
-                </div>
+                )}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleLogOut}
+                  className="hidden shrink-0 xl:inline-flex"
+                >
+                  Cerrar sesión
+                </Button>
               </div>
             </div>
           </div>

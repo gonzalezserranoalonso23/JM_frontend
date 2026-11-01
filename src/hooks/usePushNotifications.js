@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { subscribeBrowserPush } from '@/services/push.services'
+import { preparePush, subscribeBrowserPush } from '@/services/push.services'
 import { useAuthStore } from '@/store/auth'
 
 // Vincula este dispositivo al usuario logueado para que el push le llegue a él.
@@ -15,18 +15,30 @@ const usePushNotifications = (permission) => {
       const linked = Boolean(subscription)
       setReady(linked)
       return linked
-    } catch {
+    } catch (error) {
       setReady(false)
-      return false
+      throw error
     }
   }, [token])
 
   useEffect(() => {
-    if (permission !== 'granted' || !token) return undefined
+    if (!token) return undefined
+    preparePush().catch(() => {})
+    return undefined
+  }, [token])
+
+  useEffect(() => {
+    if (permission !== 'granted' || !token) {
+      setSettled(permission !== 'granted')
+      return undefined
+    }
     let cancelled = false
-    subscribe().finally(() => {
-      if (!cancelled) setSettled(true)
-    })
+    setSettled(false)
+    subscribe()
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setSettled(true)
+      })
     return () => {
       cancelled = true
     }

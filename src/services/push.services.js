@@ -26,24 +26,76 @@ const savePushSubscription = async (subscription) => {
   return data
 }
 
+// En un Safari tab del iPhone no existe Notification. Hay que abrir la app
+// desde el ícono de la pantalla de inicio.
+export const needsHomeScreenInstall = () =>
+  typeof navigator !== 'undefined' &&
+  'standalone' in navigator &&
+  navigator.standalone === false &&
+  typeof window !== 'undefined' &&
+  !('Notification' in window)
+
+let prepared = null
+let preparing = null
+
+// La clave y el service worker se resuelven al cargar. Safari pierde el toque
+// si subscribe() espera una red o el registro del worker.
+export const preparePush = () => {
+  if (prepared) return Promise.resolve(prepared)
+  if (!preparing) {
+    preparing = (async () => {
+      if (!('serviceWorker' in navigator)) return null
+      await navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      const registration = await navigator.serviceWorker.ready
+      const publicKey = await getVapidPublicKey()
+      prepared = {
+        registration,
+        publicKey,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      }
+      return prepared
+    })().catch((error) => {
+      preparing = null
+      throw error
+    })
+  }
+  return preparing
+}
+
+const pushManagerOf = (registration) => {
+  if (registration?.pushManager) return registration.pushManager
+  if (typeof window !== 'undefined' && 'pushManager' in window) {
+    return window.pushManager
+  }
+  return null
+}
+
 export const subscribeBrowserPush = async () => {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null
+  const ready = prepared || (await preparePush())
+  const pushManager = pushManagerOf(ready?.registration)
+  if (!pushManager || !ready?.applicationServerKey) return null
 
-  const registration = await navigator.serviceWorker.register('/sw.js')
-  await navigator.serviceWorker.ready
-
-  const publicKey = await getVapidPublicKey()
-  let subscription = await registration.pushManager.getSubscription()
-  if (subscription && !sameApplicationKey(subscription, publicKey)) {
+  let subscription = await pushManager.getSubscription()
+  if (subscription && !sameApplicationKey(subscription, ready.publicKey)) {
     await subscription.unsubscribe()
     subscription = null
   }
 
   if (!subscription) {
-    subscription = await registration.pushManager.subscribe({
+    const options = {
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicKey)
-    })
+      applicationServerKey: ready.applicationServerKey
+    }
+    try {
+      subscription = await pushManager.subscribe(options)
+    } catch (error) {
+      const unavailable =
+        error?.name === 'AbortError' &&
+        /push service not available/i.test(error?.message || '')
+      if (!unavailable) throw error
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      subscription = await pushManager.subscribe(options)
+    }
   }
 
   await savePushSubscription(subscription.toJSON())
