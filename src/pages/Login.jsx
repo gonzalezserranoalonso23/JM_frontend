@@ -5,6 +5,8 @@ import { useEffect } from 'react'
 import { verifyLogin } from '@/helpers/validations'
 import { useLogin } from '@/features/users.features'
 import { useAuthStore } from '@/store/auth'
+import { errorMessage } from '@/libs/handleErrors'
+import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -99,6 +101,14 @@ const Login = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={formik.handleSubmit} className="flex flex-col gap-5">
+            {login.isError && (
+              <Alert variant="destructive">
+                {errorMessage(
+                  login.error,
+                  'No se pudo conectar con el servidor'
+                )}
+              </Alert>
+            )}
             <div className="space-y-2">
               <Label htmlFor="username">Usuario</Label>
               <Input

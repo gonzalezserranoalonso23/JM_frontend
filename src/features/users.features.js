@@ -11,9 +11,11 @@ import {
   login,
   getUsersPage,
   getAssignableUsers,
+  getCurrentUser,
   registerUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  revokeUserSessions
 } from '@/services/users.services'
 import { useNavigate } from 'react-router-dom'
 
@@ -41,6 +43,13 @@ export const useGetAssignableUsers = () =>
   useQuery({
     queryKey: ['Users', 'assignable'],
     queryFn: getAssignableUsers
+  })
+
+export const useGetCurrentUser = (enabled = true) =>
+  useQuery({
+    queryKey: ['users', 'me'],
+    queryFn: getCurrentUser,
+    enabled
   })
 
 export const useGetUserPages = (search = '') =>
@@ -80,6 +89,17 @@ export const useUpdateUser = () => {
     }
   })
 }
+
+export const useRevokeUserSessions = () =>
+  useMutation({
+    mutationFn: revokeUserSessions,
+    onSuccess: () => {
+      toast.success('Sesiones cerradas')
+    },
+    onError: (error) => {
+      notifyError(error, 'Error al cerrar las sesiones')
+    }
+  })
 
 export const useDeleteUser = () => {
   const queryClient = useQueryClient()

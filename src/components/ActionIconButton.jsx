@@ -4,7 +4,16 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { Check, Eye, Pencil, RotateCcw, Trash2, X } from 'lucide-react'
+import {
+  Check,
+  Clock,
+  Eye,
+  LogOut,
+  Pencil,
+  RotateCcw,
+  Trash2,
+  X
+} from 'lucide-react'
 
 const ICONS = {
   edit: Pencil,
@@ -12,7 +21,9 @@ const ICONS = {
   activate: Check,
   deactivate: X,
   open: Eye,
-  reopen: RotateCcw
+  reopen: RotateCcw,
+  logout: LogOut,
+  schedule: Clock
 }
 
 const VARIANTS = {
@@ -21,7 +32,9 @@ const VARIANTS = {
   activate: 'outline',
   deactivate: 'outline',
   open: 'outline',
-  reopen: 'outline'
+  reopen: 'outline',
+  logout: 'outline',
+  schedule: 'outline'
 }
 
 const ActionIconButton = ({ action, label, className = '', ...props }) => {

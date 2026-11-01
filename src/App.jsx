@@ -16,6 +16,7 @@ const IssueDetails = lazy(() => import('./pages/issues/IssueDetails'))
 const Orders = lazy(() => import('./pages/orders/Orders'))
 const Reports = lazy(() => import('./pages/reports/Reports'))
 const ToDoList = lazy(() => import('./pages/todolist/ToDoList'))
+const Attendance = lazy(() => import('./pages/attendance/Attendance'))
 const Catalog = lazy(() => import('./pages/catalogs/Catalogs'))
 const Users = lazy(() => import('./pages/users/Users'))
 const Products = lazy(() => import('./pages/products/Products'))
@@ -62,6 +63,7 @@ const App = () => {
               <Route path="/orders" element={<Orders />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/todolist" element={<ToDoList />} />
+              <Route path="/attendance" element={<Attendance />} />
               <Route path="/catalogs" element={<Catalog />} />
               <Route path="/products" element={<Products />} />
               <Route path="/suppliers" element={<Suppliers />} />

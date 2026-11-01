@@ -1,4 +1,12 @@
-const CACHE = 'jm-shell-v6'
+const CACHE = 'jm-shell-v7'
+
+const fetchWithDeadline = (request, ms) => {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), ms)
+  return fetch(request, { signal: controller.signal }).finally(() =>
+    clearTimeout(timer)
+  )
+}
 const SHELL = ['/offline.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {
@@ -30,7 +38,7 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      fetchWithDeadline(request, 4000)
         .then((response) => {
           if (response.ok) {
             const copy = response.clone()
@@ -52,7 +60,7 @@ self.addEventListener('fetch', (event) => {
       caches.match(request).then(
         (cached) =>
           cached ||
-          fetch(request).then((response) => {
+          fetchWithDeadline(request, 4000).then((response) => {
             const copy = response.clone()
             caches.open(CACHE).then((cache) => cache.put(request, copy))
             return response

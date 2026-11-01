@@ -15,7 +15,8 @@ import {
   useGetUserPages,
   useRegisterUser,
   useUpdateUser,
-  useDeleteUser
+  useDeleteUser,
+  useRevokeUserSessions
 } from '@/features/users.features'
 import ListSkeleton from '@/components/ListSkeleton'
 import ModalUsers from './components/ModalUsers'
@@ -23,6 +24,8 @@ import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import ActionIconButton from '@/components/ActionIconButton'
+import ScheduleModal from './components/ScheduleModal'
+import { hasSchedule } from './schedule'
 
 const SectionUsers = () => {
   const [search, setSearch] = useFilterQuery()
@@ -39,10 +42,12 @@ const SectionUsers = () => {
   const registerUser = useRegisterUser()
   const updateUser = useUpdateUser()
   const deleteUser = useDeleteUser()
+  const revokeSessions = useRevokeUserSessions()
 
   const [modalShow, setModalShow] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [update, setUpdate] = useState(false)
+  const [scheduleUser, setScheduleUser] = useState(null)
 
   const handleClose = () => setModalShow(false)
   const handleShowCreate = () => {
@@ -57,6 +62,16 @@ const SectionUsers = () => {
   }
   const handleDelete = (id) => {
     if (window.confirm('¿Eliminar este usuario?')) deleteUser.mutate(id)
+  }
+  const handleRevoke = (user) => {
+    if (user.isAdmin) return
+    if (
+      !window.confirm(
+        `¿Cerrar las sesiones de ${user.username}? Tendrá que volver a entrar.`
+      )
+    )
+      return
+    revokeSessions.mutate(user._id)
   }
 
   return (
@@ -86,6 +101,11 @@ const SectionUsers = () => {
         action={update ? updateUser : registerUser}
         type={update ? 'Editar' : 'Crear'}
         setUpdate={setUpdate}
+      />
+      <ScheduleModal
+        user={scheduleUser}
+        open={Boolean(scheduleUser)}
+        onClose={() => setScheduleUser(null)}
       />
 
       {/* Filtro */}
@@ -128,12 +148,27 @@ const SectionUsers = () => {
                   {user.fullName && (
                     <p className="break-words text-sm">{user.fullName}</p>
                   )}
-                  <div className="flex items-center justify-end gap-2 border-t pt-3">
+                  <div className="flex flex-wrap items-center justify-end gap-2 border-t pt-3">
+                    {hasSchedule(user) && (
+                      <ActionIconButton
+                        action="schedule"
+                        label="Ver horario"
+                        onClick={() => setScheduleUser(user)}
+                      />
+                    )}
                     <ActionIconButton
                       action="edit"
                       label="Editar"
                       onClick={() => handleShowEdit(user)}
                     />
+                    {!user.isAdmin && (
+                      <ActionIconButton
+                        action="logout"
+                        label="Cerrar sesiones"
+                        disabled={revokeSessions.isPending}
+                        onClick={() => handleRevoke(user)}
+                      />
+                    )}
                     <ActionIconButton
                       action="delete"
                       label="Eliminar"
@@ -179,11 +214,26 @@ const SectionUsers = () => {
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                        {hasSchedule(user) && (
+                          <ActionIconButton
+                            action="schedule"
+                            label="Ver horario"
+                            onClick={() => setScheduleUser(user)}
+                          />
+                        )}
                         <ActionIconButton
                           action="edit"
                           label="Editar"
                           onClick={() => handleShowEdit(user)}
                         />
+                        {!user.isAdmin && (
+                          <ActionIconButton
+                            action="logout"
+                            label="Cerrar sesiones"
+                            disabled={revokeSessions.isPending}
+                            onClick={() => handleRevoke(user)}
+                          />
+                        )}
                         <ActionIconButton
                           action="delete"
                           label="Eliminar"

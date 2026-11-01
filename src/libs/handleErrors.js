@@ -45,7 +45,11 @@ export const handleErrors = (error) => {
     return { message: '', status: 0, ignore: true }
   }
 
-  if (isOffline() || error?.code === 'ERR_NETWORK') {
+  if (
+    isOffline() ||
+    error?.code === 'ERR_NETWORK' ||
+    error?.code === 'ECONNABORTED'
+  ) {
     return {
       message: isOffline()
         ? 'Sin conexión a internet'
@@ -53,10 +57,6 @@ export const handleErrors = (error) => {
       status: 0,
       offline: isOffline()
     }
-  }
-
-  if (error?.code === 'ECONNABORTED') {
-    return { message: STATUS_MESSAGES[408], status: 408 }
   }
 
   const status = error?.response?.status || 0

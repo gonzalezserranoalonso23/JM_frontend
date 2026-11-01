@@ -34,10 +34,10 @@ describe('handleErrors', () => {
     )
   })
 
-  it('timeout', () => {
+  it('servidor que no contesta', () => {
     expect(handleErrors({ code: 'ECONNABORTED' })).toMatchObject({
-      status: 408,
-      message: 'La solicitud tardó demasiado. Intenta de nuevo.'
+      status: 0,
+      message: 'No se pudo conectar con el servidor'
     })
   })
 

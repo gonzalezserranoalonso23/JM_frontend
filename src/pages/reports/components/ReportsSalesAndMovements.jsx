@@ -155,7 +155,7 @@ const ReportsSalesAndMovements = () => {
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 id="reports-title" className="text-xl font-bold">
-              Reportes
+              Ventas
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Movimientos y ventas por período

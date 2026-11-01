@@ -29,10 +29,15 @@ const KPIS = (stats) => [
 
 const StockDashboard = () => {
   const [dataFilter, setDataFilter] = useFilterQuery('stock')
-  const { data: stats, isLoading: statsLoading } = useGetInventoryStats()
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError
+  } = useGetInventoryStats()
   const {
     data: lowStockPages,
     isLoading: lowStockLoading,
+    isError: lowStockError,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
@@ -66,6 +71,14 @@ const StockDashboard = () => {
         </div>
 
         <DailyInformationDashboard />
+
+        {(statsError || lowStockError) && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>
+              No se pudo conectar con el servidor.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <section
           className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4"
@@ -118,6 +131,12 @@ const StockDashboard = () => {
                 ))}
               </ul>
             </div>
+          ) : lowStockError ? (
+            <Alert variant="destructive" className="m-6 w-auto">
+              <AlertDescription>
+                No se pudo cargar el stock.
+              </AlertDescription>
+            </Alert>
           ) : lowStockTotal === 0 && !dataFilter ? (
             <Alert className="m-6 w-auto">
               <AlertDescription className="font-medium">

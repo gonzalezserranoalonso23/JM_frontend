@@ -4,8 +4,18 @@ export const login = (values) => axios.post('/api/users/login', values)
 
 export const logout = () => axios.post('/api/users/logout')
 
+export const revokeUserSessions = async (id) => {
+  const { data } = await axios.post(`/api/users/${id}/logout`)
+  return data
+}
+
 export const getAssignableUsers = async () => {
   const { data } = await axios.get('/api/users/assignable')
+  return data
+}
+
+export const getCurrentUser = async () => {
+  const { data } = await axios.get('/api/users/me')
   return data
 }
 

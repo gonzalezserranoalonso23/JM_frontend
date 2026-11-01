@@ -13,7 +13,14 @@ const isCanceled = (error) =>
 
 // Un timeout o un cierre de sesión no se reintenta: la pantalla debe soltarse.
 export const shouldRetryQuery = (failureCount, error) => {
-  if (isCanceled(error) || error?.code === 'ECONNABORTED') return false
+  if (
+    isCanceled(error) ||
+    error?.code === 'ECONNABORTED' ||
+    error?.code === 'ERR_NETWORK' ||
+    !error?.response
+  ) {
+    return false
+  }
   return failureCount < 1
 }
 

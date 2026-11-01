@@ -63,6 +63,18 @@ export const formatDate = (value, locale, options) => {
 
 const pad = (n) => String(n).padStart(2, '0')
 
+// Fecha de hoy en Ciudad de México. No usa la zona del dispositivo.
+export const todayMexicoCity = () => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Mexico_City',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).formatToParts(new Date())
+  const value = (type) => parts.find((part) => part.type === type)?.value
+  return `${value('year')}-${value('month')}-${value('day')}`
+}
+
 // Fecha de hoy según la zona horaria del dispositivo (no UTC).
 export const todayLocal = (offsetDays = 0) => {
   const date = new Date()
