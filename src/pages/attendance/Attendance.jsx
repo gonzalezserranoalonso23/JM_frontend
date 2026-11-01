@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import PageShell from '@/components/PageShell'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,21 @@ const formatDay = (value) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value || ''))
   if (!match) return ''
   return `${match[3]}-${match[2]}-${match[1]}`
+}
+
+const formatNow = (instant = new Date()) => {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Mexico_City',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(instant)
+  const value = (type) => parts.find((part) => part.type === type)?.value ?? ''
+  return `Fecha: ${value('hour')}:${value('minute')}:${value('second')} ${value('day')}/${value('month')}/${value('year')}`
 }
 
 const formatTime = (value) => {
@@ -66,6 +81,12 @@ const StaffClock = () => {
   const today = todayMexicoCity()
   const pending = checkIn.isPending || checkOut.isPending
   const dayOff = !open && !workDay
+  const [nowLabel, setNowLabel] = useState(formatNow)
+
+  useEffect(() => {
+    const timer = setInterval(() => setNowLabel(formatNow()), 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   const punch = () => {
     if (dayOff) return
@@ -95,12 +116,7 @@ const StaffClock = () => {
       ) : (
         <>
           <div className="rounded-lg border bg-muted/30 p-4">
-            <p className="text-lg font-semibold">{formatDay(today)}</p>
-            {open && (
-              <p className="mt-1 text-lg font-semibold">
-                {formatTime(open.checkInAt)}
-              </p>
-            )}
+            <p className="text-sm text-muted-foreground">{nowLabel}</p>
             {open && open.date !== today && (
               <p className="mt-1 text-sm text-muted-foreground">
                 La entrada abierta es del {formatDay(open.date)}. Registra la
