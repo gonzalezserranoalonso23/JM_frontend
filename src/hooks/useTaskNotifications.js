@@ -106,7 +106,10 @@ const useTaskNotifications = (pendingTasks) => {
         toast.error(blockedMessage)
         return
       }
-      toast.error('No se pudo activar las notificaciones en este dispositivo')
+      toast.error(
+        error?.publicMessage ||
+          'No se pudo activar las notificaciones en este dispositivo'
+      )
     }
   }, [subscribe])
 

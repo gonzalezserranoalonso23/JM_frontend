@@ -16,9 +16,26 @@ const sameApplicationKey = (subscription, publicKey) => {
   return bytes.every((byte, index) => byte === next[index])
 }
 
+const keyError = (message) => {
+  const error = new Error(message)
+  error.publicMessage = message
+  return error
+}
+
 const getVapidPublicKey = async () => {
-  const { data } = await axios.get('/api/push/vapid-public-key')
-  return data.publicKey
+  try {
+    const { data } = await axios.get('/api/push/vapid-public-key')
+    const publicKey = String(data?.publicKey || '').trim()
+    if (urlBase64ToUint8Array(publicKey).length !== 65) {
+      throw keyError('La clave pública de notificaciones no es válida')
+    }
+    return publicKey
+  } catch (error) {
+    if (error.publicMessage) throw error
+    const message = error?.response?.data?.message
+    if (error?.response?.status === 503 && message) throw keyError(message)
+    throw error
+  }
 }
 
 const savePushSubscription = async (subscription) => {
