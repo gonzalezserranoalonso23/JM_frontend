@@ -99,10 +99,17 @@ const MovementModal = ({
   const movementType = mode === 'issue' ? types.issueType : types.entryType
   const [productQuery, setProductQuery] = useState('')
   const debouncedQuery = useDebouncedValue(productQuery, 250)
-  const { data: productPage, isLoading: loadingProducts } = useProductLookup(
-    debouncedQuery,
-    Boolean(modalShow)
-  )
+  const {
+    data: productPage,
+    isLoading: loadingProducts,
+    isFetching: fetchingProducts,
+    isPlaceholderData
+  } = useProductLookup(debouncedQuery, Boolean(modalShow))
+  const searchingProducts =
+    productQuery.trim().length > 0 &&
+    (productQuery.trim() !== debouncedQuery ||
+      isPlaceholderData ||
+      fetchingProducts)
   const knownProducts = useRef(new Map())
   const rememberProduct = (product) => {
     if (product?._id) knownProducts.current.set(product._id, product)
@@ -470,6 +477,7 @@ const MovementModal = ({
                     onQueryChange={setProductQuery}
                     placeholder="Selecciona producto"
                     showStock
+                    pending={searchingProducts}
                   />
                 </div>
                 <div>
@@ -593,6 +601,7 @@ const MovementModal = ({
                     placeholder="Selecciona producto"
                     showStock
                     stockText={copy.checkStock ? stockText : undefined}
+                    pending={searchingProducts}
                   />
                 </div>
                 <div>

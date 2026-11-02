@@ -1,6 +1,6 @@
 import { formatMoney, formatQty } from '@/utils/commonFunctions'
 import { todayLocal, isoDay } from '@/utils/dateDisplay'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'react-hot-toast'
 import ProductCombobox from '@/components/ui/product-combobox'
-import { useGetProducts } from '@/features/products.features'
+import { useProductLookup } from '@/features/products.features'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
 import { useGetSuppliers } from '@/features/suppliers.features'
 import {
   Table,
@@ -27,9 +28,20 @@ import {
 import Loading from '@/ui/Loading'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
-  const { data: products, isLoading: loadingProducts } = useGetProducts({
-    poll: Boolean(modalShow)
-  })
+  const [productQuery, setProductQuery] = useState('')
+  const debouncedQuery = useDebouncedValue(productQuery, 250)
+  const {
+    data: productPage,
+    isLoading: loadingProducts,
+    isFetching: fetchingProducts,
+    isPlaceholderData
+  } = useProductLookup(debouncedQuery, Boolean(modalShow))
+  const searchingProducts =
+    productQuery.trim().length > 0 &&
+    (productQuery.trim() !== debouncedQuery ||
+      isPlaceholderData ||
+      fetchingProducts)
+  const knownProducts = useRef(new Map())
   const { data: suppliers } = useGetSuppliers()
   const suppliersById = Object.fromEntries(
     (suppliers ?? []).map((s) => [s._id, s.suppliersName || s.name])
@@ -74,10 +86,26 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     setCurrentItem({ product: '', quantity: '', price: '' })
   }, [modalShow, order])
 
-  const activeProducts = (products ?? []).filter((p) => p?.isActive !== false)
-  const selectedProduct = products?.find(
-    (product) => product._id === currentItem.product
+  const pageProducts = (productPage?.data ?? []).filter(
+    (product) => product?.isActive !== false
   )
+  useEffect(() => {
+    pageProducts.forEach((product) => {
+      if (product?._id) knownProducts.current.set(String(product._id), product)
+    })
+  }, [productPage])
+
+  const findProduct = (id) =>
+    pageProducts.find((product) => String(product._id) === String(id)) ||
+    knownProducts.current.get(String(id))
+
+  const selectedProduct = findProduct(currentItem.product)
+  const activeProducts = selectedProduct &&
+    !pageProducts.some(
+      (product) => String(product._id) === String(selectedProduct._id)
+    )
+    ? [selectedProduct, ...pageProducts]
+    : pageProducts
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -89,7 +117,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     setCurrentItem((prev) => ({ ...prev, [name]: value }))
 
     if (name === 'product') {
-      const selected = products?.find((p) => p._id === value)
+      const selected = findProduct(value)
       if (selected) {
         setCurrentItem((prev) => ({
           ...prev,
@@ -100,7 +128,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
   }
 
   const setProduct = (value) => {
-    const selected = products?.find((p) => p._id === value)
+    const selected = findProduct(value)
     setCurrentItem({
       product: value,
       quantity: currentItem.quantity,
@@ -116,7 +144,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
       return
     }
 
-    const selected = products?.find((p) => p._id === currentItem.product)
+    const selected = findProduct(currentItem.product)
     const supplierValue = selected?.supplier
     const newItem = {
       productId: currentItem.product,
@@ -124,8 +152,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
         typeof supplierValue === 'object'
           ? supplierValue?._id || ''
           : supplierValue || '',
-      productName: products?.find((p) => p._id === currentItem.product)
-        ?.productName,
+      productName: findProduct(currentItem.product)?.productName,
       quantity: parseFloat(currentItem.quantity),
       price: parseFloat(currentItem.price),
       subtotal: parseFloat(currentItem.quantity) * parseFloat(currentItem.price)
@@ -251,7 +278,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
-            {loadingProducts && <Loading fullScreen={false} />}
+            {loadingProducts && !productPage && <Loading fullScreen={false} />}
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
@@ -274,6 +301,8 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     products={activeProducts}
                     value={currentItem.product}
                     onValueChange={setProduct}
+                    onQueryChange={setProductQuery}
+                    pending={searchingProducts}
                   />
                 </div>
                 <div>
@@ -340,7 +369,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                       typeof item.productId === 'object'
                         ? item.productId?._id
                         : item.productId
-                    const product = products?.find((p) => p._id === productId)
+                    const product = findProduct(productId)
                     const supplierId =
                       typeof item.supplier === 'object'
                         ? item.supplier?._id
@@ -449,21 +478,17 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                             {item.quantity}
                           </TableCell>
                           <TableCell className="text-center">
-                            {products?.find(
-                              (product) =>
-                                product._id ===
-                                (typeof item.productId === 'object'
-                                  ? item.productId?._id
-                                  : item.productId)
+                            {findProduct(
+                              typeof item.productId === 'object'
+                                ? item.productId?._id
+                                : item.productId
                             )?.productStock ?? 0}
                           </TableCell>
                           <TableCell className="text-center">
-                            {products?.find(
-                              (product) =>
-                                product._id ===
-                                (typeof item.productId === 'object'
-                                  ? item.productId?._id
-                                  : item.productId)
+                            {findProduct(
+                              typeof item.productId === 'object'
+                                ? item.productId?._id
+                                : item.productId
                             )?.minimumProductStock ?? 0}
                           </TableCell>
                           <TableCell className="text-right">

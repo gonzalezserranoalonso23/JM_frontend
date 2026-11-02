@@ -136,7 +136,7 @@ const Navigate = () => {
                 <span className="truncate">JM Panel</span>
               </Link>
 
-              <div className="hidden min-w-0 flex-1 items-center gap-1 xl:flex">
+              <div className="hidden min-w-0 flex-1 items-center justify-evenly gap-1 xl:flex">
                 {links.map((link) =>
                   link.children ? (
                     <NavGroup

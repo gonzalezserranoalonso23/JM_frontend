@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { CircleUser } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,8 +29,15 @@ const Field = ({ label, children }) => (
 
 const AccountProfile = () => {
   const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
   const { data: user, isLoading, isError } = useGetCurrentUser(open)
   const showSchedule = Boolean(user) && (!user.isAdmin || hasSchedule(user))
+  const canClock = Boolean(user) && hasSchedule(user)
+
+  const openClock = () => {
+    setOpen(false)
+    navigate('/attendance')
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -91,6 +99,11 @@ const AccountProfile = () => {
           >
             Cerrar
           </Button>
+          {canClock && (
+            <Button type="button" onClick={openClock}>
+              Checador
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

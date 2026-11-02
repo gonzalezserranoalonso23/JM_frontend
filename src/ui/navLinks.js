@@ -11,14 +11,16 @@ const STAFF_LINKS = [
 
 const ADMIN_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
-  { to: '/attendance', label: 'Asistencia' },
   { to: '/issues', label: 'Salidas' },
   { to: '/entries', label: 'Entradas' },
   { to: '/orders', label: 'Órdenes' },
   { to: '/todolist', label: 'Pendientes', badge: true },
   {
     label: 'Reportes',
-    children: [{ to: '/reports', label: 'Ventas' }]
+    children: [
+      { to: '/reports', label: 'Ventas' },
+      { to: '/attendance', label: 'Asistencia' }
+    ]
   },
   { to: '/daily-information', label: 'Información diaria' },
   { to: '/shortages', label: 'Faltantes' },

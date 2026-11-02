@@ -103,7 +103,11 @@ const StaffClock = () => {
   }
 
   return (
-    <Card as="section" className="gap-4 p-4 sm:p-6" aria-labelledby="attendance-title">
+    <Card
+      as="section"
+      className="w-full gap-4 p-4 sm:max-w-md sm:p-6"
+      aria-labelledby="attendance-title"
+    >
       <header>
         <h1 id="attendance-title" className="text-xl font-semibold">
           Asistencia
@@ -126,7 +130,7 @@ const StaffClock = () => {
           </div>
           <Button
             type="button"
-            className="h-12 w-full text-base"
+            className="h-12 w-full text-base sm:w-fit sm:min-w-48 sm:px-8"
             variant={open ? 'destructive' : 'default'}
             disabled={pending || dayOff}
             onClick={punch}

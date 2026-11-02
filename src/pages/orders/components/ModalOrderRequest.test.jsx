@@ -25,10 +25,11 @@ const products = [
 ]
 
 vi.mock('@/features/products.features', () => ({
-  useGetProducts: () => ({
-    data: products,
+  useProductLookup: () => ({
+    data: { data: products },
     isLoading: false,
-    refetch: () => Promise.resolve({ data: products })
+    isFetching: false,
+    isPlaceholderData: false
   })
 }))
 vi.mock('@/features/suppliers.features', () => ({
@@ -79,7 +80,7 @@ describe('ModalOrderRequest', () => {
 
     await user.clear(input)
     await user.type(input, 'zzz')
-    expect(screen.getByText('Sin resultados')).toBeInTheDocument()
+    expect(await screen.findByText('Sin resultados')).toBeInTheDocument()
   })
 
   it('al elegir un producto llena el precio y permite agregarlo', async () => {

@@ -18,7 +18,8 @@ const ProductCombobox = ({
   onQueryChange,
   placeholder = 'Buscar producto',
   showStock = false,
-  stockText
+  stockText,
+  pending = false
 }) => {
   const productList = products ?? []
   const [search, setSearch] = useState('')
@@ -270,7 +271,7 @@ const ProductCombobox = ({
           >
             {searchedProducts.length === 0 ? (
               <div className="px-3 py-2 text-sm text-muted-foreground">
-                Sin resultados
+                {pending ? 'Buscando...' : 'Sin resultados'}
               </div>
             ) : (
               searchedProducts.map((product, index) => (
