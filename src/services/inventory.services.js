@@ -30,10 +30,16 @@ export const createInventoryRecord = async (body) => {
   return data
 }
 
+// El plazo general es de 6s para soltar la pantalla si el servidor está caído.
+// Registrar el carrito escribe stock y renglones; en Atlas puede tardar más.
+const BULK_TIMEOUT = 30000
+
 export const createInventoryRecords = async (records) => {
-  const { data } = await axios.post('/api/inventory-records/bulk', {
-    records
-  })
+  const { data } = await axios.post(
+    '/api/inventory-records/bulk',
+    { records },
+    { timeout: BULK_TIMEOUT }
+  )
   return data
 }
 

@@ -82,8 +82,9 @@ export const useCreateInventoryRecords = () => {
   const mutation = useMutation({
     mutationFn: createInventoryRecords,
     onSuccess: (data) => {
+      const count = Array.isArray(data) ? data.length : 0
       toast.success(
-        `${data.length} movimiento(s) de inventario registrados exitosamente!`
+        `${count} movimiento(s) de inventario registrados exitosamente!`
       )
       invalidateStockQueries(queryClient)
     },
