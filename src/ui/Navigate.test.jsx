@@ -106,5 +106,8 @@ describe('Navigate de administrador', () => {
     expect(screen.queryByRole('link', { name: 'Asistencia' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Salidas' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Más' })).toBeNull()
+    expect(
+      screen.getAllByRole('button', { name: 'Cerrar sesión' }).length
+    ).toBeGreaterThan(0)
   })
 })

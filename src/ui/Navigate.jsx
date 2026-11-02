@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -173,6 +173,18 @@ const Navigate = () => {
               <div className="ml-auto flex shrink-0 items-center gap-1">
                 <ProductLookup />
                 <AccountProfile />
+                {!isAdmin && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="size-11 shrink-0 xl:hidden"
+                    aria-label="Cerrar sesión"
+                    onClick={handleLogOut}
+                  >
+                    <LogOut className="h-5 w-5" aria-hidden="true" />
+                  </Button>
+                )}
                 {showNotifications && (
                   <Button
                     type="button"
