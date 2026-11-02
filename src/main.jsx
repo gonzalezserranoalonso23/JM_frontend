@@ -3,6 +3,7 @@ import './index.css'
 import App from './App.jsx'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { queryClient, persistOptions } from '@/lib/queryClient'
+import { applyTheme, getTheme } from '@/ui/theme'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { limitNumberInputDecimals } from '@/utils/commonFunctions'
 
@@ -49,6 +50,7 @@ const scheduleAppViewportHeight = () => {
   })
 }
 
+applyTheme(getTheme())
 setAppViewportHeight()
 window.addEventListener('resize', scheduleAppViewportHeight)
 window.addEventListener('orientationchange', scheduleAppViewportHeight)

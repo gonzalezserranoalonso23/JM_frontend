@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient
+} from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { notifyError } from '@/libs/handleErrors'
 import {
@@ -12,10 +18,14 @@ const refreshAttendance = (queryClient) => {
   queryClient.invalidateQueries({ queryKey: ['Attendance'] })
 }
 
-export const useMyAttendance = () =>
-  useQuery({
-    queryKey: ['Attendance', 'me'],
-    queryFn: getMyAttendance
+export const useMyAttendance = ({ from = '', to = '' } = {}) =>
+  useInfiniteQuery({
+    queryKey: ['Attendance', 'me', from, to],
+    queryFn: ({ pageParam }) => getMyAttendance({ page: pageParam, from, to }),
+    placeholderData: keepPreviousData,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
 
 export const useAttendanceDay = (date) =>

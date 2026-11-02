@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { CircleUser } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,6 +18,7 @@ import {
 import { useGetCurrentUser } from '@/features/users.features'
 import ScheduleDays from '@/pages/users/components/ScheduleDays'
 import { hasSchedule } from '@/pages/users/schedule'
+import { getTheme, setTheme } from '@/ui/theme'
 
 const Field = ({ label, children }) => (
   <div className="flex items-start justify-between gap-4 py-2.5 text-sm">
@@ -29,14 +29,12 @@ const Field = ({ label, children }) => (
 
 const AccountProfile = () => {
   const [open, setOpen] = useState(false)
-  const navigate = useNavigate()
+  const [theme, setThemeState] = useState(getTheme)
   const { data: user, isLoading, isError } = useGetCurrentUser(open)
   const showSchedule = Boolean(user) && (!user.isAdmin || hasSchedule(user))
-  const canClock = Boolean(user) && hasSchedule(user)
 
-  const openClock = () => {
-    setOpen(false)
-    navigate('/attendance')
+  const chooseTheme = (next) => {
+    setThemeState(setTheme(next))
   }
 
   return (
@@ -90,6 +88,29 @@ const AccountProfile = () => {
               )}
             </div>
           )}
+          <div className="flex items-center justify-between gap-4 border-t pt-4">
+            <span className="text-sm text-muted-foreground">Tema</span>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={theme === 'light' ? 'default' : 'outline'}
+                aria-pressed={theme === 'light'}
+                onClick={() => chooseTheme('light')}
+              >
+                Claro
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={theme === 'dark' ? 'default' : 'outline'}
+                aria-pressed={theme === 'dark'}
+                onClick={() => chooseTheme('dark')}
+              >
+                Oscuro
+              </Button>
+            </div>
+          </div>
         </DialogBody>
         <DialogFooter>
           <Button
@@ -99,11 +120,6 @@ const AccountProfile = () => {
           >
             Cerrar
           </Button>
-          {canClock && (
-            <Button type="button" onClick={openClock}>
-              Checador
-            </Button>
-          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

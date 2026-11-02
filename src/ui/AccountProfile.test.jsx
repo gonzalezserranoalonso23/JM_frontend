@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import AccountProfile from './AccountProfile'
 
@@ -22,9 +22,6 @@ const openProfile = async () => {
       <TooltipProvider>
         <AccountProfile />
       </TooltipProvider>
-      <Routes>
-        <Route path="/attendance" element={<h1>Asistencia</h1>} />
-      </Routes>
     </MemoryRouter>
   )
   await user.click(screen.getByRole('button', { name: 'Mi información' }))
@@ -37,6 +34,8 @@ describe('Mi información', () => {
     profile.data = null
     profile.isLoading = false
     profile.isError = false
+    localStorage.removeItem('jm-theme')
+    document.documentElement.classList.add('dark')
   })
 
   it('muestra la información y el horario de un usuario', async () => {
@@ -65,15 +64,12 @@ describe('Mi información', () => {
         monday: { enabled: true, start: '09:00', end: '18:00' }
       }
     }
-    const user = await openProfile()
+    await openProfile()
 
     expect(screen.getByText('Administrador')).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Horario' })).toBeTruthy()
     expect(screen.getByText('09:00 – 18:00')).toBeTruthy()
-
-    await user.click(screen.getByRole('button', { name: 'Checador' }))
-
-    expect(screen.getByRole('heading', { name: 'Asistencia' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Checador' })).toBeNull()
   })
 
   it('oculta el horario de un administrador que no lo tiene', async () => {
@@ -88,5 +84,20 @@ describe('Mi información', () => {
     expect(screen.getByText('Administrador')).toBeTruthy()
     expect(screen.queryByRole('heading', { name: 'Horario' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Checador' })).toBeNull()
+  })
+
+  it('cambia al tema claro y lo recuerda', async () => {
+    profile.data = {
+      username: 'admin',
+      email: 'admin@jm.test',
+      isAdmin: true,
+      haveSchedule: false
+    }
+    const user = await openProfile()
+
+    await user.click(screen.getByRole('button', { name: 'Claro' }))
+
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    expect(localStorage.getItem('jm-theme')).toBe('light')
   })
 })

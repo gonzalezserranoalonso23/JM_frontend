@@ -87,23 +87,24 @@ describe('Navigate de administrador', () => {
     expect(screen.queryByRole('menuitem', { name: 'Asistencia' })).toBeNull()
   })
 
-  it('el personal con horario conserva Asistencia como enlace directo', () => {
+  it('el personal ve Inicio, Productos y Proveedores', () => {
     auth.isAdmin = false
     auth.haveSchedule = true
     renderNav()
 
-    expect(screen.queryByRole('button', { name: 'Reportes' })).toBeNull()
-    expect(screen.getByRole('link', { name: 'Asistencia' })).toHaveAttribute(
+    expect(screen.queryByRole('link', { name: 'Pendientes' })).toBeNull()
+    expect(screen.getAllByRole('link', { name: 'Inicio' })[0]).toHaveAttribute(
       'href',
-      '/attendance'
+      '/home'
     )
-  })
-
-  it('el personal sin horario no ve Asistencia', () => {
-    auth.isAdmin = false
-    auth.haveSchedule = false
-    renderNav()
-
+    expect(
+      screen.getAllByRole('link', { name: 'Productos' })[0]
+    ).toHaveAttribute('href', '/products')
+    expect(
+      screen.getAllByRole('link', { name: 'Proveedores' })[0]
+    ).toHaveAttribute('href', '/suppliers')
     expect(screen.queryByRole('link', { name: 'Asistencia' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Salidas' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Más' })).toBeNull()
   })
 })

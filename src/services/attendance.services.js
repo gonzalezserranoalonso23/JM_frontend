@@ -1,7 +1,14 @@
 import axios from '@/libs/axios'
 
-export const getMyAttendance = async () => {
-  const { data } = await axios.get('/api/attendance/me')
+export const getMyAttendance = async ({ page = 1, from = '', to = '' } = {}) => {
+  const { data } = await axios.get('/api/attendance/me', {
+    params: {
+      page,
+      limit: 10,
+      ...(from && { from }),
+      ...(to && { to })
+    }
+  })
   return data
 }
 

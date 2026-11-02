@@ -1,12 +1,7 @@
 const STAFF_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
-  { to: '/attendance', label: 'Asistencia' },
-  { to: '/issues', label: 'Salidas' },
-  { to: '/entries', label: 'Entradas' },
-  { to: '/orders', label: 'Órdenes' },
-  { to: '/todolist', label: 'Pendientes', badge: true },
-  { to: '/suppliers', label: 'Proveedores' },
-  { to: '/products', label: 'Productos' }
+  { to: '/products', label: 'Productos' },
+  { to: '/suppliers', label: 'Proveedores' }
 ]
 
 const ADMIN_LINKS = [

@@ -45,7 +45,7 @@ const taskUserId = (value) => {
   return String(value)
 }
 
-const ToDoList = () => {
+export const TaskBoard = () => {
   const { data: pendingTasks, isLoading: loadingPending } = useGetPendingTasks()
   const { data: completedTasks, isLoading: loadingCompleted } =
     useGetCompletedTasks()
@@ -131,7 +131,6 @@ const ToDoList = () => {
   const completedCount = completedTasks?.length || 0
 
   return (
-    <PageShell>
       <Card as="section" aria-labelledby="tasks-title">
         <CardHeader>
           <h1 id="tasks-title" className="text-2xl font-semibold">
@@ -414,8 +413,13 @@ const ToDoList = () => {
           )}
         </CardContent>
       </Card>
-    </PageShell>
   )
 }
+
+const ToDoList = () => (
+  <PageShell>
+    <TaskBoard />
+  </PageShell>
+)
 
 export default ToDoList

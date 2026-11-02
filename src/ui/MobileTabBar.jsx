@@ -6,7 +6,9 @@ import {
   ChevronDown,
   Home,
   ListTodo,
-  Ellipsis
+  Ellipsis,
+  Package,
+  Truck
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,7 +19,9 @@ const TAB_ICONS = {
   '/home': Home,
   '/issues': ArrowUpFromLine,
   '/entries': ArrowDownToLine,
-  '/todolist': ListTodo
+  '/todolist': ListTodo,
+  '/products': Package,
+  '/suppliers': Truck
 }
 
 const MobileTabBar = ({
@@ -30,12 +34,13 @@ const MobileTabBar = ({
   const [moreOpen, setMoreOpen] = useState(false)
   const [openGroup, setOpenGroup] = useState(null)
   const { pathname } = useLocation()
-  const primary = links.filter(
-    (link) => link.to && PRIMARY_TABS.includes(link.to)
-  )
-  const moreLinks = links.filter(
-    (link) => !link.to || !PRIMARY_TABS.includes(link.to)
-  )
+  const staffNav = !links.some((link) => link.to === '/issues')
+  const primary = staffNav
+    ? links.filter((link) => link.to)
+    : links.filter((link) => link.to && PRIMARY_TABS.includes(link.to))
+  const moreLinks = staffNav
+    ? []
+    : links.filter((link) => !link.to || !PRIMARY_TABS.includes(link.to))
   const onPrimaryTab = PRIMARY_TABS.some((tab) =>
     tab === '/home'
       ? pathname === '/home'
@@ -170,7 +175,16 @@ const MobileTabBar = ({
         aria-label="Navegación inferior"
         className="app-tab-bar fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] backdrop-blur-md xl:hidden"
       >
-        <div className="grid h-[3.25rem] grid-cols-5 px-1">
+        <div
+          className={cn(
+            'grid h-[3.25rem] px-1',
+            moreLinks.length > 0
+              ? 'grid-cols-5'
+              : primary.length === 2
+                ? 'grid-cols-2'
+                : 'grid-cols-3'
+          )}
+        >
           {primary.map(({ to, label, end, badge }) => {
             const Icon = TAB_ICONS[to]
             return (
@@ -198,20 +212,22 @@ const MobileTabBar = ({
               </NavLink>
             )
           })}
-          <button
-            type="button"
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-medium',
-              moreOpen || moreActive
-                ? 'text-foreground'
-                : 'text-muted-foreground'
-            )}
-            aria-expanded={moreOpen}
-            onClick={() => setMoreOpen((open) => !open)}
-          >
-            <Ellipsis className="h-5 w-5" aria-hidden="true" />
-            Más
-          </button>
+          {moreLinks.length > 0 && (
+            <button
+              type="button"
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-medium',
+                moreOpen || moreActive
+                  ? 'text-foreground'
+                  : 'text-muted-foreground'
+              )}
+              aria-expanded={moreOpen}
+              onClick={() => setMoreOpen((open) => !open)}
+            >
+              <Ellipsis className="h-5 w-5" aria-hidden="true" />
+              Más
+            </button>
+          )}
         </div>
       </nav>
     </>

@@ -4,6 +4,9 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import Skeleton from '@/components/ui/skeleton'
+import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import { useAuthStore } from '@/store/auth'
 import { useGetCurrentUser } from '@/features/users.features'
 import { hasSchedule } from '@/pages/users/schedule'
@@ -72,12 +75,53 @@ const readPosition = () =>
 
 const personName = (user) => user?.fullName || user?.username || 'Sin nombre'
 
-const StaffClock = () => {
-  const { data, isLoading, isError } = useMyAttendance()
+const RecordSkeleton = ({ rows = 3 }) => (
+  <div role="status" aria-label="Cargando" className="divide-y">
+    {Array.from({ length: rows }, (_, index) => (
+      <div
+        key={index}
+        className="flex items-center justify-between gap-4 px-4 py-3"
+      >
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-28" />
+      </div>
+    ))}
+  </div>
+)
+
+export const StaffClock = () => {
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
+  const rangeInvalid = Boolean(from && to && from > to)
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetching,
+    isPlaceholderData,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage
+  } = useMyAttendance({
+    from: rangeInvalid ? '' : from,
+    to: rangeInvalid ? '' : to
+  })
+  const { sentinelRef, supportsIntersectionObserver } =
+    useIntersectionPagination(
+      fetchNextPage,
+      Boolean(hasNextPage) && !isFetchingNextPage && !rangeInvalid
+    )
   const checkIn = useCheckIn()
   const checkOut = useCheckOut()
-  const open = data?.open
-  const workDay = Boolean(data?.workDay)
+  const summary = data?.pages?.[0]
+  const records = rangeInvalid
+    ? []
+    : (data?.pages ?? []).flatMap((page) => page.records ?? [])
+  const listPending =
+    !rangeInvalid &&
+    (isLoading || (isPlaceholderData && isFetching && !isFetchingNextPage))
+  const open = summary?.open
+  const workDay = Boolean(summary?.workDay)
   const today = todayMexicoCity()
   const pending = checkIn.isPending || checkOut.isPending
   const dayOff = !open && !workDay
@@ -113,10 +157,13 @@ const StaffClock = () => {
           Asistencia
         </h1>
       </header>
-      {isLoading ? (
-        <ListSkeleton />
-      ) : isError ? (
+      {isError && !summary ? (
         <Alert variant="destructive">No se pudo cargar tu asistencia</Alert>
+      ) : !summary ? (
+        <div role="status" aria-label="Cargando" className="grid gap-4">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-12 w-full sm:w-48" />
+        </div>
       ) : (
         <>
           <div className="rounded-lg border bg-muted/30 p-4">
@@ -143,29 +190,76 @@ const StaffClock = () => {
                   ? 'Hoy no es tu día de trabajo'
                   : 'Registrar entrada'}
           </Button>
-          <ul className="m-0 list-none divide-y rounded-lg border p-0">
-            {(data?.records ?? []).length === 0 ? (
-              <li className="px-4 py-3 text-sm text-muted-foreground">
+        </>
+      )}
+      {!(isError && !summary) && (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="attendance-from">Desde</Label>
+              <Input
+                id="attendance-from"
+                type="date"
+                value={from}
+                onChange={(event) => setFrom(event.target.value)}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="attendance-to">Hasta</Label>
+              <Input
+                id="attendance-to"
+                type="date"
+                value={to}
+                onChange={(event) => setTo(event.target.value)}
+              />
+            </div>
+          </div>
+          <div className="max-h-64 overflow-y-auto rounded-lg border">
+            {listPending || !summary ? (
+              <RecordSkeleton />
+            ) : records.length === 0 ? (
+              <p className="px-4 py-3 text-sm text-muted-foreground">
                 Aún no hay registros
-              </li>
+              </p>
             ) : (
-              data.records.map((record) => (
-                <li
-                  key={record._id}
-                  className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-                >
-                  <span className="text-sm font-medium">
-                    {formatDay(record.date)}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {formatTime(record.checkInAt)}
-                    {' – '}
-                    {record.checkOutAt ? formatTime(record.checkOutAt) : 'en turno'}
-                  </span>
-                </li>
-              ))
+              <>
+                <ul className="m-0 list-none divide-y p-0">
+                  {records.map((record) => (
+                    <li
+                      key={record._id}
+                      className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                    >
+                      <span className="text-sm font-medium">
+                        {formatDay(record.date)}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {formatTime(record.checkInAt)}
+                        {' – '}
+                        {record.checkOutAt
+                          ? formatTime(record.checkOutAt)
+                          : 'en turno'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {hasNextPage && supportsIntersectionObserver && (
+                  <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+                )}
+                {isFetchingNextPage && <RecordSkeleton rows={2} />}
+                {hasNextPage && !supportsIntersectionObserver && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                  >
+                    Cargar más
+                  </Button>
+                )}
+              </>
             )}
-          </ul>
+          </div>
         </>
       )}
     </Card>
