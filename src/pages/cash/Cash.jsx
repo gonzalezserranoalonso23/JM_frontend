@@ -18,6 +18,7 @@ import {
   useSaveVault,
   useVaultUpdatedAt
 } from '@/features/denominations.features'
+import { useAuthStore } from '@/store/auth'
 
 const formatAmount = (amount) =>
   Number(amount || 0).toLocaleString('es-MX', {
@@ -25,10 +26,10 @@ const formatAmount = (amount) =>
     currency: 'MXN'
   })
 
-const formatDenomination = (value) =>
-  value < 1
-    ? `$${Number(value).toFixed(2)}`
-    : `$${Number(value).toLocaleString('es-MX', { maximumFractionDigits: 2 })}`
+const formatDenomination = (value) => {
+  if (value < 1) return `$${Number(value).toFixed(2)}`
+  return `$${Number(value).toLocaleString('es-MX', { maximumFractionDigits: 2 })}`
+}
 
 const formatUpdatedAt = (value) =>
   new Date(value).toLocaleString('es-MX', {
@@ -161,11 +162,16 @@ const Calculator = () => {
   )
 }
 
+const draftQuantity = (quantity) => {
+  if (Number(quantity) > 0) return String(quantity)
+  return ''
+}
+
 const draftFromVault = (vault) =>
   Object.fromEntries(
     (vault?.denominations ?? []).map((item) => [
       item.value,
-      Number(item.quantity) > 0 ? String(item.quantity) : ''
+      draftQuantity(item.quantity)
     ])
   )
 
@@ -174,6 +180,7 @@ const Vault = () => {
   const saveVault = useSaveVault()
   const { data: latest } = useVaultUpdatedAt()
   const [secret, setSecret] = useState('')
+  const [secretReady, setSecretReady] = useState(false)
   const [vault, setVault] = useState(null)
   const [draft, setDraft] = useState({})
 
@@ -219,6 +226,130 @@ const Vault = () => {
     setVault(null)
     setDraft({})
     setSecret('')
+    setSecretReady(false)
+  }
+
+  let secretType = 'text'
+  if (secretReady) secretType = 'password'
+
+  let openLabel = 'Abrir'
+  if (openVault.isPending) openLabel = 'Abriendo...'
+  let saveLabel = 'Guardar'
+  if (saveVault.isPending) saveLabel = 'Guardando...'
+
+  let updated = null
+  if (updatedAt) {
+    updated = (
+      <p className="text-sm text-muted-foreground">
+        Última actualización: {formatUpdatedAt(updatedAt)}
+      </p>
+    )
+  }
+
+  let form = (
+    <form onSubmit={handleOpen} className="flex flex-col gap-3 sm:max-w-sm">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="vault-secret">Clave</Label>
+        <Input
+          id="vault-secret"
+          type={secretType}
+          autoComplete="off"
+          readOnly={!secretReady}
+          onFocus={() => setSecretReady(true)}
+          value={secret}
+          onChange={(event) => setSecret(event.target.value)}
+        />
+      </div>
+      <Button type="submit" disabled={openVault.isPending}>
+        {openLabel}
+      </Button>
+    </form>
+  )
+  if (vault) {
+    form = (
+      <form onSubmit={handleSave} className="flex flex-col gap-4">
+        <div className="space-y-3 xl:hidden">
+          {rows.map((item) => (
+            <Card key={item.value} className="py-3">
+              <CardContent className="grid grid-cols-[1fr_6rem_1fr] items-center gap-3 px-4">
+                <strong>{formatDenomination(item.value)}</strong>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                  className="h-9 w-full px-2 text-center"
+                  aria-label={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
+                  value={draft[item.value] ?? ''}
+                  onChange={(event) =>
+                    setDraft((prev) => ({
+                      ...prev,
+                      [item.value]: event.target.value
+                    }))
+                  }
+                />
+                <span className="text-right text-sm">
+                  {formatAmount(item.value * quantityOf(draft, item.value))}
+                </span>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="hidden overflow-x-hidden rounded-lg border xl:block">
+          <Table className="table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[30%]">Denominación</TableHead>
+                <TableHead className="w-[34%] text-center">Cantidad</TableHead>
+                <TableHead className="w-[36%] text-right">Subtotal</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((item) => (
+                <TableRow key={item.value}>
+                  <TableCell>
+                    <strong>{formatDenomination(item.value)}</strong>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      step="1"
+                      placeholder="0"
+                      className="mx-auto h-9 w-full max-w-28 px-2 text-center"
+                      aria-label={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
+                      value={draft[item.value] ?? ''}
+                      onChange={(event) =>
+                        setDraft((prev) => ({
+                          ...prev,
+                          [item.value]: event.target.value
+                        }))
+                      }
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatAmount(item.value * quantityOf(draft, item.value))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <strong>Total en caja fuerte: {formatAmount(draftTotal)}</strong>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Cerrar
+            </Button>
+            <Button type="submit" disabled={saveVault.isPending}>
+              {saveLabel}
+            </Button>
+          </div>
+        </div>
+      </form>
+    )
   }
 
   return (
@@ -229,128 +360,20 @@ const Vault = () => {
             Caja fuerte
           </h2>
         </CardTitle>
-        {updatedAt ? (
-          <p className="text-sm text-muted-foreground">
-            Última actualización: {formatUpdatedAt(updatedAt)}
-          </p>
-        ) : null}
+        {updated}
       </CardHeader>
-      <CardContent>
-        {!vault ? (
-          <form
-            onSubmit={handleOpen}
-            className="flex flex-col gap-3 sm:max-w-sm"
-          >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="vault-secret">Clave</Label>
-              <Input
-                id="vault-secret"
-                type="password"
-                autoComplete="off"
-                value={secret}
-                onChange={(event) => setSecret(event.target.value)}
-              />
-            </div>
-            <Button type="submit" disabled={openVault.isPending}>
-              {openVault.isPending ? 'Abriendo...' : 'Abrir'}
-            </Button>
-          </form>
-        ) : (
-          <form onSubmit={handleSave} className="flex flex-col gap-4">
-            <div className="space-y-3 xl:hidden">
-              {rows.map((item) => (
-                <Card key={item.value} className="py-3">
-                  <CardContent className="grid grid-cols-[1fr_6rem_1fr] items-center gap-3 px-4">
-                    <strong>{formatDenomination(item.value)}</strong>
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      min="0"
-                      step="1"
-                      placeholder="0"
-                      className="h-9 w-full px-2 text-center"
-                      aria-label={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
-                      value={draft[item.value] ?? ''}
-                      onChange={(event) =>
-                        setDraft((prev) => ({
-                          ...prev,
-                          [item.value]: event.target.value
-                        }))
-                      }
-                    />
-                    <span className="text-right text-sm">
-                      {formatAmount(item.value * quantityOf(draft, item.value))}
-                    </span>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <div className="hidden overflow-x-hidden rounded-lg border xl:block">
-              <Table className="table-fixed">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[30%]">Denominación</TableHead>
-                    <TableHead className="w-[34%] text-center">
-                      Cantidad
-                    </TableHead>
-                    <TableHead className="w-[36%] text-right">
-                      Subtotal
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((item) => (
-                    <TableRow key={item.value}>
-                      <TableCell>
-                        <strong>{formatDenomination(item.value)}</strong>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          min="0"
-                          step="1"
-                          placeholder="0"
-                          className="mx-auto h-9 w-full max-w-28 px-2 text-center"
-                          aria-label={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
-                          value={draft[item.value] ?? ''}
-                          onChange={(event) =>
-                            setDraft((prev) => ({
-                              ...prev,
-                              [item.value]: event.target.value
-                            }))
-                          }
-                        />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {formatAmount(
-                          item.value * quantityOf(draft, item.value)
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <strong>Total en caja fuerte: {formatAmount(draftTotal)}</strong>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={handleClose}>
-                  Cerrar
-                </Button>
-                <Button type="submit" disabled={saveVault.isPending}>
-                  {saveVault.isPending ? 'Guardando...' : 'Guardar'}
-                </Button>
-              </div>
-            </div>
-          </form>
-        )}
-      </CardContent>
+      <CardContent>{form}</CardContent>
     </Card>
   )
 }
 
-const Cash = () => (
+const StaffCash = () => (
+  <PageShell>
+    <Calculator />
+  </PageShell>
+)
+
+const AdminCash = () => (
   <PageShell>
     <div className="flex flex-col gap-6">
       <Calculator />
@@ -358,5 +381,13 @@ const Cash = () => (
     </div>
   </PageShell>
 )
+
+const Cash = () => {
+  const isAdmin = useAuthStore((state) => state.isAdmin)
+
+  if (isAdmin) return <AdminCash />
+
+  return <StaffCash />
+}
 
 export default Cash

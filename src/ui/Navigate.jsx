@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { ChevronDown, LogOut } from 'lucide-react'
+import { Bell, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -12,21 +12,39 @@ import { hasSchedule } from '@/pages/users/schedule'
 import { logout } from '@/services/users.services'
 import useTaskNotifications from '@/hooks/useTaskNotifications'
 import MobileTabBar from '@/ui/MobileTabBar'
-import { getNavLinks, isNavPathActive } from '@/ui/navLinks'
+import {
+  desktopLinkAlignment,
+  getNavLinks,
+  isNavPathActive,
+  splitMobileTabs
+} from '@/ui/navLinks'
+import { AdminLogoutButton, StaffLogoutButton } from '@/ui/LogoutButton'
 import ProductLookup from '@/pages/home/components/ProductLookup'
 import AccountProfile from '@/ui/AccountProfile'
 
-const navItemClass = (active) =>
-  cn(
+const navItemClass = (active) => {
+  let tone = 'text-muted-foreground'
+  if (active) tone = 'bg-accent text-accent-foreground'
+  return cn(
     'relative inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
-    active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
+    tone
   )
+}
 
-const NavGroup = ({ label, children }) => {
+const menuItemClass = (isActive) => {
+  let tone = 'text-foreground hover:bg-accent hover:text-accent-foreground'
+  if (isActive) tone = 'bg-accent text-accent-foreground'
+  return cn(
+    'flex min-h-10 items-center rounded-md px-3 text-sm font-medium',
+    tone
+  )
+}
+
+const NavGroup = ({ label, items }) => {
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
   const menuRef = useRef(null)
-  const active = children.some((child) =>
+  const active = items.some((child) =>
     isNavPathActive(pathname, child.to, child.end)
   )
 
@@ -71,20 +89,13 @@ const NavGroup = ({ label, children }) => {
           aria-label={label}
           className="absolute left-0 top-full z-50 mt-1 min-w-40 rounded-md border bg-background p-1 shadow-md"
         >
-          {children.map(({ to, label: childLabel, end }) => (
+          {items.map(({ to, label: childLabel, end }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
               role="menuitem"
-              className={({ isActive }) =>
-                cn(
-                  'flex min-h-10 items-center rounded-md px-3 text-sm font-medium',
-                  isActive
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                )
-              }
+              className={({ isActive }) => menuItemClass(isActive)}
             >
               {childLabel}
             </NavLink>
@@ -92,6 +103,53 @@ const NavGroup = ({ label, children }) => {
         </div>
       )}
     </div>
+  )
+}
+
+const NotifyButton = ({ show, onRequest }) => {
+  if (!show) return null
+  return (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon-sm"
+        className="shrink-0 xl:hidden"
+        aria-label="Activar notificaciones"
+        onClick={onRequest}
+      >
+        <Bell className="h-4 w-4" aria-hidden="true" />
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onRequest}
+        className="hidden shrink-0 xl:inline-flex"
+      >
+        Activar notificaciones
+      </Button>
+    </>
+  )
+}
+
+const DesktopLink = ({ link, pendingCount }) => {
+  if (link.children) {
+    return <NavGroup label={link.label} items={link.children} />
+  }
+
+  return (
+    <NavLink
+      to={link.to}
+      end={link.end}
+      className={({ isActive }) => navItemClass(isActive)}
+    >
+      {link.label}
+      {link.badge && pendingCount > 0 && (
+        <Badge variant="secondary" className="pointer-events-none px-1.5">
+          {pendingCount}
+        </Badge>
+      )}
+    </NavLink>
   )
 }
 
@@ -105,6 +163,8 @@ const Navigate = () => {
   const navigate = useNavigate()
   const pendingCount = pendingTasks?.length ?? 0
   const links = getNavLinks(isAdmin, hasSchedule(me))
+  const { primary, moreLinks } = splitMobileTabs(links, isAdmin)
+  const Logout = isAdmin ? AdminLogoutButton : StaffLogoutButton
 
   const handleLogOut = async () => {
     await logout().catch(() => {})
@@ -139,78 +199,34 @@ const Navigate = () => {
               <div
                 className={cn(
                   'hidden min-w-0 flex-1 items-center gap-1 xl:flex',
-                  isAdmin ? 'justify-evenly' : 'justify-end'
+                  desktopLinkAlignment(isAdmin)
                 )}
               >
-                {links.map((link) =>
-                  link.children ? (
-                    <NavGroup
-                      key={link.label}
-                      label={link.label}
-                      children={link.children}
-                    />
-                  ) : (
-                    <NavLink
-                      key={link.to}
-                      to={link.to}
-                      end={link.end}
-                      className={({ isActive }) => navItemClass(isActive)}
-                    >
-                      {link.label}
-                      {link.badge && pendingCount > 0 && (
-                        <Badge
-                          variant="secondary"
-                          className="pointer-events-none px-1.5"
-                        >
-                          {pendingCount}
-                        </Badge>
-                      )}
-                    </NavLink>
-                  )
-                )}
+                {links.map((link) => (
+                  <DesktopLink
+                    key={link.to || link.label}
+                    link={link}
+                    pendingCount={pendingCount}
+                  />
+                ))}
               </div>
 
               <div className="ml-auto flex shrink-0 items-center gap-1">
                 <ProductLookup />
                 <AccountProfile />
-                {!isAdmin && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="size-11 shrink-0 xl:hidden"
-                    aria-label="Cerrar sesión"
-                    onClick={handleLogOut}
-                  >
-                    <LogOut className="h-5 w-5" aria-hidden="true" />
-                  </Button>
-                )}
-                {showNotifications && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={requestPermission}
-                    className="hidden shrink-0 xl:inline-flex"
-                  >
-                    Activar notificaciones
-                  </Button>
-                )}
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleLogOut}
-                  className="hidden shrink-0 xl:inline-flex"
-                >
-                  Cerrar sesión
-                </Button>
+                <Logout onLogout={handleLogOut} />
+                <NotifyButton
+                  show={showNotifications}
+                  onRequest={requestPermission}
+                />
               </div>
             </div>
           </div>
         </nav>
       </header>
       <MobileTabBar
-        links={links}
+        links={moreLinks}
+        primary={primary}
         pendingCount={pendingCount}
         showNotifications={showNotifications}
         requestPermission={requestPermission}

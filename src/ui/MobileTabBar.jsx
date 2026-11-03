@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Home,
   ListTodo,
+  Banknote,
   Ellipsis,
   Package,
   Truck
@@ -13,7 +14,34 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { isNavPathActive, PRIMARY_TABS } from '@/ui/navLinks'
+import { isNavPathActive, tabGridClass } from '@/ui/navLinks'
+
+const tabClass = (isActive) => {
+  let tone = 'text-muted-foreground'
+  if (isActive) tone = 'text-foreground'
+  return cn(
+    'relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1.5 text-[11px] font-medium',
+    tone
+  )
+}
+
+const sheetLinkClass = (isActive) => {
+  let tone = 'text-foreground'
+  if (isActive) tone = 'bg-accent text-accent-foreground'
+  return cn(
+    'flex min-h-11 min-w-0 items-center rounded-lg px-3 text-base font-medium',
+    tone
+  )
+}
+
+const sheetRowClass = (isActive) => {
+  let tone = 'text-foreground'
+  if (isActive) tone = 'bg-accent text-accent-foreground'
+  return cn(
+    'flex min-h-12 items-center justify-between rounded-lg px-3 text-base font-medium',
+    tone
+  )
+}
 
 const TAB_ICONS = {
   '/home': Home,
@@ -21,11 +49,80 @@ const TAB_ICONS = {
   '/entries': ArrowDownToLine,
   '/todolist': ListTodo,
   '/products': Package,
-  '/suppliers': Truck
+  '/suppliers': Truck,
+  '/cash': Banknote
+}
+
+const toggleGroup = (current, label) => {
+  if (current === label) return null
+  return label
+}
+
+const MoreLink = ({
+  link,
+  openGroup,
+  setOpenGroup,
+  pendingCount,
+  onNavigate
+}) => {
+  if (link.children) {
+    const groupOpen = openGroup === link.label
+    return (
+      <div>
+        <button
+          type="button"
+          className="flex min-h-12 w-full min-w-0 items-center justify-between gap-3 rounded-lg px-3 text-base font-medium text-foreground"
+          aria-expanded={groupOpen}
+          onClick={() =>
+            setOpenGroup((current) => toggleGroup(current, link.label))
+          }
+        >
+          <span className="truncate">{link.label}</span>
+          <ChevronDown
+            className={cn(
+              'h-4 w-4 shrink-0 transition-transform',
+              groupOpen && 'rotate-180'
+            )}
+            aria-hidden="true"
+          />
+        </button>
+        {groupOpen && (
+          <div className="grid gap-1 pb-1 pl-3">
+            {link.children.map(({ to, label, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                onClick={onNavigate}
+                className={({ isActive }) => sheetLinkClass(isActive)}
+              >
+                <span className="truncate">{label}</span>
+              </NavLink>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <NavLink
+      to={link.to}
+      end={link.end}
+      onClick={onNavigate}
+      className={({ isActive }) => sheetRowClass(isActive)}
+    >
+      {link.label}
+      {link.badge && pendingCount > 0 && (
+        <Badge variant="secondary">{pendingCount}</Badge>
+      )}
+    </NavLink>
+  )
 }
 
 const MobileTabBar = ({
   links,
+  primary,
   pendingCount,
   showNotifications,
   requestPermission,
@@ -34,19 +131,12 @@ const MobileTabBar = ({
   const [moreOpen, setMoreOpen] = useState(false)
   const [openGroup, setOpenGroup] = useState(null)
   const { pathname } = useLocation()
-  const staffNav = !links.some((link) => link.to === '/issues')
-  const primary = staffNav
-    ? links.filter((link) => link.to)
-    : links.filter((link) => link.to && PRIMARY_TABS.includes(link.to))
-  const moreLinks = staffNav
-    ? []
-    : links.filter((link) => !link.to || !PRIMARY_TABS.includes(link.to))
-  const onPrimaryTab = PRIMARY_TABS.some((tab) =>
-    tab === '/home'
-      ? pathname === '/home'
-      : pathname === tab || pathname.startsWith(`${tab}/`)
+  const onPrimaryTab = primary.some((link) =>
+    isNavPathActive(pathname, link.to, link.end)
   )
   const moreActive = !onPrimaryTab
+  let moreTone = 'text-muted-foreground'
+  if (moreOpen || moreActive) moreTone = 'text-foreground'
 
   useEffect(() => {
     if (!moreOpen) return
@@ -75,73 +165,16 @@ const MobileTabBar = ({
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
             <nav className="grid min-w-0 gap-1">
-              {moreLinks.map((link) =>
-                link.children ? (
-                  <div key={link.label}>
-                    <button
-                      type="button"
-                      className="flex min-h-12 w-full min-w-0 items-center justify-between gap-3 rounded-lg px-3 text-base font-medium text-foreground"
-                      aria-expanded={openGroup === link.label}
-                      onClick={() =>
-                        setOpenGroup((current) =>
-                          current === link.label ? null : link.label
-                        )
-                      }
-                    >
-                      <span className="truncate">{link.label}</span>
-                      <ChevronDown
-                        className={cn(
-                          'h-4 w-4 shrink-0 transition-transform',
-                          openGroup === link.label && 'rotate-180'
-                        )}
-                        aria-hidden="true"
-                      />
-                    </button>
-                    {openGroup === link.label && (
-                      <div className="grid gap-1 pb-1 pl-3">
-                        {link.children.map(({ to, label, end }) => (
-                          <NavLink
-                            key={to}
-                            to={to}
-                            end={end}
-                            onClick={() => setMoreOpen(false)}
-                            className={({ isActive }) =>
-                              cn(
-                                'flex min-h-11 min-w-0 items-center rounded-lg px-3 text-base font-medium',
-                                isActive
-                                  ? 'bg-accent text-accent-foreground'
-                                  : 'text-foreground'
-                              )
-                            }
-                          >
-                            <span className="truncate">{label}</span>
-                          </NavLink>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    end={link.end}
-                    onClick={() => setMoreOpen(false)}
-                    className={({ isActive }) =>
-                      cn(
-                        'flex min-h-12 items-center justify-between rounded-lg px-3 text-base font-medium',
-                        isActive
-                          ? 'bg-accent text-accent-foreground'
-                          : 'text-foreground'
-                      )
-                    }
-                  >
-                    {link.label}
-                    {link.badge && pendingCount > 0 && (
-                      <Badge variant="secondary">{pendingCount}</Badge>
-                    )}
-                  </NavLink>
-                )
-              )}
+              {links.map((link) => (
+                <MoreLink
+                  key={link.to || link.label}
+                  link={link}
+                  openGroup={openGroup}
+                  setOpenGroup={setOpenGroup}
+                  pendingCount={pendingCount}
+                  onNavigate={() => setMoreOpen(false)}
+                />
+              ))}
             </nav>
             {showNotifications && (
               <Button
@@ -178,33 +211,26 @@ const MobileTabBar = ({
         <div
           className={cn(
             'grid h-[3.25rem] px-1',
-            moreLinks.length > 0
-              ? 'grid-cols-5'
-              : primary.length === 2
-                ? 'grid-cols-2'
-                : 'grid-cols-3'
+            tabGridClass(primary.length, links.length > 0)
           )}
         >
           {primary.map(({ to, label, end, badge }) => {
             const Icon = TAB_ICONS[to]
+            let countLabel = pendingCount
+            if (pendingCount > 99) countLabel = '99+'
             return (
               <NavLink
                 key={to}
                 to={to}
                 end={end}
                 onClick={() => setMoreOpen(false)}
-                className={({ isActive }) =>
-                  cn(
-                    'relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1.5 text-[11px] font-medium',
-                    isActive ? 'text-foreground' : 'text-muted-foreground'
-                  )
-                }
+                className={({ isActive }) => tabClass(isActive)}
               >
                 <span className="relative">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                   {badge && pendingCount > 0 && (
                     <span className="absolute -right-2 -top-1.5 z-10 min-w-4 rounded-full bg-destructive px-1 text-center text-[10px] leading-4 text-white">
-                      {pendingCount > 99 ? '99+' : pendingCount}
+                      {countLabel}
                     </span>
                   )}
                 </span>
@@ -212,14 +238,12 @@ const MobileTabBar = ({
               </NavLink>
             )
           })}
-          {moreLinks.length > 0 && (
+          {links.length > 0 && (
             <button
               type="button"
               className={cn(
                 'flex flex-col items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-medium',
-                moreOpen || moreActive
-                  ? 'text-foreground'
-                  : 'text-muted-foreground'
+                moreTone
               )}
               aria-expanded={moreOpen}
               onClick={() => setMoreOpen((open) => !open)}

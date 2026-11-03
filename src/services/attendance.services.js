@@ -1,6 +1,10 @@
 import axios from '@/libs/axios'
 
-export const getMyAttendance = async ({ page = 1, from = '', to = '' } = {}) => {
+export const getMyAttendance = async ({
+  page = 1,
+  from = '',
+  to = ''
+} = {}) => {
   const { data } = await axios.get('/api/attendance/me', {
     params: {
       page,
@@ -25,7 +29,10 @@ export const checkIn = async ({ latitude, longitude }) => {
   return data
 }
 
-export const checkOut = async () => {
-  const { data } = await axios.post('/api/attendance/check-out')
+export const checkOut = async ({ latitude, longitude }) => {
+  const { data } = await axios.post('/api/attendance/check-out', {
+    latitude,
+    longitude
+  })
   return data
 }

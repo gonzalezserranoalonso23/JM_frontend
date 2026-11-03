@@ -1,7 +1,7 @@
 import { useFormik } from 'formik'
 import { Navigate } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { verifyLogin } from '@/helpers/validations'
 import { useLogin } from '@/features/users.features'
 import { useAuthStore } from '@/store/auth'
@@ -31,6 +31,7 @@ const Login = () => {
   const login = useLogin()
   const auth = useAuthStore((state) => state.auth)
   const logOut = useAuthStore((state) => state.logOut)
+  const [passwordReady, setPasswordReady] = useState(false)
 
   const formik = useFormik({
     initialValues: {
@@ -86,6 +87,16 @@ const Login = () => {
     return <Navigate to="/home" replace />
   }
 
+  let passwordType = 'text'
+  let passwordComplete = 'off'
+  if (passwordReady) {
+    passwordType = 'password'
+    passwordComplete = 'current-password'
+  }
+
+  let submitLabel = 'Iniciar Sesión'
+  if (login.isPending) submitLabel = 'Iniciando...'
+
   return (
     <main className="flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-y-auto bg-background px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6">
       <Card
@@ -126,8 +137,10 @@ const Login = () => {
                 {...formik.getFieldProps('password')}
                 id="password"
                 name="password"
-                type="password"
-                autoComplete="current-password"
+                type={passwordType}
+                readOnly={!passwordReady}
+                autoComplete={passwordComplete}
+                onFocus={() => setPasswordReady(true)}
                 placeholder="••••••••"
               />
             </div>
@@ -146,7 +159,7 @@ const Login = () => {
               Recuérdame
             </label>
             <Button type="submit" disabled={login.isPending}>
-              {login.isPending ? 'Iniciando...' : 'Iniciar Sesión'}
+              {submitLabel}
             </Button>
           </form>
         </CardContent>

@@ -1,12 +1,11 @@
 import PageShell from '@/components/PageShell'
-import { formatQty } from '@/utils/commonFunctions'
+import { formatMoney } from '@/utils/commonFunctions'
 import { useState } from 'react'
-import { useGetLowStockProductPages } from '@/features/inventory.features'
+import { useGetPromotionPages } from '@/features/products.features'
 import { useGetCategories } from '@/features/categories.features'
 import FormFilter from '@/components/FormFilter'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
@@ -27,7 +26,13 @@ import {
 } from '@/components/ui/table'
 import ListSkeleton from '@/components/ListSkeleton'
 
-const Shortages = () => {
+const formatMargin = (value) =>
+  `${Number(value || 0).toLocaleString('es-MX', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  })}%`
+
+const Promotions = () => {
   const [dataFilter, setDataFilter] = useFilterQuery('q')
   const [category, setCategory] = useState('')
   const { data: categories } = useGetCategories()
@@ -37,35 +42,35 @@ const Shortages = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useGetLowStockProductPages(dataFilter.trim(), category)
+  } = useGetPromotionPages(dataFilter.trim(), category)
 
   const products = pages?.pages.flatMap((page) => page.data) || []
   const total = pages?.pages[0]?.total ?? 0
 
   return (
     <PageShell>
-      <Card as="section" aria-labelledby="shortages-title">
+      <Card as="section" aria-labelledby="promotions-title">
         <CardHeader>
           <CardTitle>
-            <h1 id="shortages-title" className="text-xl font-bold">
-              Faltantes
+            <h1 id="promotions-title" className="text-xl font-bold">
+              Promociones
             </h1>
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Productos con stock bajo
+            Productos con margen de 30% o más sobre el precio de venta
           </p>
         </CardHeader>
 
         <CardContent>
           <FormFilter
-            id="shortages-filter"
+            id="promotions-filter"
             label="Buscar producto"
-            placeholder="Buscar en faltantes..."
+            placeholder="Buscar en promociones..."
             value={dataFilter}
             onChange={setDataFilter}
           >
             <div className="flex min-w-[200px] flex-col gap-2">
-              <Label htmlFor="shortages-category" className="mb-0">
+              <Label htmlFor="promotions-category" className="mb-0">
                 Categoría
               </Label>
               <Select
@@ -74,14 +79,14 @@ const Shortages = () => {
                   setCategory(value === 'all' ? '' : value)
                 }
               >
-                <SelectTrigger id="shortages-category">
+                <SelectTrigger id="promotions-category">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
-                  {categories?.map((c) => (
-                    <SelectItem key={c._id} value={c._id}>
-                      {c.categories}
+                  {categories?.map((item) => (
+                    <SelectItem key={item._id} value={item._id}>
+                      {item.categories}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -98,49 +103,35 @@ const Shortages = () => {
                   products.map((product) => (
                     <Card as="article" key={product._id} className="gap-3 py-4">
                       <CardContent className="space-y-3 px-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <h2 className="break-words font-medium">
-                              {product.productName}
-                            </h2>
-                            {product.productDescription && (
-                              <p className="break-words text-xs text-muted-foreground">
-                                {product.productDescription}
-                              </p>
-                            )}
-                          </div>
-                          {product.productStock === 0 ? (
-                            <Badge variant="destructive" className="shrink-0">
-                              Agotado
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant="outline"
-                              className="shrink-0 text-amber-400"
-                            >
-                              Bajo
-                            </Badge>
+                        <div className="min-w-0">
+                          <h2 className="break-words font-medium">
+                            {product.productName}
+                          </h2>
+                          {product.productDescription && (
+                            <p className="break-words text-xs text-muted-foreground">
+                              {product.productDescription}
+                            </p>
                           )}
                         </div>
                         <dl className="grid grid-cols-3 gap-x-4 text-sm">
                           <div>
                             <dt className="text-xs text-muted-foreground">
-                              Stock
+                              Compra
                             </dt>
-                            <dd>{formatQty(product.productStock)}</dd>
+                            <dd>{formatMoney(product.purchasePrice)}</dd>
                           </div>
                           <div>
                             <dt className="text-xs text-muted-foreground">
-                              Mínimo
+                              Venta
                             </dt>
-                            <dd>{product.minimumProductStock}</dd>
+                            <dd>{formatMoney(product.productPrice)}</dd>
                           </div>
                           <div>
                             <dt className="text-xs text-muted-foreground">
-                              Categoría
+                              Margen
                             </dt>
-                            <dd className="break-words">
-                              {product.category?.categories || 'N/A'}
+                            <dd className="font-medium">
+                              {formatMargin(product.margin)}
                             </dd>
                           </div>
                         </dl>
@@ -149,7 +140,7 @@ const Shortages = () => {
                   ))
                 ) : (
                   <p className="rounded-lg border p-8 text-center text-muted-foreground">
-                    No hay productos faltantes
+                    No hay productos con margen de 30% o más
                   </p>
                 )}
                 <footer className="text-center text-sm text-muted-foreground">
@@ -163,9 +154,9 @@ const Shortages = () => {
                     <TableRow>
                       <TableHead>Producto</TableHead>
                       <TableHead>Categoría</TableHead>
-                      <TableHead className="text-center">Stock</TableHead>
-                      <TableHead className="text-center">Mínimo</TableHead>
-                      <TableHead className="text-center">Estado</TableHead>
+                      <TableHead className="text-right">Compra</TableHead>
+                      <TableHead className="text-right">Venta</TableHead>
+                      <TableHead className="text-right">Margen</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -183,23 +174,14 @@ const Shortages = () => {
                           <TableCell>
                             {product.category?.categories || 'N/A'}
                           </TableCell>
-                          <TableCell className="text-center">
-                            {formatQty(product.productStock)}
+                          <TableCell className="text-right">
+                            {formatMoney(product.purchasePrice)}
                           </TableCell>
-                          <TableCell className="text-center">
-                            {product.minimumProductStock}
+                          <TableCell className="text-right">
+                            {formatMoney(product.productPrice)}
                           </TableCell>
-                          <TableCell className="text-center">
-                            {product.productStock === 0 ? (
-                              <Badge variant="destructive">Agotado</Badge>
-                            ) : (
-                              <Badge
-                                variant="outline"
-                                className="text-amber-700"
-                              >
-                                Bajo
-                              </Badge>
-                            )}
+                          <TableCell className="text-right">
+                            <strong>{formatMargin(product.margin)}</strong>
                           </TableCell>
                         </TableRow>
                       ))
@@ -209,7 +191,7 @@ const Shortages = () => {
                           colSpan={5}
                           className="p-8 text-center text-muted-foreground"
                         >
-                          No hay productos faltantes
+                          No hay productos con margen de 30% o más
                         </TableCell>
                       </TableRow>
                     )}
@@ -232,4 +214,4 @@ const Shortages = () => {
   )
 }
 
-export default Shortages
+export default Promotions

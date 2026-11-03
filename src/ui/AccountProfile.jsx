@@ -27,11 +27,27 @@ const Field = ({ label, children }) => (
   </div>
 )
 
+const roleName = (user) => {
+  if (user.isAdmin) return 'Administrador'
+  return 'Usuario'
+}
+
+const showsSchedule = (user) => {
+  if (!user) return false
+  if (user.isAdmin) return hasSchedule(user)
+  return true
+}
+
+const themeVariant = (theme, name) => {
+  if (theme === name) return 'default'
+  return 'outline'
+}
+
 const AccountProfile = () => {
   const [open, setOpen] = useState(false)
   const [theme, setThemeState] = useState(getTheme)
   const { data: user, isLoading, isError } = useGetCurrentUser(open)
-  const showSchedule = Boolean(user) && (!user.isAdmin || hasSchedule(user))
+  const showSchedule = showsSchedule(user)
 
   const chooseTheme = (next) => {
     setThemeState(setTheme(next))
@@ -74,9 +90,7 @@ const AccountProfile = () => {
                 <Field label="Usuario">{user.username}</Field>
                 <Field label="Nombre">{user.fullName || '—'}</Field>
                 <Field label="Correo">{user.email}</Field>
-                <Field label="Rol">
-                  {user.isAdmin ? 'Administrador' : 'Usuario'}
-                </Field>
+                <Field label="Rol">{roleName(user)}</Field>
               </dl>
               {showSchedule && (
                 <section aria-labelledby="account-schedule">
@@ -94,7 +108,7 @@ const AccountProfile = () => {
               <Button
                 type="button"
                 size="sm"
-                variant={theme === 'light' ? 'default' : 'outline'}
+                variant={themeVariant(theme, 'light')}
                 aria-pressed={theme === 'light'}
                 onClick={() => chooseTheme('light')}
               >
@@ -103,7 +117,7 @@ const AccountProfile = () => {
               <Button
                 type="button"
                 size="sm"
-                variant={theme === 'dark' ? 'default' : 'outline'}
+                variant={themeVariant(theme, 'dark')}
                 aria-pressed={theme === 'dark'}
                 onClick={() => chooseTheme('dark')}
               >

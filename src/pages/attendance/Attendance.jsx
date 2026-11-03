@@ -67,13 +67,151 @@ const readPosition = () =>
         }),
       () =>
         reject(
-          new Error('Activa la ubicación para registrar la entrada en el trabajo')
+          new Error(
+            'Activa la ubicación para registrar la entrada en el trabajo'
+          )
         ),
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     )
   })
 
 const personName = (user) => user?.fullName || user?.username || 'Sin nombre'
+
+const recordEnd = (record) => {
+  if (record.checkOutAt) return formatTime(record.checkOutAt)
+  return 'en turno'
+}
+
+const punchCopy = ({ pending, open, dayOff }) => {
+  if (pending) return 'Registrando...'
+  if (open) return 'Registrar salida'
+  if (dayOff) return 'Hoy no es tu día de trabajo'
+  return 'Registrar entrada'
+}
+
+const punchVariant = (open) => {
+  if (open) return 'destructive'
+  return 'default'
+}
+
+const ClockPanel = ({
+  failed,
+  summary,
+  nowLabel,
+  open,
+  today,
+  pending,
+  dayOff,
+  onPunch
+}) => {
+  if (failed) {
+    return <Alert variant="destructive">No se pudo cargar tu asistencia</Alert>
+  }
+  if (!summary) {
+    return (
+      <div role="status" aria-label="Cargando" className="grid gap-4">
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-12 w-full sm:w-48" />
+      </div>
+    )
+  }
+
+  let staleOpen = null
+  if (open && open.date !== today) {
+    staleOpen = (
+      <p className="mt-1 text-sm text-muted-foreground">
+        La entrada abierta es del {formatDay(open.date)}. Registra la salida
+        antes de una entrada nueva.
+      </p>
+    )
+  }
+
+  return (
+    <>
+      <div className="rounded-lg border bg-muted/30 p-4">
+        <p className="text-sm text-muted-foreground">{nowLabel}</p>
+        {staleOpen}
+      </div>
+      <Button
+        type="button"
+        className="h-12 w-full text-base sm:w-fit sm:min-w-48 sm:px-8"
+        variant={punchVariant(open)}
+        disabled={pending || dayOff}
+        onClick={onPunch}
+      >
+        {punchCopy({ pending, open, dayOff })}
+      </Button>
+    </>
+  )
+}
+
+const HistoryList = ({
+  records,
+  listPending,
+  summary,
+  hasNextPage,
+  supportsIntersectionObserver,
+  sentinelRef,
+  isFetchingNextPage,
+  fetchNextPage
+}) => {
+  if (listPending || !summary) return <RecordSkeleton />
+  if (records.length === 0) {
+    return (
+      <p className="px-4 py-3 text-sm text-muted-foreground">
+        Aún no hay registros
+      </p>
+    )
+  }
+
+  let sentinel = null
+  if (hasNextPage && supportsIntersectionObserver) {
+    sentinel = <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+  }
+
+  let nextPage = null
+  if (isFetchingNextPage) nextPage = <RecordSkeleton rows={2} />
+
+  let loadMore = null
+  if (hasNextPage && !supportsIntersectionObserver) {
+    loadMore = (
+      <Button
+        type="button"
+        variant="ghost"
+        className="w-full"
+        onClick={() => fetchNextPage()}
+        disabled={isFetchingNextPage}
+      >
+        Cargar más
+      </Button>
+    )
+  }
+
+  return (
+    <>
+      <ul className="m-0 list-none divide-y p-0">
+        {records.map((record) => (
+          <li
+            key={record._id}
+            className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+          >
+            <span className="text-sm font-medium">
+              {formatDay(record.date)}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {formatTime(record.checkInAt)}
+              {' – '}
+              {recordEnd(record)}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {sentinel}
+      {nextPage}
+      {loadMore}
+    </>
+  )
+}
 
 const RecordSkeleton = ({ rows = 3 }) => (
   <div role="status" aria-label="Cargando" className="divide-y">
@@ -93,6 +231,12 @@ export const StaffClock = () => {
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const rangeInvalid = Boolean(from && to && from > to)
+  let queryFrom = from
+  let queryTo = to
+  if (rangeInvalid) {
+    queryFrom = ''
+    queryTo = ''
+  }
   const {
     data,
     isLoading,
@@ -103,8 +247,8 @@ export const StaffClock = () => {
     fetchNextPage,
     isFetchingNextPage
   } = useMyAttendance({
-    from: rangeInvalid ? '' : from,
-    to: rangeInvalid ? '' : to
+    from: queryFrom,
+    to: queryTo
   })
   const { sentinelRef, supportsIntersectionObserver } =
     useIntersectionPagination(
@@ -114,9 +258,10 @@ export const StaffClock = () => {
   const checkIn = useCheckIn()
   const checkOut = useCheckOut()
   const summary = data?.pages?.[0]
-  const records = rangeInvalid
-    ? []
-    : (data?.pages ?? []).flatMap((page) => page.records ?? [])
+  let records = []
+  if (!rangeInvalid) {
+    records = (data?.pages ?? []).flatMap((page) => page.records ?? [])
+  }
   const listPending =
     !rangeInvalid &&
     (isLoading || (isPlaceholderData && isFetching && !isFetchingNextPage))
@@ -132,19 +277,25 @@ export const StaffClock = () => {
     return () => clearInterval(timer)
   }, [])
 
+  const punchAtWork = (mutate) => {
+    readPosition().then(
+      (position) => mutate(position),
+      (error) => toast.error(error.message)
+    )
+  }
+
   const punch = () => {
     if (dayOff) return
     if (open) {
       if (!window.confirm('¿Registrar tu salida?')) return
-      checkOut.mutate()
+      punchAtWork(checkOut.mutate)
       return
     }
     if (!window.confirm('¿Registrar tu entrada?')) return
-    readPosition().then(
-      (position) => checkIn.mutate(position),
-      (error) => toast.error(error.message)
-    )
+    punchAtWork(checkIn.mutate)
   }
+
+  const showHistory = !(isError && !summary)
 
   return (
     <Card
@@ -157,42 +308,17 @@ export const StaffClock = () => {
           Asistencia
         </h1>
       </header>
-      {isError && !summary ? (
-        <Alert variant="destructive">No se pudo cargar tu asistencia</Alert>
-      ) : !summary ? (
-        <div role="status" aria-label="Cargando" className="grid gap-4">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-12 w-full sm:w-48" />
-        </div>
-      ) : (
-        <>
-          <div className="rounded-lg border bg-muted/30 p-4">
-            <p className="text-sm text-muted-foreground">{nowLabel}</p>
-            {open && open.date !== today && (
-              <p className="mt-1 text-sm text-muted-foreground">
-                La entrada abierta es del {formatDay(open.date)}. Registra la
-                salida antes de una entrada nueva.
-              </p>
-            )}
-          </div>
-          <Button
-            type="button"
-            className="h-12 w-full text-base sm:w-fit sm:min-w-48 sm:px-8"
-            variant={open ? 'destructive' : 'default'}
-            disabled={pending || dayOff}
-            onClick={punch}
-          >
-            {pending
-              ? 'Registrando...'
-              : open
-                ? 'Registrar salida'
-                : dayOff
-                  ? 'Hoy no es tu día de trabajo'
-                  : 'Registrar entrada'}
-          </Button>
-        </>
-      )}
-      {!(isError && !summary) && (
+      <ClockPanel
+        failed={isError && !summary}
+        summary={summary}
+        nowLabel={nowLabel}
+        open={open}
+        today={today}
+        pending={pending}
+        dayOff={dayOff}
+        onPunch={punch}
+      />
+      {showHistory && (
         <>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
@@ -215,50 +341,16 @@ export const StaffClock = () => {
             </div>
           </div>
           <div className="max-h-64 overflow-y-auto rounded-lg border">
-            {listPending || !summary ? (
-              <RecordSkeleton />
-            ) : records.length === 0 ? (
-              <p className="px-4 py-3 text-sm text-muted-foreground">
-                Aún no hay registros
-              </p>
-            ) : (
-              <>
-                <ul className="m-0 list-none divide-y p-0">
-                  {records.map((record) => (
-                    <li
-                      key={record._id}
-                      className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-                    >
-                      <span className="text-sm font-medium">
-                        {formatDay(record.date)}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {formatTime(record.checkInAt)}
-                        {' – '}
-                        {record.checkOutAt
-                          ? formatTime(record.checkOutAt)
-                          : 'en turno'}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                {hasNextPage && supportsIntersectionObserver && (
-                  <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-                )}
-                {isFetchingNextPage && <RecordSkeleton rows={2} />}
-                {hasNextPage && !supportsIntersectionObserver && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full"
-                    onClick={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                  >
-                    Cargar más
-                  </Button>
-                )}
-              </>
-            )}
+            <HistoryList
+              records={records}
+              listPending={listPending}
+              summary={summary}
+              hasNextPage={hasNextPage}
+              supportsIntersectionObserver={supportsIntersectionObserver}
+              sentinelRef={sentinelRef}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={fetchNextPage}
+            />
           </div>
         </>
       )}
@@ -266,12 +358,43 @@ export const StaffClock = () => {
   )
 }
 
-const shiftLabel = (record) =>
-  record
-    ? `${formatTime(record.checkInAt)} – ${
-        record.checkOutAt ? formatTime(record.checkOutAt) : 'en turno'
-      }`
-    : 'Sin registro'
+const shiftLabel = (record) => {
+  if (!record) return 'Sin registro'
+  return `${formatTime(record.checkInAt)} – ${recordEnd(record)}`
+}
+
+const ShiftLines = ({ shifts }) => {
+  if (shifts.length === 0) return <span>Sin registro</span>
+  return shifts.map((shift) => <p key={shift._id}>{shiftLabel(shift)}</p>)
+}
+
+const BoardBody = ({ isLoading, isError, rows }) => {
+  if (isLoading) return <ListSkeleton />
+  if (isError) {
+    return <Alert variant="destructive">No se pudo cargar la asistencia</Alert>
+  }
+  if (rows.length === 0) return <Alert>No hay personal registrado</Alert>
+  return (
+    <ul className="m-0 list-none divide-y rounded-lg border p-0">
+      {rows.map(({ user, shifts }) => (
+        <li
+          key={user._id}
+          className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
+        >
+          <div className="min-w-0">
+            <p className="break-words font-medium">{personName(user)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {user.username}
+            </p>
+          </div>
+          <div className="text-sm text-muted-foreground sm:shrink-0 sm:text-right">
+            <ShiftLines shifts={shifts} />
+          </div>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 const AdminBoard = () => {
   const [date, setDate] = useState(todayMexicoCity())
@@ -279,7 +402,8 @@ const AdminBoard = () => {
   const records = data?.records ?? []
   const byUser = records.reduce((acc, record) => {
     const id = String(record.user?._id || '')
-    acc[id] = acc[id] ? [...acc[id], record] : [record]
+    if (!acc[id]) acc[id] = []
+    acc[id].push(record)
     return acc
   }, {})
   const rows = (data?.staff ?? []).map((user) => ({
@@ -288,7 +412,11 @@ const AdminBoard = () => {
   }))
 
   return (
-    <Card as="section" className="gap-4 p-4 sm:p-6" aria-labelledby="attendance-board-title">
+    <Card
+      as="section"
+      className="gap-4 p-4 sm:p-6"
+      aria-labelledby="attendance-board-title"
+    >
       <header>
         <h1 id="attendance-board-title" className="text-xl font-semibold">
           Asistencia del personal
@@ -306,53 +434,33 @@ const AdminBoard = () => {
           onChange={(event) => setDate(event.target.value)}
         />
       </div>
-      {isLoading ? (
-        <ListSkeleton />
-      ) : isError ? (
-        <Alert variant="destructive">No se pudo cargar la asistencia</Alert>
-      ) : rows.length === 0 ? (
-        <Alert>No hay personal registrado</Alert>
-      ) : (
-        <ul className="m-0 list-none divide-y rounded-lg border p-0">
-          {rows.map(({ user, shifts }) => (
-            <li
-              key={user._id}
-              className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
-            >
-              <div className="min-w-0">
-                <p className="break-words font-medium">{personName(user)}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{user.username}</p>
-              </div>
-              <div className="text-sm text-muted-foreground sm:shrink-0 sm:text-right">
-                {shifts.length === 0 ? (
-                  <span>Sin registro</span>
-                ) : (
-                  shifts.map((shift) => (
-                    <p key={shift._id}>{shiftLabel(shift)}</p>
-                  ))
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <BoardBody isLoading={isLoading} isError={isError} rows={rows} />
     </Card>
   )
 }
 
+const StaffAttendance = () => (
+  <PageShell>
+    <StaffClock />
+  </PageShell>
+)
+
+const AdminAttendance = ({ showClock }) => (
+  <PageShell>
+    <div className="grid gap-4">
+      {showClock && <StaffClock />}
+      <AdminBoard />
+    </div>
+  </PageShell>
+)
+
 const Attendance = () => {
   const isAdmin = useAuthStore((state) => state.isAdmin)
   const { data: me } = useGetCurrentUser()
-  const withSchedule = hasSchedule(me)
 
-  return (
-    <PageShell>
-      <div className="grid gap-4">
-        {withSchedule && <StaffClock />}
-        {isAdmin && <AdminBoard />}
-      </div>
-    </PageShell>
-  )
+  if (isAdmin) return <AdminAttendance showClock={hasSchedule(me)} />
+
+  return <StaffAttendance />
 }
 
 export default Attendance

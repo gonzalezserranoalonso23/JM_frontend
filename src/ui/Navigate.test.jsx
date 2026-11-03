@@ -5,6 +5,10 @@ import { MemoryRouter } from 'react-router-dom'
 import Navigate from './Navigate'
 
 const auth = vi.hoisted(() => ({ isAdmin: true, haveSchedule: true }))
+const notifications = vi.hoisted(() => ({
+  showNotifications: false,
+  requestPermission: vi.fn()
+}))
 
 vi.mock('@/store/auth', () => ({
   useAuthStore: (selector) =>
@@ -28,7 +32,7 @@ vi.mock('@/features/users.features', () => ({
 }))
 
 vi.mock('@/hooks/useTaskNotifications', () => ({
-  default: () => ({ showNotifications: false, requestPermission: vi.fn() })
+  default: () => notifications
 }))
 
 vi.mock('@/services/users.services', () => ({
@@ -55,6 +59,7 @@ describe('Navigate de administrador', () => {
     cleanup()
     auth.isAdmin = true
     auth.haveSchedule = true
+    notifications.showNotifications = false
   })
 
   it('un administrador con horario ve Asistencia dentro de Reportes', async () => {
@@ -69,10 +74,9 @@ describe('Navigate de administrador', () => {
       'href',
       '/reports'
     )
-    expect(screen.getByRole('menuitem', { name: 'Asistencia' })).toHaveAttribute(
-      'href',
-      '/attendance'
-    )
+    expect(
+      screen.getByRole('menuitem', { name: 'Asistencia' })
+    ).toHaveAttribute('href', '/attendance')
   })
 
   it('un administrador sin horario no ve Asistencia dentro de Reportes', async () => {
@@ -87,7 +91,7 @@ describe('Navigate de administrador', () => {
     expect(screen.queryByRole('menuitem', { name: 'Asistencia' })).toBeNull()
   })
 
-  it('el personal ve Inicio, Productos y Proveedores', () => {
+  it('el personal ve Inicio, Productos, Proveedores y Caja', () => {
     auth.isAdmin = false
     auth.haveSchedule = true
     renderNav()
@@ -103,9 +107,22 @@ describe('Navigate de administrador', () => {
     expect(
       screen.getAllByRole('link', { name: 'Proveedores' })[0]
     ).toHaveAttribute('href', '/suppliers')
+    expect(screen.getAllByRole('link', { name: 'Caja' })[0]).toHaveAttribute(
+      'href',
+      '/cash'
+    )
     expect(screen.queryByRole('link', { name: 'Asistencia' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Salidas' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Más' })).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: 'Activar notificaciones' })
+    ).toBeNull()
+    notifications.showNotifications = true
+    cleanup()
+    renderNav()
+    expect(
+      screen.getAllByRole('button', { name: 'Activar notificaciones' }).length
+    ).toBeGreaterThan(0)
     expect(
       screen.getAllByRole('button', { name: 'Cerrar sesión' }).length
     ).toBeGreaterThan(0)

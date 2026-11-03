@@ -19,7 +19,7 @@ const PAGE_TITLES = {
   '/categories': 'Categorías',
   '/payment-types': 'Métodos de pago',
   '/daily-information': 'Información diaria',
-  '/shortages': 'Faltantes',
+  '/promotions': 'Promociones',
   '/cash': 'Caja'
 }
 

@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast'
 import {
   getProducts,
   getProductsPage,
+  getPromotionProductsPage,
   createProduct,
   updateProduct,
   deleteProduct
@@ -28,6 +29,22 @@ export const useGetProducts = ({ poll = false } = {}) => {
   })
   return { data, isLoading, isError, isFetching, refetch }
 }
+
+export const useGetPromotionPages = (search = '', category = '') =>
+  useInfiniteQuery({
+    queryKey: ['Products', 'promotions', search, category],
+    queryFn: ({ pageParam }) =>
+      getPromotionProductsPage({
+        page: pageParam,
+        limit: 20,
+        search,
+        category
+      }),
+    placeholderData: keepPreviousData,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
+  })
 
 export const useGetProductPages = (search = '') =>
   useInfiniteQuery({

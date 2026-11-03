@@ -27,7 +27,7 @@ const DailyInformation = lazy(
   () => import('./pages/daily-information/DailyInformation')
 )
 const Cash = lazy(() => import('./pages/cash/Cash'))
-const Shortages = lazy(() => import('./pages/shortages/Shortages'))
+const Promotions = lazy(() => import('./pages/promotions/Promotions'))
 
 import { Toaster } from 'react-hot-toast'
 import ProtectedLayout from './layouts/ProtectedLayout'
@@ -76,7 +76,7 @@ const App = () => {
                   element={<DailyInformation />}
                 />
               </Route>
-              <Route path="/shortages" element={<Shortages />} />
+              <Route path="/promotions" element={<Promotions />} />
               <Route path="/cash" element={<Cash />} />
             </Route>
           </Route>
