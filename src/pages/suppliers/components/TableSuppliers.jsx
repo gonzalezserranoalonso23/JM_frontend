@@ -11,6 +11,24 @@ import {
 import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
 import ActionIconButton from '@/components/ActionIconButton'
 
+const callHref = (phone) => {
+  const compact = String(phone).replace(/[^\d+]/g, '')
+  if (!compact || compact === '+') return ''
+  return `tel:${compact}`
+}
+
+const PhoneLink = ({ phone, empty = null }) => {
+  const value = String(phone || '').trim()
+  if (!value) return empty
+  const href = callHref(value)
+  if (!href) return value
+  return (
+    <a href={href} className="text-primary underline-offset-4 hover:underline">
+      {value}
+    </a>
+  )
+}
+
 const TableSuppliers = ({
   suppliers,
   total,
@@ -52,7 +70,7 @@ const TableSuppliers = ({
                 <div>
                   <dt className="text-xs text-muted-foreground">Teléfono</dt>
                   <dd className="break-words">
-                    {supplier?.supplierPhone || '-'}
+                    <PhoneLink phone={supplier?.supplierPhone} empty="-" />
                   </dd>
                 </div>
                 <div>
@@ -104,7 +122,9 @@ const TableSuppliers = ({
               <TableRow key={supplier?._id}>
                 <TableCell>{supplier?.suppliersName}</TableCell>
                 <TableCell>{supplier?.suppliersContact}</TableCell>
-                <TableCell>{supplier?.supplierPhone}</TableCell>
+                <TableCell>
+                  <PhoneLink phone={supplier?.supplierPhone} />
+                </TableCell>
                 <TableCell>{supplier?.raiseOrder}</TableCell>
                 <TableCell>{supplier?.deliverOrder}</TableCell>
                 <TableCell>
