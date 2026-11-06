@@ -15,9 +15,13 @@ export const useCart = () => {
     setCart((prev) => prev.filter((item) => item.tempId !== tempId))
   }, [])
 
+  const dropItem = useCallback((tempId) => {
+    setCart((prev) => prev.filter((item) => item.tempId !== tempId))
+  }, [])
+
   const clearCart = useCallback(() => setCart([]), [])
 
   const total = sumBy(cart, (item) => item.totalAmount)
 
-  return { cart, addItem, removeItem, clearCart, total }
+  return { cart, addItem, removeItem, dropItem, clearCart, total }
 }

@@ -33,12 +33,12 @@ export const useCreateTask = () => {
   return useMutation({
     mutationFn: createTask,
     onSuccess: () => {
-      toast.success('Tarea creada exitosamente')
+      toast.success('Pendiente creado')
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       queryClient.invalidateQueries({ queryKey: ['pendingTasks'] })
     },
     onError: (error) => {
-      notifyError(error, 'Error al crear la tarea')
+      notifyError(error, 'Error al crear el pendiente')
     }
   })
 }
@@ -49,13 +49,13 @@ export const useUpdateTask = () => {
   return useMutation({
     mutationFn: ({ id, data }) => updateTask(id, data),
     onSuccess: () => {
-      toast.success('Tarea actualizada exitosamente')
+      toast.success('Pendiente actualizado')
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       queryClient.invalidateQueries({ queryKey: ['pendingTasks'] })
       queryClient.invalidateQueries({ queryKey: ['completedTasks'] })
     },
     onError: (error) => {
-      notifyError(error, 'Error al actualizar la tarea')
+      notifyError(error, 'Error al actualizar el pendiente')
     }
   })
 }
@@ -66,13 +66,13 @@ export const useDeleteTask = () => {
   return useMutation({
     mutationFn: deleteTask,
     onSuccess: () => {
-      toast.success('Tarea eliminada exitosamente')
+      toast.success('Pendiente eliminado')
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       queryClient.invalidateQueries({ queryKey: ['pendingTasks'] })
       queryClient.invalidateQueries({ queryKey: ['completedTasks'] })
     },
     onError: (error) => {
-      notifyError(error, 'Error al eliminar la tarea')
+      notifyError(error, 'Error al eliminar el pendiente')
     }
   })
 }

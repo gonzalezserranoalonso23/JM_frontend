@@ -25,7 +25,27 @@ import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import ActionIconButton from '@/components/ActionIconButton'
 import ScheduleModal from './components/ScheduleModal'
+import { hasFullAccess } from '@/auth/access'
 import { hasSchedule } from './schedule'
+
+const RoleBadge = ({ user }) => {
+  const name = user.role?.name
+  let label = '—'
+  let variant = 'secondary'
+  let className = 'shrink-0'
+  if (name) {
+    label = name
+    if (name === 'Manager') {
+      variant = 'outline'
+      className = 'shrink-0 text-amber-400'
+    }
+  }
+  return (
+    <Badge variant={variant} className={className}>
+      {label}
+    </Badge>
+  )
+}
 
 const SectionUsers = () => {
   const [search, setSearch] = useFilterQuery()
@@ -64,7 +84,7 @@ const SectionUsers = () => {
     if (window.confirm('¿Eliminar este usuario?')) deleteUser.mutate(id)
   }
   const handleRevoke = (user) => {
-    if (user.isAdmin) return
+    if (hasFullAccess(user.role?.name)) return
     if (
       !window.confirm(
         `¿Cerrar las sesiones de ${user.username}? Tendrá que volver a entrar.`
@@ -136,14 +156,7 @@ const SectionUsers = () => {
                         {user.email}
                       </p>
                     </div>
-                    <Badge
-                      variant={user.isAdmin ? 'outline' : 'secondary'}
-                      className={
-                        user.isAdmin ? 'shrink-0 text-amber-400' : 'shrink-0'
-                      }
-                    >
-                      {user.isAdmin ? 'Admin' : 'Usuario'}
-                    </Badge>
+                    <RoleBadge user={user} />
                   </div>
                   {user.fullName && (
                     <p className="break-words text-sm">{user.fullName}</p>
@@ -161,7 +174,7 @@ const SectionUsers = () => {
                       label="Editar"
                       onClick={() => handleShowEdit(user)}
                     />
-                    {!user.isAdmin && (
+                    {!hasFullAccess(user.role?.name) && (
                       <ActionIconButton
                         action="logout"
                         label="Cerrar sesiones"
@@ -205,12 +218,7 @@ const SectionUsers = () => {
                       <small>{user.email}</small>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={user.isAdmin ? 'outline' : 'secondary'}
-                        className={user.isAdmin ? 'text-amber-400' : undefined}
-                      >
-                        {user.isAdmin ? 'Admin' : 'Usuario'}
-                      </Badge>
+                      <RoleBadge user={user} />
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
@@ -226,7 +234,7 @@ const SectionUsers = () => {
                           label="Editar"
                           onClick={() => handleShowEdit(user)}
                         />
-                        {!user.isAdmin && (
+                        {!hasFullAccess(user.role?.name) && (
                           <ActionIconButton
                             action="logout"
                             label="Cerrar sesiones"

@@ -97,7 +97,7 @@ const RecordCards = ({
                   </div>
                 )}
               </dl>
-              {(detailsPath || (onEdit && onDelete)) && (
+              {(detailsPath || onEdit || onDelete) && (
                 <div className="flex items-center justify-end gap-2 border-t pt-3">
                   {detailsPath && (
                     <ActionIconButton
@@ -106,19 +106,19 @@ const RecordCards = ({
                       onClick={() => navigate(`${detailsPath}/${record._id}`)}
                     />
                   )}
-                  {onEdit && onDelete && (
-                    <>
-                      <ActionIconButton
-                        action="edit"
-                        label="Editar"
-                        onClick={() => onEdit(record)}
-                      />
-                      <ActionIconButton
-                        action="delete"
-                        label="Eliminar"
-                        onClick={() => onDelete(record._id)}
-                      />
-                    </>
+                  {onEdit && (
+                    <ActionIconButton
+                      action="edit"
+                      label="Editar"
+                      onClick={() => onEdit(record)}
+                    />
+                  )}
+                  {onDelete && (
+                    <ActionIconButton
+                      action="delete"
+                      label="Eliminar"
+                      onClick={() => onDelete(record._id)}
+                    />
                   )}
                 </div>
               )}

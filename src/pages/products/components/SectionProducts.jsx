@@ -11,7 +11,8 @@ import FormFilter from '@/components/FormFilter'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import TableProducts from './TableProducts'
-import { useAuthStore } from '@/store/auth'
+import { hasFullAccess } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
 
 const SectionProducts = () => {
   const [dataFilter, setDataFilter] = useFilterQuery()
@@ -26,7 +27,7 @@ const SectionProducts = () => {
   const products = productPages?.pages.flatMap((page) => page.data) || []
   const totalProducts = productPages?.pages[0]?.total || 0
 
-  const isAdmin = useAuthStore((state) => state.isAdmin)
+  const fullAccess = hasFullAccess(useRoleName())
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
   const deleteProduct = useDeleteProduct()
@@ -65,7 +66,7 @@ const SectionProducts = () => {
         <h1 id="products-title" className="text-xl font-semibold">
           Productos
         </h1>
-        {isAdmin && <Button onClick={handleShow}>+ Crear Producto</Button>}
+        {fullAccess && <Button onClick={handleShow}>+ Crear Producto</Button>}
       </header>
       <FormFilter
         id="product-filter"
@@ -103,7 +104,7 @@ const SectionProducts = () => {
         handleUpdate={handleUpdate}
         handleDelete={handleDelete}
         handleToggleActive={handleToggleActive}
-        canManage={isAdmin}
+        canManage={fullAccess}
       />
     </Card>
   )

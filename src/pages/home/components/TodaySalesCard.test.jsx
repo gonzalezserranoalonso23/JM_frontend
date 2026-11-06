@@ -1,10 +1,15 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useGetLiveInformation } from '@/features/inventory.features'
+import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import TodaySalesCard from './TodaySalesCard'
 
 vi.mock('@/features/inventory.features', () => ({
   useGetLiveInformation: vi.fn()
+}))
+
+vi.mock('@/features/paymentTypes.features', () => ({
+  useGetPaymentTypes: vi.fn()
 }))
 
 vi.mock('@/utils/dateDisplay', () => ({
@@ -14,9 +19,26 @@ vi.mock('@/utils/dateDisplay', () => ({
 describe('TodaySalesCard', () => {
   afterEach(() => cleanup())
 
-  it('pide las ventas con la fecha del dispositivo', () => {
+  it('muestra cada método de pago con su venta del día', () => {
+    useGetPaymentTypes.mockReturnValue({
+      data: [
+        { value: 'cash', label: 'EFECTIVO' },
+        { value: 'card', label: 'TARJETA' },
+        { value: 'transfer', label: 'TRANSFERENCIA' },
+        { value: 'check', label: 'CHEQUE' }
+      ],
+      isLoading: false,
+      isError: false
+    })
     useGetLiveInformation.mockReturnValue({
-      data: { cashSales: 150.5, cardSales: 49.5, totalSales: 200 },
+      data: {
+        payments: [
+          { paymentType: 'cash', total: 150.5 },
+          { paymentType: 'card', total: 49.5 },
+          { paymentType: 'transfer', total: 25 }
+        ],
+        totalSales: 225
+      },
       isLoading: false,
       isError: false
     })
@@ -24,8 +46,14 @@ describe('TodaySalesCard', () => {
     render(<TodaySalesCard />)
 
     expect(useGetLiveInformation).toHaveBeenCalledWith('2026-10-23')
+    expect(screen.getByText('EFECTIVO')).toBeTruthy()
+    expect(screen.getByText('TARJETA')).toBeTruthy()
+    expect(screen.getByText('TRANSFERENCIA')).toBeTruthy()
+    expect(screen.getByText('CHEQUE')).toBeTruthy()
     expect(screen.getByText('$150.50')).toBeTruthy()
     expect(screen.getByText('$49.50')).toBeTruthy()
-    expect(screen.getByText('$200.00')).toBeTruthy()
+    expect(screen.getByText('$25.00')).toBeTruthy()
+    expect(screen.getByText('$0.00')).toBeTruthy()
+    expect(screen.getByText('$225.00')).toBeTruthy()
   })
 })

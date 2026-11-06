@@ -37,11 +37,14 @@ import useDebouncedValue from '@/hooks/useDebouncedValue'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
+import { hasFullAccess } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
 
 const ALL_PAYMENTS = 'all'
 
 const SectionIssues = () => {
   const navigate = useNavigate()
+  const roleName = useRoleName()
   const { data: paymentTypes } = useGetPaymentTypes()
   const createRecord = useCreateInventoryRecord()
   const createRecords = useCreateInventoryRecords()
@@ -96,6 +99,11 @@ const SectionIssues = () => {
       deleteRecord.mutate(id)
     }
   }
+
+  let removeRecord = handleDelete
+  if (!hasFullAccess(roleName)) removeRecord = undefined
+  let editRecord = handleShowEdit
+  if (roleName === 'Staff') editRecord = undefined
 
   return (
     <section aria-labelledby="issues-title">
@@ -167,8 +175,8 @@ const SectionIssues = () => {
               records={records}
               showPayment
               detailsPath="/issues"
-              onEdit={handleShowEdit}
-              onDelete={handleDelete}
+              onEdit={editRecord}
+              onDelete={removeRecord}
             />
             <div className="hidden rounded-lg border xl:block">
               <Table>
@@ -220,16 +228,20 @@ const SectionIssues = () => {
                             label="Ver detalle"
                             onClick={() => navigate(`/issues/${record._id}`)}
                           />
-                          <ActionIconButton
-                            action="edit"
-                            label="Editar"
-                            onClick={() => handleShowEdit(record)}
-                          />
-                          <ActionIconButton
-                            action="delete"
-                            label="Eliminar"
-                            onClick={() => handleDelete(record._id)}
-                          />
+                          {editRecord && (
+                            <ActionIconButton
+                              action="edit"
+                              label="Editar"
+                              onClick={() => editRecord(record)}
+                            />
+                          )}
+                          {removeRecord && (
+                            <ActionIconButton
+                              action="delete"
+                              label="Eliminar"
+                              onClick={() => removeRecord(record._id)}
+                            />
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

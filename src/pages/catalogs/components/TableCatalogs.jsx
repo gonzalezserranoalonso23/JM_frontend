@@ -9,17 +9,18 @@ import {
 import { Link } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useAuthStore } from '@/store/auth'
+import { hasFullAccess } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
 
 const TableCatalogs = () => {
-  const isAdmin = useAuthStore((state) => state.isAdmin)
+  const fullAccess = hasFullAccess(useRoleName())
   const items = [
     { name: 'Productos', path: '../products' },
     { name: 'Proveedores', path: '../suppliers' },
     { name: 'Categorías', path: '../categories', adminOnly: true },
     { name: 'Métodos de pago', path: '../payment-types', adminOnly: true },
     { name: 'Usuarios', path: '../users', adminOnly: true }
-  ].filter((item) => isAdmin || !item.adminOnly)
+  ].filter((item) => fullAccess || !item.adminOnly)
 
   return (
     <div>

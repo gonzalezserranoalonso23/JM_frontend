@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   useInfiniteQuery,
   useMutation,
@@ -23,7 +24,7 @@ export const useLogin = () => {
   const navigate = useNavigate()
   const auth = useAuthStore((state) => state.setAuth)
   const profile = useAuthStore((state) => state.setProfile)
-  const isAdmin = useAuthStore((state) => state.setIsAdmin)
+  const setRole = useAuthStore((state) => state.setRole)
 
   const mutationLogin = useMutation({
     mutationFn: login,
@@ -31,7 +32,7 @@ export const useLogin = () => {
       toast.success('Inicio de sesión exitoso! ')
       auth(data.data.token)
       profile(data.data.username)
-      isAdmin(data.data.isAdmin)
+      setRole(data.data.role || '')
       navigate('../home')
     },
     onError: (error) => notifyError(error, 'Error al iniciar sesión!')
@@ -45,12 +46,28 @@ export const useGetAssignableUsers = () =>
     queryFn: getAssignableUsers
   })
 
-export const useGetCurrentUser = (enabled = true) =>
-  useQuery({
+export const useGetCurrentUser = (enabled = true) => {
+  const role = useAuthStore((state) => state.role)
+  const setRole = useAuthStore((state) => state.setRole)
+  const query = useQuery({
     queryKey: ['users', 'me'],
     queryFn: getCurrentUser,
     enabled
   })
+  const roleName = query.data?.role?.name || ''
+
+  useEffect(() => {
+    if (roleName && roleName !== role) setRole(roleName)
+  }, [roleName, role, setRole])
+
+  return query
+}
+
+export const useRoleName = () => {
+  const role = useAuthStore((state) => state.role)
+  const { data: me } = useGetCurrentUser()
+  return role || me?.role?.name || ''
+}
 
 export const useGetUserPages = (search = '') =>
   useInfiniteQuery({

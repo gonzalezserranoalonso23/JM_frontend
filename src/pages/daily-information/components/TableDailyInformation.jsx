@@ -15,7 +15,12 @@ const formatAmount = (amount) =>
     currency: 'MXN'
   })
 
-const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
+const TableDailyInformation = ({
+  records,
+  handleUpdate,
+  handleDelete,
+  canManage = false
+}) => (
   <>
     <div className="space-y-3 xl:hidden">
       {records.map((record) => (
@@ -43,18 +48,20 @@ const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
                 </dd>
               </div>
             </dl>
-            <div className="flex items-center justify-end gap-2 border-t pt-3">
-              <ActionIconButton
-                action="edit"
-                label="Editar"
-                onClick={() => handleUpdate(record)}
-              />
-              <ActionIconButton
-                action="delete"
-                label="Eliminar"
-                onClick={() => handleDelete(record._id)}
-              />
-            </div>
+            {canManage && (
+              <div className="flex items-center justify-end gap-2 border-t pt-3">
+                <ActionIconButton
+                  action="edit"
+                  label="Editar"
+                  onClick={() => handleUpdate(record)}
+                />
+                <ActionIconButton
+                  action="delete"
+                  label="Eliminar"
+                  onClick={() => handleDelete(record._id)}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}
@@ -71,7 +78,9 @@ const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
             <TableHead className="text-right">Tarjeta</TableHead>
             <TableHead className="text-right">Ventas totales</TableHead>
             <TableHead className="text-center">Transacciones</TableHead>
-            <TableHead className="text-center">Acciones</TableHead>
+            {canManage && (
+              <TableHead className="text-center">Acciones</TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -90,20 +99,22 @@ const TableDailyInformation = ({ records, handleUpdate, handleDelete }) => (
               <TableCell className="text-center">
                 {record.totalTransactions}
               </TableCell>
-              <TableCell className="text-center">
-                <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
-                  <ActionIconButton
-                    action="edit"
-                    label="Editar"
-                    onClick={() => handleUpdate(record)}
-                  />
-                  <ActionIconButton
-                    action="delete"
-                    label="Eliminar"
-                    onClick={() => handleDelete(record._id)}
-                  />
-                </div>
-              </TableCell>
+              {canManage && (
+                <TableCell className="text-center">
+                  <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
+                    <ActionIconButton
+                      action="edit"
+                      label="Editar"
+                      onClick={() => handleUpdate(record)}
+                    />
+                    <ActionIconButton
+                      action="delete"
+                      label="Eliminar"
+                      onClick={() => handleDelete(record._id)}
+                    />
+                  </div>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

@@ -7,9 +7,23 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Skeleton from '@/components/ui/skeleton'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
-import { useAuthStore } from '@/store/auth'
-import { useGetCurrentUser } from '@/features/users.features'
-import { hasSchedule } from '@/pages/users/schedule'
+import { hasFullAccess } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table'
 import { todayMexicoCity } from '@/utils/dateDisplay'
 import { toast } from 'react-hot-toast'
 import {
@@ -94,6 +108,24 @@ const punchVariant = (open) => {
   return 'default'
 }
 
+const punchAtWork = (mutate) => {
+  readPosition().then(
+    (position) => mutate(position),
+    (error) => toast.error(error.message)
+  )
+}
+
+const confirmPunch = ({ open, dayOff, checkIn, checkOut }) => {
+  if (dayOff) return
+  if (open) {
+    if (!window.confirm('¿Registrar tu salida?')) return
+    punchAtWork(checkOut.mutate)
+    return
+  }
+  if (!window.confirm('¿Registrar tu entrada?')) return
+  punchAtWork(checkIn.mutate)
+}
+
 const ClockPanel = ({
   failed,
   summary,
@@ -134,7 +166,7 @@ const ClockPanel = ({
       </div>
       <Button
         type="button"
-        className="h-12 w-full text-base sm:w-fit sm:min-w-48 sm:px-8"
+        className="h-12 w-full text-base xl:w-fit xl:min-w-48 xl:px-8"
         variant={punchVariant(open)}
         disabled={pending || dayOff}
         onClick={onPunch}
@@ -277,30 +309,14 @@ export const StaffClock = () => {
     return () => clearInterval(timer)
   }, [])
 
-  const punchAtWork = (mutate) => {
-    readPosition().then(
-      (position) => mutate(position),
-      (error) => toast.error(error.message)
-    )
-  }
-
-  const punch = () => {
-    if (dayOff) return
-    if (open) {
-      if (!window.confirm('¿Registrar tu salida?')) return
-      punchAtWork(checkOut.mutate)
-      return
-    }
-    if (!window.confirm('¿Registrar tu entrada?')) return
-    punchAtWork(checkIn.mutate)
-  }
+  const punch = () => confirmPunch({ open, dayOff, checkIn, checkOut })
 
   const showHistory = !(isError && !summary)
 
   return (
     <Card
       as="section"
-      className="w-full gap-4 p-4 sm:max-w-md sm:p-6"
+      className="w-full gap-4 p-4 sm:p-6"
       aria-labelledby="attendance-title"
     >
       <header>
@@ -358,58 +374,83 @@ export const StaffClock = () => {
   )
 }
 
-const shiftLabel = (record) => {
-  if (!record) return 'Sin registro'
-  return `${formatTime(record.checkInAt)} – ${recordEnd(record)}`
-}
+const ALL_USERS = 'all'
 
-const ShiftLines = ({ shifts }) => {
-  if (shifts.length === 0) return <span>Sin registro</span>
-  return shifts.map((shift) => <p key={shift._id}>{shiftLabel(shift)}</p>)
-}
-
-const BoardBody = ({ isLoading, isError, rows }) => {
-  if (isLoading) return <ListSkeleton />
-  if (isError) {
-    return <Alert variant="destructive">No se pudo cargar la asistencia</Alert>
-  }
-  if (rows.length === 0) return <Alert>No hay personal registrado</Alert>
-  return (
-    <ul className="m-0 list-none divide-y rounded-lg border p-0">
-      {rows.map(({ user, shifts }) => (
-        <li
-          key={user._id}
-          className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
-        >
-          <div className="min-w-0">
-            <p className="break-words font-medium">{personName(user)}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {user.username}
-            </p>
-          </div>
-          <div className="text-sm text-muted-foreground sm:shrink-0 sm:text-right">
-            <ShiftLines shifts={shifts} />
-          </div>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-const AdminBoard = () => {
-  const [date, setDate] = useState(todayMexicoCity())
-  const { data, isLoading, isError } = useAttendanceDay(date)
-  const records = data?.records ?? []
+const attendanceRows = (staff, records, userId) => {
   const byUser = records.reduce((acc, record) => {
     const id = String(record.user?._id || '')
     if (!acc[id]) acc[id] = []
     acc[id].push(record)
     return acc
   }, {})
-  const rows = (data?.staff ?? []).map((user) => ({
-    user,
-    shifts: byUser[String(user._id)] ?? []
-  }))
+  const people =
+    userId === ALL_USERS
+      ? staff
+      : staff.filter((user) => String(user._id) === userId)
+
+  return people.flatMap((user) => {
+    const shifts = byUser[String(user._id)] ?? []
+    if (shifts.length === 0) {
+      return [
+        {
+          key: String(user._id),
+          name: personName(user),
+          username: user.username,
+          start: 'Sin registro',
+          end: '—'
+        }
+      ]
+    }
+    return shifts.map((shift) => ({
+      key: shift._id,
+      name: personName(user),
+      username: user.username,
+      start: formatTime(shift.checkInAt),
+      end: recordEnd(shift)
+    }))
+  })
+}
+
+const AttendanceTable = ({ rows }) => {
+  if (rows.length === 0) return <Alert>No hay personal con horario</Alert>
+  return (
+    <div className="overflow-x-auto rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Usuario</TableHead>
+            <TableHead>Entrada</TableHead>
+            <TableHead>Salida</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.key}>
+              <TableCell>
+                <p className="font-medium">{row.name}</p>
+                <p className="text-xs text-muted-foreground">{row.username}</p>
+              </TableCell>
+              <TableCell>{row.start}</TableCell>
+              <TableCell>{row.end}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  )
+}
+
+const AdminBoard = () => {
+  const [date, setDate] = useState(todayMexicoCity())
+  const [userId, setUserId] = useState(ALL_USERS)
+  const { data, isLoading, isError } = useAttendanceDay(date)
+  const staff = data?.staff ?? []
+  const rows = attendanceRows(staff, data?.records ?? [], userId)
+  let body = <AttendanceTable rows={rows} />
+  if (isLoading) body = <ListSkeleton />
+  if (isError) {
+    body = <Alert variant="destructive">No se pudo cargar la asistencia</Alert>
+  }
 
   return (
     <Card
@@ -419,46 +460,95 @@ const AdminBoard = () => {
     >
       <header>
         <h1 id="attendance-board-title" className="text-xl font-semibold">
-          Asistencia del personal
+          Asistencias
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Entradas y salidas del personal
-        </p>
       </header>
-      <div className="grid w-full max-w-xs gap-2">
-        <Input
-          id="attendance-date"
-          type="date"
-          aria-label="Fecha"
-          value={date}
-          onChange={(event) => setDate(event.target.value)}
-        />
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="grid w-full max-w-xs gap-2">
+          <Label htmlFor="attendance-date">Fecha</Label>
+          <Input
+            id="attendance-date"
+            type="date"
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+          />
+        </div>
+        <div className="grid w-full min-w-52 max-w-xs gap-2">
+          <Label htmlFor="attendance-user">Usuario</Label>
+          <Select value={userId} onValueChange={setUserId}>
+            <SelectTrigger id="attendance-user">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_USERS}>Todos</SelectItem>
+              {staff.map((user) => (
+                <SelectItem key={user._id} value={String(user._id)}>
+                  {personName(user)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <BoardBody isLoading={isLoading} isError={isError} rows={rows} />
+      {body}
     </Card>
+  )
+}
+
+export const AttendancePunch = () => {
+  const { data, isError } = useMyAttendance()
+  const checkIn = useCheckIn()
+  const checkOut = useCheckOut()
+  const summary = data?.pages?.[0]
+  const open = summary?.open
+  const workDay = Boolean(summary?.workDay)
+  const today = todayMexicoCity()
+  const pending = checkIn.isPending || checkOut.isPending
+  const dayOff = !open && !workDay
+  const [nowLabel, setNowLabel] = useState(formatNow)
+
+  useEffect(() => {
+    const timer = setInterval(() => setNowLabel(formatNow()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <section aria-labelledby="profile-punch" className="grid gap-3">
+      <h2 id="profile-punch" className="text-sm font-semibold">
+        Asistencia
+      </h2>
+      <ClockPanel
+        failed={isError && !summary}
+        summary={summary}
+        nowLabel={nowLabel}
+        open={open}
+        today={today}
+        pending={pending}
+        dayOff={dayOff}
+        onPunch={() => confirmPunch({ open, dayOff, checkIn, checkOut })}
+      />
+    </section>
   )
 }
 
 const StaffAttendance = () => (
   <PageShell>
-    <StaffClock />
-  </PageShell>
-)
-
-const AdminAttendance = ({ showClock }) => (
-  <PageShell>
-    <div className="grid gap-4">
-      {showClock && <StaffClock />}
-      <AdminBoard />
+    <div className="w-full sm:max-w-md">
+      <StaffClock />
     </div>
   </PageShell>
 )
 
-const Attendance = () => {
-  const isAdmin = useAuthStore((state) => state.isAdmin)
-  const { data: me } = useGetCurrentUser()
+const AdminAttendance = () => (
+  <PageShell>
+    <AdminBoard />
+  </PageShell>
+)
 
-  if (isAdmin) return <AdminAttendance showClock={hasSchedule(me)} />
+const Attendance = () => {
+  const roleName = useRoleName()
+
+  if (hasFullAccess(roleName)) return <AdminAttendance />
 
   return <StaffAttendance />
 }

@@ -10,8 +10,8 @@ const PAGE_TITLES = {
   '/issues': 'Salidas',
   '/orders': 'Órdenes',
   '/reports': 'Ventas',
-  '/todolist': 'Tareas pendientes',
-  '/attendance': 'Asistencia',
+  '/todolist': 'Pendientes',
+  '/attendance': 'Asistencias',
   '/catalogs': 'Catálogo',
   '/users': 'Usuarios',
   '/products': 'Productos',
@@ -28,7 +28,7 @@ const DETAIL_PAGE_TITLES = {
   '/issues/': 'Detalle de salida',
   '/orders/': 'Detalle de orden',
   '/reports/': 'Detalle de reporte',
-  '/todolist/': 'Detalle de tarea',
+  '/todolist/': 'Detalle de pendiente',
   '/users/': 'Detalle de usuario',
   '/suppliers/': 'Detalle de proveedor'
 }

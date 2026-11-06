@@ -12,10 +12,13 @@ import ListSkeleton from '@/components/ListSkeleton'
 import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
+import { hasFullAccess } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
 import ModalDailyInformation from './ModalDailyInformation'
 import TableDailyInformation from './TableDailyInformation'
 
 const SectionDailyInformation = () => {
+  const fullAccess = hasFullAccess(useRoleName())
   const { data: records, isLoading, isError } = useGetDailyInformations()
   const createAction = useCreateDailyInformation()
   const updateAction = useUpdateDailyInformation()
@@ -61,9 +64,11 @@ const SectionDailyInformation = () => {
           <h1 id="daily-information-title" className="text-2xl font-semibold">
             Información diaria
           </h1>
-          <Button type="button" onClick={handleCreate}>
-            + Nuevo registro
-          </Button>
+          {fullAccess && (
+            <Button type="button" onClick={handleCreate}>
+              + Nuevo registro
+            </Button>
+          )}
         </header>
 
         <ModalDailyInformation
@@ -91,6 +96,7 @@ const SectionDailyInformation = () => {
             records={filteredRecords}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
+            canManage={fullAccess}
           />
         ) : (
           <Alert className="text-amber-400">

@@ -18,7 +18,8 @@ import {
   useSaveVault,
   useVaultUpdatedAt
 } from '@/features/denominations.features'
-import { useAuthStore } from '@/store/auth'
+import { hasFullAccess } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
 
 const formatAmount = (amount) =>
   Number(amount || 0).toLocaleString('es-MX', {
@@ -383,9 +384,9 @@ const AdminCash = () => (
 )
 
 const Cash = () => {
-  const isAdmin = useAuthStore((state) => state.isAdmin)
+  const roleName = useRoleName()
 
-  if (isAdmin) return <AdminCash />
+  if (hasFullAccess(roleName)) return <AdminCash />
 
   return <StaffCash />
 }

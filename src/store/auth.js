@@ -66,7 +66,7 @@ const writeAuthBackup = (authState) => {
     JSON.stringify({
       token: authState.token,
       profile: authState.profile || '',
-      isAdmin: Boolean(authState.isAdmin)
+      role: authState.role || ''
     })
   )
 }
@@ -104,7 +104,7 @@ export const useAuthStore = create(
       auth: '',
       isLogged: false,
       profile: '',
-      isAdmin: false,
+      role: '',
       setAuth: (token) =>
         set((state) => {
           if (isTokenExpired(token)) {
@@ -113,7 +113,7 @@ export const useAuthStore = create(
               auth: '',
               isLogged: false,
               profile: '',
-              isAdmin: false
+              role: ''
             }
           }
 
@@ -121,7 +121,7 @@ export const useAuthStore = create(
           writeAuthBackup({
             token,
             profile: nextState.profile,
-            isAdmin: nextState.isAdmin
+            role: nextState.role
           })
           return { auth: token, isLogged: true }
         }),
@@ -130,18 +130,18 @@ export const useAuthStore = create(
           writeAuthBackup({
             token: state.auth,
             profile: username,
-            isAdmin: state.isAdmin
+            role: state.role
           })
           return { profile: username }
         }),
-      setIsAdmin: (isAdmin) =>
+      setRole: (role) =>
         set((state) => {
           writeAuthBackup({
             token: state.auth,
             profile: state.profile,
-            isAdmin
+            role: role || ''
           })
-          return { isAdmin }
+          return { role: role || '' }
         }),
       logOut: () =>
         set(() => {
@@ -150,7 +150,7 @@ export const useAuthStore = create(
             auth: '',
             isLogged: false,
             profile: '',
-            isAdmin: false
+            role: ''
           }
         })
     }),
@@ -161,7 +161,7 @@ export const useAuthStore = create(
         auth: state.auth,
         isLogged: state.isLogged,
         profile: state.profile,
-        isAdmin: state.isAdmin
+        role: state.role
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return
@@ -171,9 +171,7 @@ export const useAuthStore = create(
           if (backup?.token && !isTokenExpired(backup.token)) {
             state.setAuth(backup.token)
             if (backup.profile) state.setProfile(backup.profile)
-            if (typeof backup.isAdmin === 'boolean') {
-              state.setIsAdmin(backup.isAdmin)
-            }
+            if (backup.role) state.setRole(backup.role)
           }
         } else if (isTokenExpired(state.auth)) {
           state.logOut()

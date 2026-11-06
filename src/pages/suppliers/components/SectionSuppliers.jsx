@@ -13,7 +13,8 @@ import ListSkeleton from '@/components/ListSkeleton'
 import TableSuppliers from './TableSuppliers'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
-import { useAuthStore } from '@/store/auth'
+import { hasFullAccess } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
 
 const SectionSuppliers = () => {
   const [dataFilter, setDataFilter] = useFilterQuery()
@@ -28,7 +29,7 @@ const SectionSuppliers = () => {
   const suppliers = supplierPages?.pages.flatMap((page) => page.data) || []
   const totalSuppliers = supplierPages?.pages[0]?.total || 0
 
-  const isAdmin = useAuthStore((state) => state.isAdmin)
+  const fullAccess = hasFullAccess(useRoleName())
   const createSupplier = useCreateSupplier()
   const updateSupplier = useUpdateSupplier()
   const deleteSupplier = useDeleteSupplier()
@@ -56,7 +57,9 @@ const SectionSuppliers = () => {
           <h1 id="suppliers-title" className="text-xl font-semibold">
             Proveedores
           </h1>
-          {isAdmin && <Button onClick={handleShow}>+ Crear Proveedor</Button>}
+          {fullAccess && (
+            <Button onClick={handleShow}>+ Crear Proveedor</Button>
+          )}
         </header>
         <FormFilter
           id="supplier-filter"
@@ -96,7 +99,7 @@ const SectionSuppliers = () => {
             isFetchingNextPage={isFetchingNextPage}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
-            canManage={isAdmin}
+            canManage={fullAccess}
           />
         ) : (
           <Alert>No hay proveedores para mostrar</Alert>

@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
 import { useGetCurrentUser } from '@/features/users.features'
 import { useGetPendingTasks } from '@/features/tasks.features'
-import { hasSchedule } from '@/pages/users/schedule'
+import { hasFullAccess } from '@/auth/access'
 import { logout } from '@/services/users.services'
 import useTaskNotifications from '@/hooks/useTaskNotifications'
 import MobileTabBar from '@/ui/MobileTabBar'
@@ -26,7 +26,7 @@ const navItemClass = (active) => {
   let tone = 'text-muted-foreground'
   if (active) tone = 'bg-accent text-accent-foreground'
   return cn(
-    'relative inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+    'relative inline-flex min-h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 2xl:px-2.5',
     tone
   )
 }
@@ -42,8 +42,10 @@ const menuItemClass = (isActive) => {
 
 const NavGroup = ({ label, items }) => {
   const [open, setOpen] = useState(false)
+  const [menuPos, setMenuPos] = useState(null)
   const { pathname } = useLocation()
   const menuRef = useRef(null)
+  const buttonRef = useRef(null)
   const active = items.some((child) =>
     isNavPathActive(pathname, child.to, child.end)
   )
@@ -53,7 +55,19 @@ const NavGroup = ({ label, items }) => {
   }, [pathname])
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return undefined
+    const place = () => {
+      const rect = buttonRef.current?.getBoundingClientRect()
+      if (!rect) return
+      setMenuPos({ top: rect.bottom + 4, left: rect.left })
+    }
+    place()
+    window.addEventListener('resize', place)
+    return () => window.removeEventListener('resize', place)
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return undefined
     const closeOnOutside = (event) => {
       if (!menuRef.current?.contains(event.target)) setOpen(false)
     }
@@ -71,6 +85,7 @@ const NavGroup = ({ label, items }) => {
   return (
     <div className="relative" ref={menuRef}>
       <button
+        ref={buttonRef}
         type="button"
         className={navItemClass(active || open)}
         aria-expanded={open}
@@ -83,11 +98,12 @@ const NavGroup = ({ label, items }) => {
           aria-hidden="true"
         />
       </button>
-      {open && (
+      {open && menuPos && (
         <div
           role="menu"
           aria-label={label}
-          className="absolute left-0 top-full z-50 mt-1 min-w-40 rounded-md border bg-background p-1 shadow-md"
+          style={{ top: menuPos.top, left: menuPos.left }}
+          className="fixed z-[60] min-w-40 rounded-md border bg-background p-1 shadow-md"
         >
           {items.map(({ to, label: childLabel, end }) => (
             <NavLink
@@ -114,7 +130,7 @@ const NotifyButton = ({ show, onRequest }) => {
         type="button"
         variant="outline"
         size="icon-sm"
-        className="shrink-0 xl:hidden"
+        className="shrink-0 2xl:hidden"
         aria-label="Activar notificaciones"
         onClick={onRequest}
       >
@@ -124,7 +140,7 @@ const NotifyButton = ({ show, onRequest }) => {
         type="button"
         variant="outline"
         onClick={onRequest}
-        className="hidden shrink-0 xl:inline-flex"
+        className="hidden shrink-0 2xl:inline-flex"
       >
         Activar notificaciones
       </Button>
@@ -155,16 +171,27 @@ const DesktopLink = ({ link, pendingCount }) => {
 
 const Navigate = () => {
   const logOut = useAuthStore((state) => state.logOut)
-  const isAdmin = useAuthStore((state) => state.isAdmin)
+  const role = useAuthStore((state) => state.role)
   const { data: me } = useGetCurrentUser()
   const { data: pendingTasks } = useGetPendingTasks()
   const { showNotifications, requestPermission } =
     useTaskNotifications(pendingTasks)
   const navigate = useNavigate()
   const pendingCount = pendingTasks?.length ?? 0
-  const links = getNavLinks(isAdmin, hasSchedule(me))
-  const { primary, moreLinks } = splitMobileTabs(links, isAdmin)
-  const Logout = isAdmin ? AdminLogoutButton : StaffLogoutButton
+  const roleName = role || me?.role?.name || ''
+  const fullAccess = hasFullAccess(roleName)
+  const links = getNavLinks(roleName)
+  let notifyInHeader = showNotifications
+  let accountNotifications = null
+  if (roleName === 'User') {
+    notifyInHeader = false
+    accountNotifications = {
+      show: showNotifications,
+      request: requestPermission
+    }
+  }
+  const { primary, moreLinks } = splitMobileTabs(links, roleName)
+  const Logout = fullAccess ? AdminLogoutButton : StaffLogoutButton
 
   const handleLogOut = async () => {
     await logout().catch(() => {})
@@ -193,13 +220,15 @@ const Navigate = () => {
                   height="32"
                   className="h-8 w-8 shrink-0 rounded-md"
                 />
-                <span className="truncate">JM Panel</span>
+                <span className="sr-only truncate 2xl:not-sr-only 2xl:inline">
+                  JM Panel
+                </span>
               </Link>
 
               <div
                 className={cn(
-                  'hidden min-w-0 flex-1 items-center gap-1 xl:flex',
-                  desktopLinkAlignment(isAdmin)
+                  'hidden min-w-0 flex-1 items-center gap-1 overflow-visible xl:flex',
+                  desktopLinkAlignment(roleName)
                 )}
               >
                 {links.map((link) => (
@@ -213,10 +242,10 @@ const Navigate = () => {
 
               <div className="ml-auto flex shrink-0 items-center gap-1">
                 <ProductLookup />
-                <AccountProfile />
+                <AccountProfile notifications={accountNotifications} />
                 <Logout onLogout={handleLogOut} />
                 <NotifyButton
-                  show={showNotifications}
+                  show={notifyInHeader}
                   onRequest={requestPermission}
                 />
               </div>
@@ -228,7 +257,7 @@ const Navigate = () => {
         links={moreLinks}
         primary={primary}
         pendingCount={pendingCount}
-        showNotifications={showNotifications}
+        showNotifications={notifyInHeader}
         requestPermission={requestPermission}
         onLogout={handleLogOut}
       />

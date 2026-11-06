@@ -1,13 +1,14 @@
 import PageShell from '@/components/PageShell'
-import { useAuthStore } from '@/store/auth'
+import { hasFullAccess } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
 import { StaffClock } from '@/pages/attendance/Attendance'
 import { TaskBoard } from '@/pages/todolist/ToDoList'
 import StockDashboard from './components/StockDashboard'
 
-const StaffHome = () => (
+const PersonalHome = () => (
   <PageShell>
     <div className="flex w-full flex-col items-stretch gap-4 xl:flex-row xl:items-start">
-      <div className="w-full shrink-0 sm:max-w-md">
+      <div className="w-full shrink-0 xl:max-w-md">
         <StaffClock />
       </div>
       <div className="min-w-0 w-full flex-1">
@@ -18,11 +19,10 @@ const StaffHome = () => (
 )
 
 const Home = () => {
-  const isAdmin = useAuthStore((state) => state.isAdmin)
+  const roleName = useRoleName()
 
-  if (isAdmin) return <StockDashboard />
-
-  return <StaffHome />
+  if (hasFullAccess(roleName)) return <StockDashboard />
+  return <PersonalHome />
 }
 
 export default Home

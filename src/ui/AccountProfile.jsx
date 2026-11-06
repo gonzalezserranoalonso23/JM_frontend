@@ -16,7 +16,10 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { useGetCurrentUser } from '@/features/users.features'
+import useLocationPrompt from '@/hooks/useLocationPrompt'
+import { AttendancePunch } from '@/pages/attendance/Attendance'
 import ScheduleDays from '@/pages/users/components/ScheduleDays'
+import { hasFullAccess } from '@/auth/access'
 import { hasSchedule } from '@/pages/users/schedule'
 import { getTheme, setTheme } from '@/ui/theme'
 
@@ -28,13 +31,15 @@ const Field = ({ label, children }) => (
 )
 
 const roleName = (user) => {
-  if (user.isAdmin) return 'Administrador'
-  return 'Usuario'
+  if (user.role?.name) return user.role.name
+  return '—'
 }
+
+const showsPunch = (user) => user?.role?.name === 'Supervisor'
 
 const showsSchedule = (user) => {
   if (!user) return false
-  if (user.isAdmin) return hasSchedule(user)
+  if (hasFullAccess(user.role?.name)) return hasSchedule(user)
   return true
 }
 
@@ -43,11 +48,38 @@ const themeVariant = (theme, name) => {
   return 'outline'
 }
 
-const AccountProfile = () => {
+const PermissionPrompts = ({ notifications, location }) => {
+  const handleNotifications = () => notifications.request()
+  const handleLocation = () => location.request()
+  if (!notifications?.show && !location.show) return null
+  return (
+    <section aria-labelledby="account-permissions">
+      <h2 id="account-permissions" className="text-sm font-semibold">
+        Permisos
+      </h2>
+      <div className="mt-2 flex flex-col gap-2">
+        {notifications?.show && (
+          <Button type="button" variant="outline" onClick={handleNotifications}>
+            Activar notificaciones
+          </Button>
+        )}
+        {location.show && (
+          <Button type="button" variant="outline" onClick={handleLocation}>
+            Permitir ubicación
+          </Button>
+        )}
+      </div>
+    </section>
+  )
+}
+
+const AccountProfile = ({ notifications = null }) => {
   const [open, setOpen] = useState(false)
   const [theme, setThemeState] = useState(getTheme)
   const { data: user, isLoading, isError } = useGetCurrentUser(open)
+  const location = useLocationPrompt()
   const showSchedule = showsSchedule(user)
+  const showPunch = showsPunch(user)
 
   const chooseTheme = (next) => {
     setThemeState(setTheme(next))
@@ -76,6 +108,12 @@ const AccountProfile = () => {
           <DialogTitle>Mi información</DialogTitle>
         </DialogHeader>
         <DialogBody>
+          {notifications && (
+            <PermissionPrompts
+              notifications={notifications}
+              location={location}
+            />
+          )}
           {isLoading && (
             <p className="text-sm text-muted-foreground">Cargando...</p>
           )}
@@ -100,6 +138,7 @@ const AccountProfile = () => {
                   <ScheduleDays schedule={user.schedule} />
                 </section>
               )}
+              {showPunch && <AttendancePunch />}
             </div>
           )}
           <div className="flex items-center justify-between gap-4 border-t pt-4">

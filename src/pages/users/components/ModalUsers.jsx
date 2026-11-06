@@ -10,8 +10,23 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 import { useFormik } from 'formik'
+import { useGetRoles } from '@/features/roles.features'
 import { WEEK_DAYS, hasSchedule, scheduleFromUser } from '../schedule'
+
+const roleIdFromUser = (user) => {
+  const role = user?.role
+  if (!role) return ''
+  if (typeof role === 'string') return role
+  return role._id || ''
+}
 
 const ModalUsers = ({
   user,
@@ -22,6 +37,11 @@ const ModalUsers = ({
   setUpdate
 }) => {
   const [showPassword, setShowPassword] = useState(false)
+  const {
+    data: roles,
+    isLoading: rolesLoading,
+    isError: rolesError
+  } = useGetRoles()
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -30,7 +50,7 @@ const ModalUsers = ({
       fullName: user?.fullName || '',
       email: user?.email || '',
       password: '',
-      isAdmin: Boolean(user?.isAdmin),
+      role: roleIdFromUser(user),
       haveSchedule: hasSchedule(user),
       schedule: scheduleFromUser(user)
     },
@@ -39,6 +59,7 @@ const ModalUsers = ({
       if (!values.email) return { email: 'Requerido' }
       if (!user?._id && !values.password)
         return { password: 'Requerido al crear' }
+      if (!values.role) return { role: 'El rol es requerido' }
       if (!values.haveSchedule) return
       for (const [day, label] of WEEK_DAYS) {
         const row = values.schedule[day]
@@ -58,7 +79,7 @@ const ModalUsers = ({
         fullName: values.fullName,
         email: values.email,
         password: values.password,
-        isAdmin: values.isAdmin,
+        role: values.role,
         haveSchedule: values.haveSchedule
       }
       if (values.haveSchedule) payload.schedule = values.schedule
@@ -69,6 +90,9 @@ const ModalUsers = ({
       })
     }
   })
+
+  let selectedRoleId
+  if (formik.values.role) selectedRoleId = formik.values.role
 
   const handleCloseReset = () => {
     formik.resetForm()
@@ -168,22 +192,40 @@ const ModalUsers = ({
                   </p>
                 )}
               </div>
-              <label
-                htmlFor="isAdmin"
-                className="flex min-h-11 cursor-pointer items-center gap-2 text-sm"
-              >
-                <input
-                  id="isAdmin"
-                  name="isAdmin"
-                  type="checkbox"
-                  className="accent-primary"
-                  checked={formik.values.isAdmin}
-                  onChange={(event) =>
-                    formik.setFieldValue('isAdmin', event.target.checked)
-                  }
-                />
-                Administrador
-              </label>
+              <div>
+                <Label htmlFor="user-role">Rol *</Label>
+                <Select
+                  value={selectedRoleId}
+                  onValueChange={(value) => formik.setFieldValue('role', value)}
+                  disabled={rolesLoading}
+                >
+                  <SelectTrigger
+                    id="user-role"
+                    className={
+                      formik.errors.role ? 'border-destructive' : undefined
+                    }
+                  >
+                    <SelectValue placeholder="Elige un rol" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((role) => (
+                      <SelectItem key={role._id} value={role._id}>
+                        {role.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formik.errors.role && (
+                  <p className="mt-1 text-sm text-destructive">
+                    {formik.errors.role}
+                  </p>
+                )}
+                {rolesError && (
+                  <p className="mt-1 text-sm text-destructive">
+                    No se pudieron cargar los roles
+                  </p>
+                )}
+              </div>
               <label
                 htmlFor="haveSchedule"
                 className="flex min-h-11 cursor-pointer items-center gap-2 text-sm"

@@ -67,15 +67,10 @@ const App = () => {
               <Route path="/catalogs" element={<Catalog />} />
               <Route path="/products" element={<Products />} />
               <Route path="/suppliers" element={<Suppliers />} />
-              <Route element={<Protected adminOnly />}>
-                <Route path="/payment-types" element={<PaymentTypes />} />
-                <Route path="/users" element={<Users />} />
-                <Route path="/categories" element={<Categories />} />
-                <Route
-                  path="/daily-information"
-                  element={<DailyInformation />}
-                />
-              </Route>
+              <Route path="/payment-types" element={<PaymentTypes />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/daily-information" element={<DailyInformation />} />
               <Route path="/promotions" element={<Promotions />} />
               <Route path="/cash" element={<Cash />} />
             </Route>

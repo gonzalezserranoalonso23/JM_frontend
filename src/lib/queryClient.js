@@ -26,7 +26,8 @@ export const shouldRetryQuery = (failureCount, error) => {
 
 const reportQueryError = (error, query) => {
   const handled = handleErrors(error)
-  if (handled.ignore || handled.offline || query.state.data !== undefined) return
+  if (handled.ignore || handled.offline || query.state.data !== undefined)
+    return
   toast.error(handled.message || 'No se pudo cargar la información', {
     id: 'query-load-error'
   })
@@ -57,6 +58,7 @@ const PERSISTED_KEYS = new Set([
   'PaymentTypes',
   'TypeInventories',
   'Categories',
+  'Roles',
   'Suppliers'
 ])
 

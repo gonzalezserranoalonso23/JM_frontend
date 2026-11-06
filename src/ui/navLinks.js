@@ -1,9 +1,13 @@
-const STAFF_LINKS = [
+import { hasFullAccess } from '@/auth/access'
+
+const USER_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
+  { to: '/todolist', label: 'Pendientes', badge: true },
   { to: '/products', label: 'Productos' },
-  { to: '/suppliers', label: 'Proveedores' },
-  { to: '/cash', label: 'Caja' }
+  { to: '/suppliers', label: 'Proveedores' }
 ]
+
+const USER_PRIMARY = USER_LINKS.map((link) => link.to)
 
 const ADMIN_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
@@ -15,7 +19,7 @@ const ADMIN_LINKS = [
     label: 'Reportes',
     children: [
       { to: '/reports', label: 'Ventas' },
-      { to: '/attendance', label: 'Asistencia' }
+      { to: '/attendance', label: 'Asistencias' }
     ]
   },
   { to: '/daily-information', label: 'Información diaria' },
@@ -24,34 +28,44 @@ const ADMIN_LINKS = [
   { to: '/catalogs', label: 'Catálogo' }
 ]
 
-const withoutAttendance = (links) =>
-  links
-    .filter((link) => link.to !== '/attendance')
-    .map((link) =>
-      link.children
-        ? {
-            ...link,
-            children: link.children.filter((child) => child.to !== '/attendance')
-          }
-        : link
-    )
+const STAFF_HIDDEN = new Set([
+  '/orders',
+  '/daily-information',
+  '/promotions',
+  '/catalogs'
+])
 
-export const getNavLinks = (isAdmin, showAttendance = false) => {
-  if (!isAdmin) return STAFF_LINKS
-  if (showAttendance) return ADMIN_LINKS
-  return withoutAttendance(ADMIN_LINKS)
+const staffRoleLinks = () => [
+  ...ADMIN_LINKS.filter(
+    (link) => link.label !== 'Reportes' && !STAFF_HIDDEN.has(link.to)
+  ),
+  { to: '/products', label: 'Producto' },
+  { to: '/suppliers', label: 'Proveedores' }
+]
+
+export const getNavLinks = (roleName = '') => {
+  if (roleName === 'Staff') return staffRoleLinks()
+  if (!hasFullAccess(roleName)) return USER_LINKS
+  return ADMIN_LINKS
 }
 
-export const desktopLinkAlignment = (isAdmin) => {
-  if (isAdmin) return 'justify-evenly'
+const wideNav = (roleName) => hasFullAccess(roleName) || roleName === 'Staff'
+
+export const desktopLinkAlignment = (roleName = '') => {
+  if (wideNav(roleName)) return 'justify-evenly'
   return 'justify-end'
 }
 
 export const PRIMARY_TABS = ['/home', '/issues', '/entries', '/todolist']
 
-export const splitMobileTabs = (links, isAdmin) => {
-  if (!isAdmin) {
-    return { primary: links.filter((link) => link.to), moreLinks: [] }
+export const splitMobileTabs = (links, roleName = '') => {
+  if (!wideNav(roleName)) {
+    return {
+      primary: links.filter((link) => USER_PRIMARY.includes(link.to)),
+      moreLinks: links.filter(
+        (link) => link.to && !USER_PRIMARY.includes(link.to)
+      )
+    }
   }
   return {
     primary: links.filter((link) => link.to && PRIMARY_TABS.includes(link.to)),

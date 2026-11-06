@@ -40,6 +40,7 @@ import {
   calcLineTotal,
   confirmDiscardChanges
 } from '@/utils/commonFunctions'
+import ActionIconButton from '@/components/ActionIconButton'
 import { useCart } from '@/hooks/useCart'
 import { errorMessage } from '@/libs/handleErrors'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
@@ -117,7 +118,15 @@ const MovementModal = ({
 
   const [date, setDate] = useState(getToday())
   const [itemForm, setItemForm] = useState(getEmptyItem())
-  const { cart, addItem, removeItem, clearCart, total: cartTotal } = useCart()
+  const {
+    cart,
+    addItem,
+    removeItem,
+    dropItem,
+    clearCart,
+    total: cartTotal
+  } = useCart()
+  const [replacingCartItem, setReplacingCartItem] = useState(false)
   const [cartPaymentType, setCartPaymentType] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -182,8 +191,7 @@ const MovementModal = ({
     const saved = cart.find(
       (item) => String(item.productName) === String(productId)
     )?.originalStock
-    const original =
-      product?.productStock ?? saved ?? fallbackStock ?? 0
+    const original = product?.productStock ?? saved ?? fallbackStock ?? 0
     return informativeStock(original, cartQty(productId))
   }
 
@@ -229,6 +237,7 @@ const MovementModal = ({
     if (modalShow) return
     setDate(getToday())
     setItemForm(getEmptyItem())
+    setReplacingCartItem(false)
     clearCart()
     setCartPaymentType('')
     setEditFormData(getEmptyEditForm(withPayment))
@@ -271,8 +280,26 @@ const MovementModal = ({
       originalStock: roundTo(itemSelectedProduct?.productStock, 3)
     })
     setItemForm(getEmptyItem())
+    setReplacingCartItem(false)
     setError('')
   }
+
+  const handleEditCartItem = (item) => {
+    dropItem(item.tempId)
+    setItemForm({
+      productName: item.productName,
+      category: item.category || '',
+      productPrice: item.productPrice,
+      quantity: item.quantity,
+      totalAmount: item.totalAmount
+    })
+    setProductQuery(item.productLabel || '')
+    setReplacingCartItem(true)
+    setError('')
+  }
+
+  let addLabel = '+ Agregar al carrito'
+  if (replacingCartItem) addLabel = 'Actualizar en el carrito'
 
   const hasUnsavedCart =
     cart.length > 0 || Boolean(itemForm.productName || itemForm.quantity)
@@ -650,15 +677,15 @@ const MovementModal = ({
                   name="add"
                   className="sm:col-span-2 lg:col-span-1 lg:self-end"
                 >
-                  + Agregar al carrito
+                  {addLabel}
                 </Button>
               </div>
               <div className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-4 lg:self-stretch">
                 <Label>Carrito ({cart.length})</Label>
                 {copy.checkStock && cart.length > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Stock es el del almacén. Disponible resta este carrito y
-                    no cambia el almacén hasta registrar.
+                    Stock es el del almacén. Disponible resta este carrito y no
+                    cambia el almacén hasta registrar.
                   </p>
                 )}
                 {cart.length === 0 ? (
@@ -673,32 +700,39 @@ const MovementModal = ({
                           ? stockFigures(item.productName, item.originalStock)
                           : null
                         return (
-                        <li
-                          key={item.tempId}
-                          className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"
-                        >
-                          <div className="min-w-0">
-                            <p className="break-words text-sm font-medium">
-                              {item.productLabel}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Cant. {item.quantity}
-                              {figures &&
-                                ` · Stock: ${formatQty(figures.original)} · Disponible: ${formatQty(figures.available)}`}
-                              {' · '}$
-                              {parseFloat(item.totalAmount || 0).toFixed(2)}
-                            </p>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeItem(item.tempId)}
-                            title="Quitar"
+                          <li
+                            key={item.tempId}
+                            className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"
                           >
-                            ✕
-                          </Button>
-                        </li>
+                            <div className="min-w-0">
+                              <p className="break-words text-sm font-medium">
+                                {item.productLabel}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Cant. {item.quantity}
+                                {figures &&
+                                  ` · Stock: ${formatQty(figures.original)} · Disponible: ${formatQty(figures.available)}`}
+                                {' · '}$
+                                {parseFloat(item.totalAmount || 0).toFixed(2)}
+                              </p>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-1">
+                              <ActionIconButton
+                                action="edit"
+                                label="Modificar"
+                                onClick={() => handleEditCartItem(item)}
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => removeItem(item.tempId)}
+                                title="Quitar"
+                              >
+                                ✕
+                              </Button>
+                            </div>
+                          </li>
                         )
                       })}
                     </ul>
@@ -715,38 +749,48 @@ const MovementModal = ({
                         <TableBody>
                           {cart.map((item) => {
                             const figures = copy.checkStock
-                              ? stockFigures(item.productName, item.originalStock)
+                              ? stockFigures(
+                                  item.productName,
+                                  item.originalStock
+                                )
                               : null
                             return (
-                            <TableRow key={item.tempId}>
-                              <TableCell>
-                                {item.productLabel}
-                                {figures && (
-                                  <p className="text-xs text-muted-foreground">
-                                    Stock: {formatQty(figures.original)}
-                                    {' · '}
-                                    Disponible: {formatQty(figures.available)}
-                                  </p>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-center">
-                                {item.quantity}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                {formatMoney(item.totalAmount)}
-                              </TableCell>
-                              <TableCell className="text-center">
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => removeItem(item.tempId)}
-                                  title="Quitar"
-                                >
-                                  ✕
-                                </Button>
-                              </TableCell>
-                            </TableRow>
+                              <TableRow key={item.tempId}>
+                                <TableCell>
+                                  {item.productLabel}
+                                  {figures && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Stock: {formatQty(figures.original)}
+                                      {' · '}
+                                      Disponible: {formatQty(figures.available)}
+                                    </p>
+                                  )}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {item.quantity}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {formatMoney(item.totalAmount)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <div className="flex items-center justify-center gap-1">
+                                    <ActionIconButton
+                                      action="edit"
+                                      label="Modificar"
+                                      onClick={() => handleEditCartItem(item)}
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={() => removeItem(item.tempId)}
+                                      title="Quitar"
+                                    >
+                                      ✕
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
                             )
                           })}
                         </TableBody>
