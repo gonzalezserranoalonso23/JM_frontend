@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { canVisit } from './access'
 
 describe('acceso por rol', () => {
-  it('el usuario solo entra a inicio, pendientes, productos y proveedores', () => {
+  it('el usuario entra a inicio, pendientes, productos, proveedores y caja', () => {
     expect(canVisit('User', '/home')).toBe(true)
     expect(canVisit('User', '/todolist')).toBe(true)
     expect(canVisit('User', '/products')).toBe(true)
     expect(canVisit('User', '/suppliers')).toBe(true)
+    expect(canVisit('User', '/cash')).toBe(true)
     expect(canVisit('User', '/issues')).toBe(false)
     expect(canVisit('User', '/entries/1')).toBe(false)
-    expect(canVisit('User', '/cash')).toBe(false)
     expect(canVisit('User', '/orders')).toBe(false)
   })
 

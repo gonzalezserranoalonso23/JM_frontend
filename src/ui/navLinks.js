@@ -4,7 +4,8 @@ const USER_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
   { to: '/todolist', label: 'Pendientes', badge: true },
   { to: '/products', label: 'Productos' },
-  { to: '/suppliers', label: 'Proveedores' }
+  { to: '/suppliers', label: 'Proveedores' },
+  { to: '/cash', label: 'Caja' }
 ]
 
 const USER_PRIMARY = USER_LINKS.map((link) => link.to)

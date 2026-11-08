@@ -11,7 +11,7 @@ const STAFF_PATHS = [
   '/suppliers'
 ]
 
-const USER_PATHS = ['/home', '/todolist', '/products', '/suppliers']
+const USER_PATHS = ['/home', '/todolist', '/products', '/suppliers', '/cash']
 
 const matchesPath = (pathname, paths) =>
   paths.some((path) => pathname === path || pathname.startsWith(`${path}/`))

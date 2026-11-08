@@ -117,7 +117,7 @@ describe('Navigate de administrador', () => {
     ).toHaveAttribute('href', '/suppliers')
   })
 
-  it('el usuario ve Inicio, Pendientes, Productos, Proveedores y la lupa', () => {
+  it('el usuario ve Inicio, Pendientes, Productos, Proveedores, Caja y la lupa', () => {
     auth.roleName = 'User'
     auth.haveSchedule = true
     notifications.showNotifications = true
@@ -136,9 +136,11 @@ describe('Navigate de administrador', () => {
     expect(
       screen.getAllByRole('link', { name: 'Proveedores' })[0]
     ).toHaveAttribute('href', '/suppliers')
+    expect(
+      screen.getAllByRole('link', { name: 'Caja' })[0]
+    ).toHaveAttribute('href', '/cash')
     expect(screen.queryByRole('link', { name: 'Salidas' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Entradas' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Caja' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Asistencias' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Reportes' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Más' })).toBeNull()
