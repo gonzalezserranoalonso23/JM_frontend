@@ -80,6 +80,9 @@ describe('Navigate de administrador', () => {
     expect(
       screen.getByRole('menuitem', { name: 'Asistencias' })
     ).toHaveAttribute('href', '/attendance')
+    expect(
+      screen.getByRole('menuitem', { name: 'Bajo stock' })
+    ).toHaveAttribute('href', '/low-stock')
   })
 
   it('Reportes sigue mostrando Asistencias aunque no haya horario', async () => {
@@ -93,6 +96,9 @@ describe('Navigate de administrador', () => {
     expect(
       screen.getByRole('menuitem', { name: 'Asistencias' })
     ).toHaveAttribute('href', '/attendance')
+    expect(
+      screen.getByRole('menuitem', { name: 'Bajo stock' })
+    ).toHaveAttribute('href', '/low-stock')
   })
 
   it('staff ve el menú completo sin reportes y consulta producto y proveedores', () => {
@@ -136,9 +142,10 @@ describe('Navigate de administrador', () => {
     expect(
       screen.getAllByRole('link', { name: 'Proveedores' })[0]
     ).toHaveAttribute('href', '/suppliers')
-    expect(
-      screen.getAllByRole('link', { name: 'Caja' })[0]
-    ).toHaveAttribute('href', '/cash')
+    expect(screen.getAllByRole('link', { name: 'Caja' })[0]).toHaveAttribute(
+      'href',
+      '/cash'
+    )
     expect(screen.queryByRole('link', { name: 'Salidas' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Entradas' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Asistencias' })).toBeNull()

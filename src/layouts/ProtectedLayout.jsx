@@ -10,6 +10,7 @@ const PAGE_TITLES = {
   '/issues': 'Salidas',
   '/orders': 'Órdenes',
   '/reports': 'Ventas',
+  '/low-stock': 'Bajo stock',
   '/todolist': 'Pendientes',
   '/attendance': 'Asistencias',
   '/catalogs': 'Catálogo',

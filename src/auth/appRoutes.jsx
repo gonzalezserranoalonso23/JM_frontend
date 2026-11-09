@@ -9,6 +9,7 @@ const pages = {
   '/issues/:id': lazy(() => import('@/pages/issues/IssueDetails')),
   '/orders': lazy(() => import('@/pages/orders/Orders')),
   '/reports': lazy(() => import('@/pages/reports/Reports')),
+  '/low-stock': lazy(() => import('@/pages/low-stock/LowStock')),
   '/todolist': lazy(() => import('@/pages/todolist/ToDoList')),
   '/attendance': lazy(() => import('@/pages/attendance/Attendance')),
   '/catalogs': lazy(() => import('@/pages/catalogs/Catalogs')),

@@ -17,7 +17,8 @@ export const useGetCategories = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['Categories'],
     queryFn: getCategories,
-    staleTime: 60 * 60 * 1000
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000
   })
   return { data, isLoading, isError }
 }

@@ -20,7 +20,8 @@ const ADMIN_LINKS = [
     label: 'Reportes',
     children: [
       { to: '/reports', label: 'Ventas' },
-      { to: '/attendance', label: 'Asistencias' }
+      { to: '/attendance', label: 'Asistencias' },
+      { to: '/low-stock', label: 'Bajo stock' }
     ]
   },
   { to: '/daily-information', label: 'Información diaria' },

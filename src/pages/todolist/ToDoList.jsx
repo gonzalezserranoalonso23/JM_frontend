@@ -47,9 +47,10 @@ const taskUserId = (value) => {
 }
 
 export const TaskBoard = () => {
+  const [activeTab, setActiveTab] = useState('pending')
   const { data: pendingTasks, isLoading: loadingPending } = useGetPendingTasks()
   const { data: completedTasks, isLoading: loadingCompleted } =
-    useGetCompletedTasks()
+    useGetCompletedTasks(activeTab === 'completed')
   const { data: users } = useGetAssignableUsers()
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
@@ -74,7 +75,6 @@ export const TaskBoard = () => {
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState('medium')
   const [assignedTo, setAssignedTo] = useState('')
-  const [activeTab, setActiveTab] = useState('pending')
 
   const handleCreateTask = (e) => {
     e.preventDefault()
@@ -129,7 +129,6 @@ export const TaskBoard = () => {
   }
 
   const pendingCount = pendingTasks?.length || 0
-  const completedCount = completedTasks?.length || 0
 
   return (
     <Card as="section" aria-labelledby="tasks-title">
@@ -211,11 +210,12 @@ export const TaskBoard = () => {
             variant={activeTab === 'completed' ? 'secondary' : 'ghost'}
             onClick={() => setActiveTab('completed')}
           >
-            Completadas ({completedCount})
+            Completadas
+            {completedTasks ? ` (${completedTasks.length})` : ''}
           </Button>
         </nav>
 
-        {loadingPending || loadingCompleted ? (
+        {loadingPending || (activeTab === 'completed' && loadingCompleted) ? (
           <div
             role="status"
             aria-label="Cargando"

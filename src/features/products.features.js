@@ -7,28 +7,12 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
-  getProducts,
   getProductsPage,
   getPromotionProductsPage,
   createProduct,
   updateProduct,
   deleteProduct
 } from '@/services/products.services'
-
-// El stock cambia con cada movimiento: aquí siempre se revalida al montar y al
-// volver a la pestaña, y los modales vuelven a pedirlo al abrirse (refetch).
-// Con `poll` activo (modal abierto) se refresca cada 10 s para ver movimientos de otros usuarios.
-export const useGetProducts = ({ poll = false } = {}) => {
-  const { data, isLoading, isError, isFetching, refetch } = useQuery({
-    queryKey: ['Products'],
-    queryFn: getProducts,
-    refetchInterval: poll ? 30000 : false,
-    staleTime: 30 * 1000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false
-  })
-  return { data, isLoading, isError, isFetching, refetch }
-}
 
 export const useGetPromotionPages = (search = '', category = '') =>
   useInfiniteQuery({

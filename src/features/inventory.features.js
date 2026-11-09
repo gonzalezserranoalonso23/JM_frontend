@@ -70,8 +70,7 @@ export const useCreateInventoryRecord = () => {
       toast.success('Movimiento de inventario registrado exitosamente!')
       invalidateStockQueries(queryClient)
     },
-    onError: (error) =>
-      notifyError(error, 'Error al registrar el movimiento')
+    onError: (error) => notifyError(error, 'Error al registrar el movimiento')
   })
   return mutation
 }
@@ -88,8 +87,7 @@ export const useCreateInventoryRecords = () => {
       )
       invalidateStockQueries(queryClient)
     },
-    onError: (error) =>
-      notifyError(error, 'Error al registrar los movimientos')
+    onError: (error) => notifyError(error, 'Error al registrar los movimientos')
   })
   return mutation
 }
@@ -102,8 +100,7 @@ export const useUpdateInventoryRecord = () => {
       toast.success('Movimiento actualizado exitosamente!')
       invalidateStockQueries(queryClient)
     },
-    onError: (error) =>
-      notifyError(error, 'Error al actualizar el movimiento')
+    onError: (error) => notifyError(error, 'Error al actualizar el movimiento')
   })
   return mutation
 }
@@ -118,8 +115,7 @@ export const useDeleteInventoryRecord = () => {
       })
       invalidateStockQueries(queryClient)
     },
-    onError: (error) =>
-      notifyError(error, 'Error al eliminar el movimiento')
+    onError: (error) => notifyError(error, 'Error al eliminar el movimiento')
   })
   return mutation
 }
@@ -136,6 +132,7 @@ export const useGetLowStockProductPages = (search = '', category = '') =>
         category
       }),
     placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
@@ -178,7 +175,8 @@ export const useGetSalesByDateRangePages = (
 export const useGetInventoryStats = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['InventoryStats'],
-    queryFn: getInventoryStats
+    queryFn: getInventoryStats,
+    staleTime: 5 * 60 * 1000
   })
   return { data, isLoading, isError }
 }
@@ -187,5 +185,6 @@ export const useGetLiveInformation = (date) =>
   useQuery({
     queryKey: ['LiveInformation', date],
     queryFn: () => getLiveInformation(date),
-    enabled: Boolean(date)
+    enabled: Boolean(date),
+    staleTime: 5 * 60 * 1000
   })

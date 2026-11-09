@@ -19,6 +19,7 @@ describe('acceso por rol', () => {
     expect(canVisit('Staff', '/cash')).toBe(true)
     expect(canVisit('Staff', '/products')).toBe(true)
     expect(canVisit('Staff', '/reports')).toBe(false)
+    expect(canVisit('Staff', '/low-stock')).toBe(false)
     expect(canVisit('Staff', '/orders')).toBe(false)
     expect(canVisit('Staff', '/promotions')).toBe(false)
     expect(canVisit('Staff', '/daily-information')).toBe(false)
@@ -28,6 +29,7 @@ describe('acceso por rol', () => {
 
   it('manager y supervisor entran a cualquier ruta', () => {
     expect(canVisit('Manager', '/reports')).toBe(true)
+    expect(canVisit('Manager', '/low-stock')).toBe(true)
     expect(canVisit('Manager', '/users')).toBe(true)
     expect(canVisit('Supervisor', '/attendance')).toBe(true)
     expect(canVisit('Supervisor', '/catalogs')).toBe(true)

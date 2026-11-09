@@ -21,6 +21,7 @@ export const routeRules = [
   { path: '/orders', roles: ADMIN_ROLES },
   { path: '/reports', roles: ADMIN_ROLES },
   { path: '/attendance', roles: ADMIN_ROLES },
+  { path: '/low-stock', roles: ADMIN_ROLES },
   { path: '/daily-information', roles: ADMIN_ROLES },
   { path: '/promotions', roles: ADMIN_ROLES },
   { path: '/catalogs', roles: ADMIN_ROLES },

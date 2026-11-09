@@ -174,10 +174,20 @@ const paymentLabel = (payments) => {
   return `${lines.join(', ')} · Total ${formatMoney(paidToSuppliers(rows))}`
 }
 
+const LiveClock = () => {
+  const [label, setLabel] = useState(formatNow)
+
+  useEffect(() => {
+    const timer = setInterval(() => setLabel(formatNow()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  return <p className="text-sm text-muted-foreground">{label}</p>
+}
+
 const ClockPanel = ({
   failed,
   summary,
-  nowLabel,
   open,
   today,
   pending,
@@ -191,7 +201,7 @@ const ClockPanel = ({
   const [paymentAmount, setPaymentAmount] = useState('')
   const { payments, addPayment, removePayment, clearShift } =
     useShiftPayments(shiftId)
-  const { data: suppliers } = useGetSuppliers()
+  const { data: suppliers } = useGetSuppliers({ enabled: Boolean(open) })
 
   useEffect(() => {
     if (seenShift.current === shiftId) return
@@ -252,7 +262,7 @@ const ClockPanel = ({
   return (
     <>
       <div className="rounded-lg border bg-muted/30 p-4">
-        <p className="text-sm text-muted-foreground">{nowLabel}</p>
+        <LiveClock />
         {staleOpen}
       </div>
       {askCash && (
@@ -485,12 +495,6 @@ export const StaffClock = () => {
   const today = todayMexicoCity()
   const pending = checkIn.isPending || checkOut.isPending
   const dayOff = !open && !workDay
-  const [nowLabel, setNowLabel] = useState(formatNow)
-
-  useEffect(() => {
-    const timer = setInterval(() => setNowLabel(formatNow()), 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   const punch = ({ amount, payments }) =>
     confirmPunch({ open, dayOff, amount, payments, checkIn, checkOut })
@@ -511,7 +515,6 @@ export const StaffClock = () => {
       <ClockPanel
         failed={isError && !summary}
         summary={summary}
-        nowLabel={nowLabel}
         open={open}
         today={today}
         pending={pending}
@@ -701,12 +704,6 @@ export const AttendancePunch = () => {
   const today = todayMexicoCity()
   const pending = checkIn.isPending || checkOut.isPending
   const dayOff = !open && !workDay
-  const [nowLabel, setNowLabel] = useState(formatNow)
-
-  useEffect(() => {
-    const timer = setInterval(() => setNowLabel(formatNow()), 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   return (
     <section aria-labelledby="profile-punch" className="grid gap-3">
@@ -716,7 +713,6 @@ export const AttendancePunch = () => {
       <ClockPanel
         failed={isError && !summary}
         summary={summary}
-        nowLabel={nowLabel}
         open={open}
         today={today}
         pending={pending}

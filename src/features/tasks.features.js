@@ -9,21 +9,26 @@ import {
 import toast from 'react-hot-toast'
 import { notifyError } from '@/libs/handleErrors'
 
+const FIVE_MINUTES = 5 * 60 * 1000
+
+// El aviso push cubre la app en segundo plano. Con la pantalla abierta basta
+// mirar cada 5 min; al cerrar la pestaña el intervalo se detiene.
 export const useGetPendingTasks = () => {
   return useQuery({
     queryKey: ['pendingTasks'],
     queryFn: getPendingTasks,
-    staleTime: 1000 * 60 * 5,
-    refetchInterval: 1000 * 60,
-    refetchIntervalInBackground: true
+    staleTime: FIVE_MINUTES,
+    refetchInterval: FIVE_MINUTES,
+    refetchIntervalInBackground: false
   })
 }
 
-export const useGetCompletedTasks = () => {
+export const useGetCompletedTasks = (enabled = true) => {
   return useQuery({
     queryKey: ['completedTasks'],
     queryFn: getCompletedTasks,
-    staleTime: 1000 * 60 * 5
+    enabled,
+    staleTime: FIVE_MINUTES
   })
 }
 

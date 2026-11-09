@@ -10,7 +10,11 @@ import {
 const queryKey = ['DailyInformation']
 
 export const useGetDailyInformations = () =>
-  useQuery({ queryKey, queryFn: getDailyInformations })
+  useQuery({
+    queryKey,
+    queryFn: getDailyInformations,
+    staleTime: 5 * 60 * 1000
+  })
 
 export const useCreateDailyInformation = () => {
   const queryClient = useQueryClient()

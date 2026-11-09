@@ -14,6 +14,7 @@ export const useGetPaymentTypes = () => {
     queryKey: ['PaymentTypes'],
     queryFn: getPaymentTypes,
     staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
     select: (types) =>
       types.map(({ _id, paymentType }) => ({ value: _id, label: paymentType }))
   })
@@ -24,8 +25,7 @@ const usePaymentTypeMutation = (mutationFn, message) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn,
-    onError: (error) =>
-      notifyError(error, 'No se pudo completar la operación'),
+    onError: (error) => notifyError(error, 'No se pudo completar la operación'),
     onSuccess: () => {
       toast.success(message)
       queryClient.invalidateQueries({ queryKey: ['PaymentTypes'] })

@@ -44,7 +44,8 @@ export const useLogin = () => {
 export const useGetAssignableUsers = () =>
   useQuery({
     queryKey: ['Users', 'assignable'],
-    queryFn: getAssignableUsers
+    queryFn: getAssignableUsers,
+    staleTime: 10 * 60 * 1000
   })
 
 export const useGetCurrentUser = (enabled = true) => {
@@ -53,7 +54,8 @@ export const useGetCurrentUser = (enabled = true) => {
   const query = useQuery({
     queryKey: ['users', 'me'],
     queryFn: getCurrentUser,
-    enabled
+    enabled,
+    staleTime: 10 * 60 * 1000
   })
   const roleName = query.data?.role?.name || ''
 

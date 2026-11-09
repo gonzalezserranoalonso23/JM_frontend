@@ -33,8 +33,8 @@ const reportQueryError = (error, query) => {
   })
 }
 
-// Los datos operativos (stock, movimientos) se refrescan con las
-// invalidaciones de cada mutación; 1 min evita peticiones repetidas al navegar.
+// Las mutaciones invalidan lo que cambia. No se vuelve a pedir al enfocar la
+// ventana, y las listas salen de memoria a los 10 min de dejar la pantalla.
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError: reportQueryError }),
   mutationCache: new MutationCache({
@@ -46,8 +46,9 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60 * 1000,
-      gcTime: DAY,
+      gcTime: 10 * 60 * 1000,
       retry: shouldRetryQuery,
+      refetchOnWindowFocus: false,
       refetchOnReconnect: true
     }
   }

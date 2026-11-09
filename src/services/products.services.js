@@ -1,10 +1,5 @@
 import axios from '@/libs/axios'
 
-export const getProducts = async () => {
-  const { data } = await axios.get('/api/products')
-  return data
-}
-
 export const getProduct = async (id) => {
   const { data } = await axios.get(`/api/products/${id}`)
   return data

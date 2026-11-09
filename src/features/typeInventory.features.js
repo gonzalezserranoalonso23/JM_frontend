@@ -8,6 +8,7 @@ export const useGetTypeInventories = () => {
     queryKey: ['TypeInventories'],
     queryFn: getTypeInventories,
     staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
     select: (types) =>
       types.map(({ _id, typeInventory, stockDirection }) => ({
         value: _id,

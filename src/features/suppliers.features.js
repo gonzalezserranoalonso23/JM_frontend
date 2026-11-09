@@ -15,11 +15,13 @@ import {
   deleteSupplier
 } from '@/services/suppliers.services'
 
-export const useGetSuppliers = () => {
+export const useGetSuppliers = ({ enabled = true } = {}) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['Suppliers'],
     queryFn: getSuppliers,
-    staleTime: 60 * 60 * 1000
+    enabled,
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000
   })
   return { data, isLoading, isError }
 }
