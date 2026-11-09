@@ -30,11 +30,17 @@ export const checkIn = async ({ latitude, longitude, cashReceived }) => {
   return data
 }
 
-export const checkOut = async ({ latitude, longitude, cashCut }) => {
+export const checkOut = async ({
+  latitude,
+  longitude,
+  cashCut,
+  supplierPayments
+}) => {
   const { data } = await axios.post('/api/attendance/check-out', {
     latitude,
     longitude,
-    cashCut
+    cashCut,
+    supplierPayments
   })
   return data
 }

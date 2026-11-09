@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { formatMoney } from '@/utils/commonFunctions'
+import { formatMoney, roundTo } from '@/utils/commonFunctions'
 import { todayMexicoCity } from '@/utils/dateDisplay'
 import { toast } from 'react-hot-toast'
 import {
@@ -34,6 +34,7 @@ import {
   useCheckOut
 } from '@/features/attendance.features'
 import ListSkeleton from '@/components/ListSkeleton'
+import { useGetSuppliers } from '@/features/suppliers.features'
 
 const formatDay = (value) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value || ''))
@@ -116,7 +117,14 @@ const punchAtWork = (mutate, extra) => {
   )
 }
 
-const confirmPunch = ({ open, dayOff, amount, checkIn, checkOut }) => {
+const confirmPunch = ({
+  open,
+  dayOff,
+  amount,
+  payments,
+  checkIn,
+  checkOut
+}) => {
   if (dayOff) return
   if (open) {
     if (
@@ -125,7 +133,13 @@ const confirmPunch = ({ open, dayOff, amount, checkIn, checkOut }) => {
       )
     )
       return
-    punchAtWork(checkOut.mutate, { cashCut: amount })
+    punchAtWork(checkOut.mutate, {
+      cashCut: amount,
+      supplierPayments: (payments ?? []).map((payment) => ({
+        supplier: payment.supplier,
+        amount: payment.amount
+      }))
+    })
     return
   }
   if (
@@ -140,6 +154,25 @@ const moneyOrDash = (value) => {
   return formatMoney(value)
 }
 
+const paidToSuppliers = (payments) =>
+  (payments ?? []).reduce(
+    (total, payment) => roundTo(total + Number(payment?.amount || 0), 2),
+    0
+  )
+
+const supplierLabel = (supplier) =>
+  supplier?.suppliersName || supplier?.name || 'Proveedor'
+
+const paymentLabel = (payments) => {
+  const rows = payments ?? []
+  if (rows.length === 0) return '—'
+  const lines = rows.map(
+    (payment) =>
+      `${supplierLabel(payment.supplier)} ${formatMoney(payment.amount)}`
+  )
+  return `${lines.join(', ')} · Total ${formatMoney(paidToSuppliers(rows))}`
+}
+
 const ClockPanel = ({
   failed,
   summary,
@@ -151,15 +184,43 @@ const ClockPanel = ({
   onPunch
 }) => {
   const [amount, setAmount] = useState('')
+  const [payments, setPayments] = useState([])
+  const [supplierId, setSupplierId] = useState('')
+  const [paymentAmount, setPaymentAmount] = useState('')
+  const { data: suppliers } = useGetSuppliers()
 
   useEffect(() => {
     setAmount('')
+    setPayments([])
+    setSupplierId('')
+    setPaymentAmount('')
   }, [open])
 
   const parsedAmount = Number(amount)
   const amountReady =
     amount.trim() !== '' && Number.isFinite(parsedAmount) && parsedAmount >= 0
+  const parsedPayment = Number(paymentAmount)
+  const paymentReady =
+    supplierId !== '' &&
+    paymentAmount.trim() !== '' &&
+    Number.isFinite(parsedPayment) &&
+    parsedPayment >= 0
   const askCash = Boolean(summary) && !dayOff
+  const supplierOptions = (suppliers ?? []).filter(
+    (supplier) => supplier.isActive !== false
+  )
+  const addPayment = () => {
+    if (!paymentReady) return
+    setPayments((current) => [
+      ...current,
+      { supplier: supplierId, amount: roundTo(parsedPayment, 2) }
+    ])
+    setSupplierId('')
+    setPaymentAmount('')
+  }
+  const removePayment = (index) => {
+    setPayments((current) => current.filter((_, item) => item !== index))
+  }
   let cashLabel = 'Lo que recibes en caja'
   if (open) cashLabel = 'Dinero del corte'
 
@@ -206,12 +267,81 @@ const ClockPanel = ({
           />
         </div>
       )}
+      {open && askCash && (
+        <div className="grid gap-2">
+          <Label htmlFor="attendance-supplier">Pagos a proveedores</Label>
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_8rem_auto] sm:items-end">
+            <Select
+              value={supplierId || undefined}
+              onValueChange={setSupplierId}
+            >
+              <SelectTrigger id="attendance-supplier">
+                <SelectValue placeholder="Proveedor" />
+              </SelectTrigger>
+              <SelectContent>
+                {supplierOptions.map((supplier) => (
+                  <SelectItem key={supplier._id} value={supplier._id}>
+                    {supplier.suppliersName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              id="attendance-payment"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              placeholder="Cantidad"
+              aria-label="Cantidad pagada"
+              value={paymentAmount}
+              onChange={(event) => setPaymentAmount(event.target.value)}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!paymentReady}
+              onClick={addPayment}
+            >
+              Agregar
+            </Button>
+          </div>
+          {payments.length > 0 && (
+            <ul className="m-0 list-none space-y-1 p-0 text-sm">
+              {payments.map((payment, index) => (
+                <li
+                  key={`${payment.supplier}-${index}`}
+                  className="flex items-center justify-between gap-2"
+                >
+                  <span>
+                    {supplierOptions.find(
+                      (item) => item._id === payment.supplier
+                    )?.suppliersName || 'Proveedor'}{' '}
+                    {formatMoney(payment.amount)}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removePayment(index)}
+                  >
+                    Quitar
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="text-sm font-medium">
+            Total pagado {formatMoney(paidToSuppliers(payments))}
+          </p>
+        </div>
+      )}
       <Button
         type="button"
         className="h-12 w-full text-base xl:w-fit xl:min-w-48 xl:px-8"
         variant={punchVariant(open)}
         disabled={pending || dayOff || (askCash && !amountReady)}
-        onClick={() => onPunch(parsedAmount)}
+        onClick={() => onPunch({ amount: parsedAmount, payments })}
       >
         {punchCopy({ pending, open, dayOff })}
       </Button>
@@ -265,22 +395,26 @@ const HistoryList = ({
     <>
       <ul className="m-0 list-none divide-y p-0">
         {records.map((record) => (
-          <li
-            key={record._id}
-            className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-          >
-            <span className="text-sm font-medium">
-              {formatDay(record.date)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {formatTime(record.checkInAt)}
-              {' – '}
-              {recordEnd(record)}
-              {' · Caja '}
-              {moneyOrDash(record.cashReceived)}
-              {' · Corte '}
-              {moneyOrDash(record.cashCut)}
-            </span>
+          <li key={record._id} className="grid gap-1 px-4 py-3">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <span className="text-sm font-medium">
+                {formatDay(record.date)}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {formatTime(record.checkInAt)}
+                {' – '}
+                {recordEnd(record)}
+                {' · Caja '}
+                {moneyOrDash(record.cashReceived)}
+                {' · Corte '}
+                {moneyOrDash(record.cashCut)}
+              </span>
+            </div>
+            {(record.supplierPayments ?? []).length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {paymentLabel(record.supplierPayments)}
+              </p>
+            )}
           </li>
         ))}
       </ul>
@@ -355,8 +489,8 @@ export const StaffClock = () => {
     return () => clearInterval(timer)
   }, [])
 
-  const punch = (amount) =>
-    confirmPunch({ open, dayOff, amount, checkIn, checkOut })
+  const punch = ({ amount, payments }) =>
+    confirmPunch({ open, dayOff, amount, payments, checkIn, checkOut })
 
   const showHistory = !(isError && !summary)
 
@@ -446,7 +580,8 @@ const attendanceRows = (staff, records, userId) => {
           start: 'Sin registro',
           end: '—',
           received: '—',
-          cut: '—'
+          cut: '—',
+          payments: '—'
         }
       ]
     }
@@ -457,7 +592,8 @@ const attendanceRows = (staff, records, userId) => {
       start: formatTime(shift.checkInAt),
       end: recordEnd(shift),
       received: moneyOrDash(shift.cashReceived),
-      cut: moneyOrDash(shift.cashCut)
+      cut: moneyOrDash(shift.cashCut),
+      payments: paymentLabel(shift.supplierPayments)
     }))
   })
 }
@@ -474,6 +610,7 @@ const AttendanceTable = ({ rows }) => {
             <TableHead>Salida</TableHead>
             <TableHead className="text-right">Recibido</TableHead>
             <TableHead className="text-right">Corte</TableHead>
+            <TableHead>Pagos a proveedores</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -487,6 +624,7 @@ const AttendanceTable = ({ rows }) => {
               <TableCell>{row.end}</TableCell>
               <TableCell className="text-right">{row.received}</TableCell>
               <TableCell className="text-right">{row.cut}</TableCell>
+              <TableCell className="max-w-xs">{row.payments}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -580,8 +718,8 @@ export const AttendancePunch = () => {
         today={today}
         pending={pending}
         dayOff={dayOff}
-        onPunch={(amount) =>
-          confirmPunch({ open, dayOff, amount, checkIn, checkOut })
+        onPunch={({ amount, payments }) =>
+          confirmPunch({ open, dayOff, amount, payments, checkIn, checkOut })
         }
       />
     </section>

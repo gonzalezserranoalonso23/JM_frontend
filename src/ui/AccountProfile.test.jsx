@@ -24,6 +24,10 @@ vi.mock('@/hooks/useLocationPrompt', () => ({
   default: () => locationPrompt
 }))
 
+vi.mock('@/features/suppliers.features', () => ({
+  useGetSuppliers: () => ({ data: [] })
+}))
+
 vi.mock('@/features/attendance.features', () => ({
   useMyAttendance: () => ({
     data: { pages: [{ open: null, workDay: true, records: [] }] },
