@@ -1,4 +1,4 @@
-import { hasFullAccess } from '@/auth/access'
+import { canVisit, hasFullAccess } from '@/auth/access'
 
 const USER_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
@@ -44,10 +44,26 @@ const staffRoleLinks = () => [
   { to: '/suppliers', label: 'Proveedores' }
 ]
 
+const allowLink = (link, roleName) => {
+  if (link.children) {
+    const children = link.children.filter((child) =>
+      canVisit(roleName, child.to)
+    )
+    if (!children.length) return null
+    return { ...link, children }
+  }
+  if (!link.to || canVisit(roleName, link.to)) return link
+  return null
+}
+
 export const getNavLinks = (roleName = '') => {
-  if (roleName === 'Staff') return staffRoleLinks()
-  if (!hasFullAccess(roleName)) return USER_LINKS
-  return ADMIN_LINKS
+  const links =
+    roleName === 'Staff'
+      ? staffRoleLinks()
+      : hasFullAccess(roleName)
+        ? ADMIN_LINKS
+        : USER_LINKS
+  return links.map((link) => allowLink(link, roleName)).filter(Boolean)
 }
 
 const wideNav = (roleName) => hasFullAccess(roleName) || roleName === 'Staff'

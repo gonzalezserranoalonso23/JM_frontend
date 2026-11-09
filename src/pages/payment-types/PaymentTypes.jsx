@@ -1,15 +1,9 @@
 import PageShell from '@/components/PageShell'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell
-} from '@/components/ui/table'
+import ActionIconButton from '@/components/ActionIconButton'
+import DataList, { Column } from '@/components/DataList'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import {
   useCreatePaymentType,
   useDeletePaymentType,
@@ -17,7 +11,6 @@ import {
   useUpdatePaymentType
 } from '@/features/paymentTypes.features'
 import { useCatalogEditor } from '@/hooks/useCatalogEditor'
-import ActionIconButton from '@/components/ActionIconButton'
 import ListSkeleton from '@/components/ListSkeleton'
 import ModalPaymentTypes from './components/ModalPaymentTypes'
 
@@ -69,64 +62,31 @@ const PaymentTypes = () => {
         ) : paymentTypes.length === 0 ? (
           <Alert>No hay métodos de pago para mostrar</Alert>
         ) : (
-          <div>
-            <div className="space-y-3 xl:hidden">
-              {paymentTypes.map((item) => (
-                <Card as="article" key={item.value} className="gap-3 py-4">
-                  <CardContent className="space-y-3 px-4">
-                    <h2 className="break-words font-medium">{item.label}</h2>
-
-                    <div className="flex items-center justify-end gap-2 border-t pt-3">
-                      <ActionIconButton
-                        action="edit"
-                        label="Editar"
-                        onClick={() => handleUpdate(item)}
-                      />
-                      <ActionIconButton
-                        action="delete"
-                        label="Eliminar"
-                        onClick={() => handleDelete(item.value)}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <div className="hidden rounded-lg border xl:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Método de pago</TableHead>
-                    <TableHead className="text-center">Opciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paymentTypes.map((item) => (
-                    <TableRow key={item.value}>
-                      <TableCell>{item.label}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                          <ActionIconButton
-                            action="edit"
-                            label="Editar"
-                            onClick={() => handleUpdate(item)}
-                          />
-                          <ActionIconButton
-                            action="delete"
-                            label="Eliminar"
-                            onClick={() => handleDelete(item.value)}
-                          />
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-                <caption className="mt-2 pb-2 text-sm text-muted-foreground">
-                  Total: {paymentTypes.length}
-                </caption>
-              </Table>
-            </div>
-          </div>
+          <DataList
+            rows={paymentTypes}
+            rowKey={(item) => item.value}
+            total={paymentTypes.length}
+          >
+            <Column header="Método de pago" primary>
+              {(item) => item.label}
+            </Column>
+            <Column header="Opciones" align="center" actions>
+              {(item) => (
+                <>
+                  <ActionIconButton
+                    action="edit"
+                    label="Editar"
+                    onClick={() => handleUpdate(item)}
+                  />
+                  <ActionIconButton
+                    action="delete"
+                    label="Eliminar"
+                    onClick={() => handleDelete(item.value)}
+                  />
+                </>
+              )}
+            </Column>
+          </DataList>
         )}
       </Card>
     </PageShell>

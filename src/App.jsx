@@ -1,35 +1,8 @@
-import { lazy } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-
-// Auth
-import Protected from './auth/Protected'
-
-// Unprotected Routes
-import Login from './pages/Login'
-
-// Protected Routes
-const Home = lazy(() => import('./pages/home/Home'))
-const Entries = lazy(() => import('./pages/entries/Entries'))
-const EntryDetails = lazy(() => import('./pages/entries/EntryDetails'))
-const Issues = lazy(() => import('./pages/issues/Issues'))
-const IssueDetails = lazy(() => import('./pages/issues/IssueDetails'))
-const Orders = lazy(() => import('./pages/orders/Orders'))
-const Reports = lazy(() => import('./pages/reports/Reports'))
-const ToDoList = lazy(() => import('./pages/todolist/ToDoList'))
-const Attendance = lazy(() => import('./pages/attendance/Attendance'))
-const Catalog = lazy(() => import('./pages/catalogs/Catalogs'))
-const Users = lazy(() => import('./pages/users/Users'))
-const Products = lazy(() => import('./pages/products/Products'))
-const Suppliers = lazy(() => import('./pages/suppliers/Suppliers'))
-const Categories = lazy(() => import('./pages/categories/Categories'))
-const PaymentTypes = lazy(() => import('./pages/payment-types/PaymentTypes'))
-const DailyInformation = lazy(
-  () => import('./pages/daily-information/DailyInformation')
-)
-const Cash = lazy(() => import('./pages/cash/Cash'))
-const Promotions = lazy(() => import('./pages/promotions/Promotions'))
-
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import Protected from './auth/Protected'
+import { appRoutes } from './auth/appRoutes'
+import Login from './pages/Login'
 import ProtectedLayout from './layouts/ProtectedLayout'
 import useNetworkToasts from './hooks/useNetworkToasts'
 import useServiceWorkerUpdate from './hooks/useServiceWorkerUpdate'
@@ -55,24 +28,9 @@ const App = () => {
 
           <Route element={<Protected />}>
             <Route element={<ProtectedLayout />}>
-              <Route path="/home" element={<Home />} />
-              <Route path="/entries" element={<Entries />} />
-              <Route path="/entries/:id" element={<EntryDetails />} />
-              <Route path="/issues" element={<Issues />} />
-              <Route path="/issues/:id" element={<IssueDetails />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/todolist" element={<ToDoList />} />
-              <Route path="/attendance" element={<Attendance />} />
-              <Route path="/catalogs" element={<Catalog />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/suppliers" element={<Suppliers />} />
-              <Route path="/payment-types" element={<PaymentTypes />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/categories" element={<Categories />} />
-              <Route path="/daily-information" element={<DailyInformation />} />
-              <Route path="/promotions" element={<Promotions />} />
-              <Route path="/cash" element={<Cash />} />
+              {appRoutes.map(({ path, Component }) => (
+                <Route key={path} path={path} element={<Component />} />
+              ))}
             </Route>
           </Route>
           <Route

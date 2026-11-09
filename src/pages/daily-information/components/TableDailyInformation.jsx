@@ -1,13 +1,5 @@
 import ActionIconButton from '@/components/ActionIconButton'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell
-} from '@/components/ui/table'
+import DataList, { Column } from '@/components/DataList'
 
 const formatAmount = (amount) =>
   Number(amount || 0).toLocaleString('es-MX', {
@@ -21,109 +13,45 @@ const TableDailyInformation = ({
   handleDelete,
   canManage = false
 }) => (
-  <>
-    <div className="space-y-3 xl:hidden">
-      {records.map((record) => (
-        <Card as="article" key={record._id} className="gap-3 py-4">
-          <CardContent className="space-y-3 px-4">
-            <div className="flex items-start justify-between gap-3">
-              <h2 className="font-medium">{record.date}</h2>
-              <p className="text-xs text-muted-foreground">
-                {record.totalTransactions} transacciones
-              </p>
-            </div>
-            <dl className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
-              <div>
-                <dt className="text-xs text-muted-foreground">Efectivo</dt>
-                <dd>{formatAmount(record.cashSales)}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground">Tarjeta</dt>
-                <dd>{formatAmount(record.cardSales)}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground">Total</dt>
-                <dd className="font-semibold">
-                  {formatAmount(record.totalSales)}
-                </dd>
-              </div>
-            </dl>
-            {canManage && (
-              <div className="flex items-center justify-end gap-2 border-t pt-3">
-                <ActionIconButton
-                  action="edit"
-                  label="Editar"
-                  onClick={() => handleUpdate(record)}
-                />
-                <ActionIconButton
-                  action="delete"
-                  label="Eliminar"
-                  onClick={() => handleDelete(record._id)}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
-      <footer className="text-center text-sm text-muted-foreground">
-        Total: {records.length} registros
-      </footer>
-    </div>
-    <div className="hidden rounded-lg border xl:block">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Fecha</TableHead>
-            <TableHead className="text-right">Efectivo</TableHead>
-            <TableHead className="text-right">Tarjeta</TableHead>
-            <TableHead className="text-right">Ventas totales</TableHead>
-            <TableHead className="text-center">Transacciones</TableHead>
-            {canManage && (
-              <TableHead className="text-center">Acciones</TableHead>
-            )}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {records.map((record) => (
-            <TableRow key={record._id}>
-              <TableCell>{record.date}</TableCell>
-              <TableCell className="text-right">
-                {formatAmount(record.cashSales)}
-              </TableCell>
-              <TableCell className="text-right">
-                {formatAmount(record.cardSales)}
-              </TableCell>
-              <TableCell className="text-right">
-                {formatAmount(record.totalSales)}
-              </TableCell>
-              <TableCell className="text-center">
-                {record.totalTransactions}
-              </TableCell>
-              {canManage && (
-                <TableCell className="text-center">
-                  <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
-                    <ActionIconButton
-                      action="edit"
-                      label="Editar"
-                      onClick={() => handleUpdate(record)}
-                    />
-                    <ActionIconButton
-                      action="delete"
-                      label="Eliminar"
-                      onClick={() => handleDelete(record._id)}
-                    />
-                  </div>
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-        <caption className="mt-2 mb-2 text-sm text-muted-foreground">
-          Total: {records.length} registros
-        </caption>
-      </Table>
-    </div>
-  </>
+  <DataList
+    rows={records}
+    rowKey={(record) => record._id}
+    totalLabel={`Total: ${records.length} registros`}
+  >
+    <Column header="Fecha" primary>
+      {(record) => record.date}
+    </Column>
+    <Column header="Efectivo" align="right">
+      {(record) => formatAmount(record.cashSales)}
+    </Column>
+    <Column header="Tarjeta" align="right">
+      {(record) => formatAmount(record.cardSales)}
+    </Column>
+    <Column header="Ventas totales" align="right">
+      {(record) => formatAmount(record.totalSales)}
+    </Column>
+    <Column header="Transacciones" align="center">
+      {(record) => record.totalTransactions}
+    </Column>
+    {canManage && (
+      <Column header="Acciones" align="center" actions>
+        {(record) => (
+          <>
+            <ActionIconButton
+              action="edit"
+              label="Editar"
+              onClick={() => handleUpdate(record)}
+            />
+            <ActionIconButton
+              action="delete"
+              label="Eliminar"
+              onClick={() => handleDelete(record._id)}
+            />
+          </>
+        )}
+      </Column>
+    )}
+  </DataList>
 )
 
 export default TableDailyInformation

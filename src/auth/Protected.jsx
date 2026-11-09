@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { canVisit } from '@/auth/access'
+import { canVisit, sessionRole } from '@/auth/access'
 import { useGetCurrentUser } from '@/features/users.features'
 import { useAuthStore } from '@/store/auth'
 
@@ -8,7 +8,7 @@ const Protected = () => {
   const role = useAuthStore((state) => state.role)
   const { pathname } = useLocation()
   const { data: me, isLoading } = useGetCurrentUser(Boolean(auth))
-  const roleName = role || me?.role?.name || ''
+  const roleName = sessionRole(role, me)
 
   if (!auth) {
     return <Navigate to="/" replace />

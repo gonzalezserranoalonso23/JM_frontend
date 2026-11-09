@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
 import { useGetCurrentUser } from '@/features/users.features'
 import { useGetPendingTasks } from '@/features/tasks.features'
-import { hasFullAccess } from '@/auth/access'
+import { hasFullAccess, sessionRole } from '@/auth/access'
 import { logout } from '@/services/users.services'
 import useTaskNotifications from '@/hooks/useTaskNotifications'
 import MobileTabBar from '@/ui/MobileTabBar'
@@ -178,7 +178,7 @@ const Navigate = () => {
     useTaskNotifications(pendingTasks)
   const navigate = useNavigate()
   const pendingCount = pendingTasks?.length ?? 0
-  const roleName = role || me?.role?.name || ''
+  const roleName = sessionRole(role, me)
   const fullAccess = hasFullAccess(roleName)
   const links = getNavLinks(roleName)
   let notifyInHeader = showNotifications

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import PageShell from '@/components/PageShell'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -35,6 +35,7 @@ import {
 } from '@/features/attendance.features'
 import ListSkeleton from '@/components/ListSkeleton'
 import { useGetSuppliers } from '@/features/suppliers.features'
+import { useShiftPayments } from '@/store/shiftPayments'
 
 const formatDay = (value) => {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value || ''))
@@ -183,18 +184,23 @@ const ClockPanel = ({
   dayOff,
   onPunch
 }) => {
+  const shiftId = open?._id ? String(open._id) : ''
+  const seenShift = useRef(null)
   const [amount, setAmount] = useState('')
-  const [payments, setPayments] = useState([])
   const [supplierId, setSupplierId] = useState('')
   const [paymentAmount, setPaymentAmount] = useState('')
+  const { payments, addPayment, removePayment, clearShift } =
+    useShiftPayments(shiftId)
   const { data: suppliers } = useGetSuppliers()
 
   useEffect(() => {
+    if (seenShift.current === shiftId) return
+    if (seenShift.current) clearShift(seenShift.current)
+    seenShift.current = shiftId
     setAmount('')
-    setPayments([])
     setSupplierId('')
     setPaymentAmount('')
-  }, [open])
+  }, [shiftId, clearShift])
 
   const parsedAmount = Number(amount)
   const amountReady =
@@ -209,17 +215,14 @@ const ClockPanel = ({
   const supplierOptions = (suppliers ?? []).filter(
     (supplier) => supplier.isActive !== false
   )
-  const addPayment = () => {
-    if (!paymentReady) return
-    setPayments((current) => [
-      ...current,
-      { supplier: supplierId, amount: roundTo(parsedPayment, 2) }
-    ])
+  const addSupplierPayment = () => {
+    if (!paymentReady || !shiftId) return
+    addPayment(shiftId, { supplier: supplierId, amount: parsedPayment })
     setSupplierId('')
     setPaymentAmount('')
   }
-  const removePayment = (index) => {
-    setPayments((current) => current.filter((_, item) => item !== index))
+  const removeSupplierPayment = (index) => {
+    removePayment(shiftId, index)
   }
   let cashLabel = 'Lo que recibes en caja'
   if (open) cashLabel = 'Dinero del corte'
@@ -301,7 +304,7 @@ const ClockPanel = ({
               type="button"
               variant="outline"
               disabled={!paymentReady}
-              onClick={addPayment}
+              onClick={addSupplierPayment}
             >
               Agregar
             </Button>
@@ -323,7 +326,7 @@ const ClockPanel = ({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => removePayment(index)}
+                    onClick={() => removeSupplierPayment(index)}
                   >
                     Quitar
                   </Button>

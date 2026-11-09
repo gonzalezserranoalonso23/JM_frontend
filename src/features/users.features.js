@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { notifyError } from '@/libs/handleErrors'
+import { sessionRole } from '@/auth/access'
 import { useAuthStore } from '@/store/auth'
 import {
   login,
@@ -66,7 +67,7 @@ export const useGetCurrentUser = (enabled = true) => {
 export const useRoleName = () => {
   const role = useAuthStore((state) => state.role)
   const { data: me } = useGetCurrentUser()
-  return role || me?.role?.name || ''
+  return sessionRole(role, me)
 }
 
 export const useGetUserPages = (search = '') =>
