@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { formatMoney } from '@/utils/commonFunctions'
 import { todayMexicoCity } from '@/utils/dateDisplay'
 import { toast } from 'react-hot-toast'
 import {
@@ -108,22 +109,35 @@ const punchVariant = (open) => {
   return 'default'
 }
 
-const punchAtWork = (mutate) => {
+const punchAtWork = (mutate, extra) => {
   readPosition().then(
-    (position) => mutate(position),
+    (position) => mutate({ ...position, ...extra }),
     (error) => toast.error(error.message)
   )
 }
 
-const confirmPunch = ({ open, dayOff, checkIn, checkOut }) => {
+const confirmPunch = ({ open, dayOff, amount, checkIn, checkOut }) => {
   if (dayOff) return
   if (open) {
-    if (!window.confirm('¿Registrar tu salida?')) return
-    punchAtWork(checkOut.mutate)
+    if (
+      !window.confirm(
+        `¿Registrar tu salida con corte de ${formatMoney(amount)}?`
+      )
+    )
+      return
+    punchAtWork(checkOut.mutate, { cashCut: amount })
     return
   }
-  if (!window.confirm('¿Registrar tu entrada?')) return
-  punchAtWork(checkIn.mutate)
+  if (
+    !window.confirm(`¿Registrar tu entrada con ${formatMoney(amount)} en caja?`)
+  )
+    return
+  punchAtWork(checkIn.mutate, { cashReceived: amount })
+}
+
+const moneyOrDash = (value) => {
+  if (value == null || value === '') return '—'
+  return formatMoney(value)
 }
 
 const ClockPanel = ({
@@ -136,6 +150,19 @@ const ClockPanel = ({
   dayOff,
   onPunch
 }) => {
+  const [amount, setAmount] = useState('')
+
+  useEffect(() => {
+    setAmount('')
+  }, [open])
+
+  const parsedAmount = Number(amount)
+  const amountReady =
+    amount.trim() !== '' && Number.isFinite(parsedAmount) && parsedAmount >= 0
+  const askCash = Boolean(summary) && !dayOff
+  let cashLabel = 'Lo que recibes en caja'
+  if (open) cashLabel = 'Dinero del corte'
+
   if (failed) {
     return <Alert variant="destructive">No se pudo cargar tu asistencia</Alert>
   }
@@ -164,12 +191,27 @@ const ClockPanel = ({
         <p className="text-sm text-muted-foreground">{nowLabel}</p>
         {staleOpen}
       </div>
+      {askCash && (
+        <div className="grid gap-1.5">
+          <Label htmlFor="attendance-cash">{cashLabel}</Label>
+          <Input
+            id="attendance-cash"
+            type="number"
+            inputMode="decimal"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+          />
+        </div>
+      )}
       <Button
         type="button"
         className="h-12 w-full text-base xl:w-fit xl:min-w-48 xl:px-8"
         variant={punchVariant(open)}
-        disabled={pending || dayOff}
-        onClick={onPunch}
+        disabled={pending || dayOff || (askCash && !amountReady)}
+        onClick={() => onPunch(parsedAmount)}
       >
         {punchCopy({ pending, open, dayOff })}
       </Button>
@@ -234,6 +276,10 @@ const HistoryList = ({
               {formatTime(record.checkInAt)}
               {' – '}
               {recordEnd(record)}
+              {' · Caja '}
+              {moneyOrDash(record.cashReceived)}
+              {' · Corte '}
+              {moneyOrDash(record.cashCut)}
             </span>
           </li>
         ))}
@@ -309,7 +355,8 @@ export const StaffClock = () => {
     return () => clearInterval(timer)
   }, [])
 
-  const punch = () => confirmPunch({ open, dayOff, checkIn, checkOut })
+  const punch = (amount) =>
+    confirmPunch({ open, dayOff, amount, checkIn, checkOut })
 
   const showHistory = !(isError && !summary)
 
@@ -397,7 +444,9 @@ const attendanceRows = (staff, records, userId) => {
           name: personName(user),
           username: user.username,
           start: 'Sin registro',
-          end: '—'
+          end: '—',
+          received: '—',
+          cut: '—'
         }
       ]
     }
@@ -406,7 +455,9 @@ const attendanceRows = (staff, records, userId) => {
       name: personName(user),
       username: user.username,
       start: formatTime(shift.checkInAt),
-      end: recordEnd(shift)
+      end: recordEnd(shift),
+      received: moneyOrDash(shift.cashReceived),
+      cut: moneyOrDash(shift.cashCut)
     }))
   })
 }
@@ -421,6 +472,8 @@ const AttendanceTable = ({ rows }) => {
             <TableHead>Usuario</TableHead>
             <TableHead>Entrada</TableHead>
             <TableHead>Salida</TableHead>
+            <TableHead className="text-right">Recibido</TableHead>
+            <TableHead className="text-right">Corte</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -432,6 +485,8 @@ const AttendanceTable = ({ rows }) => {
               </TableCell>
               <TableCell>{row.start}</TableCell>
               <TableCell>{row.end}</TableCell>
+              <TableCell className="text-right">{row.received}</TableCell>
+              <TableCell className="text-right">{row.cut}</TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -525,7 +580,9 @@ export const AttendancePunch = () => {
         today={today}
         pending={pending}
         dayOff={dayOff}
-        onPunch={() => confirmPunch({ open, dayOff, checkIn, checkOut })}
+        onPunch={(amount) =>
+          confirmPunch({ open, dayOff, amount, checkIn, checkOut })
+        }
       />
     </section>
   )

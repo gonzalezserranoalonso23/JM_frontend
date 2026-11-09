@@ -21,18 +21,20 @@ export const getAttendanceDay = async (date) => {
   return data
 }
 
-export const checkIn = async ({ latitude, longitude }) => {
+export const checkIn = async ({ latitude, longitude, cashReceived }) => {
   const { data } = await axios.post('/api/attendance/check-in', {
     latitude,
-    longitude
+    longitude,
+    cashReceived
   })
   return data
 }
 
-export const checkOut = async ({ latitude, longitude }) => {
+export const checkOut = async ({ latitude, longitude, cashCut }) => {
   const { data } = await axios.post('/api/attendance/check-out', {
     latitude,
-    longitude
+    longitude,
+    cashCut
   })
   return data
 }

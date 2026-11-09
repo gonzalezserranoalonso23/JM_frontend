@@ -5,6 +5,9 @@ import {
   useCreateProduct,
   useUpdateProduct
 } from '@/features/products.features'
+import { getAllProducts } from '@/services/products.services'
+import { notifyError } from '@/libs/handleErrors'
+import { todayLocal } from '@/utils/dateDisplay'
 import ModalProducts from './ModalProducts'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/FormFilter'
@@ -35,6 +38,20 @@ const SectionProducts = () => {
   const [modalShow, setModalShow] = useState(false)
   const [product, setProduct] = useState([])
   const [update, setUpdate] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const { exportProductsToExcel } = await import('@/utils/exportExcel')
+      const rows = await getAllProducts(dataFilter)
+      await exportProductsToExcel(rows, `productos_${todayLocal()}.xlsx`)
+    } catch (error) {
+      notifyError(error, 'No se pudieron exportar los productos a Excel')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const handleClose = () => setModalShow(false)
   const handleShow = () => setModalShow(true)
@@ -66,7 +83,19 @@ const SectionProducts = () => {
         <h1 id="products-title" className="text-xl font-semibold">
           Productos
         </h1>
-        {fullAccess && <Button onClick={handleShow}>+ Crear Producto</Button>}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleExport}
+            disabled={
+              isLoading || isError || isExporting || totalProducts === 0
+            }
+          >
+            {isExporting ? 'Exportando...' : 'Exportar a Excel'}
+          </Button>
+          {fullAccess && <Button onClick={handleShow}>+ Crear Producto</Button>}
+        </div>
       </header>
       <FormFilter
         id="product-filter"

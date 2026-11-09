@@ -1,12 +1,22 @@
 import PageShell from '@/components/PageShell'
 import { formatMoney } from '@/utils/commonFunctions'
+import { todayLocal } from '@/utils/dateDisplay'
 import { useState } from 'react'
+import { notifyError } from '@/libs/handleErrors'
 import { useGetPromotionPages } from '@/features/products.features'
+import { getAllPromotionProducts } from '@/services/products.services'
 import { useGetCategories } from '@/features/categories.features'
 import FormFilter from '@/components/FormFilter'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -35,6 +45,8 @@ const formatMargin = (value) =>
 const Promotions = () => {
   const [dataFilter, setDataFilter] = useFilterQuery('q')
   const [category, setCategory] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
+  const search = dataFilter.trim()
   const { data: categories } = useGetCategories()
   const {
     data: pages,
@@ -42,23 +54,48 @@ const Promotions = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useGetPromotionPages(dataFilter.trim(), category)
+  } = useGetPromotionPages(search, category)
 
   const products = pages?.pages.flatMap((page) => page.data) || []
   const total = pages?.pages[0]?.total ?? 0
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const { exportPromotionsToExcel } = await import('@/utils/exportExcel')
+      const rows = await getAllPromotionProducts(search, category)
+      await exportPromotionsToExcel(rows, `promociones_${todayLocal()}.xlsx`)
+    } catch (error) {
+      notifyError(error, 'No se pudieron exportar las promociones a Excel')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   return (
     <PageShell>
       <Card as="section" aria-labelledby="promotions-title">
         <CardHeader>
-          <CardTitle>
-            <h1 id="promotions-title" className="text-xl font-bold">
-              Promociones
-            </h1>
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Productos con margen de 30% o más sobre el precio de venta
-          </p>
+          <div>
+            <CardTitle>
+              <h1 id="promotions-title" className="text-xl font-bold">
+                Promociones
+              </h1>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Productos con margen de 30% o más sobre el precio de venta
+            </p>
+          </div>
+          <CardAction>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleExport}
+              disabled={isLoading || isExporting || total === 0}
+            >
+              {isExporting ? 'Exportando...' : 'Exportar a Excel'}
+            </Button>
+          </CardAction>
         </CardHeader>
 
         <CardContent>

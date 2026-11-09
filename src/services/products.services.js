@@ -34,6 +34,33 @@ export const getProductsPage = async ({ page, limit, search }) => {
   return data
 }
 
+const EXPORT_LIMIT = 100
+
+const collectPages = async (loadPage) => {
+  const rows = []
+  for (let page = 1; page <= 1000; page += 1) {
+    const result = await loadPage(page)
+    if (Array.isArray(result)) return result
+    const data = Array.isArray(result?.data) ? result.data : []
+    rows.push(...data)
+    if (!result?.hasNextPage || data.length === 0) break
+  }
+  return rows
+}
+
+export const getAllProducts = (search = '') =>
+  collectPages((page) => getProductsPage({ page, limit: EXPORT_LIMIT, search }))
+
+export const getAllPromotionProducts = (search = '', category = '') =>
+  collectPages((page) =>
+    getPromotionProductsPage({
+      page,
+      limit: EXPORT_LIMIT,
+      search,
+      category
+    })
+  )
+
 export const createProduct = async (body) => {
   const { data } = await axios.post('/api/products', body)
   return data
