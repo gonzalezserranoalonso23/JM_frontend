@@ -13,6 +13,13 @@ import {
   updateProduct,
   deleteProduct
 } from '@/services/products.services'
+import {
+  applyProductUpdate,
+  applyStockDeltas,
+  prependProduct,
+  removeProduct,
+  withRelations
+} from '@/features/liveCache'
 
 export const useGetPromotionPages = (search = '', category = '') =>
   useInfiniteQuery({
@@ -35,6 +42,7 @@ export const useGetProductPages = (search = '') =>
     queryKey: ['Products', 'pages', search],
     queryFn: ({ pageParam }) =>
       getProductsPage({ page: pageParam, limit: 20, search }),
+    staleTime: 0,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
@@ -58,13 +66,46 @@ export const useProductLookup = (search = '', enabled = true) =>
     staleTime: 30 * 1000
   })
 
+const catalogsOf = (queryClient) => ({
+  suppliers: queryClient.getQueryData(['Suppliers']),
+  categories: queryClient.getQueryData(['Categories'])
+})
+
+const writeProductCaches = (queryClient, update) => {
+  for (const key of ['Products', 'LowStockProducts']) {
+    queryClient.setQueriesData({ queryKey: [key] }, update)
+  }
+}
+
+const refreshProducts = (queryClient, updated) => {
+  if (updated?._id) {
+    const catalogs = catalogsOf(queryClient)
+    writeProductCaches(queryClient, (current) =>
+      applyProductUpdate(current, updated, catalogs)
+    )
+  }
+  queryClient.invalidateQueries({ queryKey: ['Products'] })
+  queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+}
+
+export const applyStockToCatalog = (queryClient, deltas) => {
+  if (!deltas || !Object.values(deltas).some((delta) => delta)) return
+  writeProductCaches(queryClient, (current) =>
+    applyStockDeltas(current, deltas)
+  )
+  queryClient.invalidateQueries({ queryKey: ['Products'] })
+  queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+}
+
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient()
   const mutationDelete = useMutation({
     mutationFn: deleteProduct,
-    onSuccess: () => {
+    onSuccess: (_result, id) => {
       toast.success('Producto borrado exitosamente!')
+      writeProductCaches(queryClient, (current) => removeProduct(current, id))
       queryClient.invalidateQueries({ queryKey: ['Products'] })
+      queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
     }
   })
   return mutationDelete
@@ -74,9 +115,9 @@ export const useUpdateProduct = () => {
   const queryClient = useQueryClient()
   const mutationUpdate = useMutation({
     mutationFn: updateProduct,
-    onSuccess: () => {
+    onSuccess: (updated) => {
       toast.success('Producto actualizado exitosamente!')
-      queryClient.invalidateQueries({ queryKey: ['Products'] })
+      refreshProducts(queryClient, updated)
     }
   })
   return mutationUpdate
@@ -86,8 +127,15 @@ export const useCreateProduct = () => {
   const queryClient = useQueryClient()
   const mutationCreate = useMutation({
     mutationFn: createProduct,
-    onSuccess: () => {
+    onSuccess: (created) => {
       toast.success('Producto creado exitosamente!')
+      const product = withRelations(created, catalogsOf(queryClient))
+      for (const [queryKey, current] of queryClient.getQueriesData({
+        queryKey: ['Products', 'pages']
+      })) {
+        if (queryKey[2]) continue
+        queryClient.setQueryData(queryKey, prependProduct(current, product))
+      }
       queryClient.invalidateQueries({ queryKey: ['Products'] })
     }
   })
