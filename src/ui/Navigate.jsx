@@ -19,6 +19,7 @@ import {
   splitMobileTabs
 } from '@/ui/navLinks'
 import { AdminLogoutButton, StaffLogoutButton } from '@/ui/LogoutButton'
+import { prefetchRoute, prefetchRoutes } from '@/auth/appRoutes'
 import ProductLookup from '@/pages/home/components/ProductLookup'
 import AccountProfile from '@/ui/AccountProfile'
 
@@ -112,6 +113,8 @@ const NavGroup = ({ label, items }) => {
               end={end}
               role="menuitem"
               className={({ isActive }) => menuItemClass(isActive)}
+              onPointerEnter={() => prefetchRoute(to)}
+              onFocus={() => prefetchRoute(to)}
             >
               {childLabel}
             </NavLink>
@@ -158,6 +161,8 @@ const DesktopLink = ({ link, pendingCount }) => {
       to={link.to}
       end={link.end}
       className={({ isActive }) => navItemClass(isActive)}
+      onPointerEnter={() => prefetchRoute(link.to)}
+      onFocus={() => prefetchRoute(link.to)}
     >
       {link.label}
       {link.badge && pendingCount > 0 && (
@@ -192,6 +197,13 @@ const Navigate = () => {
   }
   const { primary, moreLinks } = splitMobileTabs(links, roleName)
   const Logout = fullAccess ? AdminLogoutButton : StaffLogoutButton
+
+  useEffect(() => {
+    const paths = getNavLinks(roleName).flatMap((link) =>
+      link.children ? link.children.map((child) => child.to) : [link.to]
+    )
+    prefetchRoutes(paths)
+  }, [roleName])
 
   const handleLogOut = async () => {
     await logout().catch(() => {})

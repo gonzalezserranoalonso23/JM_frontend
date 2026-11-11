@@ -32,7 +32,9 @@ export const useAttendanceDay = (date) =>
   useQuery({
     queryKey: ['Attendance', 'day', date],
     queryFn: () => getAttendanceDay(date),
-    enabled: Boolean(date)
+    enabled: Boolean(date),
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000
   })
 
 export const useCheckIn = () => {

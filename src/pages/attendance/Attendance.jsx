@@ -676,7 +676,8 @@ const AttendanceCards = ({ rows }) => {
 const AdminBoard = () => {
   const [date, setDate] = useState(todayMexicoCity())
   const [userId, setUserId] = useState(ALL_USERS)
-  const { data, isLoading, isError } = useAttendanceDay(date)
+  const { data, isLoading, isError, isPlaceholderData, isFetching } =
+    useAttendanceDay(date)
   const staff = data?.staff ?? []
   const selectedUser =
     userId === ALL_USERS ||
@@ -685,7 +686,11 @@ const AdminBoard = () => {
       ? userId
       : ALL_USERS
   const rows = attendanceRows(staff, data?.records ?? [], selectedUser)
-  let body = <AttendanceCards rows={rows} />
+  let body = (
+    <div className={isPlaceholderData && isFetching ? 'opacity-60' : undefined}>
+      <AttendanceCards rows={rows} />
+    </div>
+  )
   if (isLoading) body = <ListSkeleton />
   if (isError) {
     body = <Alert variant="destructive">No se pudo cargar la asistencia</Alert>

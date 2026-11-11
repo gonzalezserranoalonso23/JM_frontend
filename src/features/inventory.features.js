@@ -240,7 +240,7 @@ export const useGetInventoryRecordPages = ({
         paymentType
       }),
     placeholderData: keepPreviousData,
-    staleTime: 0,
+    staleTime: 60 * 1000,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined

@@ -37,12 +37,14 @@ export const useGetPromotionPages = (search = '', category = '') =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
 
+// Un guardado actualiza la lista al momento. Entre visitas no se vuelve a pedir.
 export const useGetProductPages = (search = '') =>
   useInfiniteQuery({
     queryKey: ['Products', 'pages', search],
     queryFn: ({ pageParam }) =>
       getProductsPage({ page: pageParam, limit: 20, search }),
-    staleTime: 0,
+    placeholderData: keepPreviousData,
+    staleTime: 60 * 1000,
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined

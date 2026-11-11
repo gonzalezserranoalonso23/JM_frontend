@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { isNavPathActive, tabGridClass } from '@/ui/navLinks'
+import { prefetchRoute } from '@/auth/appRoutes'
 
 const tabClass = (isActive) => {
   let tone = 'text-muted-foreground'
@@ -94,6 +95,8 @@ const MoreLink = ({
                 to={to}
                 end={end}
                 onClick={onNavigate}
+                onPointerEnter={() => prefetchRoute(to)}
+                onFocus={() => prefetchRoute(to)}
                 className={({ isActive }) => sheetLinkClass(isActive)}
               >
                 <span className="truncate">{label}</span>
@@ -110,6 +113,8 @@ const MoreLink = ({
       to={link.to}
       end={link.end}
       onClick={onNavigate}
+      onPointerEnter={() => prefetchRoute(link.to)}
+      onFocus={() => prefetchRoute(link.to)}
       className={({ isActive }) => sheetRowClass(isActive)}
     >
       {link.label}
@@ -224,6 +229,8 @@ const MobileTabBar = ({
                 to={to}
                 end={end}
                 onClick={() => setMoreOpen(false)}
+                onPointerEnter={() => prefetchRoute(to)}
+                onFocus={() => prefetchRoute(to)}
                 className={({ isActive }) => tabClass(isActive)}
               >
                 <span className="relative">

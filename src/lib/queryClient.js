@@ -54,19 +54,25 @@ export const queryClient = new QueryClient({
   }
 })
 
-// Solo se persisten catálogos casi estáticos: arrancan al instante y sirven offline.
+// Catálogos y el tablero chico. Al recargar se pintan al instante y, si ya
+// vencieron, se refrescan detrás sin dejar la pantalla en blanco.
 const PERSISTED_KEYS = new Set([
   'PaymentTypes',
   'TypeInventories',
   'Categories',
   'Roles',
-  'Suppliers'
+  'Suppliers',
+  'InventoryStats',
+  'LiveInformation',
+  'pendingTasks'
 ])
 
-const isPersistable = (query) =>
-  query.state.status === 'success' &&
-  PERSISTED_KEYS.has(query.queryKey[0]) &&
-  !query.queryKey.includes('pages')
+const isPersistable = (query) => {
+  if (query.state.status !== 'success') return false
+  if (query.queryKey.includes('pages')) return false
+  if (query.queryKey[0] === 'users') return query.queryKey[1] === 'me'
+  return PERSISTED_KEYS.has(query.queryKey[0])
+}
 
 export const persistOptions = {
   persister: createSyncStoragePersister({

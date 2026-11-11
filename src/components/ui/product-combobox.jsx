@@ -33,9 +33,7 @@ const ProductCombobox = ({
   const [box, setBox] = useState(null)
   const selectedProduct = productList.find((product) => product._id === value)
   const stockLabel = (product) =>
-    stockText
-      ? stockText(product)
-      : `Stock: ${formatQty(product.productStock)}`
+    stockText ? stockText(product) : `Stock: ${formatQty(product.productStock)}`
   const selectedLabel = selectedProduct
     ? `${selectedProduct.productName}${
         showStock ? ` (${stockLabel(selectedProduct)})` : ''
@@ -285,7 +283,7 @@ const ProductCombobox = ({
                     optionRefs.current[index] = node
                   }}
                   className={cn(
-                    'block w-full min-h-11 min-w-0 touch-pan-y px-3 py-2 text-left',
+                    'block w-full min-h-11 min-w-0 cursor-pointer touch-manipulation px-3 py-2 text-left',
                     index === activeIndex && 'bg-accent text-accent-foreground'
                   )}
                   onMouseEnter={() => setActiveIndex(index)}
