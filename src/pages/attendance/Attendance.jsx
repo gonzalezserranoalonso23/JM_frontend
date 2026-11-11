@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import PageShell from '@/components/PageShell'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Skeleton from '@/components/ui/skeleton'
@@ -16,14 +22,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
 import { formatMoney, roundTo } from '@/utils/commonFunctions'
 import { todayMexicoCity } from '@/utils/dateDisplay'
 import { toast } from 'react-hot-toast'
@@ -587,54 +585,90 @@ const attendanceRows = (staff, records, userId) => {
           end: '—',
           received: '—',
           cut: '—',
-          payments: '—'
+          payments: [],
+          total: '—'
         }
       ]
     }
-    return shifts.map((shift) => ({
-      key: shift._id,
-      name: personName(user),
-      username: user.username,
-      start: formatTime(shift.checkInAt),
-      end: recordEnd(shift),
-      received: moneyOrDash(shift.cashReceived),
-      cut: moneyOrDash(shift.cashCut),
-      payments: paymentLabel(shift.supplierPayments)
-    }))
+    return shifts.map((shift) => {
+      const payments = shift.supplierPayments ?? []
+      return {
+        key: shift._id,
+        name: personName(user),
+        username: user.username,
+        start: formatTime(shift.checkInAt),
+        end: recordEnd(shift),
+        received: moneyOrDash(shift.cashReceived),
+        cut: moneyOrDash(shift.cashCut),
+        payments: payments.map((payment, index) => ({
+          key: `${shift._id}-${index}`,
+          name: supplierLabel(payment.supplier),
+          amount: formatMoney(payment.amount)
+        })),
+        total: payments.length ? formatMoney(paidToSuppliers(payments)) : '—'
+      }
+    })
   })
 }
 
-const AttendanceTable = ({ rows }) => {
-  if (rows.length === 0) return <Alert>No hay personal con horario</Alert>
+const AttendanceCards = ({ rows }) => {
+  if (rows.length === 0) return <Alert>Nadie trabaja este día</Alert>
   return (
-    <div className="overflow-x-auto rounded-lg border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Usuario</TableHead>
-            <TableHead>Entrada</TableHead>
-            <TableHead>Salida</TableHead>
-            <TableHead className="text-right">Recibido</TableHead>
-            <TableHead className="text-right">Corte</TableHead>
-            <TableHead>Pagos a proveedores</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.key}>
-              <TableCell>
-                <p className="font-medium">{row.name}</p>
-                <p className="text-xs text-muted-foreground">{row.username}</p>
-              </TableCell>
-              <TableCell>{row.start}</TableCell>
-              <TableCell>{row.end}</TableCell>
-              <TableCell className="text-right">{row.received}</TableCell>
-              <TableCell className="text-right">{row.cut}</TableCell>
-              <TableCell className="max-w-xs">{row.payments}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="grid gap-4">
+      {rows.map((row) => (
+        <Card
+          key={row.key}
+          className="gap-0 border-foreground/25 bg-muted py-0 shadow-md dark:border-foreground/30 dark:bg-[oklch(0.34_0_0)]"
+        >
+          <CardHeader className="border-b border-foreground/15 py-4">
+            <CardTitle>
+              <h2 className="text-base">{row.name}</h2>
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">{row.username}</p>
+          </CardHeader>
+          <CardContent className="py-4">
+            {row.payments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Sin pagos a proveedores
+              </p>
+            ) : (
+              <>
+                <ul className="m-0 list-none space-y-2 p-0">
+                  {row.payments.map((payment) => (
+                    <li
+                      key={payment.key}
+                      className="flex items-baseline justify-between gap-3 text-sm"
+                    >
+                      <span className="min-w-0 break-words">
+                        {payment.name}
+                      </span>
+                      <span className="shrink-0 tabular-nums">
+                        {payment.amount}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-3 flex items-baseline justify-between gap-3 border-t border-foreground/15 pt-3 text-sm font-semibold">
+                  <span>Total</span>
+                  <span className="shrink-0 tabular-nums">{row.total}</span>
+                </div>
+              </>
+            )}
+          </CardContent>
+          <CardFooter className="grid grid-cols-2 gap-3 border-t border-foreground/15 py-4 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground">Entrada</p>
+              <p>{row.start}</p>
+              <p className="text-muted-foreground">Recibido {row.received}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Salida</p>
+              <p>{row.end}</p>
+              <p className="text-muted-foreground">Corte {row.cut}</p>
+            </div>
+          </CardFooter>
+        </Card>
+      ))}
     </div>
   )
 }
@@ -644,8 +678,14 @@ const AdminBoard = () => {
   const [userId, setUserId] = useState(ALL_USERS)
   const { data, isLoading, isError } = useAttendanceDay(date)
   const staff = data?.staff ?? []
-  const rows = attendanceRows(staff, data?.records ?? [], userId)
-  let body = <AttendanceTable rows={rows} />
+  const selectedUser =
+    userId === ALL_USERS ||
+    !data ||
+    staff.some((user) => String(user._id) === userId)
+      ? userId
+      : ALL_USERS
+  const rows = attendanceRows(staff, data?.records ?? [], selectedUser)
+  let body = <AttendanceCards rows={rows} />
   if (isLoading) body = <ListSkeleton />
   if (isError) {
     body = <Alert variant="destructive">No se pudo cargar la asistencia</Alert>
@@ -674,7 +714,7 @@ const AdminBoard = () => {
         </div>
         <div className="grid w-full min-w-52 max-w-xs gap-2">
           <Label htmlFor="attendance-user">Usuario</Label>
-          <Select value={userId} onValueChange={setUserId}>
+          <Select value={selectedUser} onValueChange={setUserId}>
             <SelectTrigger id="attendance-user">
               <SelectValue />
             </SelectTrigger>
