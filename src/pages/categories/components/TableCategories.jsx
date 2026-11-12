@@ -1,5 +1,5 @@
-import ActionIconButton from '@/components/ActionIconButton'
-import DataList, { Column } from '@/components/DataList'
+import ActionIconButton from '@/components/molecules/ActionIconButton'
+import DataList, { Column } from '@/components/organisms/DataList'
 
 const TableCategories = ({
   categories,

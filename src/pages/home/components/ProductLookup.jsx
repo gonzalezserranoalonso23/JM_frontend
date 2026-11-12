@@ -1,9 +1,9 @@
-import { formatQty } from '@/utils/commonFunctions'
+import { formatCurrency, formatQty } from '@/utils/commonFunctions'
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { useSearchProducts } from '@/features/products.features'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/atoms/badge'
+import { Button } from '@/components/atoms/button'
 import {
   Dialog,
   DialogBody,
@@ -11,20 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from '@/components/atoms/dialog'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
-} from '@/components/ui/tooltip'
-
-const formatPrice = (value) =>
-  Number(value || 0).toLocaleString('es-MX', {
-    style: 'currency',
-    currency: 'MXN'
-  })
+} from '@/components/atoms/tooltip'
 
 const ProductLookup = () => {
   const [open, setOpen] = useState(false)
@@ -94,7 +88,7 @@ const ProductLookup = () => {
                         <p className="mt-1 text-sm text-muted-foreground">
                           Precio:{' '}
                           <strong className="text-foreground">
-                            {formatPrice(product.productPrice)}
+                            {formatCurrency(product.productPrice)}
                           </strong>{' '}
                           · Stock:{' '}
                           <strong className="text-foreground">

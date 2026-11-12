@@ -1,14 +1,9 @@
 import { formatQty } from '@/utils/commonFunctions'
+import { similarProducts } from '@/utils/productSearch'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/atoms/input'
 import { cn } from '@/lib/utils'
-
-const normalize = (value) =>
-  String(value ?? '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
 
 const ProductCombobox = ({
   id,
@@ -39,14 +34,7 @@ const ProductCombobox = ({
         showStock ? ` (${stockLabel(selectedProduct)})` : ''
       }`
     : ''
-  const searchedProducts = productList.filter((product) => {
-    const query = normalize(search.trim())
-    return (
-      !query ||
-      normalize(product.productName).includes(query) ||
-      normalize(product.productDescription).includes(query)
-    )
-  })
+  const searchedProducts = similarProducts(productList, search)
   const activeProduct = searchedProducts[activeIndex]
 
   useEffect(() => {

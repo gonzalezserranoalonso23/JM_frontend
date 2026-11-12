@@ -1,4 +1,4 @@
-import PageShell from '@/components/PageShell'
+import PageShell from '@/components/templates/PageShell'
 import { hasFullAccess } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'
 import { StaffClock } from '@/pages/attendance/Attendance'

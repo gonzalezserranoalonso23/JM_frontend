@@ -1,9 +1,9 @@
-import PageShell from '@/components/PageShell'
-import ActionIconButton from '@/components/ActionIconButton'
-import DataList, { Column } from '@/components/DataList'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import PageShell from '@/components/templates/PageShell'
+import ActionIconButton from '@/components/molecules/ActionIconButton'
+import DataList, { Column } from '@/components/organisms/DataList'
+import { Alert } from '@/components/atoms/alert'
+import { Button } from '@/components/atoms/button'
+import { Card } from '@/components/atoms/card'
 import {
   useCreatePaymentType,
   useDeletePaymentType,
@@ -11,7 +11,7 @@ import {
   useUpdatePaymentType
 } from '@/features/paymentTypes.features'
 import { useCatalogEditor } from '@/hooks/useCatalogEditor'
-import ListSkeleton from '@/components/ListSkeleton'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
 import ModalPaymentTypes from './components/ModalPaymentTypes'
 
 const PaymentTypes = () => {

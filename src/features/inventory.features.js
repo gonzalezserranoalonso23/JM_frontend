@@ -29,8 +29,9 @@ import {
   getLiveInformation
 } from '@/services/inventory.services'
 
-// Un movimiento cambia el stock de los productos y los reportes derivados.
-// La lista y el catálogo se pintan al momento; el refetch confirma con el servidor.
+// An entry or exit updates stock and the lists derived from it.
+// The screen paints the change at once; the refetch confirms it.
+// Daily information is not part of this refresh.
 const invalidateStockQueries = (queryClient) => {
   for (const key of [
     'InventoryRecords',

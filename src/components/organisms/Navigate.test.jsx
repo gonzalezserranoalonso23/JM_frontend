@@ -46,7 +46,7 @@ vi.mock('@/pages/home/components/ProductLookup', () => ({
   default: () => null
 }))
 
-vi.mock('@/ui/AccountProfile', () => ({
+vi.mock('@/components/organisms/AccountProfile', () => ({
   default: () => null
 }))
 

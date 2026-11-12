@@ -1,6 +1,6 @@
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Alert } from '@/components/atoms/alert'
+import { Button } from '@/components/atoms/button'
+import { Card } from '@/components/atoms/card'
 import {
   useCreateSupplier,
   useDeleteSupplier,
@@ -9,10 +9,10 @@ import {
 } from '@/features/suppliers.features'
 import { useCatalogEditor } from '@/hooks/useCatalogEditor'
 import ModalSuppliers from './ModalSuppliers'
-import ListSkeleton from '@/components/ListSkeleton'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
 import TableSuppliers from './TableSuppliers'
 import useFilterQuery from '@/hooks/useFilterQuery'
-import FormFilter from '@/components/FormFilter'
+import FormFilter from '@/components/molecules/FormFilter'
 import { hasFullAccess } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'
 

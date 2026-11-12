@@ -1,10 +1,15 @@
-import PageShell from '@/components/PageShell'
+import PageShell from '@/components/templates/PageShell'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from '@/components/atoms/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/atoms/card'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
 import {
   Table,
   TableBody,
@@ -12,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
+} from '@/components/atoms/table'
 import {
   useOpenVault,
   useSaveVault,
@@ -20,31 +25,16 @@ import {
 } from '@/features/denominations.features'
 import { hasFullAccess } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'
-
-const formatAmount = (amount) =>
-  Number(amount || 0).toLocaleString('es-MX', {
-    style: 'currency',
-    currency: 'MXN'
-  })
-
-const formatDenomination = (value) => {
-  if (value < 1) return `$${Number(value).toFixed(2)}`
-  return `$${Number(value).toLocaleString('es-MX', { maximumFractionDigits: 2 })}`
-}
-
-const formatUpdatedAt = (value) =>
-  new Date(value).toLocaleString('es-MX', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-
-const DENOMINATIONS = [1000, 500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5]
-
-const quantityOf = (quantities, denomination) =>
-  Math.max(0, Math.floor(Number(quantities[denomination]) || 0))
+import {
+  DENOMINATIONS,
+  countedRows,
+  countedTotal,
+  draftFromVault,
+  formatAmount,
+  formatDenomination,
+  formatUpdatedAt,
+  quantityOf
+} from '@/utils/cash'
 
 const Calculator = () => {
   const [quantities, setQuantities] = useState({})
@@ -52,11 +42,7 @@ const Calculator = () => {
   const handleChange = (denomination, value) =>
     setQuantities((prev) => ({ ...prev, [denomination]: value }))
 
-  const total = DENOMINATIONS.reduce(
-    (sum, denomination) =>
-      sum + denomination * quantityOf(quantities, denomination),
-    0
-  )
+  const total = countedTotal(DENOMINATIONS, quantities)
 
   return (
     <Card as="section" aria-labelledby="calculator-title">
@@ -163,19 +149,6 @@ const Calculator = () => {
   )
 }
 
-const draftQuantity = (quantity) => {
-  if (Number(quantity) > 0) return String(quantity)
-  return ''
-}
-
-const draftFromVault = (vault) =>
-  Object.fromEntries(
-    (vault?.denominations ?? []).map((item) => [
-      item.value,
-      draftQuantity(item.quantity)
-    ])
-  )
-
 const Vault = () => {
   const openVault = useOpenVault()
   const saveVault = useSaveVault()
@@ -187,10 +160,7 @@ const Vault = () => {
 
   const rows = vault?.denominations ?? []
   const updatedAt = vault?.updatedAt || latest?.updatedAt
-  const draftTotal = rows.reduce(
-    (sum, item) => sum + item.value * quantityOf(draft, item.value),
-    0
-  )
+  const draftTotal = countedRows(rows, draft)
 
   const handleOpen = (event) => {
     event.preventDefault()

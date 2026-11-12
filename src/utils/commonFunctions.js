@@ -22,6 +22,18 @@ export const yieldToMain = () =>
 // Monto en pesos con 2 decimales: formatMoney(12.5) -> "$12.50"
 export const formatMoney = (value) => `$${toNumber(value).toFixed(2)}`
 
+export const formatCurrency = (amount) =>
+  Number(amount || 0).toLocaleString('es-MX', {
+    style: 'currency',
+    currency: 'MXN'
+  })
+
+export const formatPercent = (value) =>
+  `${Number(value || 0).toLocaleString('es-MX', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  })}%`
+
 // cantidad x precio como texto con 2 decimales; '' si alguno no es numérico
 export const calcLineTotal = (quantity, price) => {
   const qty = parseFloat(quantity)

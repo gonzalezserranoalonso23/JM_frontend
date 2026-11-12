@@ -1,4 +1,4 @@
-import MovementModal from '@/components/MovementModal'
+import MovementModal from '@/components/organisms/MovementModal'
 
 const ModalIssues = (props) => <MovementModal mode="issue" {...props} />
 

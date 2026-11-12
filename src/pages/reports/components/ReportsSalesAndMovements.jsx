@@ -6,24 +6,24 @@ import { notifyError } from '@/libs/handleErrors'
 import { useGetSalesByDateRangePages } from '@/features/inventory.features'
 import { getSalesByDateRange } from '@/services/inventory.services'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
-import ListSkeleton from '@/components/ListSkeleton'
-import Skeleton from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
+import Skeleton from '@/components/atoms/skeleton'
+import { Button } from '@/components/atoms/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
-} from '@/components/ui/tooltip'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from '@/components/atoms/tooltip'
+import { Card } from '@/components/atoms/card'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem
-} from '@/components/ui/select'
+} from '@/components/atoms/select'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
 import { isExitType } from '@/utils/typeInventory'
 import ReportsMovementsTable from './ReportsMovementsTable'

@@ -8,15 +8,15 @@ import {
   DialogBody,
   DialogFooter,
   DialogTitle
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from '@/components/atoms/dialog'
+import { Button } from '@/components/atoms/button'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
 import { toast } from 'react-hot-toast'
-import ProductCombobox from '@/components/ui/product-combobox'
+import ProductCombobox from '@/components/molecules/product-combobox'
 import { useProductLookup } from '@/features/products.features'
-import useDebouncedValue from '@/hooks/useDebouncedValue'
 import { useGetSuppliers } from '@/features/suppliers.features'
+import { statusOrPending } from '../orderStatus'
 import {
   Table,
   TableHeader,
@@ -24,23 +24,13 @@ import {
   TableRow,
   TableHead,
   TableCell
-} from '@/components/ui/table'
-import Loading from '@/ui/Loading'
+} from '@/components/atoms/table'
+import Loading from '@/components/atoms/Loading'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
-  const [productQuery, setProductQuery] = useState('')
-  const debouncedQuery = useDebouncedValue(productQuery, 250)
-  const {
-    data: productPage,
-    isLoading: loadingProducts,
-    isFetching: fetchingProducts,
-    isPlaceholderData
-  } = useProductLookup(debouncedQuery, Boolean(modalShow))
-  const searchingProducts =
-    productQuery.trim().length > 0 &&
-    (productQuery.trim() !== debouncedQuery ||
-      isPlaceholderData ||
-      fetchingProducts)
+  const { data: catalog, isLoading: loadingProducts } = useProductLookup(
+    Boolean(modalShow)
+  )
   const knownProducts = useRef(new Map())
   const { data: suppliers } = useGetSuppliers()
   const suppliersById = Object.fromEntries(
@@ -86,26 +76,27 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     setCurrentItem({ product: '', quantity: '', price: '' })
   }, [modalShow, order])
 
-  const pageProducts = (productPage?.data ?? []).filter(
+  const pageProducts = (catalog ?? []).filter(
     (product) => product?.isActive !== false
   )
   useEffect(() => {
-    pageProducts.forEach((product) => {
+    ;(catalog ?? []).forEach((product) => {
       if (product?._id) knownProducts.current.set(String(product._id), product)
     })
-  }, [productPage])
+  }, [catalog])
 
   const findProduct = (id) =>
     pageProducts.find((product) => String(product._id) === String(id)) ||
     knownProducts.current.get(String(id))
 
   const selectedProduct = findProduct(currentItem.product)
-  const activeProducts = selectedProduct &&
+  const activeProducts =
+    selectedProduct &&
     !pageProducts.some(
       (product) => String(product._id) === String(selectedProduct._id)
     )
-    ? [selectedProduct, ...pageProducts]
-    : pageProducts
+      ? [selectedProduct, ...pageProducts]
+      : pageProducts
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -243,7 +234,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
       ...formData,
       supplier: formData.items.find((item) => item.supplier)?.supplier,
       totalAmount: getTotalAmount(),
-      status: order?.status || 'pendiente'
+      status: statusOrPending(order?.status)
     }
 
     action.mutate(
@@ -278,7 +269,7 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
-            {loadingProducts && !productPage && <Loading fullScreen={false} />}
+            {loadingProducts && <Loading fullScreen={false} />}
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
@@ -301,8 +292,6 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                     products={activeProducts}
                     value={currentItem.product}
                     onValueChange={setProduct}
-                    onQueryChange={setProductQuery}
-                    pending={searchingProducts}
                   />
                 </div>
                 <div>

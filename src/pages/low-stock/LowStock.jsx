@@ -1,13 +1,18 @@
-import PageShell from '@/components/PageShell'
+import PageShell from '@/components/templates/PageShell'
 import { formatQty } from '@/utils/commonFunctions'
 import { useGetLowStockProductPages } from '@/features/inventory.features'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import Loading from '@/ui/Loading'
-import Skeleton from '@/components/ui/skeleton'
-import FormFilter from '@/components/FormFilter'
+import { Alert, AlertDescription } from '@/components/atoms/alert'
+import { Badge } from '@/components/atoms/badge'
+import { Button } from '@/components/atoms/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/atoms/card'
+import Loading from '@/components/atoms/Loading'
+import Skeleton from '@/components/atoms/skeleton'
+import FormFilter from '@/components/molecules/FormFilter'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 

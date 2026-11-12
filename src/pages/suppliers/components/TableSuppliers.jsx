@@ -1,33 +1,9 @@
-import ActionIconButton from '@/components/ActionIconButton'
-import DataList, { Column } from '@/components/DataList'
-import { Badge } from '@/components/ui/badge'
+import ActionIconButton from '@/components/molecules/ActionIconButton'
+import DataList, { Column } from '@/components/organisms/DataList'
+import SupplierActive from './SupplierActive'
+import SupplierPhone from './SupplierPhone'
 
-const callHref = (phone) => {
-  const compact = String(phone).replace(/[^\d+]/g, '')
-  if (!compact || compact === '+') return ''
-  return `tel:${compact}`
-}
-
-const PhoneLink = ({ phone, empty = null }) => {
-  const value = String(phone || '').trim()
-  if (!value) return empty
-  const href = callHref(value)
-  if (!href) return value
-  return (
-    <a href={href} className="text-primary underline-offset-4 hover:underline">
-      {value}
-    </a>
-  )
-}
-
-const ActiveBadge = ({ supplier }) => (
-  <Badge
-    variant={supplier?.isActive ? 'outline' : 'destructive'}
-    className={supplier?.isActive ? 'shrink-0 text-emerald-400' : 'shrink-0'}
-  >
-    {supplier?.isActive ? 'Activo' : 'Inactivo'}
-  </Badge>
-)
+const dash = (value) => value || '-'
 
 const TableSuppliers = ({
   suppliers,
@@ -51,17 +27,17 @@ const TableSuppliers = ({
       {(supplier) => supplier?.suppliersName}
     </Column>
     <Column header="Contacto">
-      {(supplier) => supplier?.suppliersContact || '-'}
+      {(supplier) => dash(supplier?.suppliersContact)}
     </Column>
     <Column header="Teléfono">
-      {(supplier) => <PhoneLink phone={supplier?.supplierPhone} empty="-" />}
+      {(supplier) => <SupplierPhone phone={supplier?.supplierPhone} />}
     </Column>
-    <Column header="Pedido">{(supplier) => supplier?.raiseOrder || '-'}</Column>
+    <Column header="Pedido">{(supplier) => dash(supplier?.raiseOrder)}</Column>
     <Column header="Entrega">
-      {(supplier) => supplier?.deliverOrder || '-'}
+      {(supplier) => dash(supplier?.deliverOrder)}
     </Column>
     <Column header="Activo" aside>
-      {(supplier) => <ActiveBadge supplier={supplier} />}
+      {(supplier) => <SupplierActive active={supplier?.isActive} />}
     </Column>
     {canManage && (
       <Column header="Opciones" align="center" actions>

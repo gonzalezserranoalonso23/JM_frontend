@@ -1,9 +1,9 @@
 import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import Navigate from '@/ui/Navigate'
-import ListSkeleton from '@/components/ListSkeleton'
-import PageShell from '@/components/PageShell'
-import RouteErrorBoundary from '@/components/RouteErrorBoundary'
+import Navigate from '@/components/organisms/Navigate'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
+import PageShell from '@/components/templates/PageShell'
+import RouteErrorBoundary from '@/components/templates/RouteErrorBoundary'
 
 const PAGE_TITLES = {
   '/home': 'Inicio',

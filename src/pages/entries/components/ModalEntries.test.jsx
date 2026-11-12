@@ -1,6 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { TooltipProvider } from '@/components/atoms/tooltip'
 
 const products = [
   {
@@ -14,7 +15,7 @@ const products = [
 
 vi.mock('@/features/products.features', () => ({
   useProductLookup: () => ({
-    data: { data: products },
+    data: products,
     isLoading: false
   })
 }))
@@ -29,7 +30,7 @@ vi.mock('@/features/typeInventory.features', () => ({
   })
 }))
 
-vi.mock('@/components/ui/product-combobox', () => ({
+vi.mock('@/components/molecules/product-combobox', () => ({
   default: ({ id, products, value, onValueChange, placeholder }) => (
     <select
       id={id}
@@ -58,13 +59,15 @@ const setup = (props = {}) => {
   const action = { mutate: vi.fn() }
   const createBulkAction = { mutateAsync: vi.fn() }
   render(
-    <ModalEntries
-      modalShow
-      handleClose={handleClose}
-      action={action}
-      createBulkAction={createBulkAction}
-      {...props}
-    />
+    <TooltipProvider>
+      <ModalEntries
+        modalShow
+        handleClose={handleClose}
+        action={action}
+        createBulkAction={createBulkAction}
+        {...props}
+      />
+    </TooltipProvider>
   )
   return { handleClose, action, createBulkAction }
 }
@@ -106,7 +109,6 @@ describe('ModalEntries', () => {
 
   it('en edición muestra el aviso si faltan campos', async () => {
     const alert = vi.spyOn(window, 'alert').mockImplementation(() => {})
-    const user = userEvent.setup({ pointerEventsCheck: 0 })
     setup({ isEditing: true, record: { _id: 'r1' } })
 
     fireEvent.submit(

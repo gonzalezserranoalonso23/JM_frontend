@@ -1,5 +1,5 @@
 import { LogOut } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 
 export const StaffLogoutButton = ({ onLogout }) => (
   <Button

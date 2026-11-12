@@ -134,6 +134,22 @@ describe('simulación de viewport PWA', () => {
     }
   })
 
+  it('el texto se copia y el control recibe el toque', () => {
+    expect(css).toMatch(/html\s*\{[^}]*touch-action:\s*auto/)
+    expect(css).not.toMatch(/html\.is-pwa/)
+    expect(css).toMatch(/\[data-slot='dialog-content'\]/)
+    expect(css).toMatch(/-webkit-touch-callout:\s*default/)
+    expect(css).toMatch(/user-select:\s*text/)
+    expect(css).toMatch(
+      /main a,\s*\[data-slot='dialog-content'\] a\s*\{[^}]*touch-action:\s*auto/
+    )
+    expect(css).toMatch(
+      /\[data-slot='button'\]\[data-size='icon'\][\s\S]*min-width:\s*2\.75rem/
+    )
+    expect(css).toMatch(/\.app-tab-bar button\s*\{[^}]*min-height:\s*0/)
+    expect(main).not.toMatch(/is-pwa/)
+  })
+
   it('el teclado tapa el contenido y no encoge el shell', () => {
     const phone = profiles.find((profile) => profile.name === 'Android PWA')
     const open = shell(phone)

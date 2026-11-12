@@ -2,13 +2,13 @@ import { formatQty } from '@/utils/commonFunctions'
 import { useRef } from 'react'
 import { Check, X } from 'lucide-react'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
-import ActionIconButton from '@/components/ActionIconButton'
-import Loading from '@/ui/Loading'
-import ListSkeleton from '@/components/ListSkeleton'
-import { Alert } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import ActionIconButton from '@/components/molecules/ActionIconButton'
+import Loading from '@/components/atoms/Loading'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
+import { Alert } from '@/components/atoms/alert'
+import { Badge } from '@/components/atoms/badge'
+import { Card, CardContent } from '@/components/atoms/card'
+import { Button } from '@/components/atoms/button'
 import {
   Table,
   TableHeader,
@@ -16,7 +16,7 @@ import {
   TableRow,
   TableHead,
   TableCell
-} from '@/components/ui/table'
+} from '@/components/atoms/table'
 
 const TableProducts = ({
   products,

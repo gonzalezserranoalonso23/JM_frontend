@@ -27,3 +27,9 @@ export const scheduleFromUser = (user) =>
     })
   )
 
+export const roleIdFromUser = (user) => {
+  const role = user?.role
+  if (!role) return ''
+  if (typeof role === 'string') return role
+  return role._id || ''
+}

@@ -8,7 +8,18 @@ import {
   limitNumberInputDecimals,
   roundTo
 } from './commonFunctions'
+import {
+  ALL_USERS,
+  attendanceDay,
+  attendancePages,
+  attendanceRows,
+  paidToSuppliers
+} from './attendance'
+import { countedTotal, DENOMINATIONS, quantityOf } from './cash'
+import { callHref, whatsappHref } from './phone'
+import { recordCardView } from './recordDisplay'
 import { movementPrices } from './typeInventory'
+import { similarProducts } from './productSearch'
 
 describe('dateDisplay', () => {
   it('isoDay conserva el día guardado sin cambiar zona horaria', () => {
@@ -141,5 +152,119 @@ describe('movementPrices', () => {
         productName: { productName: 'Agua' }
       }).profit
     ).toBeNull()
+  })
+})
+
+describe('attendanceRows', () => {
+  it('no arma total cuando el turno no pagó proveedores', () => {
+    const rows = attendanceRows(
+      [{ _id: 'u1', username: 'ana', fullName: 'Ana' }],
+      [
+        {
+          _id: 's1',
+          user: { _id: 'u1' },
+          checkInAt: '2026-11-11T15:00:00.000Z',
+          cashReceived: 100,
+          supplierPayments: []
+        }
+      ],
+      ALL_USERS
+    )
+
+    expect(rows).toHaveLength(1)
+    expect(rows[0].payments).toEqual([])
+    expect(rows[0].total).toBe('—')
+    expect(rows[0].received).toBe('$100.00')
+    expect(paidToSuppliers([])).toBe(0)
+  })
+
+  it('reads pages and the day from the response fields', () => {
+    expect(
+      attendancePages({
+        pages: [
+          { open: { _id: '1' }, workDay: true, records: [{ _id: 'a' }] },
+          { records: [{ _id: 'b' }] }
+        ]
+      })
+    ).toMatchObject({
+      loaded: true,
+      open: { _id: '1' },
+      workDay: true,
+      records: [{ _id: 'a' }, { _id: 'b' }]
+    })
+    expect(attendanceDay()).toEqual({ staff: [], records: [] })
+  })
+})
+
+describe('recordCardView', () => {
+  it('deja la utilidad fuera de la tarjeta cuando no es una salida', () => {
+    const view = recordCardView(
+      {
+        productName: { productName: 'Agua' },
+        date: '2026-11-11',
+        typeInventory: { typeInventory: 'Entrada', stockDirection: 1 },
+        quantity: 2,
+        productPrice: 4,
+        totalAmount: 8
+      },
+      { showProfit: true, showPayment: true }
+    )
+
+    expect(view.name).toBe('Agua')
+    expect(view.profit).toBeNull()
+    expect(view.payment).toBe('-')
+    expect(view.total).toBe('$8.00')
+  })
+})
+
+describe('similarProducts', () => {
+  const catalog = [
+    {
+      _id: '1',
+      productName: 'Coca Cola 600 ml',
+      productDescription: 'Refresco'
+    },
+    { _id: '2', productName: 'Sabritas', productDescription: 'Bolsa coca' },
+    { _id: '3', productName: 'Atún en agua', productDescription: 'Lata' }
+  ]
+
+  it('junta palabras sueltas y ignora acentos', () => {
+    expect(
+      similarProducts(catalog, 'coca 600').map((item) => item._id)
+    ).toEqual(['1'])
+    expect(similarProducts(catalog, 'atun').map((item) => item._id)).toEqual([
+      '3'
+    ])
+    expect(similarProducts(catalog, 'zzz')).toEqual([])
+  })
+
+  it('pone primero el nombre que empieza con lo escrito', () => {
+    const ranked = similarProducts(
+      [
+        { _id: 'a', productName: 'Leche deslactosada' },
+        { _id: 'b', productName: 'Leche' }
+      ],
+      'leche'
+    )
+    expect(ranked.map((item) => item._id)).toEqual(['b', 'a'])
+  })
+})
+
+describe('cash', () => {
+  it('cuenta solo piezas enteras', () => {
+    expect(quantityOf({ 10: '2.9' }, 10)).toBe(2)
+    expect(countedTotal(DENOMINATIONS, { 10: 3, 0.5: 4 })).toBe(32)
+  })
+})
+
+describe('phone', () => {
+  it('arma la llamada y el enlace de WhatsApp', () => {
+    expect(callHref('618 688 2483')).toBe('tel:6186882483')
+    expect(callHref('')).toBe('')
+    expect(whatsappHref('6186882483')).toBe('https://wa.me/526186882483')
+    expect(whatsappHref('+52 1 618 688 2483')).toBe(
+      'https://wa.me/526186882483'
+    )
+    expect(whatsappHref('123')).toBe('')
   })
 })

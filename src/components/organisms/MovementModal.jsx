@@ -7,9 +7,9 @@ import {
   DialogBody,
   DialogFooter,
   DialogTitle
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Alert } from '@/components/ui/alert'
+} from '@/components/atoms/dialog'
+import { Button } from '@/components/atoms/button'
+import { Alert } from '@/components/atoms/alert'
 import {
   Table,
   TableHeader,
@@ -17,21 +17,21 @@ import {
   TableRow,
   TableHead,
   TableCell
-} from '@/components/ui/table'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import ProductCombobox from '@/components/ui/product-combobox'
+} from '@/components/atoms/table'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
+import ProductCombobox from '@/components/molecules/product-combobox'
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem
-} from '@/components/ui/select'
+} from '@/components/atoms/select'
 import { useProductLookup } from '@/features/products.features'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import { getProduct } from '@/services/products.services'
-import Loading from '@/ui/Loading'
+import Loading from '@/components/atoms/Loading'
 import {
   formatMoney,
   formatQty,
@@ -40,11 +40,10 @@ import {
   calcLineTotal,
   confirmDiscardChanges
 } from '@/utils/commonFunctions'
-import ActionIconButton from '@/components/ActionIconButton'
+import ActionIconButton from '@/components/molecules/ActionIconButton'
 import { useCart } from '@/hooks/useCart'
 import { errorMessage } from '@/libs/handleErrors'
 import { useGetTypeInventories } from '@/features/typeInventory.features'
-import useDebouncedValue from '@/hooks/useDebouncedValue'
 
 const COPY = {
   entry: {
@@ -98,19 +97,9 @@ const MovementModal = ({
   const { data: paymentTypes = [] } = useGetPaymentTypes()
   const types = useGetTypeInventories()
   const movementType = mode === 'issue' ? types.issueType : types.entryType
-  const [productQuery, setProductQuery] = useState('')
-  const debouncedQuery = useDebouncedValue(productQuery, 250)
-  const {
-    data: productPage,
-    isLoading: loadingProducts,
-    isFetching: fetchingProducts,
-    isPlaceholderData
-  } = useProductLookup(debouncedQuery, Boolean(modalShow))
-  const searchingProducts =
-    productQuery.trim().length > 0 &&
-    (productQuery.trim() !== debouncedQuery ||
-      isPlaceholderData ||
-      fetchingProducts)
+  const { data: catalog, isLoading: loadingProducts } = useProductLookup(
+    Boolean(modalShow)
+  )
   const knownProducts = useRef(new Map())
   const rememberProduct = (product) => {
     if (product?._id) knownProducts.current.set(product._id, product)
@@ -136,10 +125,10 @@ const MovementModal = ({
   const [editSelectedProduct, setEditSelectedProduct] = useState(null)
 
   useEffect(() => {
-    ;(productPage?.data ?? []).forEach(rememberProduct)
-  }, [productPage])
+    ;(catalog ?? []).forEach(rememberProduct)
+  }, [catalog])
 
-  const pageProducts = productPage?.data ?? []
+  const pageProducts = catalog ?? []
 
   const findProduct = (id) =>
     pageProducts.find((product) => String(product._id) === String(id)) ||
@@ -242,7 +231,6 @@ const MovementModal = ({
     setCartPaymentType('')
     setEditFormData(getEmptyEditForm(withPayment))
     setEditSelectedProduct(null)
-    setProductQuery('')
     setError('')
   }, [modalShow])
 
@@ -293,7 +281,6 @@ const MovementModal = ({
       quantity: item.quantity,
       totalAmount: item.totalAmount
     })
-    setProductQuery(item.productLabel || '')
     setReplacingCartItem(true)
     setError('')
   }
@@ -501,10 +488,8 @@ const MovementModal = ({
                     onValueChange={(value) =>
                       setEditField('productName', value)
                     }
-                    onQueryChange={setProductQuery}
                     placeholder="Selecciona producto"
                     showStock
-                    pending={searchingProducts}
                   />
                 </div>
                 <div>
@@ -624,11 +609,9 @@ const MovementModal = ({
                     onValueChange={(value) =>
                       setItemField('productName', value)
                     }
-                    onQueryChange={setProductQuery}
                     placeholder="Selecciona producto"
                     showStock
                     stockText={copy.checkStock ? stockText : undefined}
-                    pending={searchingProducts}
                   />
                 </div>
                 <div>

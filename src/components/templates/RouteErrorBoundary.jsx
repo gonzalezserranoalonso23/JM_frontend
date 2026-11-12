@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 
 const isChunkError = (error) =>
   /dynamically imported module|Importing a module script failed|Failed to fetch/i.test(
@@ -48,7 +48,7 @@ class RouteErrorBoundary extends Component {
         <p className="max-w-sm text-sm text-muted-foreground">
           Ocurrió un error. Puedes reintentar sin cerrar la sesión.
         </p>
-        <Button type="button" onClick={this.retry}>
+        <Button type="button" onClick={() => this.retry()}>
           Reintentar
         </Button>
       </div>

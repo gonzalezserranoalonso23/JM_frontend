@@ -1,4 +1,4 @@
-import MovementDetails from '@/components/MovementDetails'
+import MovementDetails from '@/components/organisms/MovementDetails'
 
 const EntryDetails = () => (
   <MovementDetails

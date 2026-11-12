@@ -7,7 +7,7 @@ vi.mock('@/features/dailyInformation.features', () => ({
   useGetDailyInformations: vi.fn()
 }))
 
-vi.mock('@/components/ui/select', () => ({
+vi.mock('@/components/atoms/select', () => ({
   Select: ({ children }) => <div>{children}</div>,
   SelectContent: ({ children }) => <div>{children}</div>,
   SelectItem: ({ children }) => <div>{children}</div>,

@@ -1,30 +1,30 @@
-import PageShell from '@/components/PageShell'
-import { formatMoney } from '@/utils/commonFunctions'
+import PageShell from '@/components/templates/PageShell'
+import { formatMoney, formatPercent } from '@/utils/commonFunctions'
 import { todayLocal } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import { notifyError } from '@/libs/handleErrors'
 import { useGetPromotionPages } from '@/features/products.features'
 import { getAllPromotionProducts } from '@/services/products.services'
 import { useGetCategories } from '@/features/categories.features'
-import FormFilter from '@/components/FormFilter'
+import FormFilter from '@/components/molecules/FormFilter'
 import useFilterQuery from '@/hooks/useFilterQuery'
-import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
-import { Button } from '@/components/ui/button'
+import InfiniteScrollFooter from '@/components/molecules/InfiniteScrollFooter'
+import { Button } from '@/components/atoms/button'
 import {
   Card,
   CardAction,
   CardContent,
   CardHeader,
   CardTitle
-} from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
+} from '@/components/atoms/card'
+import { Label } from '@/components/atoms/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@/components/atoms/select'
 import {
   Table,
   TableBody,
@@ -33,14 +33,8 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
-import ListSkeleton from '@/components/ListSkeleton'
-
-const formatMargin = (value) =>
-  `${Number(value || 0).toLocaleString('es-MX', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  })}%`
+} from '@/components/atoms/table'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
 
 const Promotions = () => {
   const [dataFilter, setDataFilter] = useFilterQuery('q')
@@ -168,7 +162,7 @@ const Promotions = () => {
                               Margen
                             </dt>
                             <dd className="font-medium">
-                              {formatMargin(product.margin)}
+                              {formatPercent(product.margin)}
                             </dd>
                           </div>
                         </dl>
@@ -218,7 +212,7 @@ const Promotions = () => {
                             {formatMoney(product.productPrice)}
                           </TableCell>
                           <TableCell className="text-right">
-                            <strong>{formatMargin(product.margin)}</strong>
+                            <strong>{formatPercent(product.margin)}</strong>
                           </TableCell>
                         </TableRow>
                       ))

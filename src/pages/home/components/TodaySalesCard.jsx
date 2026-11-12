@@ -1,5 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import Skeleton from '@/components/ui/skeleton'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/atoms/card'
+import Skeleton from '@/components/atoms/skeleton'
 import { useGetLiveInformation } from '@/features/inventory.features'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import { formatMoney } from '@/utils/commonFunctions'

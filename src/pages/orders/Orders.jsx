@@ -1,4 +1,4 @@
-import PageShell from '@/components/PageShell'
+import PageShell from '@/components/templates/PageShell'
 import SectionOrders from './components/SectionOrders'
 
 const Orders = () => (

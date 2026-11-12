@@ -5,10 +5,16 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import Skeleton from '@/components/ui/skeleton'
+} from '@/components/atoms/select'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/atoms/card'
+import Skeleton from '@/components/atoms/skeleton'
 import { useGetDailyInformations } from '@/features/dailyInformation.features'
+import { formatMoney } from '@/utils/commonFunctions'
 import { formatDate as displayDate, isoDay } from '@/utils/dateDisplay'
 
 const START_DATE = '2026-10-01'
@@ -19,8 +25,6 @@ const formatDate = (date) =>
     month: 'long',
     day: 'numeric'
   })
-
-const formatAmount = (amount) => `$${Number(amount || 0).toFixed(2)}`
 
 const DailyInformationDashboard = () => {
   const { data: records, isLoading, isError } = useGetDailyInformations()
@@ -88,15 +92,15 @@ const DailyInformationDashboard = () => {
           {[
             [
               'Ventas totales',
-              selectedRecord ? formatAmount(selectedRecord.totalSales) : '—'
+              selectedRecord ? formatMoney(selectedRecord.totalSales) : '—'
             ],
             [
               'Efectivo',
-              selectedRecord ? formatAmount(selectedRecord.cashSales) : '—'
+              selectedRecord ? formatMoney(selectedRecord.cashSales) : '—'
             ],
             [
               'Tarjeta',
-              selectedRecord ? formatAmount(selectedRecord.cardSales) : '—'
+              selectedRecord ? formatMoney(selectedRecord.cardSales) : '—'
             ],
             [
               'Transacciones',

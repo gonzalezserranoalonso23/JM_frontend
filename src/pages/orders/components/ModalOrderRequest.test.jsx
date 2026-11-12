@@ -26,10 +26,8 @@ const products = [
 
 vi.mock('@/features/products.features', () => ({
   useProductLookup: () => ({
-    data: { data: products },
-    isLoading: false,
-    isFetching: false,
-    isPlaceholderData: false
+    data: products,
+    isLoading: false
   })
 }))
 vi.mock('@/features/suppliers.features', () => ({

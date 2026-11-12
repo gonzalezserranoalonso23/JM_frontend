@@ -1,4 +1,4 @@
-import PageShell from '@/components/PageShell'
+import PageShell from '@/components/templates/PageShell'
 import { useMemo, useState } from 'react'
 import { jwtDecode } from 'jwt-decode'
 import toast from 'react-hot-toast'
@@ -12,18 +12,19 @@ import {
   useDeleteTask
 } from '@/features/tasks.features'
 import { useGetAssignableUsers, useRoleName } from '@/features/users.features'
-import Skeleton from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
+import Skeleton from '@/components/atoms/skeleton'
+import { Button } from '@/components/atoms/button'
+import { Input } from '@/components/atoms/input'
+import { Textarea } from '@/components/atoms/textarea'
+import { Badge } from '@/components/atoms/badge'
 import {
   Card,
   CardHeader,
   CardDescription,
   CardContent
-} from '@/components/ui/card'
+} from '@/components/atoms/card'
 import { cn } from '@/lib/utils'
+import { taskUserId } from './task'
 
 const selectClass =
   'h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-popover [&>option]:text-popover-foreground'
@@ -38,12 +39,6 @@ const priorityBadge = {
   low: 'text-muted-foreground',
   medium: 'text-amber-400',
   high: 'text-destructive'
-}
-
-const taskUserId = (value) => {
-  if (!value) return ''
-  if (typeof value === 'object') return String(value._id || '')
-  return String(value)
 }
 
 export const TaskBoard = () => {

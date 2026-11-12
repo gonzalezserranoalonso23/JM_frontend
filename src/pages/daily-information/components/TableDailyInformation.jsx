@@ -1,11 +1,6 @@
-import ActionIconButton from '@/components/ActionIconButton'
-import DataList, { Column } from '@/components/DataList'
-
-const formatAmount = (amount) =>
-  Number(amount || 0).toLocaleString('es-MX', {
-    style: 'currency',
-    currency: 'MXN'
-  })
+import ActionIconButton from '@/components/molecules/ActionIconButton'
+import DataList, { Column } from '@/components/organisms/DataList'
+import { formatCurrency } from '@/utils/commonFunctions'
 
 const TableDailyInformation = ({
   records,
@@ -22,13 +17,13 @@ const TableDailyInformation = ({
       {(record) => record.date}
     </Column>
     <Column header="Efectivo" align="right">
-      {(record) => formatAmount(record.cashSales)}
+      {(record) => formatCurrency(record.cashSales)}
     </Column>
     <Column header="Tarjeta" align="right">
-      {(record) => formatAmount(record.cardSales)}
+      {(record) => formatCurrency(record.cardSales)}
     </Column>
     <Column header="Ventas totales" align="right">
-      {(record) => formatAmount(record.totalSales)}
+      {(record) => formatCurrency(record.totalSales)}
     </Column>
     <Column header="Transacciones" align="center">
       {(record) => record.totalTransactions}

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Bell, ChevronDown } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/atoms/button'
+import { Badge } from '@/components/atoms/badge'
 import { cn } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
 import { useAuthStore } from '@/store/auth'
@@ -11,17 +11,20 @@ import { useGetPendingTasks } from '@/features/tasks.features'
 import { hasFullAccess, sessionRole } from '@/auth/access'
 import { logout } from '@/services/users.services'
 import useTaskNotifications from '@/hooks/useTaskNotifications'
-import MobileTabBar from '@/ui/MobileTabBar'
+import MobileTabBar from '@/components/organisms/MobileTabBar'
 import {
   desktopLinkAlignment,
   getNavLinks,
   isNavPathActive,
   splitMobileTabs
-} from '@/ui/navLinks'
-import { AdminLogoutButton, StaffLogoutButton } from '@/ui/LogoutButton'
+} from '@/components/organisms/navLinks'
+import {
+  AdminLogoutButton,
+  StaffLogoutButton
+} from '@/components/molecules/LogoutButton'
 import { prefetchRoute, prefetchRoutes } from '@/auth/appRoutes'
 import ProductLookup from '@/pages/home/components/ProductLookup'
-import AccountProfile from '@/ui/AccountProfile'
+import AccountProfile from '@/components/organisms/AccountProfile'
 
 const navItemClass = (active) => {
   let tone = 'text-muted-foreground'

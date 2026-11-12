@@ -101,8 +101,8 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
-  /* Quita la espera de ~300 ms del navegador antes de aceptar un toque. */
-  touch-action: manipulation;
+  /* auto on the document: a long press can copy in the browser, the PWA, and a webview. */
+  touch-action: auto;
 }
 
 html,
@@ -143,8 +143,7 @@ body {
   }
 }
 
-/* Native-app feel: no 300ms tap delay, no text selection or iOS callout on
-   interactive chrome (text in tables, inputs and cards stays selectable). */
+/* Instant tap on controls. Content links stay on auto so a long press can copy. */
 a,
 button,
 [role='button'],
@@ -159,6 +158,21 @@ input,
 textarea,
 select {
   touch-action: manipulation;
+}
+
+main a,
+[data-slot='dialog-content'] a {
+  touch-action: auto;
+}
+
+button,
+[role='button'],
+[role='tab'],
+[role='option'],
+[data-slot='select-trigger'],
+[data-slot='select-item'],
+.app-nav,
+.app-tab-bar {
   -webkit-touch-callout: none;
 }
 
@@ -195,29 +209,41 @@ select {
 button,
 [role='button'],
 [role='tab'],
-nav a {
+[role='option'],
+[data-slot='select-trigger'],
+[data-slot='select-item'],
+.app-nav,
+.app-tab-bar {
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* Page and dialog text can be selected. Dialogs render outside main. */
+main,
+[data-slot='dialog-content'],
+main :where(a, h1, h2, h3, h4, p, span, li, td, th, dd, dt),
+[data-slot='dialog-content'] :where(a, h1, h2, h3, h4, p, span, li, td, th, dd, dt) {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+main :is(
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='option'],
+  [data-slot='select-trigger'],
+  [data-slot='select-item']
+) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 img,
 svg {
   -webkit-user-drag: none;
-}
-
-@media (display-mode: standalone) {
-  body {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  input,
-  textarea,
-  [contenteditable='true'],
-  td,
-  p {
-    -webkit-user-select: text;
-    user-select: text;
-  }
 }
 
 /* Keep scrolling functional but hide the scrollbar visually across browsers */
@@ -394,8 +420,17 @@ html body[data-scroll-locked] .width-before-scroll-bar {
     min-height: 2.75rem;
   }
 
+  [data-slot='button'][data-size='icon'],
+  [data-slot='button'][data-size='icon-sm'],
+  [data-slot='button'][data-size='icon-lg'],
+  [data-slot='button'][data-size='icon-xs'] {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
   .app-tab-bar a,
   .app-tab-bar button {
+    min-width: 0;
     min-height: 0;
   }
 }

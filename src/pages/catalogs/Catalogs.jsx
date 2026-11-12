@@ -1,5 +1,5 @@
-import PageShell from '@/components/PageShell'
-import { Card } from '@/components/ui/card'
+import PageShell from '@/components/templates/PageShell'
+import { Card } from '@/components/atoms/card'
 import TableCatalogs from './components/TableCatalogs'
 
 const Catalogs = () => {

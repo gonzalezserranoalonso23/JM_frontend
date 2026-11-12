@@ -1,7 +1,6 @@
-import { Badge } from '@/components/ui/badge'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Alert } from '@/components/atoms/alert'
+import { Button } from '@/components/atoms/button'
+import { Card } from '@/components/atoms/card'
 import { useState } from 'react'
 import {
   useGetUserPages,
@@ -10,34 +9,16 @@ import {
   useDeleteUser,
   useRevokeUserSessions
 } from '@/features/users.features'
-import ListSkeleton from '@/components/ListSkeleton'
-import DataList, { Column } from '@/components/DataList'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
+import DataList, { Column } from '@/components/organisms/DataList'
 import ModalUsers from './components/ModalUsers'
 import useFilterQuery from '@/hooks/useFilterQuery'
-import FormFilter from '@/components/FormFilter'
-import ActionIconButton from '@/components/ActionIconButton'
+import FormFilter from '@/components/molecules/FormFilter'
+import ActionIconButton from '@/components/molecules/ActionIconButton'
 import ScheduleModal from './components/ScheduleModal'
+import RoleBadge from './components/RoleBadge'
 import { hasFullAccess } from '@/auth/access'
 import { hasSchedule } from './schedule'
-
-const RoleBadge = ({ user }) => {
-  const name = user.role?.name
-  let label = '—'
-  let variant = 'secondary'
-  let className = 'shrink-0'
-  if (name) {
-    label = name
-    if (name === 'Manager') {
-      variant = 'outline'
-      className = 'shrink-0 text-amber-400'
-    }
-  }
-  return (
-    <Badge variant={variant} className={className}>
-      {label}
-    </Badge>
-  )
-}
 
 const SectionUsers = () => {
   const [search, setSearch] = useFilterQuery()

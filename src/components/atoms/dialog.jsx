@@ -174,6 +174,7 @@ const DialogContent = React.forwardRef(
         <DialogOverlay />
         <DialogPrimitive.Content
           ref={setContentRef}
+          data-slot="dialog-content"
           className={cn(
             'fixed z-[60] flex flex-col bg-background text-foreground shadow-lg',
             'left-1/2 top-1/2 w-full max-w-lg sm:max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border max-h-[90vh] overflow-hidden',

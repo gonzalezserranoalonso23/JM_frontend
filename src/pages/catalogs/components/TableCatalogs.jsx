@@ -5,10 +5,10 @@ import {
   TableRow,
   TableHead,
   TableCell
-} from '@/components/ui/table'
+} from '@/components/atoms/table'
 import { Link } from 'react-router-dom'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/atoms/card'
+import { Button } from '@/components/atoms/button'
 import { hasFullAccess } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'
 

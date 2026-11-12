@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import Loading from '@/ui/Loading'
+import { Button } from '@/components/atoms/button'
+import Loading from '@/components/atoms/Loading'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 
 // Pie común del scroll infinito: observer, spinner y botón de respaldo.

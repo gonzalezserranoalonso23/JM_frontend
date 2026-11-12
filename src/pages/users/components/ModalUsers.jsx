@@ -6,27 +6,25 @@ import {
   DialogBody,
   DialogFooter,
   DialogTitle
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from '@/components/atoms/dialog'
+import { Button } from '@/components/atoms/button'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@/components/atoms/select'
 import { useFormik } from 'formik'
 import { useGetRoles } from '@/features/roles.features'
-import { WEEK_DAYS, hasSchedule, scheduleFromUser } from '../schedule'
-
-const roleIdFromUser = (user) => {
-  const role = user?.role
-  if (!role) return ''
-  if (typeof role === 'string') return role
-  return role._id || ''
-}
+import {
+  WEEK_DAYS,
+  hasSchedule,
+  roleIdFromUser,
+  scheduleFromUser
+} from '../schedule'
 
 const ModalUsers = ({
   user,

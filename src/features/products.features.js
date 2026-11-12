@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import {
+  getProductLookup,
   getProductsPage,
   getPromotionProductsPage,
   createProduct,
@@ -58,14 +59,12 @@ export const useSearchProducts = (search = '') =>
     placeholderData: keepPreviousData
   })
 
-// Primera página del catálogo, o el resultado de lo que se escribe en el combobox.
-export const useProductLookup = (search = '', enabled = true) =>
+export const useProductLookup = (enabled = true) =>
   useQuery({
-    queryKey: ['Products', 'combobox', search],
-    queryFn: () => getProductsPage({ page: 1, limit: 20, search }),
+    queryKey: ['Products', 'lookup'],
+    queryFn: getProductLookup,
     enabled,
-    placeholderData: keepPreviousData,
-    staleTime: 30 * 1000
+    staleTime: 5 * 60 * 1000
   })
 
 const catalogsOf = (queryClient) => ({

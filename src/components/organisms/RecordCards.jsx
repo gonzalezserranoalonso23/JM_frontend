@@ -1,12 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
-import ActionIconButton from '@/components/ActionIconButton'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { formatDate } from '@/utils/dateDisplay'
-import { formatMoney, formatQty } from '@/utils/commonFunctions'
-import { isIssueRecord, movementPrices } from '@/utils/typeInventory'
-
-const moneyOrDash = (value) => (value == null ? '-' : formatMoney(value))
+import ActionIconButton from '@/components/molecules/ActionIconButton'
+import { Card, CardContent } from '@/components/atoms/card'
+import { Badge } from '@/components/atoms/badge'
+import { recordCardView } from '@/utils/recordDisplay'
 
 const RecordCards = ({
   records,
@@ -21,8 +17,7 @@ const RecordCards = ({
   return (
     <div className="space-y-3 xl:hidden">
       {records.map((record) => {
-        const prices =
-          showProfit && isIssueRecord(record) ? movementPrices(record) : null
+        const view = recordCardView(record, { showProfit, showPayment })
         return (
           <Card as="article" key={record._id} className="gap-3 py-4">
             <CardContent className="space-y-3 px-4">
@@ -34,66 +29,60 @@ const RecordCards = ({
                         to={`${detailsPath}/${record._id}`}
                         className="underline-offset-2 hover:underline"
                       >
-                        {record.productName?.productName}
+                        {view.name}
                       </Link>
                     ) : (
-                      record.productName?.productName
+                      view.name
                     )}
                   </h2>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(record.date)}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{view.date}</p>
                 </div>
                 <Badge variant="outline" className="shrink-0">
-                  {record.typeInventory?.typeInventory}
+                  {view.type}
                 </Badge>
               </div>
               <dl className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
                 <div>
                   <dt className="text-xs text-muted-foreground">Cantidad</dt>
-                  <dd>{formatQty(record.quantity)}</dd>
+                  <dd>{view.quantity}</dd>
                 </div>
-                {prices ? (
+                {view.profit ? (
                   <>
                     <div>
                       <dt className="text-xs text-muted-foreground">
                         Precio compra
                       </dt>
-                      <dd>{moneyOrDash(prices.purchasePrice)}</dd>
+                      <dd>{view.profit.purchase}</dd>
                     </div>
                     <div>
                       <dt className="text-xs text-muted-foreground">
                         Precio venta
                       </dt>
-                      <dd>{moneyOrDash(prices.productPrice)}</dd>
+                      <dd>{view.profit.sale}</dd>
                     </div>
                     <div>
                       <dt className="text-xs text-muted-foreground">
                         Utilidad
                       </dt>
-                      <dd className="font-semibold">
-                        {moneyOrDash(prices.profit)}
-                      </dd>
+                      <dd className="font-semibold">{view.profit.amount}</dd>
                     </div>
                   </>
                 ) : (
                   <div>
                     <dt className="text-xs text-muted-foreground">Precio</dt>
-                    <dd>${formatQty(record.productPrice)}</dd>
+                    <dd>${view.price}</dd>
                   </div>
                 )}
                 <div>
                   <dt className="text-xs text-muted-foreground">Total</dt>
-                  <dd className="font-semibold">
-                    {formatMoney(record.totalAmount)}
-                  </dd>
+                  <dd className="font-semibold">{view.total}</dd>
                 </div>
-                {showPayment && (
+                {view.payment != null && (
                   <div className="col-span-3">
                     <dt className="text-xs text-muted-foreground">
                       Tipo de pago
                     </dt>
-                    <dd>{record.paymentType?.paymentType || '-'}</dd>
+                    <dd>{view.payment}</dd>
                   </div>
                 )}
               </dl>

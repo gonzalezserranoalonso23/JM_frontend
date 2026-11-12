@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
-import PageShell from '@/components/PageShell'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import PageShell from '@/components/templates/PageShell'
+import { Alert } from '@/components/atoms/alert'
+import { Button } from '@/components/atoms/button'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import Skeleton from '@/components/ui/skeleton'
+} from '@/components/atoms/card'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
+import Skeleton from '@/components/atoms/skeleton'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 import { hasFullAccess } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'
@@ -21,156 +21,35 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
-import { formatMoney, roundTo } from '@/utils/commonFunctions'
+} from '@/components/atoms/select'
+import { formatMoney } from '@/utils/commonFunctions'
 import { todayMexicoCity } from '@/utils/dateDisplay'
-import { toast } from 'react-hot-toast'
+import {
+  ALL_USERS,
+  attendanceDay,
+  attendancePages,
+  attendanceRows,
+  formatDay,
+  formatNow,
+  formatTime,
+  moneyOrDash,
+  paidToSuppliers,
+  paymentLabel,
+  personName,
+  punchCopy,
+  punchVariant,
+  recordEnd
+} from '@/utils/attendance'
 import {
   useMyAttendance,
   useAttendanceDay,
   useCheckIn,
   useCheckOut
 } from '@/features/attendance.features'
-import ListSkeleton from '@/components/ListSkeleton'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
 import { useGetSuppliers } from '@/features/suppliers.features'
 import { useShiftPayments } from '@/store/shiftPayments'
-
-const formatDay = (value) => {
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value || ''))
-  if (!match) return ''
-  return `${match[3]}-${match[2]}-${match[1]}`
-}
-
-const formatNow = (instant = new Date()) => {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/Mexico_City',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hourCycle: 'h23'
-  }).formatToParts(instant)
-  const value = (type) => parts.find((part) => part.type === type)?.value ?? ''
-  return `Fecha: ${value('hour')}:${value('minute')}:${value('second')} ${value('day')}/${value('month')}/${value('year')}`
-}
-
-const formatTime = (value) => {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return date.toLocaleTimeString('es-MX', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-    timeZone: 'America/Mexico_City'
-  })
-}
-
-const readPosition = () =>
-  new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Este dispositivo no puede compartir la ubicación'))
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) =>
-        resolve({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        }),
-      () =>
-        reject(
-          new Error(
-            'Activa la ubicación para registrar la entrada en el trabajo'
-          )
-        ),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    )
-  })
-
-const personName = (user) => user?.fullName || user?.username || 'Sin nombre'
-
-const recordEnd = (record) => {
-  if (record.checkOutAt) return formatTime(record.checkOutAt)
-  return 'en turno'
-}
-
-const punchCopy = ({ pending, open, dayOff }) => {
-  if (pending) return 'Registrando...'
-  if (open) return 'Registrar salida'
-  if (dayOff) return 'Hoy no es tu día de trabajo'
-  return 'Registrar entrada'
-}
-
-const punchVariant = (open) => {
-  if (open) return 'destructive'
-  return 'default'
-}
-
-const punchAtWork = (mutate, extra) => {
-  readPosition().then(
-    (position) => mutate({ ...position, ...extra }),
-    (error) => toast.error(error.message)
-  )
-}
-
-const confirmPunch = ({
-  open,
-  dayOff,
-  amount,
-  payments,
-  checkIn,
-  checkOut
-}) => {
-  if (dayOff) return
-  if (open) {
-    if (
-      !window.confirm(
-        `¿Registrar tu salida con corte de ${formatMoney(amount)}?`
-      )
-    )
-      return
-    punchAtWork(checkOut.mutate, {
-      cashCut: amount,
-      supplierPayments: (payments ?? []).map((payment) => ({
-        supplier: payment.supplier,
-        amount: payment.amount
-      }))
-    })
-    return
-  }
-  if (
-    !window.confirm(`¿Registrar tu entrada con ${formatMoney(amount)} en caja?`)
-  )
-    return
-  punchAtWork(checkIn.mutate, { cashReceived: amount })
-}
-
-const moneyOrDash = (value) => {
-  if (value == null || value === '') return '—'
-  return formatMoney(value)
-}
-
-const paidToSuppliers = (payments) =>
-  (payments ?? []).reduce(
-    (total, payment) => roundTo(total + Number(payment?.amount || 0), 2),
-    0
-  )
-
-const supplierLabel = (supplier) =>
-  supplier?.suppliersName || supplier?.name || 'Proveedor'
-
-const paymentLabel = (payments) => {
-  const rows = payments ?? []
-  if (rows.length === 0) return '—'
-  const lines = rows.map(
-    (payment) =>
-      `${supplierLabel(payment.supplier)} ${formatMoney(payment.amount)}`
-  )
-  return `${lines.join(', ')} · Total ${formatMoney(paidToSuppliers(rows))}`
-}
+import { confirmPunch } from './punch'
 
 const LiveClock = () => {
   const [label, setLabel] = useState(formatNow)
@@ -185,7 +64,7 @@ const LiveClock = () => {
 
 const ClockPanel = ({
   failed,
-  summary,
+  loaded,
   open,
   today,
   pending,
@@ -219,7 +98,7 @@ const ClockPanel = ({
     paymentAmount.trim() !== '' &&
     Number.isFinite(parsedPayment) &&
     parsedPayment >= 0
-  const askCash = Boolean(summary) && !dayOff
+  const askCash = loaded && !dayOff
   const supplierOptions = (suppliers ?? []).filter(
     (supplier) => supplier.isActive !== false
   )
@@ -238,7 +117,7 @@ const ClockPanel = ({
   if (failed) {
     return <Alert variant="destructive">No se pudo cargar tu asistencia</Alert>
   }
-  if (!summary) {
+  if (!loaded) {
     return (
       <div role="status" aria-label="Cargando" className="grid gap-4">
         <Skeleton className="h-16 w-full" />
@@ -363,14 +242,14 @@ const ClockPanel = ({
 const HistoryList = ({
   records,
   listPending,
-  summary,
+  loaded,
   hasNextPage,
   supportsIntersectionObserver,
   sentinelRef,
   isFetchingNextPage,
   fetchNextPage
 }) => {
-  if (listPending || !summary) return <RecordSkeleton />
+  if (listPending || !loaded) return <RecordSkeleton />
   if (records.length === 0) {
     return (
       <p className="px-4 py-3 text-sm text-muted-foreground">
@@ -480,16 +359,16 @@ export const StaffClock = () => {
     )
   const checkIn = useCheckIn()
   const checkOut = useCheckOut()
-  const summary = data?.pages?.[0]
-  let records = []
-  if (!rangeInvalid) {
-    records = (data?.pages ?? []).flatMap((page) => page.records ?? [])
-  }
+  const {
+    loaded,
+    open,
+    workDay,
+    records: loadedRecords
+  } = attendancePages(data)
+  const records = rangeInvalid ? [] : loadedRecords
   const listPending =
     !rangeInvalid &&
     (isLoading || (isPlaceholderData && isFetching && !isFetchingNextPage))
-  const open = summary?.open
-  const workDay = Boolean(summary?.workDay)
   const today = todayMexicoCity()
   const pending = checkIn.isPending || checkOut.isPending
   const dayOff = !open && !workDay
@@ -497,7 +376,7 @@ export const StaffClock = () => {
   const punch = ({ amount, payments }) =>
     confirmPunch({ open, dayOff, amount, payments, checkIn, checkOut })
 
-  const showHistory = !(isError && !summary)
+  const showHistory = !(isError && !data)
 
   return (
     <Card
@@ -511,8 +390,8 @@ export const StaffClock = () => {
         </h1>
       </header>
       <ClockPanel
-        failed={isError && !summary}
-        summary={summary}
+        failed={isError && !loaded}
+        loaded={loaded}
         open={open}
         today={today}
         pending={pending}
@@ -545,7 +424,7 @@ export const StaffClock = () => {
             <HistoryList
               records={records}
               listPending={listPending}
-              summary={summary}
+              loaded={loaded}
               hasNextPage={hasNextPage}
               supportsIntersectionObserver={supportsIntersectionObserver}
               sentinelRef={sentinelRef}
@@ -557,58 +436,6 @@ export const StaffClock = () => {
       )}
     </Card>
   )
-}
-
-const ALL_USERS = 'all'
-
-const attendanceRows = (staff, records, userId) => {
-  const byUser = records.reduce((acc, record) => {
-    const id = String(record.user?._id || '')
-    if (!acc[id]) acc[id] = []
-    acc[id].push(record)
-    return acc
-  }, {})
-  const people =
-    userId === ALL_USERS
-      ? staff
-      : staff.filter((user) => String(user._id) === userId)
-
-  return people.flatMap((user) => {
-    const shifts = byUser[String(user._id)] ?? []
-    if (shifts.length === 0) {
-      return [
-        {
-          key: String(user._id),
-          name: personName(user),
-          username: user.username,
-          start: 'Sin registro',
-          end: '—',
-          received: '—',
-          cut: '—',
-          payments: [],
-          total: '—'
-        }
-      ]
-    }
-    return shifts.map((shift) => {
-      const payments = shift.supplierPayments ?? []
-      return {
-        key: shift._id,
-        name: personName(user),
-        username: user.username,
-        start: formatTime(shift.checkInAt),
-        end: recordEnd(shift),
-        received: moneyOrDash(shift.cashReceived),
-        cut: moneyOrDash(shift.cashCut),
-        payments: payments.map((payment, index) => ({
-          key: `${shift._id}-${index}`,
-          name: supplierLabel(payment.supplier),
-          amount: formatMoney(payment.amount)
-        })),
-        total: payments.length ? formatMoney(paidToSuppliers(payments)) : '—'
-      }
-    })
-  })
 }
 
 const AttendanceCards = ({ rows }) => {
@@ -678,14 +505,14 @@ const AdminBoard = () => {
   const [userId, setUserId] = useState(ALL_USERS)
   const { data, isLoading, isError, isPlaceholderData, isFetching } =
     useAttendanceDay(date)
-  const staff = data?.staff ?? []
+  const { staff, records } = attendanceDay(data)
   const selectedUser =
     userId === ALL_USERS ||
     !data ||
     staff.some((user) => String(user._id) === userId)
       ? userId
       : ALL_USERS
-  const rows = attendanceRows(staff, data?.records ?? [], selectedUser)
+  const rows = attendanceRows(staff, records, selectedUser)
   let body = (
     <div className={isPlaceholderData && isFetching ? 'opacity-60' : undefined}>
       <AttendanceCards rows={rows} />
@@ -743,9 +570,7 @@ export const AttendancePunch = () => {
   const { data, isError } = useMyAttendance()
   const checkIn = useCheckIn()
   const checkOut = useCheckOut()
-  const summary = data?.pages?.[0]
-  const open = summary?.open
-  const workDay = Boolean(summary?.workDay)
+  const { loaded, open, workDay } = attendancePages(data)
   const today = todayMexicoCity()
   const pending = checkIn.isPending || checkOut.isPending
   const dayOff = !open && !workDay
@@ -756,8 +581,8 @@ export const AttendancePunch = () => {
         Asistencia
       </h2>
       <ClockPanel
-        failed={isError && !summary}
-        summary={summary}
+        failed={isError && !loaded}
+        loaded={loaded}
         open={open}
         today={today}
         pending={pending}

@@ -1,6 +1,6 @@
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Alert } from '@/components/atoms/alert'
+import { Button } from '@/components/atoms/button'
+import { Card } from '@/components/atoms/card'
 import {
   useCreateCategory,
   useDeleteCategory,
@@ -9,7 +9,7 @@ import {
 } from '@/features/categories.features'
 import { useCatalogEditor } from '@/hooks/useCatalogEditor'
 import ModalCategories from './ModalCategories'
-import ListSkeleton from '@/components/ListSkeleton'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
 import TableCategories from './TableCategories'
 
 const SectionCategories = () => {

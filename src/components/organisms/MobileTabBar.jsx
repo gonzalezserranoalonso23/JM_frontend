@@ -11,10 +11,10 @@ import {
   Package,
   Truck
 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/atoms/badge'
+import { Button } from '@/components/atoms/button'
 import { cn } from '@/lib/utils'
-import { isNavPathActive, tabGridClass } from '@/ui/navLinks'
+import { isNavPathActive, tabGridClass } from '@/components/organisms/navLinks'
 import { prefetchRoute } from '@/auth/appRoutes'
 
 const tabClass = (isActive) => {

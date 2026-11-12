@@ -5,13 +5,11 @@ import { handleErrors, notifyError } from '@/libs/handleErrors'
 
 const PERSIST_KEY = 'jm-query-cache'
 const DAY = 24 * 60 * 60 * 1000
-// Subir al cambiar la forma de los datos persistidos para descartar el caché viejo.
 const CACHE_VERSION = 'v1'
 
 const isCanceled = (error) =>
   error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError'
 
-// Un timeout o un cierre de sesión no se reintenta: la pantalla debe soltarse.
 export const shouldRetryQuery = (failureCount, error) => {
   if (
     isCanceled(error) ||
@@ -33,8 +31,6 @@ const reportQueryError = (error, query) => {
   })
 }
 
-// Las mutaciones invalidan lo que cambia. No se vuelve a pedir al enfocar la
-// ventana, y las listas salen de memoria a los 10 min de dejar la pantalla.
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError: reportQueryError }),
   mutationCache: new MutationCache({
@@ -54,8 +50,6 @@ export const queryClient = new QueryClient({
   }
 })
 
-// Catálogos y el tablero chico. Al recargar se pintan al instante y, si ya
-// vencieron, se refrescan detrás sin dejar la pantalla en blanco.
 const PERSISTED_KEYS = new Set([
   'PaymentTypes',
   'TypeInventories',
@@ -85,7 +79,6 @@ export const persistOptions = {
   dehydrateOptions: { shouldDehydrateQuery: isPersistable }
 }
 
-// Se limpia al cerrar sesión o al vencer el token para no mezclar datos entre usuarios.
 export const clearQueryCache = () => {
   queryClient.clear()
   try {

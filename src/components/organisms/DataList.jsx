@@ -1,6 +1,6 @@
 import { Children, isValidElement } from 'react'
-import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
-import { Card, CardContent } from '@/components/ui/card'
+import InfiniteScrollFooter from '@/components/molecules/InfiniteScrollFooter'
+import { Card, CardContent } from '@/components/atoms/card'
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '@/components/ui/table'
+} from '@/components/atoms/table'
 
 // Marca una columna. children puede ser un valor fijo o una función (row) => nodo.
 export const Column = () => null

@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
-import PageShell from '@/components/PageShell'
-import Loading from '@/ui/Loading'
+import PageShell from '@/components/templates/PageShell'
+import Loading from '@/components/atoms/Loading'
 
 const ReportsSalesAndMovements = lazy(
   () => import('./components/ReportsSalesAndMovements')

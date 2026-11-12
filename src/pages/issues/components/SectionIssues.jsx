@@ -10,18 +10,18 @@ import {
   useUpdateInventoryRecord
 } from '@/features/inventory.features'
 import ModalIssues from './ModalIssues'
-import ListSkeleton from '@/components/ListSkeleton'
-import { Button } from '@/components/ui/button'
-import { Alert } from '@/components/ui/alert'
-import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
+import { Button } from '@/components/atoms/button'
+import { Alert } from '@/components/atoms/alert'
+import { Card } from '@/components/atoms/card'
+import { Label } from '@/components/atoms/label'
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem
-} from '@/components/ui/select'
+} from '@/components/atoms/select'
 import {
   Table,
   TableHeader,
@@ -29,13 +29,13 @@ import {
   TableRow,
   TableHead,
   TableCell
-} from '@/components/ui/table'
-import RecordCards from '@/components/RecordCards'
-import ActionIconButton from '@/components/ActionIconButton'
-import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
+} from '@/components/atoms/table'
+import RecordCards from '@/components/organisms/RecordCards'
+import ActionIconButton from '@/components/molecules/ActionIconButton'
+import InfiniteScrollFooter from '@/components/molecules/InfiniteScrollFooter'
 import useDebouncedValue from '@/hooks/useDebouncedValue'
 import useFilterQuery from '@/hooks/useFilterQuery'
-import FormFilter from '@/components/FormFilter'
+import FormFilter from '@/components/molecules/FormFilter'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import { hasFullAccess } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'

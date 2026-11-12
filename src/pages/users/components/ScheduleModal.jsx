@@ -5,8 +5,8 @@ import {
   DialogBody,
   DialogFooter,
   DialogTitle
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/atoms/dialog'
+import { Button } from '@/components/atoms/button'
 import ScheduleDays from './ScheduleDays'
 
 const ScheduleModal = ({ user, open, onClose }) => (

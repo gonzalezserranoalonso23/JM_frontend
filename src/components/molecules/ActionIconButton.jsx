@@ -1,9 +1,9 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/atoms/tooltip'
 import {
   Check,
   Clock,

@@ -30,6 +30,44 @@ const setup = (onValueChange = vi.fn()) => {
 }
 
 describe('ProductCombobox', () => {
+  it('encuentra palabras separadas y sin acento', async () => {
+    const user = userEvent.setup({ pointerEventsCheck: 0 })
+    render(
+      <div role="dialog">
+        <label htmlFor="product">Producto</label>
+        <ProductCombobox
+          id="product"
+          products={[
+            ...products,
+            {
+              _id: 'p3',
+              productName: 'Coca Cola 600 ml',
+              productDescription: 'Refresco'
+            },
+            { _id: 'p4', productName: 'Atún en agua', productStock: 3 }
+          ]}
+          value=""
+          onValueChange={vi.fn()}
+        />
+      </div>
+    )
+
+    const input = screen.getByRole('combobox', { name: 'Producto' })
+    await user.click(input)
+    await user.type(input, 'coca 600')
+    expect(
+      screen.getByRole('option', { name: /Coca Cola 600 ml/ })
+    ).toBeVisible()
+    expect(screen.queryByRole('option', { name: /Café soluble/ })).toBeNull()
+
+    await user.clear(input)
+    await user.type(input, 'atun')
+    expect(screen.getByRole('option', { name: /Atún en agua/ })).toBeVisible()
+    expect(
+      screen.queryByRole('option', { name: /Coca Cola 600 ml/ })
+    ).toBeNull()
+  })
+
   it('filtra productos sin distinguir acentos', async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 })
     setup()

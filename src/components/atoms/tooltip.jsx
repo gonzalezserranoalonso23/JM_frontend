@@ -4,6 +4,26 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Tooltip as TooltipPrimitive } from 'radix-ui'
 
+const coarsePointerQuery = '(hover: none) and (pointer: coarse)'
+
+const isCoarsePointer = () =>
+  window.matchMedia?.(coarsePointerQuery)?.matches === true
+
+function useCoarsePointer() {
+  const [coarse, setCoarse] = React.useState(isCoarsePointer)
+
+  React.useEffect(() => {
+    const query = window.matchMedia?.(coarsePointerQuery)
+    if (!query) return undefined
+    const sync = () => setCoarse(query.matches === true)
+    sync()
+    query.addEventListener?.('change', sync)
+    return () => query.removeEventListener?.('change', sync)
+  }, [])
+
+  return coarse
+}
+
 function TooltipProvider({ delayDuration = 0, ...props }) {
   return (
     <TooltipPrimitive.Provider
@@ -18,11 +38,30 @@ function Tooltip({ ...props }) {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
 }
 
-function TooltipTrigger({ ...props }) {
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+function TooltipTrigger({ asChild = false, children, ...props }) {
+  const coarse = useCoarsePointer()
+  if (coarse) {
+    if (asChild && React.isValidElement(children)) return children
+    return (
+      <button type="button" {...props}>
+        {children}
+      </button>
+    )
+  }
+  return (
+    <TooltipPrimitive.Trigger
+      data-slot="tooltip-trigger"
+      asChild={asChild}
+      {...props}
+    >
+      {children}
+    </TooltipPrimitive.Trigger>
+  )
 }
 
 function TooltipContent({ className, sideOffset = 0, children, ...props }) {
+  const coarse = useCoarsePointer()
+  if (coarse) return null
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content

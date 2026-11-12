@@ -1,4 +1,4 @@
-import PageShell from '@/components/PageShell'
+import PageShell from '@/components/templates/PageShell'
 import SectionSuppliers from './components/SectionSuppliers'
 
 const Suppliers = () => (

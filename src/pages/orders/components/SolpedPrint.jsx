@@ -7,10 +7,11 @@ import {
   DialogBody,
   DialogFooter,
   DialogTitle
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+} from '@/components/atoms/dialog'
+import { Button } from '@/components/atoms/button'
+import { Badge } from '@/components/atoms/badge'
 import './SolpedPrint.css'
+import { isConfirmed, ORDER_STATUS, statusOrPending } from '../orderStatus'
 
 const ItemCards = ({ items }) => (
   <ul className="space-y-2 md:hidden print:hidden">
@@ -94,14 +95,14 @@ const SolpedPrint = ({
       {
         onSuccess: (updatedOrder) => {
           onOrderUpdated(updatedOrder)
-          if (status === 'confirmado') onClose()
+          if (isConfirmed(status)) onClose()
         }
       }
     )
   }
 
   const solpedNumber = order._id.slice(-6).toUpperCase()
-  const currentStatus = order.status || 'pendiente'
+  const currentStatus = statusOrPending(order.status)
   const formattedDate = formatDate(order.date, 'es-MX', {
     year: 'numeric',
     month: '2-digit',
@@ -160,7 +161,7 @@ const SolpedPrint = ({
                     <Badge
                       variant="outline"
                       className={
-                        currentStatus === 'confirmado'
+                        isConfirmed(currentStatus)
                           ? 'text-emerald-500 print:text-emerald-700'
                           : 'text-amber-500 print:text-amber-700'
                       }
@@ -217,19 +218,27 @@ const SolpedPrint = ({
             Cerrar
           </Button>
           <Button
-            variant={currentStatus === 'pendiente' ? 'default' : 'outline'}
+            variant={
+              currentStatus === ORDER_STATUS.pending ? 'default' : 'outline'
+            }
             className="disabled:opacity-100"
-            onClick={() => handleStatusChange('pendiente')}
-            disabled={currentStatus === 'pendiente' || updateOrder.isPending}
+            onClick={() => handleStatusChange(ORDER_STATUS.pending)}
+            disabled={
+              currentStatus === ORDER_STATUS.pending || updateOrder.isPending
+            }
             title="Cambiar el estado a pendiente"
           >
             Pendiente
           </Button>
           <Button
-            variant={currentStatus === 'confirmado' ? 'default' : 'outline'}
+            variant={
+              currentStatus === ORDER_STATUS.confirmed ? 'default' : 'outline'
+            }
             className="disabled:opacity-100"
-            onClick={() => handleStatusChange('confirmado')}
-            disabled={currentStatus === 'confirmado' || updateOrder.isPending}
+            onClick={() => handleStatusChange(ORDER_STATUS.confirmed)}
+            disabled={
+              currentStatus === ORDER_STATUS.confirmed || updateOrder.isPending
+            }
             title="Cambiar el estado a confirmado"
           >
             Confirmado

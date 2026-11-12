@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CircleUser } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/atoms/button'
 import {
   Dialog,
   DialogBody,
@@ -9,12 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog'
+} from '@/components/atoms/dialog'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger
-} from '@/components/ui/tooltip'
+} from '@/components/atoms/tooltip'
 import { useGetCurrentUser } from '@/features/users.features'
 import useLocationPrompt from '@/hooks/useLocationPrompt'
 import { AttendancePunch } from '@/pages/attendance/Attendance'

@@ -6,16 +6,16 @@ import { verifyLogin } from '@/helpers/validations'
 import { useLogin } from '@/features/users.features'
 import { useAuthStore } from '@/store/auth'
 import { errorMessage } from '@/libs/handleErrors'
-import { Alert } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Alert } from '@/components/atoms/alert'
+import { Button } from '@/components/atoms/button'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader
-} from '@/components/ui/card'
+} from '@/components/atoms/card'
 
 const REMEMBER_KEY = 'jm-remembered-user'
 

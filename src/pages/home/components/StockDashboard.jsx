@@ -1,20 +1,15 @@
-import PageShell from '@/components/PageShell'
+import { formatCurrency } from '@/utils/commonFunctions'
+import PageShell from '@/components/templates/PageShell'
 import { useGetInventoryStats } from '@/features/inventory.features'
 import TodaySalesCard from './TodaySalesCard'
 import DailyInformationDashboard from './DailyInformationDashboard'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Card } from '@/components/ui/card'
-import Skeleton from '@/components/ui/skeleton'
+import { Alert, AlertDescription } from '@/components/atoms/alert'
+import { Card } from '@/components/atoms/card'
+import Skeleton from '@/components/atoms/skeleton'
 
 const KPIS = (stats) => [
   ['Productos', stats?.totalProducts || 0],
-  [
-    'Dinero en stock',
-    `$${(stats?.totalInventoryValue || 0).toLocaleString('es-MX', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })}`
-  ]
+  ['Dinero en stock', formatCurrency(stats?.totalInventoryValue || 0)]
 ]
 
 const StockDashboard = () => {

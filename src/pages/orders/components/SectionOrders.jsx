@@ -1,6 +1,7 @@
 import { formatMoney } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
+import { isConfirmed, statusOrPending, toggledStatus } from '../orderStatus'
 import {
   useGetOrderRequests,
   useDeleteOrderRequest,
@@ -9,16 +10,16 @@ import {
 } from '@/features/orders.features'
 import ModalOrderRequest from './ModalOrderRequest'
 import SolpedPrint from './SolpedPrint'
-import ListSkeleton from '@/components/ListSkeleton'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import ListSkeleton from '@/components/molecules/ListSkeleton'
+import { Button } from '@/components/atoms/button'
+import { Badge } from '@/components/atoms/badge'
+import { Alert, AlertDescription } from '@/components/atoms/alert'
 import {
   Card,
   CardHeader,
   CardDescription,
   CardContent
-} from '@/components/ui/card'
+} from '@/components/atoms/card'
 import {
   Table,
   TableHeader,
@@ -26,9 +27,9 @@ import {
   TableRow,
   TableHead,
   TableCell
-} from '@/components/ui/table'
-import ActionIconButton from '@/components/ActionIconButton'
-import FormFilter from '@/components/FormFilter'
+} from '@/components/atoms/table'
+import ActionIconButton from '@/components/molecules/ActionIconButton'
+import FormFilter from '@/components/molecules/FormFilter'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 
@@ -59,7 +60,7 @@ const SectionOrders = () => {
   }
 
   const handleStatusChange = (order) => {
-    const status = order.status === 'confirmado' ? 'pendiente' : 'confirmado'
+    const status = toggledStatus(order.status)
     updateOrder.mutate({ id: order._id, body: { status } })
   }
 
@@ -78,7 +79,6 @@ const SectionOrders = () => {
     setSelectedOrder(updatedOrder)
   }
 
-  // El backend ya entrega pendientes primero y la fecha más reciente arriba
   const matcher = buildMatcher(filter)
   const sortedOrders = (orders || []).filter((order) =>
     matchesCells(
@@ -91,7 +91,7 @@ const SectionOrders = () => {
   )
 
   const getStatusColor = (status) =>
-    status === 'confirmado' ? 'text-emerald-400' : 'text-amber-400'
+    isConfirmed(status) ? 'text-emerald-400' : 'text-amber-400'
 
   return (
     <Card as="section" aria-labelledby="orders-title">
@@ -163,7 +163,7 @@ const SectionOrders = () => {
                         variant="outline"
                         className={`shrink-0 ${getStatusColor(order.status)}`}
                       >
-                        {order.status || 'pendiente'}
+                        {statusOrPending(order.status)}
                       </Badge>
                     </div>
                     <dl className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm">
@@ -185,14 +185,14 @@ const SectionOrders = () => {
                       </div>
                     </dl>
                     <div className="flex items-center justify-end gap-2 border-t pt-3">
-                      {order.status !== 'confirmado' && (
+                      {!isConfirmed(order.status) && (
                         <ActionIconButton
                           action="open"
                           label="Abrir"
                           onClick={() => handleViewSolped(order)}
                         />
                       )}
-                      {order.status === 'confirmado' && (
+                      {isConfirmed(order.status) && (
                         <ActionIconButton
                           action="reopen"
                           label="Reabrir"
@@ -245,7 +245,7 @@ const SectionOrders = () => {
                           variant="outline"
                           className={getStatusColor(order.status)}
                         >
-                          {order.status || 'pendiente'}
+                          {statusOrPending(order.status)}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -253,14 +253,14 @@ const SectionOrders = () => {
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                          {order.status !== 'confirmado' && (
+                          {!isConfirmed(order.status) && (
                             <ActionIconButton
                               action="open"
                               label="Abrir"
                               onClick={() => handleViewSolped(order)}
                             />
                           )}
-                          {order.status === 'confirmado' && (
+                          {isConfirmed(order.status) && (
                             <ActionIconButton
                               action="reopen"
                               label="Reabrir"

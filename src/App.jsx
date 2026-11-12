@@ -3,7 +3,7 @@ import { Toaster } from 'react-hot-toast'
 import Protected from './auth/Protected'
 import { appRoutes } from './auth/appRoutes'
 import Login from './pages/Login'
-import ProtectedLayout from './layouts/ProtectedLayout'
+import ProtectedLayout from '@/components/templates/ProtectedLayout'
 import useNetworkToasts from './hooks/useNetworkToasts'
 import useServiceWorkerUpdate from './hooks/useServiceWorkerUpdate'
 

@@ -4,15 +4,12 @@ import App from './App.jsx'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { queryClient, persistOptions } from '@/lib/queryClient'
 import { applyTheme, getTheme } from '@/ui/theme'
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { TooltipProvider } from '@/components/atoms/tooltip'
 import { limitNumberInputDecimals } from '@/utils/commonFunctions'
 
 const standaloneDisplayQuery = window.matchMedia(
   '(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)'
 )
-
-const isStandalonePwa = () =>
-  standaloneDisplayQuery.matches || window.navigator.standalone === true
 
 // 100dvh follows the visible screen, including an installed PWA where
 // innerHeight still reserves the browser toolbar.
@@ -34,7 +31,6 @@ const measureViewportPx = () =>
   )
 
 const setAppViewportHeight = () => {
-  document.documentElement.classList.toggle('is-pwa', isStandalonePwa())
   document.documentElement.style.setProperty(
     '--app-vh',
     `${measureViewportPx() * 0.01}px`

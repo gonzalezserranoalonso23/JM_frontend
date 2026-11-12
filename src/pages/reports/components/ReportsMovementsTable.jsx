@@ -1,6 +1,6 @@
-import InfiniteScrollFooter from '@/components/InfiniteScrollFooter'
-import RecordCards from '@/components/RecordCards'
-import { Badge } from '@/components/ui/badge'
+import InfiniteScrollFooter from '@/components/molecules/InfiniteScrollFooter'
+import RecordCards from '@/components/organisms/RecordCards'
+import { Badge } from '@/components/atoms/badge'
 import {
   Table,
   TableHeader,
@@ -8,7 +8,7 @@ import {
   TableRow,
   TableHead,
   TableCell
-} from '@/components/ui/table'
+} from '@/components/atoms/table'
 import { formatMoney, formatQty } from '@/utils/commonFunctions'
 import { formatDate } from '@/utils/dateDisplay'
 import {
