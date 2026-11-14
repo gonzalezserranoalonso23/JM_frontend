@@ -23,6 +23,12 @@ export const useGetCategories = () => {
   return { data, isLoading, isError }
 }
 
+const refreshCategoryUse = (queryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['Categories'] })
+  queryClient.invalidateQueries({ queryKey: ['Products'] })
+  queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+}
+
 export const useGetCategoryPages = () =>
   useInfiniteQuery({
     queryKey: ['Categories', 'pages'],
@@ -39,7 +45,7 @@ export const useDeleteCategory = () => {
     mutationFn: deleteCategory,
     onSuccess: () => {
       toast.success('Categoría borrada exitosamente!')
-      queryClient.invalidateQueries({ queryKey: ['Categories'] })
+      refreshCategoryUse(queryClient)
     }
   })
   return mutationDelete
@@ -51,7 +57,7 @@ export const useUpdateCategory = () => {
     mutationFn: updateCategory,
     onSuccess: () => {
       toast.success('Categoría actualizada exitosamente!')
-      queryClient.invalidateQueries({ queryKey: ['Categories'] })
+      refreshCategoryUse(queryClient)
     }
   })
   return mutationUpdate

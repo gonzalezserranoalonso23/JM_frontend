@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { preparePush, subscribeBrowserPush } from '@/services/push.services'
 import { useAuthStore } from '@/store/auth'
 
-// Vincula este dispositivo al usuario logueado para que el push le llegue a él.
+// Bind this device to the signed-in user so the push reaches that person.
 const usePushNotifications = (permission) => {
   const token = useAuthStore((state) => state.auth)
   const [ready, setReady] = useState(false)

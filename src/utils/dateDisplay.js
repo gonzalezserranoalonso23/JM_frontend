@@ -1,5 +1,5 @@
-// El día se toma de la parte YYYY-MM-DD del valor guardado, sin convertir zonas
-// horarias, así no depende de dónde esté el backend ni del navegador.
+// The day comes from the stored YYYY-MM-DD part, without converting time
+// zones, so it does not depend on the server or the browser.
 const ISO_DAY = /^(\d{4})-(\d{2})-(\d{2})/
 const LOCAL_DAY = /^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/
 
@@ -63,7 +63,7 @@ export const formatDate = (value, locale, options) => {
 
 const pad = (n) => String(n).padStart(2, '0')
 
-// Fecha de hoy en Ciudad de México. No usa la zona del dispositivo.
+// Today in Mexico City. Does not use the device time zone.
 export const todayMexicoCity = () => {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/Mexico_City',
@@ -75,7 +75,19 @@ export const todayMexicoCity = () => {
   return `${value('year')}-${value('month')}-${value('day')}`
 }
 
-// Fecha de hoy según la zona horaria del dispositivo (no UTC).
+export const addCalendarDays = (isoDay, offsetDays) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(isoDay || ''))
+  if (!match) return ''
+  const date = new Date(
+    Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+  )
+  date.setUTCDate(date.getUTCDate() + offsetDays)
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`
+}
+
+export const yesterdayMexicoCity = () => addCalendarDays(todayMexicoCity(), -1)
+
+// Today in the device time zone, not UTC.
 export const todayLocal = (offsetDays = 0) => {
   const date = new Date()
   date.setDate(date.getDate() + offsetDays)

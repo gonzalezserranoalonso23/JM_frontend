@@ -28,7 +28,7 @@ export const setTheme = (theme) => {
   try {
     localStorage.setItem(STORAGE_KEY, next)
   } catch {
-    // La preferencia se aplica igual en esta visita.
+    // The choice still applies for this visit.
   }
   applyTheme(next)
   return next

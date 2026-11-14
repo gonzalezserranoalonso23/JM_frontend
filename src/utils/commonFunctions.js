@@ -1,4 +1,4 @@
-// Funciones compartidas entre páginas y modales.
+// Helpers shared by pages and dialogs.
 
 export const toNumber = (value) => {
   const number = parseFloat(value)
@@ -19,7 +19,7 @@ export const yieldToMain = () =>
     setTimeout(resolve, 0)
   })
 
-// Monto en pesos con 2 decimales: formatMoney(12.5) -> "$12.50"
+// Amount in pesos with 2 decimals: formatMoney(12.5) -> "$12.50"
 export const formatMoney = (value) => `$${toNumber(value).toFixed(2)}`
 
 export const formatCurrency = (amount) =>
@@ -34,7 +34,7 @@ export const formatPercent = (value) =>
     maximumFractionDigits: 2
   })}%`
 
-// cantidad x precio como texto con 2 decimales; '' si alguno no es numérico
+// quantity x price as text with 2 decimals; '' when either value is not a number.
 export const calcLineTotal = (quantity, price) => {
   const qty = parseFloat(quantity)
   const unit = parseFloat(price)
@@ -42,11 +42,11 @@ export const calcLineTotal = (quantity, price) => {
   return (qty * unit).toFixed(2)
 }
 
-// Cantidad/stock con máximo 3 decimales y sin ceros sobrantes: 0.30000000000000004 -> 0.3
+// Quantity or stock with at most 3 decimals and no trailing zeros: 0.30000000000000004 -> 0.3
 export const formatQty = (value) => roundTo(value, 3)
 
-// Stock del almacén y disponible de este carrito. El original no cambia;
-// el disponible resta solo las cantidades ya agregadas.
+// Warehouse stock and what this cart can still use. The original does not change.
+// Available subtracts only the quantities already added.
 export const informativeStock = (original, used) => {
   const stock = roundTo(original, 3)
   const inCart = roundTo(used, 3)

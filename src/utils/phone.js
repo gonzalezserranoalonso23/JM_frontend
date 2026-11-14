@@ -4,7 +4,7 @@ export const callHref = (phone) => {
   return `tel:${compact}`
 }
 
-// México: 10 dígitos se completan con 52. wa.me abre la app si está instalada.
+// Mexico: 10 digits are completed with 52. wa.me opens the app when it is installed.
 export const whatsappHref = (phone) => {
   const digits = String(phone).replace(/\D/g, '')
   if (digits.length < 10) return ''

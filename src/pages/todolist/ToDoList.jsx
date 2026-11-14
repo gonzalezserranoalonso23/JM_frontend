@@ -23,6 +23,7 @@ import {
   CardDescription,
   CardContent
 } from '@/components/atoms/card'
+import InfiniteScrollFooter from '@/components/molecules/InfiniteScrollFooter'
 import { cn } from '@/lib/utils'
 import { taskUserId } from './task'
 
@@ -43,9 +44,22 @@ const priorityBadge = {
 
 export const TaskBoard = () => {
   const [activeTab, setActiveTab] = useState('pending')
-  const { data: pendingTasks, isLoading: loadingPending } = useGetPendingTasks()
-  const { data: completedTasks, isLoading: loadingCompleted } =
-    useGetCompletedTasks(activeTab === 'completed')
+  const {
+    tasks: pendingTasks,
+    total: pendingCount,
+    isLoading: loadingPending,
+    fetchNextPage: fetchNextPending,
+    hasNextPage: hasNextPending,
+    isFetchingNextPage: fetchingNextPending
+  } = useGetPendingTasks()
+  const {
+    tasks: completedTasks,
+    total: completedCount,
+    isLoading: loadingCompleted,
+    fetchNextPage: fetchNextCompleted,
+    hasNextPage: hasNextCompleted,
+    isFetchingNextPage: fetchingNextCompleted
+  } = useGetCompletedTasks(activeTab === 'completed')
   const { data: users } = useGetAssignableUsers()
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
@@ -123,8 +137,6 @@ export const TaskBoard = () => {
     }
   }
 
-  const pendingCount = pendingTasks?.length || 0
-
   return (
     <Card as="section" aria-labelledby="tasks-title">
       <CardHeader>
@@ -134,7 +146,7 @@ export const TaskBoard = () => {
         <CardDescription>Gestiona los pendientes</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
-        {/* Formulario Crear Tarea */}
+        {/* Create task form */}
         <section
           className="rounded-lg border p-4"
           aria-labelledby="new-task-title"
@@ -205,8 +217,7 @@ export const TaskBoard = () => {
             variant={activeTab === 'completed' ? 'secondary' : 'ghost'}
             onClick={() => setActiveTab('completed')}
           >
-            Completadas
-            {completedTasks ? ` (${completedTasks.length})` : ''}
+            Completadas{completedTasks ? ` (${completedCount})` : ''}
           </Button>
         </nav>
 
@@ -226,7 +237,7 @@ export const TaskBoard = () => {
           </div>
         ) : (
           <>
-            {/* Tareas Pendientes */}
+            {/* Pending tasks */}
             {activeTab === 'pending' &&
               (pendingTasks && pendingTasks.length > 0 ? (
                 <div className="flex flex-col gap-3">
@@ -319,6 +330,11 @@ export const TaskBoard = () => {
                       </div>
                     </article>
                   ))}
+                  <InfiniteScrollFooter
+                    hasNextPage={hasNextPending}
+                    isFetchingNextPage={fetchingNextPending}
+                    fetchNextPage={fetchNextPending}
+                  />
                 </div>
               ) : (
                 <div className="py-8 text-center text-muted-foreground">
@@ -329,7 +345,7 @@ export const TaskBoard = () => {
                 </div>
               ))}
 
-            {/* Tareas Completadas */}
+            {/* Completed tasks */}
             {activeTab === 'completed' &&
               (completedTasks && completedTasks.length > 0 ? (
                 <div className="flex flex-col gap-3">
@@ -397,6 +413,11 @@ export const TaskBoard = () => {
                       </div>
                     </article>
                   ))}
+                  <InfiniteScrollFooter
+                    hasNextPage={hasNextCompleted}
+                    isFetchingNextPage={fetchingNextCompleted}
+                    fetchNextPage={fetchNextCompleted}
+                  />
                 </div>
               ) : (
                 <div className="py-8 text-center text-muted-foreground">

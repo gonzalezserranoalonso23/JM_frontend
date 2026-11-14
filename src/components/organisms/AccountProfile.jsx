@@ -124,6 +124,7 @@ const AccountProfile = ({ notifications = null }) => {
           )}
           {user && (
             <div className="flex flex-col gap-4">
+              {showPunch && <AttendancePunch />}
               <dl className="divide-y">
                 <Field label="Usuario">{user.username}</Field>
                 <Field label="Nombre">{user.fullName || '—'}</Field>
@@ -138,7 +139,6 @@ const AccountProfile = ({ notifications = null }) => {
                   <ScheduleDays schedule={user.schedule} />
                 </section>
               )}
-              {showPunch && <AttendancePunch />}
             </div>
           )}
           <div className="flex items-center justify-between gap-4 border-t pt-4">

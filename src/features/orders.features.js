@@ -1,20 +1,28 @@
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient
+} from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { notifyError } from '@/libs/handleErrors'
 import {
-  getOrderRequests,
+  getOrderRequestsPage,
   createOrderRequest,
   updateOrderRequest,
   deleteOrderRequest
 } from '@/services/orders.services'
 
-export const useGetOrderRequests = () => {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['OrderRequests'],
-    queryFn: getOrderRequests
+export const useGetOrderPages = (search = '') =>
+  useInfiniteQuery({
+    queryKey: ['OrderRequests', 'pages', search],
+    queryFn: ({ pageParam, signal }) =>
+      getOrderRequestsPage({ page: pageParam, limit: 20, search, signal }),
+    placeholderData: keepPreviousData,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
-  return { data, isLoading, isError }
-}
 
 export const useCreateOrderRequest = () => {
   const queryClient = useQueryClient()

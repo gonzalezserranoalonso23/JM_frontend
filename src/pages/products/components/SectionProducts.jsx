@@ -10,6 +10,7 @@ import { notifyError } from '@/libs/handleErrors'
 import { todayLocal } from '@/utils/dateDisplay'
 import ModalProducts from './ModalProducts'
 import useFilterQuery from '@/hooks/useFilterQuery'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
 import FormFilter from '@/components/molecules/FormFilter'
 import { Card } from '@/components/atoms/card'
 import { Button } from '@/components/atoms/button'
@@ -19,6 +20,7 @@ import { useRoleName } from '@/features/users.features'
 
 const SectionProducts = () => {
   const [dataFilter, setDataFilter] = useFilterQuery()
+  const search = useDebouncedValue(dataFilter.trim(), 200)
   const {
     data: productPages,
     isLoading,
@@ -26,7 +28,7 @@ const SectionProducts = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useGetProductPages(dataFilter)
+  } = useGetProductPages(search)
   const products = productPages?.pages.flatMap((page) => page.data) || []
   const totalProducts = productPages?.pages[0]?.total || 0
 

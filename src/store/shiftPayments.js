@@ -31,7 +31,7 @@ const takeLegacyPayments = () => {
         : []
       if (shiftId && payments.length > 0) byShift[shiftId] = payments
     } catch {
-      // Un borrador dañado no se recupera.
+      // A damaged draft is not restored.
     }
     localStorage.removeItem(key)
   })

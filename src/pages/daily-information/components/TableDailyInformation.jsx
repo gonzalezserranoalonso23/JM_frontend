@@ -4,6 +4,10 @@ import { formatCurrency } from '@/utils/commonFunctions'
 
 const TableDailyInformation = ({
   records,
+  total = records.length,
+  hasNextPage,
+  fetchNextPage,
+  isFetchingNextPage,
   handleUpdate,
   handleDelete,
   canManage = false
@@ -11,7 +15,11 @@ const TableDailyInformation = ({
   <DataList
     rows={records}
     rowKey={(record) => record._id}
-    totalLabel={`Total: ${records.length} registros`}
+    total={total}
+    hasNextPage={hasNextPage}
+    fetchNextPage={fetchNextPage}
+    isFetchingNextPage={isFetchingNextPage}
+    totalLabel={`Total: ${total} registros`}
   >
     <Column header="Fecha" primary>
       {(record) => record.date}

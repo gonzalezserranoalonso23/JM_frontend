@@ -26,12 +26,12 @@ const writeSeen = (key, ids) => {
   try {
     localStorage.setItem(key, JSON.stringify([...ids]))
   } catch {
-    // no-op: sin almacenamiento solo se repetiría el aviso
+    // no-op: without storage the notice would only repeat.
   }
 }
 
-// Pide permiso al sistema. Con la app abierta avisa en el momento;
-// con la app cerrada el backend empuja al dispositivo suscrito.
+// Ask the system for permission. While the app is open it notifies immediately.
+// While it is closed, the backend pushes to the subscribed device.
 const blockedMessage = () =>
   isAppleBrowser()
     ? 'Safari bloqueó las notificaciones. En Safari, Ajustes, Sitios web, Notificaciones, permite este sitio.'
@@ -81,7 +81,7 @@ const useTaskNotifications = (pendingTasks) => {
       }
     }
     try {
-      // En Safari, subscribe() muestra el permiso. Pedirlo antes gasta el toque.
+      // In Safari, subscribe() shows the permission. Asking earlier spends the tap.
       const linked = await subscribe()
       const next = getPermission()
       if (linked || next === 'granted') setPermission('granted')

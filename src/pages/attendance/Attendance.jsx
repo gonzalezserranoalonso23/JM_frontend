@@ -37,7 +37,6 @@ import {
   paymentLabel,
   personName,
   punchCopy,
-  punchVariant,
   recordEnd
 } from '@/utils/attendance'
 import {
@@ -121,7 +120,7 @@ const ClockPanel = ({
     return (
       <div role="status" aria-label="Cargando" className="grid gap-4">
         <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-12 w-full sm:w-48" />
+        <Skeleton className="h-9 w-full sm:w-40" />
       </div>
     )
   }
@@ -138,7 +137,7 @@ const ClockPanel = ({
 
   return (
     <>
-      <div className="rounded-lg border bg-muted/30 p-4">
+      <div className="rounded-lg border bg-muted/30 px-3 py-2">
         <LiveClock />
         {staleOpen}
       </div>
@@ -228,8 +227,12 @@ const ClockPanel = ({
       )}
       <Button
         type="button"
-        className="h-12 w-full text-base xl:w-fit xl:min-w-48 xl:px-8"
-        variant={punchVariant(open)}
+        variant={open ? 'destructive' : 'default'}
+        className={
+          open
+            ? '!h-9 !min-h-9 w-fit px-3'
+            : '!h-9 !min-h-9 w-fit bg-cyan-600 px-3 text-white hover:scale-105 hover:bg-cyan-400'
+        }
         disabled={pending || dayOff || (askCash && !amountReady)}
         onClick={() => onPunch({ amount: parsedAmount, payments })}
       >
@@ -576,7 +579,7 @@ export const AttendancePunch = () => {
   const dayOff = !open && !workDay
 
   return (
-    <section aria-labelledby="profile-punch" className="grid gap-3">
+    <section aria-labelledby="profile-punch" className="grid gap-4">
       <h2 id="profile-punch" className="text-sm font-semibold">
         Asistencia
       </h2>

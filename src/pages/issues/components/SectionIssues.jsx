@@ -121,7 +121,7 @@ const SectionIssues = () => {
           <Button onClick={handleShow}>↑ Nueva Salida</Button>
         </header>
 
-        {/* Filtro */}
+        {/* Filter */}
         <FormFilter
           id="issue-filter"
           label="Buscar salidas"
@@ -164,7 +164,7 @@ const SectionIssues = () => {
           isEditing={isEditing}
         />
 
-        {/* Tabla */}
+        {/* Table */}
         {isLoading ? (
           <ListSkeleton />
         ) : isError ? (

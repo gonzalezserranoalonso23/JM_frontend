@@ -2,12 +2,12 @@ import { useState } from 'react'
 import {
   useCreateDailyInformation,
   useDeleteDailyInformation,
-  useGetDailyInformations,
+  useGetDailyInformationPages,
   useUpdateDailyInformation
 } from '@/features/dailyInformation.features'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
 import useFilterQuery from '@/hooks/useFilterQuery'
 import FormFilter from '@/components/molecules/FormFilter'
-import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 import ListSkeleton from '@/components/molecules/ListSkeleton'
 import { Button } from '@/components/atoms/button'
 import { Alert } from '@/components/atoms/alert'
@@ -19,23 +19,23 @@ import TableDailyInformation from './TableDailyInformation'
 
 const SectionDailyInformation = () => {
   const fullAccess = hasFullAccess(useRoleName())
-  const { data: records, isLoading, isError } = useGetDailyInformations()
+  const [textFilter, setTextFilter] = useFilterQuery()
+  const search = useDebouncedValue(textFilter.trim())
+  const {
+    data: recordPages,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useGetDailyInformationPages(search)
+  const records = recordPages?.pages.flatMap((page) => page.data) || []
+  const total = recordPages?.pages[0]?.total || 0
   const createAction = useCreateDailyInformation()
   const updateAction = useUpdateDailyInformation()
   const deleteAction = useDeleteDailyInformation()
   const [modalShow, setModalShow] = useState(false)
   const [record, setRecord] = useState(null)
-  const [textFilter, setTextFilter] = useFilterQuery()
-
-  const matcher = buildMatcher(textFilter)
-
-  const filteredRecords = (records || [])
-    .filter((item) => {
-      if (!matchesCells(dateCells(item.date), matcher)) return false
-      return true
-    })
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
-
   const handleClose = () => {
     setModalShow(false)
     setRecord(null)
@@ -91,9 +91,13 @@ const SectionDailyInformation = () => {
           <Alert variant="destructive">
             Error al cargar la información diaria
           </Alert>
-        ) : filteredRecords.length ? (
+        ) : records.length ? (
           <TableDailyInformation
-            records={filteredRecords}
+            records={records}
+            total={total}
+            hasNextPage={hasNextPage}
+            fetchNextPage={fetchNextPage}
+            isFetchingNextPage={isFetchingNextPage}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
             canManage={fullAccess}

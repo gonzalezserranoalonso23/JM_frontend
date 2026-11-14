@@ -1,4 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient
+} from '@tanstack/react-query'
 import {
   getPendingTasks,
   getCompletedTasks,
@@ -10,27 +14,46 @@ import toast from 'react-hot-toast'
 import { notifyError } from '@/libs/handleErrors'
 
 const FIVE_MINUTES = 5 * 60 * 1000
+const PAGE = 20
 
-// El aviso push cubre la app en segundo plano. Con la pantalla abierta basta
-// mirar cada 5 min; al cerrar la pestaña el intervalo se detiene.
-export const useGetPendingTasks = () => {
-  return useQuery({
-    queryKey: ['pendingTasks'],
-    queryFn: getPendingTasks,
-    staleTime: FIVE_MINUTES,
-    refetchInterval: FIVE_MINUTES,
-    refetchIntervalInBackground: false
-  })
+const taskList = (query) => {
+  const tasks = query.data
+    ? query.data.pages.flatMap((page) => page.data || [])
+    : undefined
+  const total = query.data?.pages?.[0]?.total ?? 0
+  return { ...query, tasks, total }
 }
 
-export const useGetCompletedTasks = (enabled = true) => {
-  return useQuery({
-    queryKey: ['completedTasks'],
-    queryFn: getCompletedTasks,
-    enabled,
-    staleTime: FIVE_MINUTES
-  })
-}
+// The push covers the app in the background. While the screen is open,
+// checking every 5 minutes is enough. Closing the tab stops the interval.
+export const useGetPendingTasks = () =>
+  taskList(
+    useInfiniteQuery({
+      queryKey: ['pendingTasks'],
+      queryFn: ({ pageParam, signal }) =>
+        getPendingTasks({ page: pageParam, limit: PAGE, signal }),
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) =>
+        lastPage?.hasNextPage ? lastPage.page + 1 : undefined,
+      staleTime: FIVE_MINUTES,
+      refetchInterval: FIVE_MINUTES,
+      refetchIntervalInBackground: false
+    })
+  )
+
+export const useGetCompletedTasks = (enabled = true) =>
+  taskList(
+    useInfiniteQuery({
+      queryKey: ['completedTasks'],
+      queryFn: ({ pageParam, signal }) =>
+        getCompletedTasks({ page: pageParam, limit: PAGE, signal }),
+      enabled,
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) =>
+        lastPage?.hasNextPage ? lastPage.page + 1 : undefined,
+      staleTime: FIVE_MINUTES
+    })
+  )
 
 export const useCreateTask = () => {
   const queryClient = useQueryClient()

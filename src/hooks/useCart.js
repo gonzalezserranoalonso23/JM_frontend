@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { createTempId, sumBy } from '@/utils/commonFunctions'
 
-// Carrito local: cada línea agregada conserva su posición, aunque se repita el producto.
+// Local cart: each added line keeps its position, even when the product repeats.
 export const useCart = () => {
   const [cart, setCart] = useState([])
 

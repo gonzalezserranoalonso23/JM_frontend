@@ -43,7 +43,7 @@ const mapRows = (current, mapRow) => {
   return current
 }
 
-// Pinta el cambio en las páginas ya cargadas antes de que responda el listado.
+// Paint the change on pages already loaded before the list responds.
 export const applyProductUpdate = (current, updated, catalogs = {}) => {
   if (!current || !updated?._id) return current
   return mapRows(current, (row) => {
@@ -218,8 +218,8 @@ export const removeInventoryRecord = (current, id) => {
   }
 }
 
-// La lista filtrada por texto se deja al refetch. Sin búsqueda, el renglón
-// entra, se actualiza o sale según la dirección y el tipo de pago.
+// A text-filtered list waits for the refetch. Without a search, the row
+// is added, updated, or removed from the stock direction and the payment type.
 export const fitsMovementList = (queryKey, record) => {
   const [, , direction, search, paymentType] = queryKey
   if (search) return null

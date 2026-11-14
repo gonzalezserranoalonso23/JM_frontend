@@ -1,6 +1,6 @@
 export const isExitType = (type) => Number(type?.stockDirection) === -1
 
-// Un registro llega con typeInventory poblado: { _id, typeInventory, stockDirection }
+// A record arrives with typeInventory populated: { _id, typeInventory, stockDirection }
 export const isIssueRecord = (record) => isExitType(record?.typeInventory)
 
 const priceOf = (value) => {
@@ -8,8 +8,8 @@ const priceOf = (value) => {
   return Number.isFinite(number) ? number : null
 }
 
-// Solo las salidas tienen utilidad. El costo guardado en el movimiento
-// gana sobre el costo actual del catálogo.
+// Only exits have profit. The cost stored on the movement
+// wins over the current catalog cost.
 export const movementPrices = (record) => {
   if (!isIssueRecord(record)) {
     return { purchasePrice: null, productPrice: null, profit: null }

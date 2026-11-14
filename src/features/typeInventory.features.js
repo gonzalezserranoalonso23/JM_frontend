@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { getTypeInventories } from '@/services/typeInventory.services'
 
-// Catálogo casi estático (1 hora). La dirección del stock define si el tipo
-// suma (entrada, 1) o resta (salida, -1); el nombre es solo una etiqueta.
+// Nearly static catalog, cached for 1 hour. stockDirection says whether the
+// type adds stock (entry, 1) or subtracts it (exit, -1). The name is only a label.
 export const useGetTypeInventories = (enabled = true) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['TypeInventories'],

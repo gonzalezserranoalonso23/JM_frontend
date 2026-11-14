@@ -28,7 +28,7 @@ const pages = Object.fromEntries(
   Object.entries(loaders).map(([path, load]) => [path, lazy(load)])
 )
 
-// El módulo queda en memoria. Al tocar el enlace la pantalla ya está lista.
+// The module stays in memory. The screen is ready when the link is pressed.
 export const prefetchRoute = (path) => {
   if (import.meta.env.MODE === 'test') return
   loaders[path]?.().catch(() => {})

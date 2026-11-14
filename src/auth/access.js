@@ -5,7 +5,7 @@ export const ADMIN_ROLES = ['Manager', 'Supervisor']
 export const STAFF_ROLES = ['Manager', 'Supervisor', 'Staff']
 export const USER_ROLES = ['Manager', 'Supervisor', 'Staff', 'User']
 
-// El rol del usuario en sesión manda cuando ya llegó del servidor.
+// The signed-in role from the server wins once it has arrived.
 export const sessionRole = (storeRole, me) => me?.role?.name || storeRole || ''
 
 export const routeRules = [

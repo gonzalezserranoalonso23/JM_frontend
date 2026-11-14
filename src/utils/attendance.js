@@ -50,11 +50,6 @@ export const punchCopy = ({ pending, open, dayOff }) => {
   return 'Registrar entrada'
 }
 
-export const punchVariant = (open) => {
-  if (open) return 'destructive'
-  return 'default'
-}
-
 export const moneyOrDash = (value) => {
   if (value == null || value === '') return '—'
   return formatMoney(value)

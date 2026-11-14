@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-// El filtro (regex) vive en el query param para poder compartir o recargar la vista.
+// The filter lives in the query param so the view can be shared or reloaded.
 const useFilterQuery = (key = 'q') => {
   const [searchParams, setSearchParams] = useSearchParams()
   const value = searchParams.get(key) || ''

@@ -1,7 +1,27 @@
 import axios from '@/libs/axios'
 
-export const getDailyInformations = async () => {
-  const { data } = await axios.get('/api/daily-information')
+export const getDailyInformationByDate = async (date, signal) => {
+  const { data } = await axios.get('/api/daily-information', {
+    signal,
+    params: { date }
+  })
+  return data
+}
+
+export const getDailyInformationsPage = async ({
+  page,
+  limit,
+  search,
+  signal
+}) => {
+  const { data } = await axios.get('/api/daily-information', {
+    signal,
+    params: {
+      page,
+      limit,
+      ...(search ? { search } : {})
+    }
+  })
   return data
 }
 

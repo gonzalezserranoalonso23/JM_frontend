@@ -35,12 +35,12 @@ const ReportsSalesAndMovements = () => {
   const [startDate, setStartDate] = useState(todayLocal())
   const [endDate, setEndDate] = useState(todayLocal())
   const { types, issueType, entryType } = useGetTypeInventories()
-  // undefined = aún sin elegir: por defecto las salidas; '' = todos
+  // undefined means not chosen yet, so exits are the default. '' means all.
   const [typeChoice, setTypeChoice] = useState()
   const selectedType = typeChoice ?? issueType?.value ?? ''
   const selectedTypeInfo = types.find((type) => type.value === selectedType)
   const [paymentChoice, setPaymentChoice] = useState('')
-  // Las entradas no tienen forma de pago: el filtro solo aplica a salidas/todos
+  // Entries have no payment type. The filter applies to exits and to all.
   const showPaymentFilter = selectedTypeInfo?.stockDirection !== 1
   const selectedPaymentType = showPaymentFilter ? paymentChoice : ''
   const [isExporting, setIsExporting] = useState(false)

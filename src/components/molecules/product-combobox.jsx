@@ -336,7 +336,7 @@ const ProductCombobox = ({
                     optionRefs.current[index] = node
                   }}
                   className={cn(
-                    'block w-full min-h-11 min-w-0 cursor-pointer touch-manipulation px-3 py-2 text-left',
+                    'block w-full min-h-9 min-w-0 cursor-pointer touch-manipulation px-3 py-1.5 text-left',
                     index === activeIndex && 'bg-accent text-accent-foreground'
                   )}
                   onMouseEnter={() => setActiveIndex(index)}

@@ -8,7 +8,7 @@ import {
   updatePaymentType
 } from '@/services/paymentTypes.services'
 
-// Catálogo casi estático: se cachea 1 hora. label = nombre, value = _id.
+// Nearly static catalog, cached for 1 hour. label is the name, value is the _id.
 export const useGetPaymentTypes = (enabled = true) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['PaymentTypes'],

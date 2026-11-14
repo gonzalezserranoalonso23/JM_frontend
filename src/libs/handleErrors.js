@@ -36,7 +36,7 @@ const safeRedirect = (location) => {
 const isOffline = () =>
   typeof navigator !== 'undefined' && navigator.onLine === false
 
-// Clasifica cualquier fallo de la petición: sin red, 3xx, 4xx y 5xx.
+// Classify any request failure: offline, 3xx, 4xx, and 5xx.
 export const handleErrors = (error) => {
   if (
     error?.code === 'ERR_CANCELED' ||
@@ -90,7 +90,7 @@ export const handleErrors = (error) => {
   }
 }
 
-// El texto que ve la persona. El fallback solo cubre un 400 o 409 sin mensaje.
+// The text the person sees. The fallback only covers a 400 or 409 without a message.
 export const errorMessage = (error, fallback) => {
   const handled = error?.handled ?? handleErrors(error)
   if (handled.ignore) return ''

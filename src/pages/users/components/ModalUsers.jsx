@@ -81,7 +81,7 @@ const ModalUsers = ({
         haveSchedule: values.haveSchedule
       }
       if (values.haveSchedule) payload.schedule = values.schedule
-      // Al editar, solo incluir password si se llenó
+      // On edit, include password only when it was filled in.
       if (user?._id && !values.password) delete payload.password
       action.mutate(!user?._id ? payload : { id: user._id, data: payload }, {
         onSuccess: handleCloseReset

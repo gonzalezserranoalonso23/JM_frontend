@@ -2,7 +2,7 @@ import { Button } from '@/components/atoms/button'
 import Loading from '@/components/atoms/Loading'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 
-// Pie común del scroll infinito: observer, spinner y botón de respaldo.
+// Shared infinite-scroll footer: observer, spinner, and a fallback button.
 const InfiniteScrollFooter = ({
   hasNextPage,
   isFetchingNextPage,

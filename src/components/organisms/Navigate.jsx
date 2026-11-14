@@ -181,11 +181,10 @@ const Navigate = () => {
   const logOut = useAuthStore((state) => state.logOut)
   const role = useAuthStore((state) => state.role)
   const { data: me } = useGetCurrentUser()
-  const { data: pendingTasks } = useGetPendingTasks()
+  const { tasks: pendingTasks, total: pendingCount } = useGetPendingTasks()
   const { showNotifications, requestPermission } =
     useTaskNotifications(pendingTasks)
   const navigate = useNavigate()
-  const pendingCount = pendingTasks?.length ?? 0
   const roleName = sessionRole(role, me)
   const fullAccess = hasFullAccess(roleName)
   const links = getNavLinks(roleName)

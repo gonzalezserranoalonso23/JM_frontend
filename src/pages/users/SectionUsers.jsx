@@ -101,7 +101,7 @@ const SectionUsers = () => {
         onClose={() => setScheduleUser(null)}
       />
 
-      {/* Filtro */}
+      {/* Filter */}
       <FormFilter
         id="user-filter"
         label="Buscar usuario"
@@ -109,7 +109,7 @@ const SectionUsers = () => {
         onChange={setSearch}
       />
 
-      {/* Tabla */}
+      {/* Table */}
       {isLoading ? (
         <ListSkeleton />
       ) : isError ? (

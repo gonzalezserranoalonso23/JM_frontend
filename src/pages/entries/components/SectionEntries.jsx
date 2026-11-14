@@ -107,7 +107,7 @@ const SectionEntries = () => {
           <Button onClick={handleShow}>↓ Nueva Entrada</Button>
         </header>
 
-        {/* Filtro */}
+        {/* Filter */}
         <FormFilter
           id="entry-filter"
           label="Buscar entradas"
@@ -126,7 +126,7 @@ const SectionEntries = () => {
           isEditing={isEditing}
         />
 
-        {/* Tabla */}
+        {/* Table */}
         {isLoading ? (
           <ListSkeleton />
         ) : isError ? (

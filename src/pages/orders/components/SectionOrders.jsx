@@ -3,7 +3,7 @@ import { formatDate } from '@/utils/dateDisplay'
 import { useState } from 'react'
 import { isConfirmed, statusOrPending, toggledStatus } from '../orderStatus'
 import {
-  useGetOrderRequests,
+  useGetOrderPages,
   useDeleteOrderRequest,
   useCreateOrderRequest,
   useUpdateOrderRequest
@@ -30,16 +30,26 @@ import {
 } from '@/components/atoms/table'
 import ActionIconButton from '@/components/molecules/ActionIconButton'
 import FormFilter from '@/components/molecules/FormFilter'
+import InfiniteScrollFooter from '@/components/molecules/InfiniteScrollFooter'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
 import useFilterQuery from '@/hooks/useFilterQuery'
-import { buildMatcher, dateCells, matchesCells } from '@/utils/filterMatcher'
 
 const SectionOrders = () => {
-  const { data: orders, isLoading, isError } = useGetOrderRequests()
+  const [filter, setFilter] = useFilterQuery()
+  const search = useDebouncedValue(filter.trim())
+  const {
+    data: orderPages,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useGetOrderPages(search)
+  const orders = orderPages?.pages.flatMap((page) => page.data) || []
   const createOrder = useCreateOrderRequest()
   const deleteOrder = useDeleteOrderRequest()
   const updateOrder = useUpdateOrderRequest()
 
-  const [filter, setFilter] = useFilterQuery()
   const [modalShow, setModalShow] = useState(false)
   const [showSolped, setShowSolped] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
@@ -79,17 +89,6 @@ const SectionOrders = () => {
     setSelectedOrder(updatedOrder)
   }
 
-  const matcher = buildMatcher(filter)
-  const sortedOrders = (orders || []).filter((order) =>
-    matchesCells(
-      [
-        order.supplier?.suppliersName || order.supplier?.name,
-        ...dateCells(order.date)
-      ],
-      matcher
-    )
-  )
-
   const getStatusColor = (status) =>
     isConfirmed(status) ? 'text-emerald-400' : 'text-amber-400'
 
@@ -114,7 +113,7 @@ const SectionOrders = () => {
           order={editingOrder}
         />
 
-        {/* Solped Print */}
+        {/* Purchase order print */}
         {showSolped && selectedOrder && (
           <SolpedPrint
             order={selectedOrder}
@@ -135,17 +134,17 @@ const SectionOrders = () => {
           onChange={setFilter}
         />
 
-        {/* Tabla */}
+        {/* Table */}
         {isLoading ? (
           <ListSkeleton />
         ) : isError ? (
           <Alert variant="destructive">
             <AlertDescription>Error al cargar las solicitudes</AlertDescription>
           </Alert>
-        ) : sortedOrders.length > 0 ? (
+        ) : orders.length > 0 ? (
           <>
             <div className="space-y-3 xl:hidden">
-              {sortedOrders.map((order) => (
+              {orders.map((order) => (
                 <Card as="article" key={order._id} className="gap-3 py-4">
                   <CardContent className="space-y-3 px-4">
                     <div className="flex items-start justify-between gap-3">
@@ -224,7 +223,7 @@ const SectionOrders = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedOrders.map((order) => (
+                  {orders.map((order) => (
                     <TableRow key={order._id}>
                       <TableCell>
                         <strong>#{order._id.slice(-6).toUpperCase()}</strong>
@@ -280,6 +279,11 @@ const SectionOrders = () => {
                 </TableBody>
               </Table>
             </div>
+            <InfiniteScrollFooter
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={fetchNextPage}
+            />
           </>
         ) : (
           <Alert>

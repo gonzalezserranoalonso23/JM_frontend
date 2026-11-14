@@ -1,6 +1,6 @@
 import axios from '@/libs/axios'
 
-// Registros de inventario
+// Inventory records
 export const getInventoryRecord = async (id) => {
   const { data } = await axios.get(`/api/inventory-records/${id}`)
   return data
@@ -30,8 +30,8 @@ export const createInventoryRecord = async (body) => {
   return data
 }
 
-// El plazo general es de 6s para soltar la pantalla si el servidor está caído.
-// Registrar el carrito escribe stock y renglones; en Atlas puede tardar más.
+// The usual deadline is 6s so the screen is released when the server is down.
+// Saving the cart writes stock and rows. On Atlas that can take longer.
 const BULK_TIMEOUT = 30000
 
 export const createInventoryRecords = async (records) => {
@@ -53,7 +53,7 @@ export const deleteInventoryRecord = async (id) => {
   return data
 }
 
-// Reportes
+// Reports
 export const getLowStockProductsPage = async ({
   page,
   limit,

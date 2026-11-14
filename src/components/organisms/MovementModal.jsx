@@ -311,8 +311,8 @@ const MovementModal = ({
       return
     }
 
-    // El aviso de al agregar no reserva el stock. Se vuelve a leer justo
-    // antes de enviar, porque otra salida pudo haberlo tomado mientras tanto.
+    // The warning shown when adding a line does not reserve stock. It is read
+    // again just before submit, because another exit may have taken it.
     if (copy.checkStock) {
       const ids = [...new Set(cart.map((item) => item.productName))]
       const freshProducts = await Promise.all(
@@ -363,7 +363,7 @@ const MovementModal = ({
       clearCart()
       handleClose()
     } catch (error) {
-      // El carrito se conserva para que el usuario pueda reintentar
+      // Keep the cart so the user can retry.
       const message = errorMessage(error)
       if (message) setError(message)
     } finally {
@@ -371,7 +371,7 @@ const MovementModal = ({
     }
   }
 
-  // Esta salida ya descontó su cantidad. Al editarla, ese stock sigue disponible.
+  // This exit already subtracted its quantity. While editing, that stock stays available.
   const editHeldQty =
     copy.checkStock &&
     record &&

@@ -5,7 +5,7 @@ import { handleErrors, notifyError } from '@/libs/handleErrors'
 
 const PERSIST_KEY = 'jm-query-cache'
 const DAY = 24 * 60 * 60 * 1000
-const CACHE_VERSION = 'v1'
+const CACHE_VERSION = 'v3'
 
 const isCanceled = (error) =>
   error?.code === 'ERR_CANCELED' || error?.name === 'CanceledError'

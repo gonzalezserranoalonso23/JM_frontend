@@ -1,8 +1,15 @@
 import axios from '@/libs/axios'
 
-// Solicitudes de Pedido
-export const getOrderRequests = async () => {
-  const { data } = await axios.get('/api/orders')
+// Purchase orders
+export const getOrderRequestsPage = async ({ page, limit, search, signal }) => {
+  const { data } = await axios.get('/api/orders', {
+    signal,
+    params: {
+      page,
+      limit,
+      ...(search ? { search } : {})
+    }
+  })
   return data
 }
 

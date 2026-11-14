@@ -1,7 +1,7 @@
 import { formatDate, isoDay } from './dateDisplay'
 
-// Coincide si el texto lo incluye (includes) o si cumple como expresión regular.
-// Un patrón inválido solo se evalúa con includes.
+// It matches when the text includes the query or when the query is a valid regular expression.
+// An invalid pattern is evaluated with includes only.
 export const buildMatcher = (pattern) => {
   const value = String(pattern || '').trim()
   if (!value) return null
@@ -16,7 +16,7 @@ export const buildMatcher = (pattern) => {
     text.toLowerCase().includes(needle) || Boolean(regex && regex.test(text))
 }
 
-// Texto de una fecha: ISO, formato local y escrita (día y mes en español).
+// Text of a date: ISO, the local format, and the written day and month in Spanish.
 export const dateCells = (value) => {
   const iso = isoDay(value)
   if (!iso) return []
@@ -32,6 +32,6 @@ export const dateCells = (value) => {
   ]
 }
 
-// Filtra por celda: solo se evalúan los textos de las celdas indicadas.
+// Filter by cell: only the text of the given cells is evaluated.
 export const matchesCells = (cells, matcher) =>
   !matcher || cells.some((cell) => matcher(String(cell ?? '')))

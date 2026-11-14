@@ -2,8 +2,8 @@ import axios from 'axios'
 import { isTokenExpired, useAuthStore } from '@/store/auth'
 import { handleErrors } from '@/libs/handleErrors'
 
-// En macOS una conexión a un servidor apagado puede no terminar nunca.
-// Este plazo aborta la petición aunque el navegador no dispare su propio timeout.
+// On macOS a connection to a stopped server can hang forever.
+// This deadline aborts the request even when the browser does not time out.
 const REQUEST_TIMEOUT = 6000
 
 const authApi = axios.create({

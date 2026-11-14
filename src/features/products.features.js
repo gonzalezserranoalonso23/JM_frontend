@@ -39,7 +39,7 @@ export const useGetPromotionPages = (search = '', category = '') =>
       lastPage.hasNextPage ? lastPage.page + 1 : undefined
   })
 
-// Un guardado actualiza la lista al momento. Entre visitas no se vuelve a pedir.
+// A save updates the list at once. Between visits it is not requested again.
 export const useGetProductPages = (search = '') =>
   useInfiniteQuery({
     queryKey: ['Products', 'pages', search],
@@ -86,6 +86,12 @@ const writeProductCaches = (queryClient, update) => {
   }
 }
 
+const confirmProductQueries = (queryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['Products'] })
+  queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+  queryClient.invalidateQueries({ queryKey: ['ProductLookup'] })
+}
+
 const refreshProducts = (queryClient, updated) => {
   if (updated?._id) {
     const catalogs = catalogsOf(queryClient)
@@ -93,8 +99,7 @@ const refreshProducts = (queryClient, updated) => {
       applyProductUpdate(current, updated, catalogs)
     )
   }
-  queryClient.invalidateQueries({ queryKey: ['Products'] })
-  queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+  confirmProductQueries(queryClient)
 }
 
 export const applyStockToCatalog = (queryClient, deltas) => {
@@ -102,8 +107,7 @@ export const applyStockToCatalog = (queryClient, deltas) => {
   writeProductCaches(queryClient, (current) =>
     applyStockDeltas(current, deltas)
   )
-  queryClient.invalidateQueries({ queryKey: ['Products'] })
-  queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+  confirmProductQueries(queryClient)
 }
 
 export const useDeleteProduct = () => {
@@ -113,8 +117,7 @@ export const useDeleteProduct = () => {
     onSuccess: (_result, id) => {
       toast.success('Producto borrado exitosamente!')
       writeProductCaches(queryClient, (current) => removeProduct(current, id))
-      queryClient.invalidateQueries({ queryKey: ['Products'] })
-      queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+      confirmProductQueries(queryClient)
     }
   })
   return mutationDelete
@@ -148,7 +151,7 @@ export const useCreateProduct = () => {
       queryClient.setQueryData(['ProductLookup'], (current) =>
         prependProduct(current, product)
       )
-      queryClient.invalidateQueries({ queryKey: ['Products'] })
+      confirmProductQueries(queryClient)
     }
   })
   return mutationCreate

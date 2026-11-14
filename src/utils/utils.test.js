@@ -1,5 +1,12 @@
-import { describe, it, expect } from 'vitest'
-import { isoDay, formatDate, todayLocal } from './dateDisplay'
+import { describe, expect, it, vi } from 'vitest'
+import {
+  addCalendarDays,
+  formatDate,
+  isoDay,
+  todayLocal,
+  todayMexicoCity,
+  yesterdayMexicoCity
+} from './dateDisplay'
 import { buildMatcher, matchesCells } from './filterMatcher'
 import {
   clampNumberInputValue,
@@ -34,6 +41,19 @@ describe('dateDisplay', () => {
   it('formatDate regresa vacío con fechas inválidas', () => {
     expect(formatDate(null)).toBe('')
     expect(formatDate('2026-01-02', 'es-MX')).toContain('2026')
+  })
+
+  it('resta un día de calendario aunque cambie el mes', () => {
+    expect(addCalendarDays('2026-03-01', -1)).toBe('2026-02-28')
+    expect(addCalendarDays('2026-01-01', -1)).toBe('2025-12-31')
+  })
+
+  it('ayer en Ciudad de México no usa la zona del dispositivo', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-15T05:00:00Z'))
+    expect(todayMexicoCity()).toBe('2026-11-14')
+    expect(yesterdayMexicoCity()).toBe('2026-11-13')
+    vi.useRealTimers()
   })
 
   it('todayLocal tiene formato YYYY-MM-DD', () => {

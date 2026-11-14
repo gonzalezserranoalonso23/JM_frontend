@@ -14,10 +14,12 @@ import Loading from '@/components/atoms/Loading'
 import Skeleton from '@/components/atoms/skeleton'
 import FormFilter from '@/components/molecules/FormFilter'
 import useFilterQuery from '@/hooks/useFilterQuery'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
 import useIntersectionPagination from '@/hooks/useIntersectionPagination'
 
 const LowStock = () => {
   const [dataFilter, setDataFilter] = useFilterQuery('low-stock')
+  const search = useDebouncedValue(dataFilter.trim(), 200)
   const {
     data: lowStockPages,
     isLoading: lowStockLoading,
@@ -25,7 +27,7 @@ const LowStock = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useGetLowStockProductPages(dataFilter.trim())
+  } = useGetLowStockProductPages(search)
   const lowStockProducts =
     lowStockPages?.pages.flatMap((page) => page.data) || []
   const lowStockTotal = lowStockPages?.pages[0]?.total || 0

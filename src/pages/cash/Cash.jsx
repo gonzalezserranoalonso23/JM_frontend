@@ -346,7 +346,7 @@ const StaffCash = () => (
 
 const AdminCash = () => (
   <PageShell>
-    <div className="flex flex-col gap-6">
+    <div className="grid items-start gap-6 xl:grid-cols-2">
       <Calculator />
       <Vault />
     </div>

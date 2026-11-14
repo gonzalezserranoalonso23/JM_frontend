@@ -11,7 +11,7 @@ const DialogClose = DialogPrimitive.Close
 const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn('fixed inset-0 z-[60] bg-black/50', className)}
+    className={cn('fixed inset-0 z-[60] bg-black/80', className)}
     {...props}
   />
 ))
@@ -33,7 +33,7 @@ const DialogContent = React.forwardRef(
     const [content, setContent] = React.useState(null)
     const dirtyRef = React.useRef(false)
 
-    // Pide confirmación solo si el usuario ya capturó algo; true = se puede cerrar.
+    // Ask only after the user has typed something. true means the dialog can close.
     const canDiscard = () =>
       !(dirtyRef.current || hasUnsavedChanges) ||
       window.confirm('Hay cambios sin guardar. ¿Deseas cerrar y descartarlos?')
@@ -108,8 +108,8 @@ const DialogContent = React.forwardRef(
         width: body.style.width
       }
       const lockedScrollY = window.scrollY
-      // El alto se fija a la pantalla. Si sigue al teclado, Cerrar y Registrar
-      // suben y tapan el combobox en Safari, Chrome y la PWA.
+      // Height stays on the screen. Following the keyboard lifts Close and Save
+      // over the combobox in Safari, Chrome, and the installed app.
       let sheetHeight = 0
       let sheetWidth = 0
       const syncHeight = () => {
@@ -196,7 +196,7 @@ const DialogContent = React.forwardRef(
           }}
           onEscapeKeyDown={(event) => {
             onEscapeKeyDown?.(event)
-            // Escape cierra el combo abierto en vez del modal
+            // Escape closes the open combobox instead of the dialog.
             const listOpen = content?.querySelector('[aria-expanded="true"]')
             if (listOpen || !canDiscard()) event.preventDefault()
           }}
@@ -237,8 +237,8 @@ const DialogBody = ({ className, ...props }) => (
     onTouchStart={() => {}}
     className={cn(
       'min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-5 [overflow-anchor:none] max-sm:p-4',
-      // Los hijos de grid/flex no deben ensanchar la columna más allá de la pantalla
-      // Separación entre cada etiqueta y su campo
+      // Grid and flex children must not grow the column past the screen.
+      // Space between each label and its field.
       '[&_label]:mb-2',
       '[&_.grid>*]:min-w-0 [&_.flex>*]:min-w-0 [&_input]:max-w-full [&_textarea]:max-w-full [&_button[role=combobox]]:max-w-full',
       className

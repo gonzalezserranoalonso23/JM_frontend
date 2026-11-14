@@ -43,8 +43,8 @@ const savePushSubscription = async (subscription) => {
   return data
 }
 
-// En un Safari tab del iPhone no existe Notification. Hay que abrir la app
-// desde el ícono de la pantalla de inicio.
+// An iPhone Safari tab has no Notification. The app has to be opened
+// from the home-screen icon.
 export const needsHomeScreenInstall = () =>
   typeof navigator !== 'undefined' &&
   'standalone' in navigator &&
@@ -55,8 +55,8 @@ export const needsHomeScreenInstall = () =>
 let prepared = null
 let preparing = null
 
-// La clave y el service worker se resuelven al cargar. Safari pierde el toque
-// si subscribe() espera una red o el registro del worker.
+// The key and the service worker are ready on load. Safari drops the tap
+// if subscribe() waits on the network or on worker registration.
 export const preparePush = () => {
   if (prepared) return Promise.resolve(prepared)
   if (!preparing) {
@@ -88,8 +88,8 @@ const pushManagerOf = (registration) => {
 }
 
 export const subscribeBrowserPush = async () => {
-  // Safari pierde el toque si hay un await antes de subscribe(). La clave y el
-  // service worker ya se prepararon al entrar; aquí no se vuelve a esperar.
+  // Safari drops the tap if there is an await before subscribe(). The key and
+  // the service worker were prepared on entry, so this does not wait again.
   if (!prepared) await preparePush()
   const ready = prepared
   const pushManager = pushManagerOf(ready?.registration)

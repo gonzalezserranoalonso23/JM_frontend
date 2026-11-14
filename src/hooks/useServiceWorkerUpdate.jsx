@@ -25,7 +25,7 @@ const showUpdate = (worker) => {
   )
 }
 
-// Registra el service worker y avisa cuando hay una versión nueva en espera.
+// Register the service worker and warn when a new version is waiting.
 const useServiceWorkerUpdate = () => {
   useEffect(() => {
     if (!('serviceWorker' in navigator) || !import.meta.env.PROD) return
@@ -37,7 +37,7 @@ const useServiceWorkerUpdate = () => {
       reloading = true
       window.location.reload()
     }
-    // Solo se recarga si ya había un SW (actualización), no en la primera instalación.
+    // Reload only when a service worker was already there, not on the first install.
     const hadController = Boolean(sw.controller)
     if (hadController) {
       sw.addEventListener('controllerchange', onControllerChange)

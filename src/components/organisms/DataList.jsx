@@ -10,7 +10,7 @@ import {
   TableRow
 } from '@/components/atoms/table'
 
-// Marca una columna. children puede ser un valor fijo o una función (row) => nodo.
+// Marks a column. children can be a fixed value or a function (row) => node.
 export const Column = () => null
 
 const cellValue = (column, row) => {

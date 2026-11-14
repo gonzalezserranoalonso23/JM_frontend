@@ -60,7 +60,7 @@ const mapInChunks = async (records, toRow) => {
 const mapRecordsInChunks = (records, includeProfit) =>
   mapInChunks(records, (record) => toMovementRow(record, includeProfit))
 
-// La librería se carga solo al exportar para no aumentar el bundle inicial.
+// The library loads only on export so the initial bundle stays smaller.
 export const exportMovementsToExcel = async (
   records,
   fileName,

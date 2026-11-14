@@ -31,14 +31,12 @@ const StockDashboard = () => {
           >
             Dashboard
           </h1>
-          <p className="mt-2 text-muted-foreground">Resumen del sistema</p>
         </header>
 
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-4">
           <TodaySalesCard />
+          <DailyInformationDashboard />
         </div>
-
-        <DailyInformationDashboard />
 
         {statsError && (
           <Alert variant="destructive" className="mb-6">
@@ -53,12 +51,14 @@ const StockDashboard = () => {
           aria-label="Indicadores de inventario"
         >
           {kpis.map(([label, value]) => (
-            <Card key={label} className="h-full gap-2 p-4 sm:p-6">
-              <h2 className="text-sm font-medium text-muted-foreground">
-                {label}
-              </h2>
-              <p className="text-3xl font-bold text-foreground">
-                {statsLoading ? <Skeleton className="h-9 w-36" /> : value}
+            <Card key={label} className="h-full gap-1 p-4 sm:p-6">
+              <p className="text-sm font-medium text-muted-foreground">{label}</p>
+              <p className="text-lg font-bold text-foreground tabular-nums xl:text-2xl">
+                {statsLoading ? (
+                  <Skeleton className="h-7 w-24 xl:h-8 xl:w-28" />
+                ) : (
+                  value
+                )}
               </p>
             </Card>
           ))}

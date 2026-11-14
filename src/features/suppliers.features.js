@@ -15,6 +15,12 @@ import {
   deleteSupplier
 } from '@/services/suppliers.services'
 
+const refreshSupplierUse = (queryClient) => {
+  queryClient.invalidateQueries({ queryKey: ['Suppliers'] })
+  queryClient.invalidateQueries({ queryKey: ['Products'] })
+  queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+}
+
 export const useGetSuppliers = ({ enabled = true } = {}) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['Suppliers'],
@@ -43,7 +49,7 @@ export const useDeleteSupplier = () => {
     mutationFn: deleteSupplier,
     onSuccess: () => {
       toast.success('Proveedor borrado exitosamente!')
-      queryClient.invalidateQueries({ queryKey: ['Suppliers'] })
+      refreshSupplierUse(queryClient)
     }
   })
   return mutationDelete
@@ -55,7 +61,7 @@ export const useUpdateSupplier = () => {
     mutationFn: updateSupplier,
     onSuccess: () => {
       toast.success('Proveedor actualizado exitosamente!')
-      queryClient.invalidateQueries({ queryKey: ['Suppliers'] })
+      refreshSupplierUse(queryClient)
     },
     onError: (error) => {
       notifyError(error, 'Error al actualizar el proveedor')

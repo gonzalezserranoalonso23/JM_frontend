@@ -1,7 +1,9 @@
 import { formatCurrency, formatQty } from '@/utils/commonFunctions'
+import { searchTokens } from '@/utils/productSearch'
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { useSearchProducts } from '@/features/products.features'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
 import { Badge } from '@/components/atoms/badge'
 import { Button } from '@/components/atoms/button'
 import {
@@ -23,9 +25,12 @@ import {
 const ProductLookup = () => {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const term = search.trim()
+  const typed = search.trim()
+  const settled = searchTokens(typed).join(' ')
+  const term = useDebouncedValue(settled, 200)
   const { data, isFetching } = useSearchProducts(open ? term : '')
   const products = term ? data?.data || [] : []
+  const pending = typed.length > 0 && (term !== settled || isFetching)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -62,9 +67,9 @@ const ProductLookup = () => {
               onChange={(event) => setSearch(event.target.value)}
             />
           </div>
-          {term && products.length === 0 && (
+          {typed && products.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              {isFetching ? 'Buscando...' : 'Sin resultados'}
+              {pending ? 'Buscando...' : 'Sin resultados'}
             </p>
           )}
           {products.length > 0 && (

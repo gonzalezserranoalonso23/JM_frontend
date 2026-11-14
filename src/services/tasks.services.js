@@ -1,12 +1,18 @@
 import axios from '@/libs/axios'
 
-export const getPendingTasks = async () => {
-  const { data } = await axios.get('/api/tasks/pending')
+export const getPendingTasks = async ({ page, limit, signal }) => {
+  const { data } = await axios.get('/api/tasks/pending', {
+    signal,
+    params: { page, limit }
+  })
   return data
 }
 
-export const getCompletedTasks = async () => {
-  const { data } = await axios.get('/api/tasks/completed')
+export const getCompletedTasks = async ({ page, limit, signal }) => {
+  const { data } = await axios.get('/api/tasks/completed', {
+    signal,
+    params: { page, limit }
+  })
   return data
 }
 

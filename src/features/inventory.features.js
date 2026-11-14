@@ -38,6 +38,7 @@ const invalidateStockQueries = (queryClient) => {
     'InventoryStats',
     'LowStockProducts',
     'Products',
+    'ProductLookup',
     'LiveInformation'
   ]) {
     queryClient.invalidateQueries({ queryKey: [key] })
@@ -228,7 +229,7 @@ export const useGetInventoryRecord = (id) =>
     enabled: Boolean(id)
   })
 
-// Registros
+// Records
 export const useGetInventoryRecordPages = ({
   direction,
   search = '',
@@ -268,7 +269,7 @@ export const useCreateInventoryRecord = () => {
   return mutation
 }
 
-// Registra el carrito completo (varios movimientos) en una sola petición
+// Saves the whole cart, several movements, in one request.
 export const useCreateInventoryRecords = () => {
   const queryClient = useQueryClient()
   const mutation = useMutation({
@@ -328,7 +329,7 @@ export const useDeleteInventoryRecord = () => {
   return mutation
 }
 
-// Reportes
+// Reports
 export const useGetLowStockProductPages = (search = '', category = '') =>
   useInfiniteQuery({
     queryKey: ['LowStockProducts', 'pages', search, category],
@@ -371,8 +372,8 @@ export const useGetSalesByDateRangePages = (
         ...(type && { type }),
         ...(paymentType && { paymentType })
       }),
-    // Conserva la respuesta anterior para no desmontar la pantalla. La vista
-    // no pinta esas filas: solo sostiene el alto mientras llega el filtro nuevo.
+    // Keep the previous response so the screen does not unmount. The view
+    // does not paint those rows. It only holds the height until the new filter arrives.
     placeholderData: keepPreviousData,
     enabled: enabled && !!(startDate && endDate && startDate <= endDate),
     initialPageParam: 1,
