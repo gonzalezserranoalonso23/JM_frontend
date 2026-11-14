@@ -21,6 +21,7 @@ import {
   removeProduct,
   withRelations
 } from '@/features/liveCache'
+import { searchTokens } from '@/utils/productSearch'
 
 export const useGetPromotionPages = (search = '', category = '') =>
   useInfiniteQuery({
@@ -59,13 +60,20 @@ export const useSearchProducts = (search = '') =>
     placeholderData: keepPreviousData
   })
 
-export const useProductLookup = (enabled = true) =>
-  useQuery({
-    queryKey: ['Products', 'lookup'],
-    queryFn: getProductLookup,
-    enabled,
-    staleTime: 5 * 60 * 1000
+export const useProductSuggestions = (
+  search = '',
+  enabled = false,
+  activeOnly = false
+) => {
+  const term = searchTokens(search).join(' ')
+  return useQuery({
+    queryKey: ['ProductLookup', 'suggest', term, activeOnly],
+    queryFn: ({ signal }) =>
+      getProductLookup({ search: term, activeOnly, signal }),
+    enabled: enabled && term.length > 0,
+    staleTime: 0
   })
+}
 
 const catalogsOf = (queryClient) => ({
   suppliers: queryClient.getQueryData(['Suppliers']),
@@ -73,7 +81,7 @@ const catalogsOf = (queryClient) => ({
 })
 
 const writeProductCaches = (queryClient, update) => {
-  for (const key of ['Products', 'LowStockProducts']) {
+  for (const key of ['Products', 'LowStockProducts', 'ProductLookup']) {
     queryClient.setQueriesData({ queryKey: [key] }, update)
   }
 }
@@ -137,6 +145,9 @@ export const useCreateProduct = () => {
         if (queryKey[2]) continue
         queryClient.setQueryData(queryKey, prependProduct(current, product))
       }
+      queryClient.setQueryData(['ProductLookup'], (current) =>
+        prependProduct(current, product)
+      )
       queryClient.invalidateQueries({ queryKey: ['Products'] })
     }
   })

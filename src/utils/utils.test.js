@@ -19,7 +19,7 @@ import { countedTotal, DENOMINATIONS, quantityOf } from './cash'
 import { callHref, whatsappHref } from './phone'
 import { recordCardView } from './recordDisplay'
 import { movementPrices } from './typeInventory'
-import { similarProducts } from './productSearch'
+import { searchTokens, similarProducts } from './productSearch'
 
 describe('dateDisplay', () => {
   it('isoDay conserva el día guardado sin cambiar zona horaria', () => {
@@ -236,6 +236,25 @@ describe('similarProducts', () => {
       '3'
     ])
     expect(similarProducts(catalog, 'zzz')).toEqual([])
+  })
+
+  it('no pide palabras de relleno ni letras sueltas', () => {
+    expect(searchTokens('coca de 600')).toEqual(['coca', '600'])
+    expect(searchTokens('de')).toEqual([])
+    expect(searchTokens('c')).toEqual([])
+  })
+
+  it('coca de 600 trae las presentaciones de 600 y deja fuera las otras', () => {
+    const sodas = [
+      { _id: '600', productName: 'Coca Cola 600 ml' },
+      { _id: 'light', productName: 'Coca Cola Light 600 ml' },
+      { _id: 'sa', productName: 'Coca Cola S/A 600 ml' },
+      { _id: '500', productName: 'Coca Cola 500 ml' },
+      { _id: '250', productName: 'Coca Cola 250 ml' }
+    ]
+    expect(
+      similarProducts(sodas, 'coca de 600').map((item) => item._id)
+    ).toEqual(['600', 'light', 'sa'])
   })
 
   it('pone primero el nombre que empieza con lo escrito', () => {

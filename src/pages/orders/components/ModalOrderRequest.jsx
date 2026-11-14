@@ -14,7 +14,6 @@ import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
 import { toast } from 'react-hot-toast'
 import ProductCombobox from '@/components/molecules/product-combobox'
-import { useProductLookup } from '@/features/products.features'
 import { useGetSuppliers } from '@/features/suppliers.features'
 import { statusOrPending } from '../orderStatus'
 import {
@@ -25,14 +24,10 @@ import {
   TableHead,
   TableCell
 } from '@/components/atoms/table'
-import Loading from '@/components/atoms/Loading'
 
 const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
-  const { data: catalog, isLoading: loadingProducts } = useProductLookup(
-    Boolean(modalShow)
-  )
   const knownProducts = useRef(new Map())
-  const { data: suppliers } = useGetSuppliers()
+  const { data: suppliers } = useGetSuppliers({ enabled: Boolean(modalShow) })
   const suppliersById = Object.fromEntries(
     (suppliers ?? []).map((s) => [s._id, s.suppliersName || s.name])
   )
@@ -76,27 +71,9 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
     setCurrentItem({ product: '', quantity: '', price: '' })
   }, [modalShow, order])
 
-  const pageProducts = (catalog ?? []).filter(
-    (product) => product?.isActive !== false
-  )
-  useEffect(() => {
-    ;(catalog ?? []).forEach((product) => {
-      if (product?._id) knownProducts.current.set(String(product._id), product)
-    })
-  }, [catalog])
-
-  const findProduct = (id) =>
-    pageProducts.find((product) => String(product._id) === String(id)) ||
-    knownProducts.current.get(String(id))
+  const findProduct = (id) => knownProducts.current.get(String(id))
 
   const selectedProduct = findProduct(currentItem.product)
-  const activeProducts =
-    selectedProduct &&
-    !pageProducts.some(
-      (product) => String(product._id) === String(selectedProduct._id)
-    )
-      ? [selectedProduct, ...pageProducts]
-      : pageProducts
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -269,7 +246,6 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
-            {loadingProducts && <Loading fullScreen={false} />}
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
@@ -289,8 +265,15 @@ const ModalOrderRequest = ({ modalShow, handleClose, action, order }) => {
                   <Label htmlFor="product">Producto</Label>
                   <ProductCombobox
                     id="product"
-                    products={activeProducts}
+                    remote
+                    activeOnly
+                    products={selectedProduct ? [selectedProduct] : []}
                     value={currentItem.product}
+                    onPick={(product) => {
+                      if (product?._id) {
+                        knownProducts.current.set(String(product._id), product)
+                      }
+                    }}
                     onValueChange={setProduct}
                   />
                 </div>

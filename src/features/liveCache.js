@@ -26,6 +26,7 @@ const relation = (nextValue, currentValue, catalog, labelKey) => {
 
 const mapRows = (current, mapRow) => {
   if (!current) return current
+  if (Array.isArray(current)) return current.map(mapRow)
   if (Array.isArray(current.pages)) {
     return {
       ...current,
@@ -86,7 +87,12 @@ export const withRelations = (product, catalogs = {}) => {
 }
 
 export const prependProduct = (current, product) => {
-  if (!current?.pages?.length || !product?._id) return current
+  if (!product?._id) return current
+  if (Array.isArray(current)) {
+    if (current.some((row) => idOf(row) === idOf(product))) return current
+    return [product, ...current]
+  }
+  if (!current?.pages?.length) return current
   if (
     current.pages.some((page) =>
       (page.data || []).some((row) => idOf(row) === idOf(product))
@@ -107,6 +113,9 @@ export const prependProduct = (current, product) => {
 export const removeProduct = (current, id) => {
   const target = idOf(id)
   if (!target || !current) return current
+  if (Array.isArray(current)) {
+    return current.filter((row) => idOf(row) !== target)
+  }
   if (Array.isArray(current.pages)) {
     let removed = 0
     const pages = current.pages.map((page) => ({

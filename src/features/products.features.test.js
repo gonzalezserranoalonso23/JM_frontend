@@ -92,6 +92,25 @@ describe('caché de entradas y salidas', () => {
     expect(next.pages[0].data[0].productStock).toBe(7)
   })
 
+  it('actualiza el producto dentro de la lista de la salida', () => {
+    const catalog = [
+      { _id: 'p1', productName: 'Arroz', productStock: 10, productPrice: 8 },
+      { _id: 'p2', productName: 'Frijol', productStock: 4, productPrice: 6 }
+    ]
+    const edited = applyProductUpdate(catalog, {
+      _id: 'p1',
+      productName: 'Arroz premium',
+      productPrice: 9
+    })
+    const sold = applyStockDeltas(edited, { p1: -2 })
+    expect(sold[0]).toMatchObject({
+      productName: 'Arroz premium',
+      productPrice: 9,
+      productStock: 8
+    })
+    expect(sold[1].productName).toBe('Frijol')
+  })
+
   it('quita el movimiento borrado', () => {
     const next = removeInventoryRecord(list, 'm1')
     expect(next.pages[0].data).toEqual([])

@@ -3,10 +3,11 @@ import { getTypeInventories } from '@/services/typeInventory.services'
 
 // Catálogo casi estático (1 hora). La dirección del stock define si el tipo
 // suma (entrada, 1) o resta (salida, -1); el nombre es solo una etiqueta.
-export const useGetTypeInventories = () => {
+export const useGetTypeInventories = (enabled = true) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['TypeInventories'],
     queryFn: getTypeInventories,
+    enabled,
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
     select: (types) =>

@@ -9,10 +9,11 @@ import {
 } from '@/services/paymentTypes.services'
 
 // Catálogo casi estático: se cachea 1 hora. label = nombre, value = _id.
-export const useGetPaymentTypes = () => {
+export const useGetPaymentTypes = (enabled = true) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['PaymentTypes'],
     queryFn: getPaymentTypes,
+    enabled,
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
     select: (types) =>

@@ -28,10 +28,8 @@ import {
   SelectContent,
   SelectItem
 } from '@/components/atoms/select'
-import { useProductLookup } from '@/features/products.features'
 import { useGetPaymentTypes } from '@/features/paymentTypes.features'
 import { getProduct } from '@/services/products.services'
-import Loading from '@/components/atoms/Loading'
 import {
   formatMoney,
   formatQty,
@@ -94,12 +92,9 @@ const MovementModal = ({
 }) => {
   const copy = COPY[mode]
   const withPayment = mode === 'issue'
-  const { data: paymentTypes = [] } = useGetPaymentTypes()
-  const types = useGetTypeInventories()
+  const { data: paymentTypes = [] } = useGetPaymentTypes(Boolean(modalShow))
+  const types = useGetTypeInventories(Boolean(modalShow))
   const movementType = mode === 'issue' ? types.issueType : types.entryType
-  const { data: catalog, isLoading: loadingProducts } = useProductLookup(
-    Boolean(modalShow)
-  )
   const knownProducts = useRef(new Map())
   const rememberProduct = (product) => {
     if (product?._id) knownProducts.current.set(product._id, product)
@@ -124,27 +119,8 @@ const MovementModal = ({
   )
   const [editSelectedProduct, setEditSelectedProduct] = useState(null)
 
-  useEffect(() => {
-    ;(catalog ?? []).forEach(rememberProduct)
-  }, [catalog])
-
-  const pageProducts = catalog ?? []
-
   const findProduct = (id) =>
-    pageProducts.find((product) => String(product._id) === String(id)) ||
-    knownProducts.current.get(id) ||
-    knownProducts.current.get(String(id))
-
-  const withSelection = (products, selectedId) => {
-    const selected = findProduct(selectedId)
-    if (
-      !selected ||
-      products.some((product) => String(product._id) === String(selected._id))
-    ) {
-      return products
-    }
-    return [selected, ...products]
-  }
+    knownProducts.current.get(id) || knownProducts.current.get(String(id))
 
   const applyDerivedFields = (values, name, value) => {
     let next = { ...values, [name]: value }
@@ -434,8 +410,8 @@ const MovementModal = ({
     )
   }
 
-  const editProducts = withSelection(pageProducts, editFormData.productName)
-  const cartProducts = withSelection(pageProducts, itemForm.productName)
+  const editProduct = findProduct(editFormData.productName)
+  const cartProduct = findProduct(itemForm.productName)
 
   if (isEditing) {
     return (
@@ -450,7 +426,6 @@ const MovementModal = ({
             className="flex flex-1 flex-col overflow-hidden"
           >
             <DialogBody>
-              {loadingProducts && <Loading fullScreen={false} />}
               <div className="flex flex-col gap-4">
                 {error && <Alert variant="destructive">{error}</Alert>}
                 <div>
@@ -483,8 +458,10 @@ const MovementModal = ({
                   <Label htmlFor="productName">Producto *</Label>
                   <ProductCombobox
                     id="productName"
-                    products={editProducts}
+                    remote
+                    products={editProduct ? [editProduct] : []}
                     value={editFormData.productName}
+                    onPick={rememberProduct}
                     onValueChange={(value) =>
                       setEditField('productName', value)
                     }
@@ -581,7 +558,6 @@ const MovementModal = ({
           className="flex flex-1 flex-col overflow-hidden"
         >
           <DialogBody>
-            {loadingProducts && <Loading fullScreen={false} />}
             <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
               {error && (
                 <Alert variant="destructive" className="lg:col-span-2">
@@ -604,8 +580,10 @@ const MovementModal = ({
                   <Label htmlFor="productName">Producto</Label>
                   <ProductCombobox
                     id="productName"
-                    products={cartProducts}
+                    remote
+                    products={cartProduct ? [cartProduct] : []}
                     value={itemForm.productName}
+                    onPick={rememberProduct}
                     onValueChange={(value) =>
                       setItemField('productName', value)
                     }

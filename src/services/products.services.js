@@ -22,8 +22,18 @@ export const getPromotionProductsPage = async ({
   return data
 }
 
-export const getProductLookup = async () => {
-  const { data } = await axios.get('/api/products/lookup')
+export const getProductLookup = async ({
+  search = '',
+  activeOnly = false,
+  signal
+} = {}) => {
+  const { data } = await axios.get('/api/products/lookup', {
+    signal,
+    params: {
+      ...(search ? { search } : {}),
+      ...(activeOnly ? { active: '1' } : {})
+    }
+  })
   return data
 }
 

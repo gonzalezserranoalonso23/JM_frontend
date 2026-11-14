@@ -1,22 +1,62 @@
 import { formatQty } from '@/utils/commonFunctions'
 import { similarProducts } from '@/utils/productSearch'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useProductSuggestions } from '@/features/products.features'
+import useDebouncedValue from '@/hooks/useDebouncedValue'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react'
 import { createPortal } from 'react-dom'
 import { Input } from '@/components/atoms/input'
 import { cn } from '@/lib/utils'
+
+const EMPTY_PRODUCTS = []
+
+const SuggestionQuery = ({ search, activeOnly, onChange }) => {
+  const term = useDebouncedValue(search, 200)
+  const query = useProductSuggestions(term, true, activeOnly)
+  const products = Array.isArray(query.data) ? query.data : EMPTY_PRODUCTS
+  const pending = query.isFetching || term !== search
+  const signature = `${pending}:${products.map((product) => product._id).join()}`
+  const snapshot = useRef({ products, pending })
+  snapshot.current = { products, pending }
+
+  useEffect(() => {
+    onChange(snapshot.current)
+  }, [signature, onChange])
+
+  return null
+}
 
 const ProductCombobox = ({
   id,
   products,
   value,
   onValueChange,
+  onPick,
   onQueryChange,
   placeholder = 'Buscar producto',
   showStock = false,
   stockText,
-  pending = false
+  pending = false,
+  remote = false,
+  activeOnly = false
 }) => {
-  const productList = products ?? []
+  const known = products ?? []
+  const [suggestions, setSuggestions] = useState({
+    products: [],
+    pending: false
+  })
+  const acceptSuggestions = useCallback((next) => {
+    setSuggestions((current) =>
+      current.products === next.products && current.pending === next.pending
+        ? current
+        : next
+    )
+  }, [])
   const [search, setSearch] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -26,7 +66,10 @@ const ProductCombobox = ({
   const suppressOpen = useRef(false)
   const listTouch = useRef({ y: 0, moved: false, active: false })
   const [box, setBox] = useState(null)
-  const selectedProduct = productList.find((product) => product._id === value)
+  const listed = remote && isOpen ? suggestions.products : known
+  const selectedProduct =
+    listed.find((product) => product._id === value) ||
+    known.find((product) => product._id === value)
   const stockLabel = (product) =>
     stockText ? stockText(product) : `Stock: ${formatQty(product.productStock)}`
   const selectedLabel = selectedProduct
@@ -34,7 +77,10 @@ const ProductCombobox = ({
         showStock ? ` (${stockLabel(selectedProduct)})` : ''
       }`
     : ''
-  const searchedProducts = similarProducts(productList, search)
+  const searchedProducts = remote
+    ? suggestions.products
+    : similarProducts(known, search)
+  const waiting = pending || (remote && suggestions.pending)
   const activeProduct = searchedProducts[activeIndex]
 
   useEffect(() => {
@@ -112,12 +158,14 @@ const ProductCombobox = ({
 
   const openList = () => {
     changeQuery('')
+    setSuggestions({ products: [], pending: false })
     setActiveIndex(0)
     setIsOpen(true)
   }
 
   const handleSelect = (product, { pointer = false } = {}) => {
     suppressOpen.current = true
+    onPick?.(product)
     onValueChange(product._id)
     setIsOpen(false)
     changeQuery('')
@@ -165,8 +213,25 @@ const ProductCombobox = ({
     if (activeProduct) handleSelect(activeProduct)
   }
 
+  const statusLabel = remote
+    ? !search.trim()
+      ? 'Escribe para buscar'
+      : waiting
+        ? 'Buscando...'
+        : 'Sin resultados'
+    : waiting
+      ? 'Buscando...'
+      : 'Sin resultados'
+
   return (
     <div className="relative">
+      {remote && isOpen && (
+        <SuggestionQuery
+          search={search}
+          activeOnly={activeOnly}
+          onChange={acceptSuggestions}
+        />
+      )}
       <Input
         id={id}
         ref={inputRef}
@@ -257,7 +322,7 @@ const ProductCombobox = ({
           >
             {searchedProducts.length === 0 ? (
               <div className="px-3 py-2 text-sm text-muted-foreground">
-                {pending ? 'Buscando...' : 'Sin resultados'}
+                {statusLabel}
               </div>
             ) : (
               searchedProducts.map((product, index) => (

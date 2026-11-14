@@ -3,23 +3,6 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TooltipProvider } from '@/components/atoms/tooltip'
 
-const products = [
-  {
-    _id: 'p1',
-    productName: 'Arroz 1kg',
-    category: { _id: 'c1' },
-    purchasePrice: 20,
-    productStock: 10
-  }
-]
-
-vi.mock('@/features/products.features', () => ({
-  useProductLookup: () => ({
-    data: products,
-    isLoading: false
-  })
-}))
-
 vi.mock('@/features/paymentTypes.features', () => ({
   useGetPaymentTypes: () => ({ data: [] })
 }))
@@ -31,19 +14,26 @@ vi.mock('@/features/typeInventory.features', () => ({
 }))
 
 vi.mock('@/components/molecules/product-combobox', () => ({
-  default: ({ id, products, value, onValueChange, placeholder }) => (
+  default: ({ id, value, onValueChange, onPick, placeholder }) => (
     <select
       id={id}
       aria-label="Producto"
       value={value}
-      onChange={(event) => onValueChange(event.target.value)}
+      onChange={(event) => {
+        if (event.target.value === 'p1') {
+          onPick?.({
+            _id: 'p1',
+            productName: 'Arroz 1kg',
+            category: { _id: 'c1' },
+            purchasePrice: 20,
+            productStock: 10
+          })
+        }
+        onValueChange(event.target.value)
+      }}
     >
       <option value="">{placeholder}</option>
-      {(products ?? []).map((product) => (
-        <option key={product._id} value={product._id}>
-          {product.productName}
-        </option>
-      ))}
+      <option value="p1">Arroz 1kg</option>
     </select>
   )
 }))

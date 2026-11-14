@@ -24,12 +24,20 @@ const products = [
   { _id: 'p4', productName: 'Coca Otro Proveedor', supplier: { _id: 's2' } }
 ]
 
-vi.mock('@/features/products.features', () => ({
-  useProductLookup: () => ({
-    data: products,
-    isLoading: false
-  })
-}))
+vi.mock('@/features/products.features', async () => {
+  const { similarProducts } = await import('@/utils/productSearch')
+  return {
+    useProductSuggestions: (search) => ({
+      data: String(search).trim()
+        ? similarProducts(
+            products.filter((product) => product.isActive !== false),
+            search
+          )
+        : [],
+      isFetching: false
+    })
+  }
+})
 vi.mock('@/features/suppliers.features', () => ({
   useGetSuppliers: () => ({
     data: [{ _id: 's1', suppliersName: 'Proveedor 1' }],
@@ -68,12 +76,14 @@ describe('ModalOrderRequest', () => {
     setup({ supplier: 's1', items: [], date: '2026-01-01' })
     const input = screen.getByLabelText('Producto')
     await user.click(input)
+    await user.type(input, 'coca')
     expect(await screen.findByText('Coca Cola 600ml')).toBeInTheDocument()
     expect(screen.queryByText('Coca Apagada')).not.toBeInTheDocument()
     expect(screen.getByText('Coca Otro Proveedor')).toBeInTheDocument()
 
+    await user.clear(input)
     await user.type(input, 'CAFE')
-    expect(screen.getByText('Café Soluble')).toBeInTheDocument()
+    expect(await screen.findByText('Café Soluble')).toBeInTheDocument()
     expect(screen.queryByText('Coca Cola 600ml')).not.toBeInTheDocument()
 
     await user.clear(input)
@@ -84,7 +94,9 @@ describe('ModalOrderRequest', () => {
   it('al elegir un producto llena el precio y permite agregarlo', async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 })
     setup({ supplier: 's1', items: [], date: '2026-01-01' })
-    await user.click(screen.getByLabelText('Producto'))
+    const input = screen.getByLabelText('Producto')
+    await user.click(input)
+    await user.type(input, 'coca')
     await user.click(await screen.findByText('Coca Cola 600ml'))
     expect(screen.getByLabelText('Precio compra')).toHaveValue(15)
     await user.type(screen.getByLabelText('Cantidad'), '2')
@@ -130,6 +142,7 @@ describe('ModalOrderRequest', () => {
     }
 
     await user.click(input)
+    await user.type(input, 'coca')
     await screen.findByText('Coca Cola 600ml')
     const list = dialog.querySelector('div[style]')
     expect(list.style.top).toBe('244px')

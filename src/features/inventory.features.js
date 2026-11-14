@@ -53,17 +53,21 @@ const eachList = (queryClient, update) => {
   }
 }
 
+const rowsOf = (data) => {
+  if (Array.isArray(data)) return data
+  return [
+    ...(data?.data || []),
+    ...(data?.pages || []).flatMap((page) => page.data || [])
+  ]
+}
+
 const findCachedProduct = (queryClient, id) => {
   const target = idOf(id)
-  for (const [, data] of queryClient.getQueriesData({
-    queryKey: ['Products']
-  })) {
-    const rows = [
-      ...(data?.data || []),
-      ...(data?.pages || []).flatMap((page) => page.data || [])
-    ]
-    const found = rows.find((row) => idOf(row) === target)
-    if (found) return found
+  for (const key of ['ProductLookup', 'Products']) {
+    for (const [, data] of queryClient.getQueriesData({ queryKey: [key] })) {
+      const found = rowsOf(data).find((row) => idOf(row) === target)
+      if (found) return found
+    }
   }
   return null
 }
