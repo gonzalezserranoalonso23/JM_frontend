@@ -7,7 +7,7 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta name="theme-color" content="#111111" />
-    <title>Sin conexión | JM Panel</title>
+    <title>Desconectada | JM Panel</title>
     <style>
       html,
       body {
@@ -22,11 +22,18 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        gap: 12px;
-        padding: 24px;
+        padding: max(1.5rem, env(safe-area-inset-top, 0px)) 24px
+          max(1.5rem, env(safe-area-inset-bottom, 0px));
         text-align: center;
         box-sizing: border-box;
+      }
+      .notice {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
       }
       img {
         width: 72px;
@@ -34,41 +41,31 @@
         border-radius: 16px;
       }
       h1 {
-        font-size: 1.25rem;
+        font-size: 1.875rem;
         margin: 0;
       }
       p {
         margin: 0;
-        max-width: 28rem;
-        color: #cbd5e1;
-        line-height: 1.5;
-      }
-      button {
-        min-height: 44px;
-        padding: 0 24px;
-        border: 0;
-        border-radius: 8px;
-        background: #d90429;
         color: #fff;
-        font: inherit;
-        font-weight: 600;
-        cursor: pointer;
+        line-height: 1.5;
+        text-decoration: underline;
+        text-underline-offset: 4px;
       }
-      button:focus-visible {
-        outline: 3px solid #fff;
-        outline-offset: 2px;
+      footer {
+        margin-top: auto;
+        padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
       }
     </style>
   </head>
   <body>
     <main role="alert">
-      <img src="/icon-192.png" alt="" />
-      <h1>No se pudo cargar la aplicación</h1>
-      <p>
-        Revisa tu conexión o que el servidor esté encendido y vuelve a
-        intentar.
-      </p>
-      <button type="button" onclick="location.reload()">Reintentar</button>
+      <div class="notice">
+        <img src="/icon-192.png" alt="" />
+        <h1>Desconectada</h1>
+      </div>
+      <footer>
+        <p>support@site.com</p>
+      </footer>
     </main>
     <script>
       window.addEventListener('online', () => location.reload())

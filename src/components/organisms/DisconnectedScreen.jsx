@@ -57,7 +57,7 @@ const DisconnectedScreen = () => {
   }
 
   return (
-    <main className="fixed inset-0 z-[11000] flex flex-col bg-background px-6 text-foreground">
+    <main className="relative flex h-dvh min-h-0 w-full flex-1 flex-col bg-background px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] text-foreground">
       <div className="flex flex-1 flex-col items-center justify-center gap-6">
         <Unplug className="size-24" strokeWidth={1.5} aria-hidden="true" />
         <h1 className="text-3xl font-semibold">Desconectada</h1>
@@ -106,7 +106,7 @@ const DisconnectedScreen = () => {
         </p>
       </footer>
       {supportOpen && (
-        <div className="fixed inset-0 z-[11001] flex items-center justify-center bg-black/80 px-6">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/80 px-6">
           <form
             className="flex w-full max-w-xs flex-col gap-4 rounded-lg bg-background p-5"
             onSubmit={supportForm.handleSubmit}

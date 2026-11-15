@@ -1,4 +1,4 @@
-const CACHE = 'jm-shell-v7'
+const CACHE = 'jm-shell-v8'
 
 const fetchWithDeadline = (request, ms) => {
   const controller = new AbortController()

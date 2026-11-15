@@ -36,6 +36,18 @@ export const useAppStatus = () => {
     }
     shutdownLatched = next
   }, [query.data, setShutdown])
+
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === 'visible') query.refetch()
+    }
+    document.addEventListener('visibilitychange', refresh)
+    window.addEventListener('pageshow', refresh)
+    return () => {
+      document.removeEventListener('visibilitychange', refresh)
+      window.removeEventListener('pageshow', refresh)
+    }
+  }, [query])
 }
 
 export const useShutdownApp = () => {
