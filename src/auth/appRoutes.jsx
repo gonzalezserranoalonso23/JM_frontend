@@ -17,6 +17,7 @@ const loaders = {
   '/suppliers': () => import('@/pages/suppliers/Suppliers'),
   '/categories': () => import('@/pages/categories/Categories'),
   '/payment-types': () => import('@/pages/payment-types/PaymentTypes'),
+  '/roles': () => import('@/pages/roles/Roles'),
   '/users': () => import('@/pages/users/Users'),
   '/daily-information': () =>
     import('@/pages/daily-information/DailyInformation'),

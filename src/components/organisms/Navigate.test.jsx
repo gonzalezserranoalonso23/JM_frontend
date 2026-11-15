@@ -101,29 +101,34 @@ describe('Navigate de administrador', () => {
     ).toHaveAttribute('href', '/low-stock')
   })
 
-  it('staff ve el menú completo sin reportes y consulta producto y proveedores', () => {
+  it('staff ve inicio, entradas, salidas, productos y proveedores', () => {
     auth.roleName = 'Staff'
     renderNav()
 
     expect(screen.queryByRole('button', { name: 'Reportes' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Catálogo' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Órdenes' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Pendientes' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Caja' })).toBeNull()
+    expect(screen.getAllByRole('link', { name: 'Inicio' })[0]).toHaveAttribute(
+      'href',
+      '/home'
+    )
+    expect(screen.getAllByRole('link', { name: 'Salidas' })[0]).toHaveAttribute(
+      'href',
+      '/issues'
+    )
     expect(
-      screen.queryByRole('link', { name: 'Información diaria' })
-    ).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Promociones' })).toBeNull()
+      screen.getAllByRole('link', { name: 'Entradas' })[0]
+    ).toHaveAttribute('href', '/entries')
     expect(
-      screen.getAllByRole('link', { name: 'Pendientes' })[0]
-    ).toHaveAttribute('href', '/todolist')
-    expect(
-      screen.getAllByRole('link', { name: 'Producto' })[0]
+      screen.getAllByRole('link', { name: 'Productos' })[0]
     ).toHaveAttribute('href', '/products')
     expect(
       screen.getAllByRole('link', { name: 'Proveedores' })[0]
     ).toHaveAttribute('href', '/suppliers')
   })
 
-  it('el usuario ve Inicio, Pendientes, Productos, Proveedores, Caja y la lupa', () => {
+  it('el usuario ve los iconos de staff sin entradas ni salidas', () => {
     auth.roleName = 'User'
     auth.haveSchedule = true
     notifications.showNotifications = true
@@ -134,18 +139,13 @@ describe('Navigate de administrador', () => {
       '/home'
     )
     expect(
-      screen.getAllByRole('link', { name: 'Pendientes' })[0]
-    ).toHaveAttribute('href', '/todolist')
-    expect(
       screen.getAllByRole('link', { name: 'Productos' })[0]
     ).toHaveAttribute('href', '/products')
     expect(
       screen.getAllByRole('link', { name: 'Proveedores' })[0]
     ).toHaveAttribute('href', '/suppliers')
-    expect(screen.getAllByRole('link', { name: 'Caja' })[0]).toHaveAttribute(
-      'href',
-      '/cash'
-    )
+    expect(screen.queryByRole('link', { name: 'Pendientes' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Caja' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Salidas' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Entradas' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Asistencias' })).toBeNull()

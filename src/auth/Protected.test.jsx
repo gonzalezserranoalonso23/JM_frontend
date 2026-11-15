@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Protected from './Protected'
 import { appRoutes } from './appRoutes'
 import { routeRules } from './access'
+import { useAppState } from '@/store/appState'
 
 const auth = vi.hoisted(() => ({
   auth: 'token',
@@ -49,6 +50,14 @@ describe('rutas protegidas por usuario', () => {
     auth.role = 'User'
     auth.me = { role: { name: 'User' } }
     auth.isLoading = false
+    useAppState.setState({ shutdown: false })
+  })
+
+  it('con la aplicación apagada no abre las rutas', () => {
+    useAppState.setState({ shutdown: true })
+    renderAt('/products')
+    expect(screen.getByRole('heading', { name: 'Login' })).toBeTruthy()
+    expect(screen.queryByRole('heading', { name: 'Productos' })).toBeNull()
   })
 
   it('cada ruta de la app declara quién puede entrar', () => {

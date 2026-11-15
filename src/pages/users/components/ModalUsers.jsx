@@ -19,6 +19,8 @@ import {
 } from '@/components/atoms/select'
 import { useFormik } from 'formik'
 import { useGetRoles } from '@/features/roles.features'
+import { useGetCurrentUser, useRoleName } from '@/features/users.features'
+import { keepsSchedule, rolesAssignableBy } from '@/auth/access'
 import {
   WEEK_DAYS,
   hasSchedule,
@@ -40,13 +42,14 @@ const ModalUsers = ({
     isLoading: rolesLoading,
     isError: rolesError
   } = useGetRoles()
+  const { data: me } = useGetCurrentUser()
+  const actorRole = useRoleName()
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       username: user?.username || '',
       fullName: user?.fullName || '',
-      email: user?.email || '',
       password: '',
       role: roleIdFromUser(user),
       haveSchedule: hasSchedule(user),
@@ -54,11 +57,11 @@ const ModalUsers = ({
     },
     validate: (values) => {
       if (!values.username) return { username: 'Requerido' }
-      if (!values.email) return { email: 'Requerido' }
       if (!user?._id && !values.password)
         return { password: 'Requerido al crear' }
       if (!values.role) return { role: 'El rol es requerido' }
-      if (!values.haveSchedule) return
+      const chosen = (roles || []).find((role) => role._id === values.role)
+      if (!keepsSchedule(chosen?.name) || !values.haveSchedule) return
       for (const [day, label] of WEEK_DAYS) {
         const row = values.schedule[day]
         if (!row.enabled) continue
@@ -75,12 +78,15 @@ const ModalUsers = ({
       const payload = {
         username: values.username,
         fullName: values.fullName,
-        email: values.email,
         password: values.password,
         role: values.role,
-        haveSchedule: values.haveSchedule
+        haveSchedule: keepsSchedule(
+          (roles || []).find((role) => role._id === values.role)?.name
+        )
+          ? values.haveSchedule
+          : false
       }
-      if (values.haveSchedule) payload.schedule = values.schedule
+      if (payload.haveSchedule) payload.schedule = values.schedule
       // On edit, include password only when it was filled in.
       if (user?._id && !values.password) delete payload.password
       action.mutate(!user?._id ? payload : { id: user._id, data: payload }, {
@@ -91,6 +97,16 @@ const ModalUsers = ({
 
   let selectedRoleId
   if (formik.values.role) selectedRoleId = formik.values.role
+  const lockedSudo =
+    user?.role?.name === 'Sudo' && String(user?._id) === String(me?._id)
+  const allowedNames = rolesAssignableBy(actorRole)
+  const visibleRoles = (roles || []).filter((role) =>
+    allowedNames.includes(role.name)
+  )
+  const selectedRoleName = (roles || []).find(
+    (role) => role._id === selectedRoleId
+  )?.name
+  const scheduleAllowed = keepsSchedule(selectedRoleName)
 
   const handleCloseReset = () => {
     formik.resetForm()
@@ -140,23 +156,6 @@ const ModalUsers = ({
                 />
               </div>
               <div>
-                <Label htmlFor="email">Correo electrónico *</Label>
-                <Input
-                  {...formik.getFieldProps('email')}
-                  id="email"
-                  type="email"
-                  placeholder="correo@ejemplo.com"
-                  className={
-                    formik.errors.email ? 'border-destructive' : undefined
-                  }
-                />
-                {formik.errors.email && (
-                  <p className="mt-1 text-sm text-destructive">
-                    {formik.errors.email}
-                  </p>
-                )}
-              </div>
-              <div>
                 <Label htmlFor="password">
                   {user?._id
                     ? 'Nueva contraseña (dejar vacío para no cambiar)'
@@ -195,7 +194,7 @@ const ModalUsers = ({
                 <Select
                   value={selectedRoleId}
                   onValueChange={(value) => formik.setFieldValue('role', value)}
-                  disabled={rolesLoading}
+                  disabled={rolesLoading || lockedSudo}
                 >
                   <SelectTrigger
                     id="user-role"
@@ -206,11 +205,15 @@ const ModalUsers = ({
                     <SelectValue placeholder="Elige un rol" />
                   </SelectTrigger>
                   <SelectContent>
-                    {roles.map((role) => (
-                      <SelectItem key={role._id} value={role._id}>
-                        {role.name}
-                      </SelectItem>
-                    ))}
+                    {lockedSudo ? (
+                      <SelectItem value={selectedRoleId}>Sudo</SelectItem>
+                    ) : (
+                      visibleRoles.map((role) => (
+                        <SelectItem key={role._id} value={role._id}>
+                          {role.name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 {formik.errors.role && (
@@ -224,6 +227,8 @@ const ModalUsers = ({
                   </p>
                 )}
               </div>
+              {scheduleAllowed && (
+              <>
               <label
                 htmlFor="haveSchedule"
                 className="flex min-h-11 cursor-pointer items-center gap-2 text-sm"
@@ -307,6 +312,8 @@ const ModalUsers = ({
                     </p>
                   )}
                 </div>
+              )}
+              </>
               )}
             </div>
           </DialogBody>

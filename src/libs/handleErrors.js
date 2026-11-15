@@ -60,8 +60,13 @@ export const handleErrors = (error) => {
   }
 
   const status = error?.response?.status || 0
-  const messageFromServer = serverMessage(error?.response?.data)
+  const data = error?.response?.data
+  const messageFromServer = serverMessage(data)
   const location = error?.response?.headers?.location
+
+  if (data?.shutdown) {
+    return { message: '', status, ignore: true, shutdown: true }
+  }
 
   if (status >= 300 && status < 400) {
     return {

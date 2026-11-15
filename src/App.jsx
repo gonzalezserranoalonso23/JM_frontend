@@ -6,10 +6,15 @@ import Login from './pages/Login'
 import ProtectedLayout from '@/components/templates/ProtectedLayout'
 import useNetworkToasts from './hooks/useNetworkToasts'
 import useServiceWorkerUpdate from './hooks/useServiceWorkerUpdate'
+import { useAppStatus } from '@/features/app.features'
+import { useAppState } from '@/store/appState'
+import DisconnectedScreen from '@/components/organisms/DisconnectedScreen'
 
 const App = () => {
   useNetworkToasts()
   useServiceWorkerUpdate()
+  useAppStatus()
+  const shutdown = useAppState((state) => state.shutdown)
 
   return (
     <>
@@ -23,25 +28,29 @@ const App = () => {
         }}
       />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
+        {shutdown ? (
+          <DisconnectedScreen />
+        ) : (
+          <Routes>
+            <Route path="/" element={<Login />} />
 
-          <Route element={<Protected />}>
-            <Route element={<ProtectedLayout />}>
-              {appRoutes.map(({ path, Component }) => (
-                <Route key={path} path={path} element={<Component />} />
-              ))}
+            <Route element={<Protected />}>
+              <Route element={<ProtectedLayout />}>
+                {appRoutes.map(({ path, Component }) => (
+                  <Route key={path} path={path} element={<Component />} />
+                ))}
+              </Route>
             </Route>
-          </Route>
-          <Route
-            path="*"
-            element={
-              <main className="flex flex-1 items-center justify-center p-6">
-                <h1 className="text-2xl font-semibold">Not Found!</h1>
-              </main>
-            }
-          />
-        </Routes>
+            <Route
+              path="*"
+              element={
+                <main className="flex flex-1 items-center justify-center p-6">
+                  <h1 className="text-2xl font-semibold">Not Found!</h1>
+                </main>
+              }
+            />
+          </Routes>
+        )}
       </BrowserRouter>
     </>
   )

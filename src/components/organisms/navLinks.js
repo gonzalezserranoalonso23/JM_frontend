@@ -1,12 +1,16 @@
 import { canVisit, hasFullAccess } from '@/auth/access'
 
-const USER_LINKS = [
+const STAFF_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
-  { to: '/todolist', label: 'Pendientes', badge: true },
+  { to: '/issues', label: 'Salidas' },
+  { to: '/entries', label: 'Entradas' },
   { to: '/products', label: 'Productos' },
-  { to: '/suppliers', label: 'Proveedores' },
-  { to: '/cash', label: 'Caja' }
+  { to: '/suppliers', label: 'Proveedores' }
 ]
+
+const USER_LINKS = STAFF_LINKS.filter(
+  (link) => link.to !== '/issues' && link.to !== '/entries'
+)
 
 const USER_PRIMARY = USER_LINKS.map((link) => link.to)
 
@@ -30,21 +34,6 @@ const ADMIN_LINKS = [
   { to: '/catalogs', label: 'Catálogo' }
 ]
 
-const STAFF_HIDDEN = new Set([
-  '/orders',
-  '/daily-information',
-  '/promotions',
-  '/catalogs'
-])
-
-const staffRoleLinks = () => [
-  ...ADMIN_LINKS.filter(
-    (link) => link.label !== 'Reportes' && !STAFF_HIDDEN.has(link.to)
-  ),
-  { to: '/products', label: 'Producto' },
-  { to: '/suppliers', label: 'Proveedores' }
-]
-
 const allowLink = (link, roleName) => {
   if (link.children) {
     const children = link.children.filter((child) =>
@@ -58,13 +47,9 @@ const allowLink = (link, roleName) => {
 }
 
 export const getNavLinks = (roleName = '') => {
-  const links =
-    roleName === 'Staff'
-      ? staffRoleLinks()
-      : hasFullAccess(roleName)
-        ? ADMIN_LINKS
-        : USER_LINKS
-  return links.map((link) => allowLink(link, roleName)).filter(Boolean)
+  if (roleName === 'Staff') return STAFF_LINKS
+  if (!hasFullAccess(roleName)) return USER_LINKS
+  return ADMIN_LINKS.map((link) => allowLink(link, roleName)).filter(Boolean)
 }
 
 const wideNav = (roleName) => hasFullAccess(roleName) || roleName === 'Staff'
@@ -77,6 +62,9 @@ export const desktopLinkAlignment = (roleName = '') => {
 export const PRIMARY_TABS = ['/home', '/issues', '/entries', '/todolist']
 
 export const splitMobileTabs = (links, roleName = '') => {
+  if (roleName === 'Staff' || roleName === 'User') {
+    return { primary: links, moreLinks: [] }
+  }
   if (!wideNav(roleName)) {
     return {
       primary: links.filter((link) => USER_PRIMARY.includes(link.to)),

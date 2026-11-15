@@ -26,13 +26,15 @@ export const getUsersPage = async ({ page, limit, search }) => {
   return data
 }
 
+const withoutEmail = ({ email, ...user }) => user
+
 export const registerUser = async (userData) => {
-  const { data } = await axios.post('/api/users/register', userData)
+  const { data } = await axios.post('/api/users/register', withoutEmail(userData))
   return data
 }
 
 export const updateUser = async (id, userData) => {
-  const { data } = await axios.put(`/api/users/${id}`, userData)
+  const { data } = await axios.put(`/api/users/${id}`, withoutEmail(userData))
   return data
 }
 

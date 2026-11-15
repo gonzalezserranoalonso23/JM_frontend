@@ -19,7 +19,8 @@ import { useGetCurrentUser } from '@/features/users.features'
 import useLocationPrompt from '@/hooks/useLocationPrompt'
 import { AttendancePunch } from '@/pages/attendance/Attendance'
 import ScheduleDays from '@/pages/users/components/ScheduleDays'
-import { hasFullAccess } from '@/auth/access'
+import { isSudo } from '@/auth/access'
+import { useShutdownApp } from '@/features/app.features'
 import { hasSchedule } from '@/pages/users/schedule'
 import { getTheme, setTheme } from '@/ui/theme'
 
@@ -38,9 +39,10 @@ const roleName = (user) => {
 const showsPunch = (user) => user?.role?.name === 'Supervisor'
 
 const showsSchedule = (user) => {
-  if (!user) return false
-  if (hasFullAccess(user.role?.name)) return hasSchedule(user)
-  return true
+  const name = user?.role?.name
+  if (name === 'Staff' || name === 'User') return true
+  if (name === 'Supervisor') return hasSchedule(user)
+  return false
 }
 
 const themeVariant = (theme, name) => {
@@ -75,7 +77,9 @@ const PermissionPrompts = ({ notifications, location }) => {
 
 const AccountProfile = ({ notifications = null }) => {
   const [open, setOpen] = useState(false)
+  const [confirmShutdown, setConfirmShutdown] = useState(false)
   const [theme, setThemeState] = useState(getTheme)
+  const shutdown = useShutdownApp()
   const { data: user, isLoading, isError } = useGetCurrentUser(open)
   const location = useLocationPrompt()
   const showSchedule = showsSchedule(user)
@@ -86,7 +90,13 @@ const AccountProfile = ({ notifications = null }) => {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (!next) setConfirmShutdown(false)
+      }}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
@@ -128,7 +138,6 @@ const AccountProfile = ({ notifications = null }) => {
               <dl className="divide-y">
                 <Field label="Usuario">{user.username}</Field>
                 <Field label="Nombre">{user.fullName || '—'}</Field>
-                <Field label="Correo">{user.email}</Field>
                 <Field label="Rol">{roleName(user)}</Field>
               </dl>
               {showSchedule && (
@@ -138,6 +147,46 @@ const AccountProfile = ({ notifications = null }) => {
                   </h2>
                   <ScheduleDays schedule={user.schedule} />
                 </section>
+              )}
+            </div>
+          )}
+          {user && isSudo(user.role?.name) && (
+            <div className="mt-2 flex flex-col gap-3 border-t px-1 pt-4">
+              <p className="text-sm text-muted-foreground">
+                Apagar cierra todas las sesiones.
+              </p>
+              {confirmShutdown ? (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="!h-8 !min-h-8 w-fit px-3"
+                    disabled={shutdown.isPending}
+                    onClick={() => shutdown.mutate()}
+                  >
+                    {shutdown.isPending ? 'Apagando...' : 'Apagar'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="!h-8 !min-h-8 w-fit px-3"
+                    onClick={() => setConfirmShutdown(false)}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="!h-8 !min-h-8 w-fit px-3"
+                  onClick={() => setConfirmShutdown(true)}
+                >
+                  Apagar aplicación
+                </Button>
               )}
             </div>
           )}

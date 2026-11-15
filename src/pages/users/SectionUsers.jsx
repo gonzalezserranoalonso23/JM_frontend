@@ -17,10 +17,12 @@ import FormFilter from '@/components/molecules/FormFilter'
 import ActionIconButton from '@/components/molecules/ActionIconButton'
 import ScheduleModal from './components/ScheduleModal'
 import RoleBadge from './components/RoleBadge'
-import { hasFullAccess } from '@/auth/access'
+import { isSudo, rolesAssignableBy } from '@/auth/access'
+import { useRoleName } from '@/features/users.features'
 import { hasSchedule } from './schedule'
 
 const SectionUsers = () => {
+  const actorRole = useRoleName()
   const [search, setSearch] = useFilterQuery()
   const {
     data: userPages,
@@ -57,7 +59,7 @@ const SectionUsers = () => {
     if (window.confirm('¿Eliminar este usuario?')) deleteUser.mutate(id)
   }
   const handleRevoke = (user) => {
-    if (hasFullAccess(user.role?.name)) return
+    if (isSudo(user.role?.name)) return
     if (
       !window.confirm(
         `¿Cerrar las sesiones de ${user.username}? Tendrá que volver a entrar.`
@@ -131,9 +133,6 @@ const SectionUsers = () => {
               user.fullName || <span className="text-muted-foreground">—</span>
             }
           </Column>
-          <Column header="Email" detail>
-            {(user) => <small>{user.email}</small>}
-          </Column>
           <Column header="Rol" aside>
             {(user) => <RoleBadge user={user} />}
           </Column>
@@ -147,12 +146,14 @@ const SectionUsers = () => {
                     onClick={() => setScheduleUser(user)}
                   />
                 )}
-                <ActionIconButton
-                  action="edit"
-                  label="Editar"
-                  onClick={() => handleShowEdit(user)}
-                />
-                {!hasFullAccess(user.role?.name) && (
+                {rolesAssignableBy(actorRole).includes(user.role?.name) && (
+                  <ActionIconButton
+                    action="edit"
+                    label="Editar"
+                    onClick={() => handleShowEdit(user)}
+                  />
+                )}
+                {isSudo(actorRole) && !isSudo(user.role?.name) && (
                   <ActionIconButton
                     action="logout"
                     label="Cerrar sesiones"
@@ -160,11 +161,13 @@ const SectionUsers = () => {
                     onClick={() => handleRevoke(user)}
                   />
                 )}
-                <ActionIconButton
-                  action="delete"
-                  label="Eliminar"
-                  onClick={() => handleDelete(user._id)}
-                />
+                {rolesAssignableBy(actorRole).includes(user.role?.name) && (
+                  <ActionIconButton
+                    action="delete"
+                    label="Eliminar"
+                    onClick={() => handleDelete(user._id)}
+                  />
+                )}
               </>
             )}
           </Column>

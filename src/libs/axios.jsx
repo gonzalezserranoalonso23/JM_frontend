@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { isTokenExpired, useAuthStore } from '@/store/auth'
+import { useAppState } from '@/store/appState'
 import { handleErrors } from '@/libs/handleErrors'
 
 // On macOS a connection to a stopped server can hang forever.
@@ -63,6 +64,16 @@ authApi.interceptors.response.use(
     if (error.config?.timedOut) error.code = 'ECONNABORTED'
     const handled = handleErrors(error)
     error.handled = handled
+    if (handled.shutdown) {
+      useAppState.getState().setShutdown(true)
+      const current = useAuthStore.getState().auth
+      const requestToken = String(
+        error.config?.headers?.Authorization || ''
+      ).replace(/^Bearer\s+/i, '')
+      if (!current || requestToken === current) {
+        useAuthStore.getState().logOut()
+      }
+    }
     if (handled.logout) {
       const { logOut } = useAuthStore.getState()
       logOut()

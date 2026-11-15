@@ -15,6 +15,10 @@ vi.mock('@/features/users.features', () => ({
   useGetCurrentUser: () => profile
 }))
 
+vi.mock('@/features/app.features', () => ({
+  useShutdownApp: () => ({ mutate: vi.fn(), isPending: false })
+}))
+
 const locationPrompt = vi.hoisted(() => ({
   show: true,
   request: vi.fn()
@@ -83,7 +87,7 @@ describe('Mi información', () => {
     ).toBeNull()
   })
 
-  it('muestra el horario de un administrador que lo tiene', async () => {
+  it('el manager no muestra horario ni checador', async () => {
     profile.data = {
       username: 'admin',
       email: 'admin@jm.test',
@@ -96,12 +100,8 @@ describe('Mi información', () => {
     await openProfile()
 
     expect(screen.getByText('Manager')).toBeTruthy()
-    expect(screen.getByRole('heading', { name: 'Horario' })).toBeTruthy()
-    expect(screen.getByText('09:00 – 18:00')).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Checador' })).toBeNull()
-    expect(
-      screen.queryByRole('button', { name: 'Registrar entrada' })
-    ).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'Horario' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Registrar entrada' })).toBeNull()
   })
 
   it('el supervisor registra su entrada desde el avatar', async () => {
@@ -179,5 +179,20 @@ describe('Mi información', () => {
 
     expect(requestNotifications).toHaveBeenCalledOnce()
     expect(locationPrompt.request).toHaveBeenCalledOnce()
+  })
+
+  it('sudo puede apagar la aplicación desde el avatar', async () => {
+    profile.data = {
+      username: 'glezalonso23',
+      email: 'alonso@jm.test',
+      role: { name: 'Sudo' },
+      haveSchedule: false
+    }
+    await openProfile()
+
+    expect(
+      screen.getByRole('button', { name: 'Apagar aplicación' })
+    ).toBeTruthy()
+    expect(screen.queryByRole('heading', { name: 'Horario' })).toBeNull()
   })
 })

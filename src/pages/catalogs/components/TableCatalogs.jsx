@@ -9,18 +9,24 @@ import {
 import { Link } from 'react-router-dom'
 import { Card, CardContent } from '@/components/atoms/card'
 import { Button } from '@/components/atoms/button'
-import { hasFullAccess } from '@/auth/access'
+import { hasFullAccess, isSudo } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'
 
 const TableCatalogs = () => {
-  const fullAccess = hasFullAccess(useRoleName())
+  const roleName = useRoleName()
+  const fullAccess = hasFullAccess(roleName)
   const items = [
     { name: 'Productos', path: '../products' },
     { name: 'Proveedores', path: '../suppliers' },
     { name: 'Categorías', path: '../categories', adminOnly: true },
     { name: 'Métodos de pago', path: '../payment-types', adminOnly: true },
+    { name: 'Roles', path: '../roles', sudoOnly: true },
     { name: 'Usuarios', path: '../users', adminOnly: true }
-  ].filter((item) => fullAccess || !item.adminOnly)
+  ].filter((item) => {
+    if (item.sudoOnly) return isSudo(roleName)
+    if (item.adminOnly) return fullAccess
+    return true
+  })
 
   return (
     <div>

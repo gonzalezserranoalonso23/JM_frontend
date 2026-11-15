@@ -7,7 +7,10 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { notifyError } from '@/libs/handleErrors'
-import { sessionRole } from '@/auth/access'
+import { isSudo, sessionRole } from '@/auth/access'
+import { latchShutdown } from '@/features/app.features'
+import { startupApp } from '@/services/app.services'
+import { useAppState } from '@/store/appState'
 import { useAuthStore } from '@/store/auth'
 import {
   login,
@@ -29,11 +32,22 @@ export const useLogin = () => {
 
   const mutationLogin = useMutation({
     mutationFn: login,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      const role = data.data.role || ''
       toast.success('Inicio de sesión exitoso! ')
       auth(data.data.token)
       profile(data.data.username)
-      setRole(data.data.role || '')
+      setRole(role)
+      if (useAppState.getState().shutdown && isSudo(role)) {
+        latchShutdown(true)
+        try {
+          await startupApp()
+          latchShutdown(false)
+          useAppState.getState().setShutdown(false)
+        } catch (error) {
+          notifyError(error, 'No se pudo activar la aplicación')
+        }
+      }
       navigate('../home')
     },
     onError: (error) => notifyError(error, 'Error al iniciar sesión!')
@@ -55,7 +69,8 @@ export const useGetCurrentUser = (enabled = true) => {
     queryKey: ['users', 'me'],
     queryFn: getCurrentUser,
     enabled,
-    staleTime: 10 * 60 * 1000
+    staleTime: 0,
+    refetchOnMount: 'always'
   })
   const roleName = query.data?.role?.name || ''
 
