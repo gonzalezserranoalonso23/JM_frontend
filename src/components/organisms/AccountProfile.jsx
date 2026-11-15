@@ -20,7 +20,8 @@ import useLocationPrompt from '@/hooks/useLocationPrompt'
 import { AttendancePunch } from '@/pages/attendance/Attendance'
 import ScheduleDays from '@/pages/users/components/ScheduleDays'
 import { isSudo } from '@/auth/access'
-import { useShutdownApp } from '@/features/app.features'
+import { useShutdownApp, useStartupApp } from '@/features/app.features'
+import { useAppState } from '@/store/appState'
 import { hasSchedule } from '@/pages/users/schedule'
 import { getTheme, setTheme } from '@/ui/theme'
 
@@ -80,6 +81,8 @@ const AccountProfile = ({ notifications = null }) => {
   const [confirmShutdown, setConfirmShutdown] = useState(false)
   const [theme, setThemeState] = useState(getTheme)
   const shutdown = useShutdownApp()
+  const startup = useStartupApp()
+  const appOff = useAppState((state) => state.shutdown)
   const { data: user, isLoading, isError } = useGetCurrentUser(open)
   const location = useLocationPrompt()
   const showSchedule = showsSchedule(user)
@@ -150,7 +153,23 @@ const AccountProfile = ({ notifications = null }) => {
               )}
             </div>
           )}
-          {user && isSudo(user.role?.name) && (
+          {user && isSudo(user.role?.name) && appOff && (
+            <div className="mt-2 flex flex-col gap-3 border-t px-1 pt-4">
+              <p className="text-sm text-muted-foreground">
+                Activar permite entrar a los demás usuarios.
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                className="!h-8 !min-h-8 w-fit px-3"
+                disabled={startup.isPending}
+                onClick={() => startup.mutate()}
+              >
+                {startup.isPending ? 'Activando...' : 'Activar aplicación'}
+              </Button>
+            </div>
+          )}
+          {user && isSudo(user.role?.name) && !appOff && (
             <div className="mt-2 flex flex-col gap-3 border-t px-1 pt-4">
               <p className="text-sm text-muted-foreground">
                 Apagar cierra todas las sesiones.

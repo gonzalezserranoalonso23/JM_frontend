@@ -22,22 +22,20 @@ const DisconnectedScreen = () => {
     onSubmit: (values) => login.mutate(values)
   })
   const supportForm = useFormik({
-    initialValues: { username: '' },
+    initialValues: { code: '' },
     validate: (values) => {
-      if (!values.username.trim()) return { username: 'El usuario es requerido' }
+      if (!values.code.trim()) return { code: 'El código es requerido' }
     },
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: (values) => {
-      const username = values.username.trim()
       setDenied(false)
-      support.mutate(username, {
+      support.mutate(values.code.trim(), {
         onSuccess: (data) => {
           if (!data?.allowed) {
             setDenied(true)
             return
           }
-          formik.setFieldValue('username', username)
           setSupportOpen(false)
           setEntering(true)
         }
@@ -58,15 +56,25 @@ const DisconnectedScreen = () => {
 
   return (
     <main className="relative flex h-dvh min-h-0 w-full flex-1 flex-col bg-background px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] text-foreground">
-      <div className="flex flex-1 flex-col items-center justify-center gap-6">
-        <Unplug className="size-24" strokeWidth={1.5} aria-hidden="true" />
-        <h1 className="text-3xl font-semibold">Desconectada</h1>
+      <div
+        className={
+          supportOpen
+            ? 'hidden'
+            : 'flex flex-1 flex-col items-center justify-center gap-6'
+        }
+      >
+        {!entering && (
+          <>
+            <Unplug className="size-24" strokeWidth={1.5} aria-hidden="true" />
+            <h1 className="text-3xl font-semibold">Desconectada</h1>
+          </>
+        )}
         {entering && (
           <form
             className="flex w-full max-w-xs flex-col gap-3"
             onSubmit={formik.handleSubmit}
           >
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="shutdown-username">Usuario</Label>
               <Input
                 id="shutdown-username"
@@ -76,7 +84,7 @@ const DisconnectedScreen = () => {
                 onChange={formik.handleChange}
               />
             </div>
-            <div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="shutdown-password">Contraseña</Label>
               <Input
                 id="shutdown-password"
@@ -97,7 +105,7 @@ const DisconnectedScreen = () => {
           </form>
         )}
       </div>
-      <footer className="pb-8 text-center">
+      <footer className={supportOpen ? 'hidden' : 'pb-8 text-center'}>
         <p
           className="cursor-pointer text-sm underline underline-offset-4"
           onClick={openSupport}
@@ -108,25 +116,24 @@ const DisconnectedScreen = () => {
       {supportOpen && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/80 px-6">
           <form
-            className="flex w-full max-w-xs flex-col gap-4 rounded-lg bg-background p-5"
+            className="flex w-full max-w-xs flex-col gap-4 rounded-lg border bg-background p-5"
             onSubmit={supportForm.handleSubmit}
-            aria-labelledby="support-title"
           >
-            <h2 id="support-title" className="text-lg font-semibold">
-              Soporte
-            </h2>
-            <div>
-              <Label htmlFor="support-username">Usuario</Label>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="railway-code" className="text-lg font-semibold">
+                Código Railway
+              </Label>
               <Input
-                id="support-username"
-                name="username"
-                autoComplete="username"
-                value={supportForm.values.username}
+                id="railway-code"
+                name="code"
+                inputMode="numeric"
+                autoComplete="off"
+                value={supportForm.values.code}
                 onChange={supportForm.handleChange}
               />
-              {supportForm.errors.username && (
+              {supportForm.errors.code && (
                 <p className="mt-1 text-sm text-destructive">
-                  {supportForm.errors.username}
+                  {supportForm.errors.code}
                 </p>
               )}
               {denied && (

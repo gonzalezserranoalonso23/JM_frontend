@@ -60,6 +60,14 @@ describe('rutas protegidas por usuario', () => {
     expect(screen.queryByRole('heading', { name: 'Productos' })).toBeNull()
   })
 
+  it('con la aplicación apagada el sudo sí entra', () => {
+    auth.role = 'Sudo'
+    auth.me = { role: { name: 'Sudo' } }
+    useAppState.setState({ shutdown: true })
+    renderAt('/products')
+    expect(screen.getByRole('heading', { name: 'Productos' })).toBeTruthy()
+  })
+
   it('cada ruta de la app declara quién puede entrar', () => {
     expect(appRoutes.map((route) => route.path)).toEqual(
       routeRules.map((rule) => rule.path)

@@ -7,10 +7,7 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import { notifyError } from '@/libs/handleErrors'
-import { isSudo, sessionRole } from '@/auth/access'
-import { latchShutdown } from '@/features/app.features'
-import { startupApp } from '@/services/app.services'
-import { useAppState } from '@/store/appState'
+import { sessionRole } from '@/auth/access'
 import { useAuthStore } from '@/store/auth'
 import {
   login,
@@ -38,16 +35,6 @@ export const useLogin = () => {
       auth(data.data.token)
       profile(data.data.username)
       setRole(role)
-      if (useAppState.getState().shutdown && isSudo(role)) {
-        latchShutdown(true)
-        try {
-          await startupApp()
-          latchShutdown(false)
-          useAppState.getState().setShutdown(false)
-        } catch (error) {
-          notifyError(error, 'No se pudo activar la aplicación')
-        }
-      }
       navigate('../home')
     },
     onError: (error) => notifyError(error, 'Error al iniciar sesión!')

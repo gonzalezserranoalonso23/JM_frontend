@@ -1,12 +1,5 @@
-import axios from 'axios'
 import authApi from '@/libs/axios'
-
-// Status and support stay public. The auth client would cancel them and send
-// the browser to login when the saved token is expired or already closed.
-const publicApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  timeout: 6000
-})
+import publicApi from '@/libs/publicApi'
 
 export const getAppStatus = async () => {
   const { data } = await publicApi.get('/api/app/status', {
@@ -26,7 +19,7 @@ export const startupApp = async () => {
   return data
 }
 
-export const requestSupport = async (username) => {
-  const { data } = await publicApi.post('/api/app/support', { username })
+export const requestSupport = async (code) => {
+  const { data } = await publicApi.post('/api/app/support', { code })
   return data
 }

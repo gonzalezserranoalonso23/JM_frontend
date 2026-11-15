@@ -6,8 +6,10 @@ import Login from './pages/Login'
 import ProtectedLayout from '@/components/templates/ProtectedLayout'
 import useNetworkToasts from './hooks/useNetworkToasts'
 import useServiceWorkerUpdate from './hooks/useServiceWorkerUpdate'
+import { isSudo } from '@/auth/access'
 import { useAppStatus } from '@/features/app.features'
 import { useAppState } from '@/store/appState'
+import { useAuthStore } from '@/store/auth'
 import DisconnectedScreen from '@/components/organisms/DisconnectedScreen'
 
 const App = () => {
@@ -16,6 +18,9 @@ const App = () => {
   useAppStatus()
   const shutdown = useAppState((state) => state.shutdown)
   const ready = useAppState((state) => state.ready)
+  const auth = useAuthStore((state) => state.auth)
+  const role = useAuthStore((state) => state.role)
+  const sudoSession = Boolean(auth) && isSudo(role)
 
   return (
     <>
@@ -31,7 +36,7 @@ const App = () => {
       <BrowserRouter>
         {!ready ? (
           <main className="h-dvh w-full bg-background" />
-        ) : shutdown ? (
+        ) : shutdown && !sudoSession ? (
           <DisconnectedScreen />
         ) : (
           <Routes>

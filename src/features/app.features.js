@@ -1,11 +1,13 @@
 import { useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { isSudo } from '@/auth/access'
 import {
   getAppStatus,
   requestSupport,
   shutdownApp,
   startupApp
 } from '@/services/app.services'
+import { getCurrentUser } from '@/services/users.services'
 import { useAppState } from '@/store/appState'
 import { useAuthStore } from '@/store/auth'
 
@@ -32,7 +34,13 @@ export const useAppStatus = () => {
     setShutdown(next)
     if (next && !shutdownLatched) {
       const session = useAuthStore.getState()
-      if (session.auth || session.isLogged) session.logOut()
+      if (session.auth || session.isLogged) {
+        if (isSudo(session.role)) {
+          getCurrentUser().catch(() => {})
+        } else {
+          session.logOut()
+        }
+      }
     }
     shutdownLatched = next
   }, [query.data, setShutdown])

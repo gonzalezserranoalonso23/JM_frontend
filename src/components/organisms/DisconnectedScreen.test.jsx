@@ -42,14 +42,13 @@ describe('pantalla desconectado', () => {
     expect(note.closest('footer')).toBeTruthy()
     await user.click(note)
 
-    expect(screen.getByRole('heading', { name: 'Soporte' })).toBeTruthy()
-    expect(screen.getByLabelText('Usuario')).toBeTruthy()
+    expect(screen.getByLabelText('Código Railway')).toBeTruthy()
   })
 
-  it('el enlace de soporte abre el nombre y solo un sudo llega al inicio de sesión', async () => {
+  it('el código railway abre el inicio de sesión y otro código no', async () => {
     const user = userEvent.setup()
-    support.mutate.mockImplementation((username, { onSuccess }) =>
-      onSuccess({ allowed: username === 'glezalonso23' })
+    support.mutate.mockImplementation((code, { onSuccess }) =>
+      onSuccess({ allowed: code === '170215' })
     )
     render(<DisconnectedScreen />)
 
@@ -58,18 +57,19 @@ describe('pantalla desconectado', () => {
     expect(screen.queryByLabelText('Contraseña')).toBeNull()
 
     await user.click(screen.getByText('support@site.com'))
-    await user.type(screen.getByLabelText('Usuario'), 'otro')
+    await user.type(screen.getByLabelText('Código Railway'), '000000')
     await user.click(screen.getByRole('button', { name: 'Continuar' }))
 
     expect(screen.getByText('No se puede continuar')).toBeTruthy()
     expect(screen.queryByLabelText('Contraseña')).toBeNull()
 
-    await user.clear(screen.getByLabelText('Usuario'))
-    await user.type(screen.getByLabelText('Usuario'), 'glezalonso23')
+    await user.clear(screen.getByLabelText('Código Railway'))
+    await user.type(screen.getByLabelText('Código Railway'), '170215')
     await user.click(screen.getByRole('button', { name: 'Continuar' }))
 
-    expect(screen.getByLabelText('Usuario')).toHaveValue('glezalonso23')
+    expect(screen.getByLabelText('Usuario')).toHaveValue('')
     expect(screen.getByLabelText('Contraseña')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeTruthy()
+    expect(screen.queryByLabelText('Código Railway')).toBeNull()
   })
 })

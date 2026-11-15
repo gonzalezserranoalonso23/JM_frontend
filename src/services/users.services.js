@@ -1,6 +1,7 @@
 import axios from '@/libs/axios'
+import publicApi from '@/libs/publicApi'
 
-export const login = (values) => axios.post('/api/users/login', values)
+export const login = (values) => publicApi.post('/api/users/login', values)
 
 export const logout = () => axios.post('/api/users/logout')
 

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { TooltipProvider } from '@/components/atoms/tooltip'
+import { useAppState } from '@/store/appState'
 import AccountProfile from './AccountProfile'
 
 const profile = vi.hoisted(() => ({
@@ -15,8 +16,14 @@ vi.mock('@/features/users.features', () => ({
   useGetCurrentUser: () => profile
 }))
 
+const appActions = vi.hoisted(() => ({
+  shutdown: vi.fn(),
+  startup: vi.fn()
+}))
+
 vi.mock('@/features/app.features', () => ({
-  useShutdownApp: () => ({ mutate: vi.fn(), isPending: false })
+  useShutdownApp: () => ({ mutate: appActions.shutdown, isPending: false }),
+  useStartupApp: () => ({ mutate: appActions.startup, isPending: false })
 }))
 
 const locationPrompt = vi.hoisted(() => ({
@@ -65,6 +72,9 @@ describe('Mi información', () => {
     document.documentElement.classList.add('dark')
     locationPrompt.show = true
     locationPrompt.request.mockClear()
+    appActions.shutdown.mockClear()
+    appActions.startup.mockClear()
+    useAppState.setState({ shutdown: false, ready: true })
   })
 
   it('muestra la información y el horario de un usuario', async () => {
@@ -194,5 +204,24 @@ describe('Mi información', () => {
       screen.getByRole('button', { name: 'Apagar aplicación' })
     ).toBeTruthy()
     expect(screen.queryByRole('heading', { name: 'Horario' })).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: 'Activar aplicación' })
+    ).toBeNull()
+  })
+
+  it('con la aplicación apagada el sudo la activa', async () => {
+    profile.data = {
+      username: 'glezalonso23',
+      role: { name: 'Sudo' },
+      haveSchedule: false
+    }
+    useAppState.setState({ shutdown: true, ready: true })
+    const user = await openProfile()
+
+    expect(
+      screen.queryByRole('button', { name: 'Apagar aplicación' })
+    ).toBeNull()
+    await user.click(screen.getByRole('button', { name: 'Activar aplicación' }))
+    expect(appActions.startup).toHaveBeenCalledOnce()
   })
 })
