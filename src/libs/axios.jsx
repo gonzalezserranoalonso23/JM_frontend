@@ -40,7 +40,13 @@ authApi.interceptors.request.use((config) => {
 
   if (token && isTokenExpired(token)) {
     logOut()
-    if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+    const { shutdown, ready } = useAppState.getState()
+    if (
+      ready &&
+      !shutdown &&
+      typeof window !== 'undefined' &&
+      window.location.pathname !== '/'
+    ) {
       window.location.assign('/')
     }
     return Promise.reject(new axios.CanceledError('Token expirado'))
@@ -77,7 +83,13 @@ authApi.interceptors.response.use(
     if (handled.logout) {
       const { logOut } = useAuthStore.getState()
       logOut()
-      if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+      const { shutdown, ready } = useAppState.getState()
+      if (
+        ready &&
+        !shutdown &&
+        typeof window !== 'undefined' &&
+        window.location.pathname !== '/'
+      ) {
         window.location.assign('/')
       }
     }

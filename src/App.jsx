@@ -15,6 +15,7 @@ const App = () => {
   useServiceWorkerUpdate()
   useAppStatus()
   const shutdown = useAppState((state) => state.shutdown)
+  const ready = useAppState((state) => state.ready)
 
   return (
     <>
@@ -28,7 +29,9 @@ const App = () => {
         }}
       />
       <BrowserRouter>
-        {shutdown ? (
+        {!ready ? (
+          <main className="h-dvh w-full bg-background" />
+        ) : shutdown ? (
           <DisconnectedScreen />
         ) : (
           <Routes>
