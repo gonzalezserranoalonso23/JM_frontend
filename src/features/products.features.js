@@ -26,12 +26,13 @@ import { searchTokens } from '@/utils/productSearch'
 export const useGetPromotionPages = (search = '', category = '') =>
   useInfiniteQuery({
     queryKey: ['Products', 'promotions', search, category],
-    queryFn: ({ pageParam }) =>
+    queryFn: ({ pageParam, signal }) =>
       getPromotionProductsPage({
         page: pageParam,
         limit: 20,
         search,
-        category
+        category,
+        signal
       }),
     placeholderData: keepPreviousData,
     initialPageParam: 1,
@@ -43,8 +44,8 @@ export const useGetPromotionPages = (search = '', category = '') =>
 export const useGetProductPages = (search = '') =>
   useInfiniteQuery({
     queryKey: ['Products', 'pages', search],
-    queryFn: ({ pageParam }) =>
-      getProductsPage({ page: pageParam, limit: 20, search }),
+    queryFn: ({ pageParam, signal }) =>
+      getProductsPage({ page: pageParam, limit: 20, search, signal }),
     placeholderData: keepPreviousData,
     staleTime: 60 * 1000,
     initialPageParam: 1,
@@ -55,7 +56,8 @@ export const useGetProductPages = (search = '') =>
 export const useSearchProducts = (search = '') =>
   useQuery({
     queryKey: ['Products', 'lookup', search],
-    queryFn: () => getProductsPage({ page: 1, limit: 10, search }),
+    queryFn: ({ signal }) =>
+      getProductsPage({ page: 1, limit: 10, search, signal }),
     enabled: search.length > 0,
     placeholderData: keepPreviousData
   })
@@ -90,6 +92,10 @@ const confirmProductQueries = (queryClient) => {
   queryClient.invalidateQueries({ queryKey: ['Products'] })
   queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
   queryClient.invalidateQueries({ queryKey: ['ProductLookup'] })
+  queryClient.invalidateQueries({ queryKey: ['InventoryRecords'] })
+  queryClient.invalidateQueries({ queryKey: ['InventoryStats'] })
+  queryClient.invalidateQueries({ queryKey: ['LiveInformation'] })
+  queryClient.invalidateQueries({ queryKey: ['SalesByDateRange'] })
 }
 
 const refreshProducts = (queryClient, updated) => {

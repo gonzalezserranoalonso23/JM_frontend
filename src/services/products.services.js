@@ -9,9 +9,11 @@ export const getPromotionProductsPage = async ({
   page,
   limit,
   search,
-  category
+  category,
+  signal
 }) => {
   const { data } = await axios.get('/api/products/promotions', {
+    signal,
     params: {
       page,
       limit,
@@ -37,8 +39,9 @@ export const getProductLookup = async ({
   return data
 }
 
-export const getProductsPage = async ({ page, limit, search }) => {
+export const getProductsPage = async ({ page, limit, search, signal }) => {
   const { data } = await axios.get('/api/products', {
+    signal,
     params: { page, limit, ...(search ? { search } : {}) }
   })
   return data

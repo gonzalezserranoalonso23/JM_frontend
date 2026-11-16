@@ -39,7 +39,8 @@ const invalidateStockQueries = (queryClient) => {
     'LowStockProducts',
     'Products',
     'ProductLookup',
-    'LiveInformation'
+    'LiveInformation',
+    'SalesByDateRange'
   ]) {
     queryClient.invalidateQueries({ queryKey: [key] })
   }

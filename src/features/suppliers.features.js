@@ -19,6 +19,8 @@ const refreshSupplierUse = (queryClient) => {
   queryClient.invalidateQueries({ queryKey: ['Suppliers'] })
   queryClient.invalidateQueries({ queryKey: ['Products'] })
   queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+  queryClient.invalidateQueries({ queryKey: ['ProductLookup'] })
+  queryClient.invalidateQueries({ queryKey: ['InventoryRecords'] })
 }
 
 export const useGetSuppliers = ({ enabled = true } = {}) => {

@@ -27,6 +27,8 @@ const refreshCategoryUse = (queryClient) => {
   queryClient.invalidateQueries({ queryKey: ['Categories'] })
   queryClient.invalidateQueries({ queryKey: ['Products'] })
   queryClient.invalidateQueries({ queryKey: ['LowStockProducts'] })
+  queryClient.invalidateQueries({ queryKey: ['ProductLookup'] })
+  queryClient.invalidateQueries({ queryKey: ['InventoryRecords'] })
 }
 
 export const useGetCategoryPages = () =>
