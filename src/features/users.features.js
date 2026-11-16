@@ -56,8 +56,7 @@ export const useGetCurrentUser = (enabled = true) => {
     queryKey: ['users', 'me'],
     queryFn: getCurrentUser,
     enabled,
-    staleTime: 0,
-    refetchOnMount: 'always'
+    staleTime: 30 * 1000
   })
   const roleName = query.data?.role?.name || ''
 

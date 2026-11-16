@@ -1,13 +1,21 @@
+import { lazy, Suspense } from 'react'
 import PageShell from '@/components/templates/PageShell'
 import { hasFullAccess } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'
-import { StaffClock } from '@/pages/attendance/Attendance'
 import StockDashboard from './components/StockDashboard'
+
+const StaffClock = lazy(() =>
+  import('@/pages/attendance/Attendance').then((module) => ({
+    default: module.StaffClock
+  }))
+)
 
 const PersonalHome = () => (
   <PageShell>
     <div className="w-full xl:max-w-md">
-      <StaffClock />
+      <Suspense fallback={null}>
+        <StaffClock />
+      </Suspense>
     </div>
   </PageShell>
 )

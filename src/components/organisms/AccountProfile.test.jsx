@@ -111,7 +111,9 @@ describe('Mi información', () => {
 
     expect(screen.getByText('Manager')).toBeTruthy()
     expect(screen.queryByRole('heading', { name: 'Horario' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Registrar entrada' })).toBeNull()
+    expect(
+      screen.queryByRole('button', { name: 'Registrar entrada' })
+    ).toBeNull()
   })
 
   it('el supervisor registra su entrada desde el avatar', async () => {
@@ -129,7 +131,7 @@ describe('Mi información', () => {
     expect(screen.getByText('Supervisor')).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Horario' })).toBeTruthy()
     expect(
-      screen.getByRole('button', { name: 'Registrar entrada' })
+      await screen.findByRole('button', { name: 'Registrar entrada' })
     ).toBeTruthy()
   })
 

@@ -128,6 +128,7 @@ const SectionIssues = () => {
           placeholder="Producto o fecha (20/10/2026)"
           value={dataFilter}
           onChange={setDataFilter}
+          delay={0}
         >
           <div className="flex min-w-[200px] flex-col gap-2">
             <Label htmlFor="issue-payment-filter" className="mb-0">

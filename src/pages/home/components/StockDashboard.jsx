@@ -52,14 +52,16 @@ const StockDashboard = () => {
         >
           {kpis.map(([label, value]) => (
             <Card key={label} className="h-full gap-1 p-4 sm:p-6">
-              <p className="text-sm font-medium text-muted-foreground">{label}</p>
-              <p className="text-lg font-bold text-foreground tabular-nums xl:text-2xl">
+              <p className="text-sm font-medium text-muted-foreground">
+                {label}
+              </p>
+              <div className="text-lg font-bold text-foreground tabular-nums xl:text-2xl">
                 {statsLoading ? (
                   <Skeleton className="h-7 w-24 xl:h-8 xl:w-28" />
                 ) : (
                   value
                 )}
-              </p>
+              </div>
             </Card>
           ))}
         </section>

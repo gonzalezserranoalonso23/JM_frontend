@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { CircleUser } from 'lucide-react'
 import { Button } from '@/components/atoms/button'
 import {
@@ -17,13 +17,18 @@ import {
 } from '@/components/atoms/tooltip'
 import { useGetCurrentUser } from '@/features/users.features'
 import useLocationPrompt from '@/hooks/useLocationPrompt'
-import { AttendancePunch } from '@/pages/attendance/Attendance'
 import ScheduleDays from '@/pages/users/components/ScheduleDays'
 import { isSudo } from '@/auth/access'
 import { useShutdownApp, useStartupApp } from '@/features/app.features'
 import { useAppState } from '@/store/appState'
 import { hasSchedule } from '@/pages/users/schedule'
 import { getTheme, setTheme } from '@/ui/theme'
+
+const AttendancePunch = lazy(() =>
+  import('@/pages/attendance/Attendance').then((module) => ({
+    default: module.AttendancePunch
+  }))
+)
 
 const Field = ({ label, children }) => (
   <div className="flex items-start justify-between gap-4 py-2.5 text-sm">
@@ -137,7 +142,11 @@ const AccountProfile = ({ notifications = null }) => {
           )}
           {user && (
             <div className="flex flex-col gap-4">
-              {showPunch && <AttendancePunch />}
+              {showPunch && (
+                <Suspense fallback={null}>
+                  <AttendancePunch />
+                </Suspense>
+              )}
               <dl className="divide-y">
                 <Field label="Usuario">{user.username}</Field>
                 <Field label="Nombre">{user.fullName || '—'}</Field>

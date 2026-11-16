@@ -104,6 +104,7 @@ const SectionProducts = () => {
         label="Buscar producto"
         value={dataFilter}
         onChange={setDataFilter}
+        delay={0}
       />
       {!update ? (
         <ModalProducts

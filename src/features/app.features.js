@@ -7,7 +7,6 @@ import {
   shutdownApp,
   startupApp
 } from '@/services/app.services'
-import { getCurrentUser } from '@/services/users.services'
 import { useAppState } from '@/store/appState'
 import { useAuthStore } from '@/store/auth'
 
@@ -35,11 +34,7 @@ export const useAppStatus = () => {
     if (next && !shutdownLatched) {
       const session = useAuthStore.getState()
       if (session.auth || session.isLogged) {
-        if (isSudo(session.role)) {
-          getCurrentUser().catch(() => {})
-        } else {
-          session.logOut()
-        }
+        if (!isSudo(session.role)) session.logOut()
       }
     }
     shutdownLatched = next

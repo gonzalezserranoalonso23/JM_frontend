@@ -132,6 +132,7 @@ const SectionOrders = () => {
           label="Buscar solicitud"
           value={filter}
           onChange={setFilter}
+          delay={0}
         />
 
         {/* Table */}

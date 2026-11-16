@@ -93,6 +93,7 @@ const LowStock = () => {
                 placeholder="Buscar en stock bajo..."
                 value={dataFilter}
                 onChange={setDataFilter}
+                delay={0}
               />
             </CardContent>
             {lowStockProducts.length === 0 && (

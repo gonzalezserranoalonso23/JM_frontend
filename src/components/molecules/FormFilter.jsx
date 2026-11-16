@@ -19,6 +19,10 @@ const FormFilter = ({
 
   useEffect(() => {
     if (draft === value) return undefined
+    if (delay <= 0) {
+      onChange(draft)
+      return undefined
+    }
     const timer = setTimeout(() => onChange(draft), delay)
     return () => clearTimeout(timer)
   }, [draft, value, onChange, delay])

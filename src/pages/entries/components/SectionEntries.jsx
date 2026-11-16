@@ -114,6 +114,7 @@ const SectionEntries = () => {
           placeholder="Producto o fecha (20/10/2026)"
           value={dataFilter}
           onChange={setDataFilter}
+          delay={0}
         />
 
         {/* Modal */}

@@ -83,6 +83,7 @@ const SectionDailyInformation = () => {
           label="Buscar información diaria"
           value={textFilter}
           onChange={setTextFilter}
+          delay={0}
         />
 
         {isLoading ? (
