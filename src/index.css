@@ -5,25 +5,25 @@
 
 /* ===== shadcn/ui theme (neutral) ===== */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --radius: 0.6875rem;
+  --background: oklch(0.975 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --primary: #d92f39;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.955 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
+  --muted: oklch(0.955 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --accent: #fff0f1;
+  --accent-foreground: #b8202a;
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: #d92f39;
 
   --app-nav-height: calc(3.5rem + env(safe-area-inset-top, 0px));
   --app-safe-bottom: min(env(safe-area-inset-bottom, 0px), 0.5rem);
@@ -31,28 +31,27 @@
   --app-page-space-y: 0.75rem;
   /* main.jsx lo reescribe midiendo 100dvh; 1dvh cubre el primer render. */
   --app-vh: 1dvh;
-  --app-panel-min-height: clamp(30rem, calc(var(--app-vh) * 68), 44rem);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --background: #080808;
+  --foreground: #f4f4f4;
+  --card: #111111;
+  --card-foreground: #f4f4f4;
+  --popover: #111111;
+  --popover-foreground: #f4f4f4;
+  --primary: #e4313a;
+  --primary-foreground: #ffffff;
+  --secondary: #191919;
+  --secondary-foreground: #eeeeee;
+  --muted: #191919;
+  --muted-foreground: #929292;
+  --accent: #281416;
+  --accent-foreground: #ff5b64;
+  --destructive: #e4313a;
+  --border: #262626;
+  --input: #333333;
+  --ring: #e4313a;
 }
 
 @theme inline {
@@ -87,6 +86,7 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'DM Sans', 'Manrope', ui-sans-serif, system-ui, sans-serif;
   }
 
   button:not(:disabled),
@@ -274,15 +274,213 @@ body::-webkit-scrollbar {
   min-height: 100%;
 }
 
+.app-brand-logo {
+  box-shadow: 0 4px 14px rgb(228 49 58 / 0.2);
+}
+
+.section-card,
+.calculator-summary-card,
+.dialog-card {
+  border-color: #f0c4c6;
+  background-image: linear-gradient(145deg, #fff2f3 0%, #ffffff 100%);
+  box-shadow: 0 9px 22px rgb(85 20 24 / 0.08);
+}
+
+.section-card,
+.calculator-summary-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.section-card,
+.dialog-card {
+  --section-ring: rgb(217 47 57 / 0.045);
+}
+
+.dialog-card {
+  isolation: isolate;
+}
+
+.section-card::before,
+.dialog-card::before {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  right: 0;
+  width: min(8rem, 100%);
+  height: min(8rem, 100%);
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 39%,
+      var(--section-ring) 40%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 55%,
+      var(--section-ring) 56%,
+      transparent 57%
+    ),
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 71%,
+      var(--section-ring) 72%,
+      transparent 73%
+    );
+  content: '';
+  pointer-events: none;
+}
+
+.app-nav {
+  border-bottom-color: rgb(217 47 57 / 0.22);
+}
+
+.dark [data-slot='card'] {
+  box-shadow: 0 3px 16px rgb(0 0 0 / 0.2);
+}
+
+.dark .app-nav button:not(:disabled) {
+  color: var(--muted-foreground);
+}
+
+.dark .app-nav button:not(:disabled):hover {
+  color: var(--primary);
+}
+
+.dark .section-card,
+.dark .calculator-summary-card,
+.dark .dialog-card {
+  border-color: #442124;
+  background-image: linear-gradient(145deg, #1d1112 0%, #111111 100%);
+  box-shadow: 0 9px 22px rgb(85 20 24 / 0.16);
+}
+
+.dark .section-card,
+.dark .dialog-card {
+  --section-ring: rgb(228 49 58 / 0.075);
+}
+
+.dark .app-nav {
+  border-bottom-color: rgb(228 49 58 / 0.24);
+}
+
+.cash-total-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.cash-total-card::before {
+  position: absolute;
+  z-index: -1;
+  top: -3.8rem;
+  right: -2.7rem;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      transparent 39%,
+      rgb(217 47 57 / 0.055) 40%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle,
+      transparent 55%,
+      rgb(217 47 57 / 0.045) 56%,
+      transparent 57%
+    ),
+    radial-gradient(
+      circle,
+      transparent 71%,
+      rgb(217 47 57 / 0.035) 72%,
+      transparent 73%
+    );
+  content: '';
+  pointer-events: none;
+}
+
+.dark .cash-total-card::before {
+  background:
+    radial-gradient(
+      circle,
+      transparent 39%,
+      rgb(255 255 255 / 0.04) 40%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle,
+      transparent 55%,
+      rgb(255 255 255 / 0.035) 56%,
+      transparent 57%
+    ),
+    radial-gradient(
+      circle,
+      transparent 71%,
+      rgb(255 255 255 / 0.03) 72%,
+      transparent 73%
+    );
+}
+
 @media (min-width: 640px) {
   .page-content-shell {
     padding-inline: 1.5rem;
   }
 }
 
+@media print {
+  html,
+  body,
+  #root {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .app-nav,
+  .app-tab-bar,
+  .cash-vault-card {
+    display: none !important;
+  }
+
+  .app-page-scroll {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .page-content-shell {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .cash-calculator-layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(17rem, 1fr) !important;
+    break-inside: avoid;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
 @media (min-width: 1280px) {
   .page-content-shell {
     padding-inline: 2rem;
+  }
+}
+
+.cash-page-shell {
+  padding-top: var(--app-nav-height);
+}
+
+@media (min-width: 640px) {
+  .page-content-shell.cash-page-shell {
+    padding-inline: 1.875rem;
+    padding-top: var(--app-nav-height);
   }
 }
 
@@ -411,8 +609,35 @@ html body[data-scroll-locked] .width-before-scroll-bar {
   [data-slot='button'][data-size='icon'],
   [data-slot='button'][data-size='icon-sm'],
   [data-slot='button'][data-size='icon-lg'],
-  [data-slot='button'][data-size='icon-xs'] {
+  [data-slot='button'][data-size='icon-xs'],
+  button[data-size^='icon'] {
     min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .cash-column-headings,
+  .cash-denomination-row {
+    grid-template-columns: minmax(0, 1fr) 9.375rem minmax(3.5rem, 0.6fr);
+  }
+
+  .cash-quantity-control {
+    display: grid;
+    grid-template-columns: 2.75rem 3.75rem 2.75rem;
+    width: 9.375rem;
+    height: 2.75rem;
+  }
+
+  .cash-step-button {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .cash-quantity-input {
+    width: 3.75rem;
+    min-width: 3.75rem;
+    height: 2.75rem;
     min-height: 2.75rem;
   }
 
@@ -420,6 +645,19 @@ html body[data-scroll-locked] .width-before-scroll-bar {
   .app-tab-bar button {
     min-width: 0;
     min-height: 0;
+  }
+}
+
+@media (max-width: 359px) {
+  .cash-column-headings,
+  .cash-denomination-row {
+    grid-template-columns: minmax(0, 1fr) 9.375rem;
+  }
+
+  .cash-column-headings > :last-child,
+  .cash-denomination-row > :last-child {
+    grid-column: 1 / -1;
+    justify-self: end;
   }
 }
 

@@ -178,6 +178,7 @@ const DesktopLink = ({ link, pendingCount }) => {
 }
 
 const Navigate = () => {
+  const { pathname } = useLocation()
   const logOut = useAuthStore((state) => state.logOut)
   const role = useAuthStore((state) => state.role)
   const { data: me } = useGetCurrentUser()
@@ -187,25 +188,18 @@ const Navigate = () => {
   const navigate = useNavigate()
   const roleName = sessionRole(role, me)
   const fullAccess = hasFullAccess(roleName)
-  const links = getNavLinks(roleName)
-  let notifyInHeader = showNotifications
-  let accountNotifications = null
-  if (roleName === 'User') {
-    notifyInHeader = false
-    accountNotifications = {
-      show: showNotifications,
-      request: requestPermission
-    }
-  }
+  const links = getNavLinks(roleName, me?.haveSchedule)
+  const notifyInHeader = showNotifications
+  const isCashPage = pathname === '/cash'
   const { primary, moreLinks } = splitMobileTabs(links, roleName)
   const Logout = fullAccess ? AdminLogoutButton : StaffLogoutButton
 
   useEffect(() => {
-    const paths = getNavLinks(roleName).flatMap((link) =>
+    const paths = getNavLinks(roleName, me?.haveSchedule).flatMap((link) =>
       link.children ? link.children.map((child) => child.to) : [link.to]
     )
     prefetchRoutes(paths)
-  }, [roleName])
+  }, [roleName, me?.haveSchedule])
 
   const handleLogOut = async () => {
     await logout().catch(() => {})
@@ -221,7 +215,12 @@ const Navigate = () => {
           aria-label="Navegación principal"
           className="app-nav fixed left-0 right-0 top-0 z-50 border-b border-border bg-background/95 text-foreground backdrop-blur-md"
         >
-          <div className="mx-auto w-full max-w-[1760px] px-3 sm:px-6 xl:px-8">
+          <div
+            className={cn(
+              'mx-auto w-full max-w-[1760px] px-3',
+              isCashPage ? 'sm:px-[2.875rem]' : 'sm:px-6 xl:px-8'
+            )}
+          >
             <div className="flex h-14 min-w-0 items-center gap-2 xl:h-16 xl:gap-3">
               <Link
                 to="/home"
@@ -230,12 +229,19 @@ const Navigate = () => {
                 <img
                   src="/logo.svg"
                   alt=""
-                  width="32"
-                  height="32"
-                  className="h-8 w-8 shrink-0 rounded-md"
+                  width="44"
+                  height="44"
+                  className="app-brand-logo h-11 w-11 shrink-0 rounded-md"
                 />
-                <span className="sr-only truncate 2xl:not-sr-only 2xl:inline">
-                  JM Panel
+                <span
+                  className={cn(
+                    'truncate',
+                    isCashPage
+                      ? 'sr-only'
+                      : 'sr-only 2xl:not-sr-only 2xl:inline'
+                  )}
+                >
+                  {isCashPage ? 'JM Cash-out' : 'JM Panel'}
                 </span>
               </Link>
 
@@ -256,7 +262,7 @@ const Navigate = () => {
 
               <div className="ml-auto flex shrink-0 items-center gap-1">
                 <ProductLookup />
-                <AccountProfile notifications={accountNotifications} />
+                <AccountProfile />
                 <Logout onLogout={handleLogOut} />
                 <NotifyButton
                   show={notifyInHeader}

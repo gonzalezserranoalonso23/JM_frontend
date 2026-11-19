@@ -36,6 +36,11 @@ const RecordCards = ({
                     )}
                   </h2>
                   <p className="text-xs text-muted-foreground">{view.date}</p>
+                  {view.createdAt && (
+                    <p className="text-xs text-muted-foreground">
+                      Registrado: {view.createdAt}
+                    </p>
+                  )}
                 </div>
                 <Badge variant="outline" className="shrink-0">
                   {view.type}

@@ -1,4 +1,4 @@
-const CACHE = 'jm-shell-v8'
+const CACHE = 'jm-shell-v9'
 
 const fetchWithDeadline = (request, ms) => {
   const controller = new AbortController()
@@ -7,7 +7,13 @@ const fetchWithDeadline = (request, ms) => {
     clearTimeout(timer)
   )
 }
-const SHELL = ['/offline.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
+const SHELL = [
+  '/offline.html',
+  '/manifest.webmanifest',
+  '/favicon.svg',
+  '/icon-192.png',
+  '/icon-512.png'
+]
 
 self.addEventListener('install', (event) => {
   self.skipWaiting()
@@ -51,6 +57,15 @@ self.addEventListener('fetch', (event) => {
             (await caches.match('/index.html')) ||
             caches.match('/offline.html')
         )
+    )
+    return
+  }
+
+  if (SHELL.includes(url.pathname)) {
+    event.respondWith(
+      caches.match(request).then(
+        (cached) => cached || fetchWithDeadline(request, 4000)
+      )
     )
     return
   }

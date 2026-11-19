@@ -1,23 +1,20 @@
 import PageShell from '@/components/templates/PageShell'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { Button } from '@/components/atoms/button'
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/atoms/card'
+  Banknote,
+  Coins,
+  Download,
+  LockKeyhole,
+  Minus,
+  Plus,
+  RotateCcw,
+  Wallet
+} from 'lucide-react'
+import { Button } from '@/components/atoms/button'
+import { Card } from '@/components/atoms/card'
 import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/atoms/table'
 import {
   useOpenVault,
   useSaveVault,
@@ -27,6 +24,7 @@ import { hasFullAccess } from '@/auth/access'
 import { useRoleName } from '@/features/users.features'
 import {
   DENOMINATIONS,
+  countedBreakdown,
   countedRows,
   countedTotal,
   draftFromVault,
@@ -36,116 +34,188 @@ import {
   quantityOf
 } from '@/utils/cash'
 
+const CashColumnHeadings = () => (
+  <div className="cash-column-headings grid grid-cols-[minmax(0,1fr)_8rem_minmax(3.5rem,0.6fr)] items-center gap-2 border-y border-border py-2.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground sm:gap-3">
+    <span>Denominación</span>
+    <span className="text-center">Cantidad</span>
+    <span className="text-right">Subtotal</span>
+  </div>
+)
+
+const CashDenominationRow = ({
+  denomination,
+  count,
+  quantity,
+  inputLabel,
+  onChange,
+  onStep
+}) => (
+  <div className="cash-denomination-row grid grid-cols-[minmax(0,1fr)_8rem_minmax(3.5rem,0.6fr)] items-center gap-2 py-3 sm:gap-3">
+    <div className="flex min-w-0 items-center gap-2.5">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-accent text-accent-foreground">
+        {denomination >= 20 ? (
+          <Banknote className="size-4" aria-hidden="true" />
+        ) : (
+          <Coins className="size-4" aria-hidden="true" />
+        )}
+      </span>
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <strong className="truncate text-sm font-semibold">
+          {formatDenomination(denomination)}
+        </strong>
+        <small className="text-[10px] text-muted-foreground">
+          {denomination >= 20 ? 'Billete' : 'Moneda'}
+        </small>
+      </span>
+    </div>
+    <div className="cash-quantity-control flex h-8 items-center justify-between rounded-[8px] border border-input bg-input/30">
+      <button
+        type="button"
+        className="cash-step-button flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        aria-label={`Quitar uno de ${formatDenomination(denomination)}`}
+        disabled={count === 0}
+        onClick={() => onStep(-1)}
+      >
+        <Minus className="size-4" aria-hidden="true" />
+      </button>
+      <Input
+        type="number"
+        inputMode="numeric"
+        min="0"
+        step="1"
+        placeholder="0"
+        className="cash-quantity-input h-7 w-[60px] min-w-[60px] border-0 bg-transparent px-0 py-0 text-center text-base tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 dark:bg-transparent"
+        aria-label={inputLabel}
+        value={quantity}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <button
+        type="button"
+        className="cash-step-button flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary"
+        aria-label={`Agregar uno de ${formatDenomination(denomination)}`}
+        onClick={() => onStep(1)}
+      >
+        <Plus className="size-4" aria-hidden="true" />
+      </button>
+    </div>
+    <span className="text-right text-xs tabular-nums text-muted-foreground sm:text-sm">
+      {formatAmount(denomination * count)}
+    </span>
+  </div>
+)
+
 const Calculator = () => {
   const [quantities, setQuantities] = useState({})
 
   const handleChange = (denomination, value) =>
     setQuantities((prev) => ({ ...prev, [denomination]: value }))
 
+  const handleStep = (denomination, difference) => {
+    setQuantities((prev) => {
+      const quantity = quantityOf(prev, denomination)
+      const next = Math.max(0, quantity + difference)
+      return { ...prev, [denomination]: next > 0 ? String(next) : '' }
+    })
+  }
+
   const total = countedTotal(DENOMINATIONS, quantities)
+  const breakdown = countedBreakdown(DENOMINATIONS, quantities)
 
   return (
-    <Card as="section" aria-labelledby="calculator-title">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>
-          <h1 id="calculator-title" className="text-xl font-bold">
-            Calculadora de caja
+    <div className="cash-calculator-layout grid items-start gap-4 sm:grid-cols-[minmax(0,1.4fr)_minmax(17rem,1fr)]">
+      <Card
+        as="section"
+        className="gap-0 p-4 sm:p-5"
+        aria-labelledby="calculator-title"
+      >
+        <header className="mb-4 flex items-center justify-between gap-3">
+          <h1
+            id="calculator-title"
+            className="text-xl font-bold tracking-tight"
+          >
+            Desglose de efectivo
           </h1>
-        </CardTitle>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setQuantities({})}
+            className="shrink-0"
+          >
+            <RotateCcw aria-hidden="true" />
+            Limpiar
+          </Button>
+        </header>
+        <CashColumnHeadings />
+        <div className="divide-y divide-border">
+          {DENOMINATIONS.map((denomination) => (
+            <CashDenominationRow
+              key={denomination}
+              denomination={denomination}
+              count={quantityOf(quantities, denomination)}
+              quantity={quantities[denomination] ?? ''}
+              inputLabel={`Cantidad de ${formatDenomination(denomination)}`}
+              onChange={(value) => handleChange(denomination, value)}
+              onStep={(difference) => handleStep(denomination, difference)}
+            />
+          ))}
+        </div>
+        <footer className="flex flex-wrap items-center justify-between gap-2 pt-3 text-[10px] text-muted-foreground">
+          <span>Los cambios se calculan al instante</span>
+          <span>{DENOMINATIONS.length} denominaciones</span>
+        </footer>
+      </Card>
+      <Card
+        as="aside"
+        className="calculator-summary-card cash-total-card gap-0 overflow-hidden px-[22px] pt-[22px] pb-[17px]"
+        aria-labelledby="cash-total-title"
+      >
+        <header className="flex items-center gap-3">
+          <span className="flex size-[30px] items-center justify-center rounded-[9px] border border-primary/30 bg-accent text-accent-foreground">
+            <Wallet className="size-4" aria-hidden="true" />
+          </span>
+          <h2
+            id="cash-total-title"
+            className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground"
+          >
+            Total contado
+          </h2>
+        </header>
+        <p className="mt-[17px] mb-[2px] text-[30px] leading-9 font-bold tracking-[-0.06em] text-foreground">
+          {formatAmount(total)}
+        </p>
+        <p className="text-[11px] leading-[15px] text-muted-foreground">
+          Pesos mexicanos
+        </p>
+        <div className="mt-[17px] mb-[10px] border-t border-white/10" />
+        <dl>
+          {[
+            ['Unidades en total', breakdown.units],
+            ['Billetes', breakdown.bills],
+            ['Monedas', breakdown.coins]
+          ].map(([label, count]) => (
+            <div
+              key={label}
+              className="flex items-center justify-between py-1 text-[11px] leading-[15px]"
+            >
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="font-semibold tabular-nums text-foreground">
+                {count}
+              </dd>
+            </div>
+          ))}
+        </dl>
         <Button
           type="button"
-          variant="outline"
-          onClick={() => setQuantities({})}
+          variant={breakdown.units ? 'default' : 'secondary'}
+          disabled={!breakdown.units}
+          className="mt-[17px] h-[42px] w-full rounded-[9px] font-bold disabled:bg-[#303030] disabled:text-[#888] disabled:opacity-100"
+          onClick={() => window.print()}
         >
-          Limpiar
+          <Download aria-hidden="true" />
+          Exportar PDF
         </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3 xl:hidden">
-          {DENOMINATIONS.map((denomination) => (
-            <Card key={denomination} className="py-3">
-              <CardContent className="grid grid-cols-[1fr_6rem_1fr] items-center gap-3 px-4">
-                <strong>{formatDenomination(denomination)}</strong>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  min="0"
-                  step="1"
-                  placeholder="0"
-                  className="h-9 w-full px-2 text-center"
-                  aria-label={`Cantidad de ${formatDenomination(denomination)}`}
-                  value={quantities[denomination] ?? ''}
-                  onChange={(event) =>
-                    handleChange(denomination, event.target.value)
-                  }
-                />
-                <span className="text-right text-sm">
-                  {formatAmount(
-                    denomination * quantityOf(quantities, denomination)
-                  )}
-                </span>
-              </CardContent>
-            </Card>
-          ))}
-          <Card className="bg-muted/30 py-3">
-            <CardContent className="flex items-center justify-between px-4">
-              <strong>Total en caja</strong>
-              <strong>{formatAmount(total)}</strong>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="hidden overflow-x-hidden rounded-lg border xl:block">
-          <Table className="table-fixed">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[30%]">Denominación</TableHead>
-                <TableHead className="w-[34%] text-center">Cantidad</TableHead>
-                <TableHead className="w-[36%] text-right">Subtotal</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {DENOMINATIONS.map((denomination) => (
-                <TableRow key={denomination}>
-                  <TableCell>
-                    <strong>{formatDenomination(denomination)}</strong>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      min="0"
-                      step="1"
-                      placeholder="0"
-                      className="mx-auto h-9 w-full max-w-28 px-2 text-center"
-                      aria-label={`Cantidad de ${formatDenomination(denomination)}`}
-                      value={quantities[denomination] ?? ''}
-                      onChange={(event) =>
-                        handleChange(denomination, event.target.value)
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatAmount(
-                      denomination * quantityOf(quantities, denomination)
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-            <tfoot className="border-t bg-muted/50 font-medium">
-              <TableRow>
-                <TableCell colSpan={2} className="text-right">
-                  <strong>Total en caja</strong>
-                </TableCell>
-                <TableCell className="text-right">
-                  <strong>{formatAmount(total)}</strong>
-                </TableCell>
-              </TableRow>
-            </tfoot>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+      </Card>
+    </div>
   )
 }
 
@@ -161,6 +231,10 @@ const Vault = () => {
   const rows = vault?.denominations ?? []
   const updatedAt = vault?.updatedAt || latest?.updatedAt
   const draftTotal = countedRows(rows, draft)
+  const breakdown = countedBreakdown(
+    rows.map((item) => item.value),
+    draft
+  )
 
   const handleOpen = (event) => {
     event.preventDefault()
@@ -193,6 +267,14 @@ const Vault = () => {
     )
   }
 
+  const handleStep = (value, difference) => {
+    setDraft((prev) => {
+      const quantity = quantityOf(prev, value)
+      const next = Math.max(0, quantity + difference)
+      return { ...prev, [value]: next > 0 ? String(next) : '' }
+    })
+  }
+
   const handleClose = () => {
     setVault(null)
     setDraft({})
@@ -211,144 +293,165 @@ const Vault = () => {
   let updated = null
   if (updatedAt) {
     updated = (
-      <p className="text-sm text-muted-foreground">
+      <p className="ml-auto text-right text-[11px] text-muted-foreground">
         Última actualización: {formatUpdatedAt(updatedAt)}
       </p>
     )
   }
 
-  let form = (
-    <form onSubmit={handleOpen} className="flex flex-col gap-3 sm:max-w-sm">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="vault-secret">Clave</Label>
-        <Input
-          id="vault-secret"
-          type={secretType}
-          autoComplete="off"
-          readOnly={!secretReady}
-          onFocus={() => setSecretReady(true)}
-          value={secret}
-          onChange={(event) => setSecret(event.target.value)}
-        />
-      </div>
-      <Button type="submit" disabled={openVault.isPending}>
-        {openLabel}
-      </Button>
-    </form>
-  )
-  if (vault) {
-    form = (
-      <form onSubmit={handleSave} className="flex flex-col gap-4">
-        <div className="space-y-3 xl:hidden">
-          {rows.map((item) => (
-            <Card key={item.value} className="py-3">
-              <CardContent className="grid grid-cols-[1fr_6rem_1fr] items-center gap-3 px-4">
-                <strong>{formatDenomination(item.value)}</strong>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  min="0"
-                  step="1"
-                  placeholder="0"
-                  className="h-9 w-full px-2 text-center"
-                  aria-label={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
-                  value={draft[item.value] ?? ''}
-                  onChange={(event) =>
-                    setDraft((prev) => ({
-                      ...prev,
-                      [item.value]: event.target.value
-                    }))
-                  }
-                />
-                <span className="text-right text-sm">
-                  {formatAmount(item.value * quantityOf(draft, item.value))}
-                </span>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <div className="hidden overflow-x-hidden rounded-lg border xl:block">
-          <Table className="table-fixed">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[30%]">Denominación</TableHead>
-                <TableHead className="w-[34%] text-center">Cantidad</TableHead>
-                <TableHead className="w-[36%] text-right">Subtotal</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((item) => (
-                <TableRow key={item.value}>
-                  <TableCell>
-                    <strong>{formatDenomination(item.value)}</strong>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Input
-                      type="number"
-                      inputMode="numeric"
-                      min="0"
-                      step="1"
-                      placeholder="0"
-                      className="mx-auto h-9 w-full max-w-28 px-2 text-center"
-                      aria-label={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
-                      value={draft[item.value] ?? ''}
-                      onChange={(event) =>
-                        setDraft((prev) => ({
-                          ...prev,
-                          [item.value]: event.target.value
-                        }))
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatAmount(item.value * quantityOf(draft, item.value))}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <strong>Total en caja fuerte: {formatAmount(draftTotal)}</strong>
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cerrar
+  return (
+    <div className="cash-calculator-layout grid items-start gap-4 sm:grid-cols-[minmax(0,1.4fr)_minmax(17rem,1fr)]">
+      <Card
+        as="section"
+        className="gap-0 p-4 sm:p-5"
+        aria-labelledby="vault-title"
+      >
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-accent text-accent-foreground">
+              <LockKeyhole className="size-4" aria-hidden="true" />
+            </span>
+            <h2 id="vault-title" className="text-xl font-bold tracking-tight">
+              Caja fuerte
+            </h2>
+          </div>
+          {updated}
+        </header>
+        {vault ? (
+          <form
+            id="vault-save-form"
+            onSubmit={handleSave}
+            className="flex flex-col gap-4"
+          >
+            <div>
+              <CashColumnHeadings />
+              <div className="divide-y divide-border">
+                {rows.map((item) => (
+                  <CashDenominationRow
+                    key={item.value}
+                    denomination={item.value}
+                    count={quantityOf(draft, item.value)}
+                    quantity={draft[item.value] ?? ''}
+                    inputLabel={`Piezas de ${formatDenomination(item.value)} en caja fuerte`}
+                    onChange={(value) =>
+                      setDraft((prev) => ({ ...prev, [item.value]: value }))
+                    }
+                    onStep={(difference) => handleStep(item.value, difference)}
+                  />
+                ))}
+              </div>
+            </div>
+          </form>
+        ) : (
+          <form
+            onSubmit={handleOpen}
+            className="flex flex-col gap-3 sm:max-w-sm"
+          >
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="vault-secret">Clave</Label>
+              <Input
+                id="vault-secret"
+                type={secretType}
+                autoComplete="off"
+                readOnly={!secretReady}
+                onFocus={() => setSecretReady(true)}
+                value={secret}
+                onChange={(event) => setSecret(event.target.value)}
+              />
+            </div>
+            <Button type="submit" disabled={openVault.isPending}>
+              {openLabel}
             </Button>
-            <Button type="submit" disabled={saveVault.isPending}>
+          </form>
+        )}
+      </Card>
+      <Card
+        as="aside"
+        className="calculator-summary-card cash-total-card gap-0 overflow-hidden px-[22px] pt-[22px] pb-[17px]"
+        aria-labelledby="vault-total-title"
+      >
+        <header className="flex items-center gap-3">
+          <span className="flex size-[30px] items-center justify-center rounded-[9px] border border-primary/30 bg-accent text-accent-foreground">
+            <Wallet className="size-4" aria-hidden="true" />
+          </span>
+          <h2
+            id="vault-total-title"
+            className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground"
+          >
+            Total en caja fuerte
+          </h2>
+        </header>
+        {vault ? (
+          <>
+            <p className="mt-[17px] mb-[2px] text-[30px] leading-9 font-bold tracking-[-0.06em] text-foreground">
+              {formatAmount(draftTotal)}
+            </p>
+            <p className="text-[11px] leading-[15px] text-muted-foreground">
+              Pesos mexicanos
+            </p>
+            <div className="mt-[17px] mb-[10px] border-t border-white/10" />
+            <dl>
+              {[
+                ['Unidades en total', breakdown.units],
+                ['Billetes', breakdown.bills],
+                ['Monedas', breakdown.coins]
+              ].map(([label, count]) => (
+                <div
+                  key={label}
+                  className="flex items-center justify-between py-1 text-[11px] leading-[15px]"
+                >
+                  <dt className="text-muted-foreground">{label}</dt>
+                  <dd className="font-semibold tabular-nums text-foreground">
+                    {count}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <Button
+              type="submit"
+              form="vault-save-form"
+              disabled={saveVault.isPending}
+              className="mt-[17px] h-[42px] w-full rounded-[9px] font-bold"
+            >
               {saveLabel}
             </Button>
-          </div>
-        </div>
-      </form>
-    )
-  }
-
-  return (
-    <Card as="section" aria-labelledby="vault-title">
-      <CardHeader className="gap-2">
-        <CardTitle>
-          <h2 id="vault-title" className="text-xl font-bold">
-            Caja fuerte
-          </h2>
-        </CardTitle>
-        {updated}
-      </CardHeader>
-      <CardContent>{form}</CardContent>
-    </Card>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-2 h-[42px] w-full rounded-[9px] font-bold"
+              onClick={handleClose}
+            >
+              Cerrar caja
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="mt-[17px] mb-[2px] text-[24px] leading-8 font-bold tracking-tight text-foreground">
+              Bloqueada
+            </p>
+            <p className="text-[11px] leading-[15px] text-muted-foreground">
+              Abre la caja fuerte para consultar el total y las denominaciones.
+            </p>
+          </>
+        )}
+      </Card>
+    </div>
   )
 }
 
 const StaffCash = () => (
-  <PageShell>
+  <PageShell className="cash-page-shell">
     <Calculator />
   </PageShell>
 )
 
 const AdminCash = () => (
-  <PageShell>
-    <div className="grid items-start gap-6 xl:grid-cols-2">
+  <PageShell className="cash-page-shell">
+    <div className="space-y-6">
       <Calculator />
-      <Vault />
+      <div className="cash-vault-card">
+        <Vault />
+      </div>
     </div>
   </PageShell>
 )

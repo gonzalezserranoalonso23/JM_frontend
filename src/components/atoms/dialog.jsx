@@ -176,7 +176,7 @@ const DialogContent = React.forwardRef(
           ref={setContentRef}
           data-slot="dialog-content"
           className={cn(
-            'fixed z-[60] flex flex-col bg-background text-foreground shadow-lg',
+            'dialog-card fixed z-[60] flex flex-col bg-background text-foreground shadow-lg',
             'left-1/2 top-1/2 w-full max-w-lg sm:max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border max-h-[90vh] overflow-hidden',
             // Mobile: static full-screen sheet; no animations or movement
             'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:h-[var(--dialog-h,100dvh)]! max-sm:max-h-[var(--dialog-h,100dvh)]! max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain max-sm:pt-[env(safe-area-inset-top,0px)] max-sm:pl-[env(safe-area-inset-left,0px)] max-sm:pr-[env(safe-area-inset-right,0px)]',

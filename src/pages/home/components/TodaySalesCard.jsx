@@ -24,7 +24,11 @@ const TodaySalesCard = () => {
   const failed = isError || typesError
 
   return (
-    <SalesCard id="today-sales-title" title="Ventas del día">
+    <SalesCard
+      id="today-sales-title"
+      title="Ventas del día"
+      className="calculator-summary-card"
+    >
       {failed ? (
         <p className="text-sm text-destructive">
           No se pudieron cargar las ventas del día.

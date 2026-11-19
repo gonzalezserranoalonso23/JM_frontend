@@ -1,4 +1,5 @@
 import { formatMoney, roundTo } from './commonFunctions'
+import { todayMexicoCity } from './dateDisplay'
 
 export const ALL_USERS = 'all'
 
@@ -40,6 +41,9 @@ export const personName = (user) =>
 
 export const recordEnd = (record) => {
   if (record.checkOutAt) return formatTime(record.checkOutAt)
+  if (record.closedAt || (record.date && record.date < todayMexicoCity())) {
+    return 'No registrado'
+  }
   return 'en turno'
 }
 

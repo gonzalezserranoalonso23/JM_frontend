@@ -22,6 +22,7 @@ import { isSudo } from '@/auth/access'
 import { useShutdownApp, useStartupApp } from '@/features/app.features'
 import { useAppState } from '@/store/appState'
 import { hasSchedule } from '@/pages/users/schedule'
+import { formatMoney } from '@/utils/commonFunctions'
 import { getTheme, setTheme } from '@/ui/theme'
 
 const AttendancePunch = lazy(() =>
@@ -46,7 +47,7 @@ const showsPunch = (user) => user?.role?.name === 'Supervisor'
 
 const showsSchedule = (user) => {
   const name = user?.role?.name
-  if (name === 'Staff' || name === 'User') return true
+  if (name === 'Staff') return true
   if (name === 'Supervisor') return hasSchedule(user)
   return false
 }
@@ -151,6 +152,11 @@ const AccountProfile = ({ notifications = null }) => {
                 <Field label="Usuario">{user.username}</Field>
                 <Field label="Nombre">{user.fullName || '—'}</Field>
                 <Field label="Rol">{roleName(user)}</Field>
+                {user.salary != null && (
+                  <Field label="Salario semanal (MXN)">
+                    {formatMoney(user.salary)}
+                  </Field>
+                )}
               </dl>
               {showSchedule && (
                 <section aria-labelledby="account-schedule">

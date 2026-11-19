@@ -20,7 +20,7 @@ import {
 import { useFormik } from 'formik'
 import { useGetRoles } from '@/features/roles.features'
 import { useGetCurrentUser, useRoleName } from '@/features/users.features'
-import { keepsSchedule, rolesAssignableBy } from '@/auth/access'
+import { keepsSchedule, rolesAssignableBy, SUDO_USERNAME } from '@/auth/access'
 import {
   WEEK_DAYS,
   hasSchedule,
@@ -51,6 +51,7 @@ const ModalUsers = ({
       username: user?.username || '',
       fullName: user?.fullName || '',
       password: '',
+      salary: user?.salary == null ? '' : String(user.salary),
       role: roleIdFromUser(user),
       haveSchedule: hasSchedule(user),
       schedule: scheduleFromUser(user)
@@ -62,6 +63,14 @@ const ModalUsers = ({
       if (!values.role) return { role: 'El rol es requerido' }
       const chosen = (roles || []).find((role) => role._id === values.role)
       if (!keepsSchedule(chosen?.name) || !values.haveSchedule) return
+      const salary = Number(values.salary)
+      if (
+        String(values.salary).trim() === '' ||
+        !Number.isFinite(salary) ||
+        salary < 0
+      ) {
+        return { salary: 'Indica el salario semanal en MXN' }
+      }
       for (const [day, label] of WEEK_DAYS) {
         const row = values.schedule[day]
         if (!row.enabled) continue
@@ -86,7 +95,10 @@ const ModalUsers = ({
           ? values.haveSchedule
           : false
       }
-      if (payload.haveSchedule) payload.schedule = values.schedule
+      if (payload.haveSchedule) {
+        payload.schedule = values.schedule
+        payload.salary = Number(values.salary)
+      }
       // On edit, include password only when it was filled in.
       if (user?._id && !values.password) delete payload.password
       action.mutate(!user?._id ? payload : { id: user._id, data: payload }, {
@@ -98,7 +110,9 @@ const ModalUsers = ({
   let selectedRoleId
   if (formik.values.role) selectedRoleId = formik.values.role
   const lockedSudo =
-    user?.role?.name === 'Sudo' && String(user?._id) === String(me?._id)
+    user?.role?.name === 'Sudo' &&
+    String(user?._id) === String(me?._id) &&
+    user?.username !== SUDO_USERNAME
   const allowedNames = rolesAssignableBy(actorRole)
   const visibleRoles = (roles || []).filter((role) =>
     allowedNames.includes(role.name)
@@ -228,92 +242,114 @@ const ModalUsers = ({
                 )}
               </div>
               {scheduleAllowed && (
-              <>
-              <label
-                htmlFor="haveSchedule"
-                className="flex min-h-11 cursor-pointer items-center gap-2 text-sm"
-              >
-                <input
-                  id="haveSchedule"
-                  name="haveSchedule"
-                  type="checkbox"
-                  className="accent-primary"
-                  checked={formik.values.haveSchedule}
-                  onChange={(event) =>
-                    formik.setFieldValue('haveSchedule', event.target.checked)
-                  }
-                />
-                Tiene horario
-              </label>
-              {formik.values.haveSchedule && (
-                <div className="flex flex-col gap-2">
-                  <Label>Horario</Label>
-                  {WEEK_DAYS.map(([day, label]) => {
-                    const row = formik.values.schedule[day]
-                    return (
-                      <div
-                        key={day}
-                        className="flex flex-col gap-2 border-b border-border pb-3 last:border-b-0 sm:grid sm:grid-cols-[7.5rem_minmax(0,1fr)_minmax(0,1fr)] sm:items-center sm:gap-2 sm:border-0 sm:pb-0"
-                      >
-                        <label className="flex min-h-11 items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            className="accent-primary"
-                            checked={row.enabled}
-                            onChange={(event) =>
-                              formik.setFieldValue(
-                                `schedule.${day}.enabled`,
-                                event.target.checked
-                              )
-                            }
-                          />
-                          {label}
-                        </label>
-                        <div className="grid gap-1">
-                          <span className="text-xs text-muted-foreground sm:sr-only">
-                            Entrada
-                          </span>
-                          <Input
-                            type="time"
-                            aria-label={`Entrada ${label}`}
-                            value={row.start}
-                            disabled={!row.enabled}
-                            onChange={(event) =>
-                              formik.setFieldValue(
-                                `schedule.${day}.start`,
-                                event.target.value
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="grid gap-1">
-                          <span className="text-xs text-muted-foreground sm:sr-only">
-                            Salida
-                          </span>
-                          <Input
-                            type="time"
-                            aria-label={`Salida ${label}`}
-                            value={row.end}
-                            disabled={!row.enabled}
-                            onChange={(event) =>
-                              formik.setFieldValue(
-                                `schedule.${day}.end`,
-                                event.target.value
-                              )
-                            }
-                          />
-                        </div>
+                <>
+                  <label
+                    htmlFor="haveSchedule"
+                    className="flex min-h-11 cursor-pointer items-center gap-2 text-sm"
+                  >
+                    <input
+                      id="haveSchedule"
+                      name="haveSchedule"
+                      type="checkbox"
+                      className="accent-primary"
+                      checked={formik.values.haveSchedule}
+                      onChange={(event) =>
+                        formik.setFieldValue(
+                          'haveSchedule',
+                          event.target.checked
+                        )
+                      }
+                    />
+                    Tiene horario
+                  </label>
+                  {formik.values.haveSchedule && (
+                    <div className="flex flex-col gap-2">
+                      <div className="grid gap-1">
+                        <Label htmlFor="salary">Salario semanal (MXN)</Label>
+                        <Input
+                          id="salary"
+                          name="salary"
+                          type="number"
+                          inputMode="decimal"
+                          min="0"
+                          step="0.01"
+                          value={formik.values.salary}
+                          onChange={formik.handleChange}
+                          aria-invalid={Boolean(formik.errors.salary)}
+                        />
+                        {formik.errors.salary && (
+                          <p className="text-sm text-destructive">
+                            {formik.errors.salary}
+                          </p>
+                        )}
                       </div>
-                    )
-                  })}
-                  {formik.errors.schedule && (
-                    <p className="text-sm text-destructive">
-                      {formik.errors.schedule}
-                    </p>
+                      <Label>Horario</Label>
+                      {WEEK_DAYS.map(([day, label]) => {
+                        const row = formik.values.schedule[day]
+                        return (
+                          <div
+                            key={day}
+                            className="flex flex-col gap-2 border-b border-border pb-3 last:border-b-0 sm:grid sm:grid-cols-[7.5rem_minmax(0,1fr)_minmax(0,1fr)] sm:items-center sm:gap-2 sm:border-0 sm:pb-0"
+                          >
+                            <label className="flex min-h-11 items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                className="accent-primary"
+                                checked={row.enabled}
+                                onChange={(event) =>
+                                  formik.setFieldValue(
+                                    `schedule.${day}.enabled`,
+                                    event.target.checked
+                                  )
+                                }
+                              />
+                              {label}
+                            </label>
+                            <div className="grid gap-1">
+                              <span className="text-xs text-muted-foreground sm:sr-only">
+                                Entrada
+                              </span>
+                              <Input
+                                type="time"
+                                aria-label={`Entrada ${label}`}
+                                value={row.start}
+                                disabled={!row.enabled}
+                                onChange={(event) =>
+                                  formik.setFieldValue(
+                                    `schedule.${day}.start`,
+                                    event.target.value
+                                  )
+                                }
+                              />
+                            </div>
+                            <div className="grid gap-1">
+                              <span className="text-xs text-muted-foreground sm:sr-only">
+                                Salida
+                              </span>
+                              <Input
+                                type="time"
+                                aria-label={`Salida ${label}`}
+                                value={row.end}
+                                disabled={!row.enabled}
+                                onChange={(event) =>
+                                  formik.setFieldValue(
+                                    `schedule.${day}.end`,
+                                    event.target.value
+                                  )
+                                }
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                      {formik.errors.schedule && (
+                        <p className="text-sm text-destructive">
+                          {formik.errors.schedule}
+                        </p>
+                      )}
+                    </div>
                   )}
-                </div>
-              )}
-              </>
+                </>
               )}
             </div>
           </DialogBody>

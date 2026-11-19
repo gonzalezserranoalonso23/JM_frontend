@@ -50,9 +50,9 @@ vi.mock('@/components/organisms/AccountProfile', () => ({
   default: () => null
 }))
 
-const renderNav = () =>
+const renderNav = (initialPath = '/home') =>
   render(
-    <MemoryRouter initialEntries={['/home']}>
+    <MemoryRouter initialEntries={[initialPath]}>
       <Navigate />
     </MemoryRouter>
   )
@@ -63,6 +63,15 @@ describe('Navigate de administrador', () => {
     auth.haveSchedule = true
     auth.roleName = 'Manager'
     notifications.showNotifications = false
+  })
+
+  it('oculta el texto de marca en Caja pero conserva su nombre accesible', () => {
+    renderNav('/cash')
+
+    expect(
+      screen.getByRole('link', { name: 'JM Cash-out' })
+    ).toBeInTheDocument()
+    expect(screen.getByText('JM Cash-out')).toHaveClass('sr-only')
   })
 
   it('Reportes abre Ventas y Asistencias', async () => {
@@ -101,13 +110,15 @@ describe('Navigate de administrador', () => {
     ).toHaveAttribute('href', '/low-stock')
   })
 
-  it('staff ve inicio, entradas, salidas, productos y proveedores', () => {
+  it('staff ve inicio, pendientes, entradas, salidas, productos y proveedores', () => {
     auth.roleName = 'Staff'
     renderNav()
 
     expect(screen.queryByRole('button', { name: 'Reportes' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Catálogo' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Pendientes' })).toBeNull()
+    expect(
+      screen.getAllByRole('link', { name: 'Pendientes' })[0]
+    ).toHaveAttribute('href', '/todolist')
     expect(screen.queryByRole('link', { name: 'Caja' })).toBeNull()
     expect(screen.getAllByRole('link', { name: 'Inicio' })[0]).toHaveAttribute(
       'href',
@@ -126,36 +137,16 @@ describe('Navigate de administrador', () => {
     expect(
       screen.getAllByRole('link', { name: 'Proveedores' })[0]
     ).toHaveAttribute('href', '/suppliers')
+    expect(
+      screen.getAllByRole('link', { name: 'Asistencias' })[0]
+    ).toHaveAttribute('href', '/attendance')
   })
 
-  it('el usuario ve los iconos de staff sin entradas ni salidas', () => {
-    auth.roleName = 'User'
-    auth.haveSchedule = true
-    notifications.showNotifications = true
+  it('oculta Asistencias a Staff sin horario', () => {
+    auth.roleName = 'Staff'
+    auth.haveSchedule = false
     renderNav()
 
-    expect(screen.getAllByRole('link', { name: 'Inicio' })[0]).toHaveAttribute(
-      'href',
-      '/home'
-    )
-    expect(
-      screen.getAllByRole('link', { name: 'Productos' })[0]
-    ).toHaveAttribute('href', '/products')
-    expect(
-      screen.getAllByRole('link', { name: 'Proveedores' })[0]
-    ).toHaveAttribute('href', '/suppliers')
-    expect(screen.queryByRole('link', { name: 'Pendientes' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Caja' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Salidas' })).toBeNull()
-    expect(screen.queryByRole('link', { name: 'Entradas' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'Asistencias' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Reportes' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Más' })).toBeNull()
-    expect(
-      screen.queryByRole('button', { name: 'Activar notificaciones' })
-    ).toBeNull()
-    expect(
-      screen.getAllByRole('button', { name: 'Cerrar sesión' }).length
-    ).toBeGreaterThan(0)
   })
 })

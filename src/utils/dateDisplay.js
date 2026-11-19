@@ -61,6 +61,24 @@ export const formatDate = (value, locale, options) => {
   return date ? date.toLocaleDateString(locale, options) : ''
 }
 
+const mexicoCityDateTimeFormatter = new Intl.DateTimeFormat('es-MX', {
+  timeZone: 'America/Mexico_City',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23'
+})
+
+export const formatDateTime = (value) => {
+  if (!value) return ''
+  const date = value instanceof Date ? value : new Date(value)
+  return Number.isNaN(date.getTime())
+    ? ''
+    : mexicoCityDateTimeFormatter.format(date)
+}
+
 const pad = (n) => String(n).padStart(2, '0')
 
 // Today in Mexico City. Does not use the device time zone.

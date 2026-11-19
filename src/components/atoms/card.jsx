@@ -2,11 +2,14 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 function Card({ className, as: Comp = 'div', ...props }) {
+  const sectionCard = Comp === 'section'
+
   return (
     <Comp
       data-slot="card"
       className={cn(
         'flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm',
+        sectionCard && 'section-card',
         className
       )}
       {...props}

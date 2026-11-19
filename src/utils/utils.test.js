@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   addCalendarDays,
   formatDate,
+  formatDateTime,
   isoDay,
   todayLocal,
   todayMexicoCity,
@@ -20,9 +21,15 @@ import {
   attendanceDay,
   attendancePages,
   attendanceRows,
-  paidToSuppliers
+  paidToSuppliers,
+  recordEnd
 } from './attendance'
-import { countedTotal, DENOMINATIONS, quantityOf } from './cash'
+import {
+  countedBreakdown,
+  countedTotal,
+  DENOMINATIONS,
+  quantityOf
+} from './cash'
 import { callHref, whatsappHref } from './phone'
 import { recordCardView } from './recordDisplay'
 import { movementPrices } from './typeInventory'
@@ -41,6 +48,13 @@ describe('dateDisplay', () => {
   it('formatDate regresa vacío con fechas inválidas', () => {
     expect(formatDate(null)).toBe('')
     expect(formatDate('2026-01-02', 'es-MX')).toContain('2026')
+  })
+
+  it('formatDateTime muestra fecha y hora de Ciudad de México', () => {
+    const formatted = formatDateTime('2026-11-18T05:30:00.000Z')
+    expect(formatted).toContain('17/11/2026')
+    expect(formatted).toContain('23:30')
+    expect(formatDateTime('fecha inválida')).toBe('')
   })
 
   it('resta un día de calendario aunque cambie el mes', () => {
@@ -176,6 +190,16 @@ describe('movementPrices', () => {
 })
 
 describe('attendanceRows', () => {
+  it('muestra No registrado si el sistema cerró el turno', () => {
+    expect(
+      recordEnd({
+        date: '2026-11-17',
+        checkOutAt: null,
+        closedAt: '2026-11-18T06:00:00.000Z'
+      })
+    ).toBe('No registrado')
+  })
+
   it('no arma total cuando el turno no pagó proveedores', () => {
     const rows = attendanceRows(
       [{ _id: 'u1', username: 'ana', fullName: 'Ana' }],
@@ -293,6 +317,17 @@ describe('cash', () => {
   it('cuenta solo piezas enteras', () => {
     expect(quantityOf({ 10: '2.9' }, 10)).toBe(2)
     expect(countedTotal(DENOMINATIONS, { 10: 3, 0.5: 4 })).toBe(32)
+  })
+
+  it('resume unidades, billetes y monedas contados', () => {
+    expect(
+      countedBreakdown(DENOMINATIONS, {
+        1000: '2',
+        20: '3',
+        10: '4',
+        0.5: '1.9'
+      })
+    ).toEqual({ units: 10, bills: 5, coins: 5 })
   })
 })
 

@@ -60,12 +60,13 @@ export const TaskBoard = () => {
     hasNextPage: hasNextCompleted,
     isFetchingNextPage: fetchingNextCompleted
   } = useGetCompletedTasks(activeTab === 'completed')
-  const { data: users } = useGetAssignableUsers()
+  const roleName = useRoleName()
+  const fullAccess = hasFullAccess(roleName)
+  const { data: users } = useGetAssignableUsers(fullAccess)
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
   const deleteTask = useDeleteTask()
   const token = useAuthStore((state) => state.auth)
-  const roleName = useRoleName()
   const userId = useMemo(() => {
     if (!token) return ''
     try {
@@ -76,7 +77,7 @@ export const TaskBoard = () => {
   }, [token])
 
   const canManageTask = (task) =>
-    hasFullAccess(roleName) ||
+    fullAccess ||
     taskUserId(task.createdBy) === userId ||
     taskUserId(task.assignedTo) === userId
 
@@ -155,7 +156,14 @@ export const TaskBoard = () => {
             Crear pendiente
           </h2>
           <form onSubmit={handleCreateTask} className="flex flex-col gap-3">
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[2fr_1fr_1fr_auto]">
+            <div
+              className={cn(
+                'grid grid-cols-1 gap-3',
+                fullAccess
+                  ? 'lg:grid-cols-[2fr_1fr_1fr_auto]'
+                  : 'lg:grid-cols-[2fr_1fr_auto]'
+              )}
+            >
               <Input
                 type="text"
                 placeholder="Título del pendiente *"
@@ -173,20 +181,22 @@ export const TaskBoard = () => {
                 <option value="medium">Media</option>
                 <option value="high">Alta</option>
               </select>
-              <select
-                value={assignedTo}
-                onChange={(e) => setAssignedTo(e.target.value)}
-                className={selectClass}
-                disabled={createTask.isPending}
-                aria-label="Asignar a"
-              >
-                <option value="">Sin asignar</option>
-                {users?.map((user) => (
-                  <option key={user._id} value={user._id}>
-                    {user.fullName || user.username}
-                  </option>
-                ))}
-              </select>
+              {fullAccess && (
+                <select
+                  value={assignedTo}
+                  onChange={(e) => setAssignedTo(e.target.value)}
+                  className={selectClass}
+                  disabled={createTask.isPending}
+                  aria-label="Asignar a"
+                >
+                  <option value="">Sin asignar</option>
+                  {users?.map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {user.fullName || user.username}
+                    </option>
+                  ))}
+                </select>
+              )}
               <Button type="submit" disabled={createTask.isPending}>
                 {createTask.isPending ? '...' : '+ Agregar'}
               </Button>
@@ -300,7 +310,7 @@ export const TaskBoard = () => {
                         </small>
                         <small className="flex items-center gap-2">
                           Asignada a:{' '}
-                          {canManageTask(task) ? (
+                          {fullAccess && canManageTask(task) ? (
                             <select
                               value={task.assignedTo?._id || ''}
                               onChange={(e) =>

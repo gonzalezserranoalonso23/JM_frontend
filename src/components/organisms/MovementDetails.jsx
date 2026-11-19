@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/atoms/card'
 import { useGetInventoryRecord } from '@/features/inventory.features'
 import Skeleton from '@/components/atoms/skeleton'
 import { formatMoney, formatQty } from '@/utils/commonFunctions'
-import { formatDate } from '@/utils/dateDisplay'
+import { formatDate, formatDateTime } from '@/utils/dateDisplay'
 import { isIssueRecord } from '@/utils/typeInventory'
 
 const Field = ({ label, children }) => (
@@ -91,6 +91,9 @@ const MovementDetails = ({ listPath, listLabel, expectIssue }) => {
         <CardContent>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Field label="Fecha">{formatDate(record.date)}</Field>
+            <Field label="Fecha y hora de registro">
+              {formatDateTime(record.createdAt)}
+            </Field>
             <Field label="Categoría">{record.category?.categories}</Field>
             <Field label="Cantidad">{formatQty(record.quantity)}</Field>
             <Field label="Precio unitario">

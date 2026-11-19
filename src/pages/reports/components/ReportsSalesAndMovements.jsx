@@ -151,7 +151,7 @@ const ReportsSalesAndMovements = () => {
 
   return (
     <section aria-labelledby="reports-title">
-      <Card className="p-4 sm:p-6">
+      <Card className="section-card p-4 sm:p-6">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 id="reports-title" className="text-xl font-bold">

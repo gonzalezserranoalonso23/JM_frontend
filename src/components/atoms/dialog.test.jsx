@@ -35,7 +35,9 @@ describe('Dialog', () => {
     await user.click(document.body)
     expect(onClose).not.toHaveBeenCalled()
     expect(screen.getByText('contenido')).toBeInTheDocument()
-    expect(document.querySelector('[data-slot="dialog-content"]')).toBeTruthy()
+    expect(document.querySelector('[data-slot="dialog-content"]')).toHaveClass(
+      'dialog-card'
+    )
   })
 
   it('Escape cierra sin preguntar si no hay cambios', async () => {

@@ -77,18 +77,21 @@ describe('Mi información', () => {
     useAppState.setState({ shutdown: false, ready: true })
   })
 
-  it('muestra la información y el horario de un usuario', async () => {
+  it('muestra la información y el horario de Staff', async () => {
     profile.data = {
       username: 'cajero',
       fullName: 'Ana Ruiz',
       email: 'ana@jm.test',
-      role: { name: 'User' }
+      role: { name: 'Staff' },
+      salary: 2100
     }
     await openProfile()
 
     expect(screen.getByText('cajero')).toBeTruthy()
     expect(screen.getByText('Ana Ruiz')).toBeTruthy()
-    expect(screen.getByText('User')).toBeTruthy()
+    expect(screen.getByText('Staff')).toBeTruthy()
+    expect(screen.getByText('Salario semanal (MXN)')).toBeTruthy()
+    expect(screen.getByText('$2100.00')).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Horario' })).toBeTruthy()
     expect(screen.getAllByText('No trabaja').length).toBe(7)
     expect(screen.queryByRole('button', { name: 'Checador' })).toBeNull()
@@ -169,7 +172,7 @@ describe('Mi información', () => {
       username: 'cajero',
       fullName: 'Ana Ruiz',
       email: 'ana@jm.test',
-      role: { name: 'User' }
+      role: { name: 'Staff' }
     }
     locationPrompt.show = true
     const requestNotifications = vi.fn()

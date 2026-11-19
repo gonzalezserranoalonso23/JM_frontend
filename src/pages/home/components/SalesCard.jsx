@@ -5,9 +5,14 @@ import {
   CardTitle
 } from '@/components/atoms/card'
 import Skeleton from '@/components/atoms/skeleton'
+import { cn } from '@/lib/utils'
 
-export const SalesCard = ({ id, title, aside, children }) => (
-  <Card as="section" className="gap-4 p-4 sm:p-6" aria-labelledby={id}>
+export const SalesCard = ({ id, title, aside, children, className }) => (
+  <Card
+    as="section"
+    className={cn('gap-4 p-4 sm:p-6', className)}
+    aria-labelledby={id}
+  >
     <CardHeader className="flex flex-col items-start gap-3 px-0">
       <CardTitle>
         <h2 id={id} className="text-lg font-semibold">

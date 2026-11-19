@@ -27,7 +27,7 @@ const StockDashboard = () => {
         <header className="mb-6">
           <h1
             id="dashboard-title"
-            className="text-2xl font-bold text-foreground sm:text-3xl"
+            className="text-xl font-bold text-foreground"
           >
             Dashboard
           </h1>
@@ -51,7 +51,7 @@ const StockDashboard = () => {
           aria-label="Indicadores de inventario"
         >
           {kpis.map(([label, value]) => (
-            <Card key={label} className="h-full gap-1 p-4 sm:p-6">
+            <Card key={label} className="section-card h-full gap-1 p-4 sm:p-6">
               <p className="text-sm font-medium text-muted-foreground">
                 {label}
               </p>

@@ -10,7 +10,7 @@ import {
   TableCell
 } from '@/components/atoms/table'
 import { formatMoney, formatQty } from '@/utils/commonFunctions'
-import { formatDate } from '@/utils/dateDisplay'
+import { formatDate, formatDateTime } from '@/utils/dateDisplay'
 import {
   isExitType,
   isIssueRecord,
@@ -26,7 +26,7 @@ const ReportsMovementsTable = ({
   fetchNextPage,
   isFetchingNextPage
 }) => {
-  const columnCount = showProfit ? 9 : 7
+  const columnCount = showProfit ? 10 : 8
   return (
     <>
       {records.length > 0 ? (
@@ -41,6 +41,7 @@ const ReportsMovementsTable = ({
           <TableHeader>
             <TableRow>
               <TableHead>Fecha</TableHead>
+              <TableHead>Registrado</TableHead>
               <TableHead>Producto</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Forma de pago</TableHead>
@@ -65,6 +66,7 @@ const ReportsMovementsTable = ({
                 return (
                   <TableRow key={record._id}>
                     <TableCell>{formatDate(record.date)}</TableCell>
+                    <TableCell>{formatDateTime(record.createdAt)}</TableCell>
                     <TableCell>
                       <strong>{record.productName?.productName}</strong>
                     </TableCell>

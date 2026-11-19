@@ -42,10 +42,11 @@ export const useLogin = () => {
   return mutationLogin
 }
 
-export const useGetAssignableUsers = () =>
+export const useGetAssignableUsers = (enabled = true) =>
   useQuery({
     queryKey: ['Users', 'assignable'],
     queryFn: getAssignableUsers,
+    enabled,
     staleTime: 10 * 60 * 1000
   })
 

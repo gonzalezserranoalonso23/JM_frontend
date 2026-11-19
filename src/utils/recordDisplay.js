@@ -1,4 +1,4 @@
-import { formatDate } from './dateDisplay'
+import { formatDate, formatDateTime } from './dateDisplay'
 import { formatMoney, formatQty } from './commonFunctions'
 import { isIssueRecord, movementPrices } from './typeInventory'
 
@@ -14,6 +14,7 @@ export const recordCardView = (
   return {
     name: record.productName?.productName,
     date: formatDate(record.date),
+    createdAt: formatDateTime(record.createdAt),
     type: record.typeInventory?.typeInventory,
     quantity: formatQty(record.quantity),
     profit: prices

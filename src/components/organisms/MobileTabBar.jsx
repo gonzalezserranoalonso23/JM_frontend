@@ -8,6 +8,7 @@ import {
   ListTodo,
   Banknote,
   Ellipsis,
+  Clock3,
   Package,
   Truck
 } from 'lucide-react'
@@ -19,7 +20,7 @@ import { prefetchRoute } from '@/auth/appRoutes'
 
 const tabClass = (isActive) => {
   let tone = 'text-muted-foreground'
-  if (isActive) tone = 'text-foreground'
+  if (isActive) tone = 'text-primary'
   return cn(
     'relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1.5 text-[11px] font-medium',
     tone
@@ -49,6 +50,7 @@ const TAB_ICONS = {
   '/issues': ArrowUpFromLine,
   '/entries': ArrowDownToLine,
   '/todolist': ListTodo,
+  '/attendance': Clock3,
   '/products': Package,
   '/suppliers': Truck,
   '/cash': Banknote
@@ -141,7 +143,7 @@ const MobileTabBar = ({
   )
   const moreActive = !onPrimaryTab
   let moreTone = 'text-muted-foreground'
-  if (moreOpen || moreActive) moreTone = 'text-foreground'
+  if (moreOpen || moreActive) moreTone = 'text-primary'
 
   useEffect(() => {
     if (!moreOpen) return
@@ -166,7 +168,7 @@ const MobileTabBar = ({
           <div
             role="dialog"
             aria-label="Más opciones"
-            className="absolute inset-x-0 bottom-[var(--app-tab-height)] max-h-[calc(100dvh-var(--app-tab-height)-env(safe-area-inset-top,0px))] overflow-y-auto rounded-t-2xl border-t bg-background p-4 pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] shadow-lg"
+            className="dialog-card absolute inset-x-0 bottom-[var(--app-tab-height)] max-h-[calc(100dvh-var(--app-tab-height)-env(safe-area-inset-top,0px))] overflow-y-auto rounded-t-2xl border-t bg-background p-4 pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] shadow-lg"
           >
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
             <nav className="grid min-w-0 gap-1">
@@ -221,6 +223,7 @@ const MobileTabBar = ({
         >
           {primary.map(({ to, label, end, badge }) => {
             const Icon = TAB_ICONS[to]
+            const active = isNavPathActive(pathname, to, end)
             let countLabel = pendingCount
             if (pendingCount > 99) countLabel = '99+'
             return (
@@ -231,9 +234,14 @@ const MobileTabBar = ({
                 onClick={() => setMoreOpen(false)}
                 onPointerEnter={() => prefetchRoute(to)}
                 onFocus={() => prefetchRoute(to)}
-                className={({ isActive }) => tabClass(isActive)}
+                className={tabClass(active)}
               >
-                <span className="relative">
+                <span
+                  className={cn(
+                    'relative flex h-6 w-6 items-center justify-center rounded-lg',
+                    active && 'bg-accent text-primary'
+                  )}
+                >
                   <Icon className="h-5 w-5" aria-hidden="true" />
                   {badge && pendingCount > 0 && (
                     <span className="absolute -right-2 -top-1.5 z-10 min-w-4 rounded-full bg-destructive px-1 text-center text-[10px] leading-4 text-white">
@@ -255,7 +263,14 @@ const MobileTabBar = ({
               aria-expanded={moreOpen}
               onClick={() => setMoreOpen((open) => !open)}
             >
-              <Ellipsis className="h-5 w-5" aria-hidden="true" />
+              <span
+                className={cn(
+                  'flex h-6 w-6 items-center justify-center rounded-lg',
+                  (moreOpen || moreActive) && 'bg-accent text-primary'
+                )}
+              >
+                <Ellipsis className="h-5 w-5" aria-hidden="true" />
+              </span>
               Más
             </button>
           )}

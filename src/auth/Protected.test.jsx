@@ -8,8 +8,8 @@ import { useAppState } from '@/store/appState'
 
 const auth = vi.hoisted(() => ({
   auth: 'token',
-  role: 'User',
-  me: { role: { name: 'User' } },
+  role: 'Staff',
+  me: { role: { name: 'Staff' } },
   isLoading: false
 }))
 
@@ -47,8 +47,8 @@ describe('rutas protegidas por usuario', () => {
   afterEach(() => {
     cleanup()
     auth.auth = 'token'
-    auth.role = 'User'
-    auth.me = { role: { name: 'User' } }
+    auth.role = 'Staff'
+    auth.me = { role: { name: 'Staff' } }
     auth.isLoading = false
     useAppState.setState({ shutdown: false })
   })
@@ -83,7 +83,7 @@ describe('rutas protegidas por usuario', () => {
     expect(screen.getByRole('heading', { name: 'Login' })).toBeTruthy()
   })
 
-  it('User no abre usuarios y sí abre productos', () => {
+  it('Staff no abre usuarios y sí abre productos', () => {
     renderAt('/users')
     expect(screen.getByRole('heading', { name: 'Inicio' })).toBeTruthy()
     cleanup()
@@ -93,17 +93,12 @@ describe('rutas protegidas por usuario', () => {
 
   it('el rol del servidor gana sobre el guardado en la sesión', () => {
     auth.role = 'Manager'
-    auth.me = { role: { name: 'User' } }
+    auth.me = { role: { name: 'Staff' } }
     renderAt('/users')
     expect(screen.getByRole('heading', { name: 'Inicio' })).toBeTruthy()
   })
 
-  it('Staff no abre el detalle de una entrada ajena al rol User, y sí la abre Staff', () => {
-    renderAt('/entries/1')
-    expect(screen.getByRole('heading', { name: 'Inicio' })).toBeTruthy()
-    cleanup()
-    auth.role = 'Staff'
-    auth.me = { role: { name: 'Staff' } }
+  it('Staff abre el detalle de una entrada', () => {
     renderAt('/entries/1')
     expect(screen.getByRole('heading', { name: 'Entrada' })).toBeTruthy()
   })

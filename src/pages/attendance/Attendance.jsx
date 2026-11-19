@@ -600,7 +600,7 @@ export const AttendancePunch = () => {
 
 const StaffAttendance = () => (
   <PageShell>
-    <div className="w-full sm:max-w-md">
+    <div className="mx-auto w-full md:w-[50vw]">
       <StaffClock />
     </div>
   </PageShell>
@@ -612,9 +612,50 @@ const AdminAttendance = () => (
   </PageShell>
 )
 
+const SupervisorAttendance = () => {
+  const [view, setView] = useState('mine')
+
+  return (
+    <PageShell>
+      <div className="grid w-full gap-4">
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label="Vista de asistencias"
+        >
+          <Button
+            type="button"
+            variant={view === 'mine' ? 'default' : 'outline'}
+            aria-pressed={view === 'mine'}
+            onClick={() => setView('mine')}
+          >
+            Mis asistencias
+          </Button>
+          <Button
+            type="button"
+            variant={view === 'staff' ? 'default' : 'outline'}
+            aria-pressed={view === 'staff'}
+            onClick={() => setView('staff')}
+          >
+            Asistencias del personal
+          </Button>
+        </div>
+        {view === 'mine' ? (
+          <div className="mx-auto w-full md:w-[50vw]">
+            <StaffClock />
+          </div>
+        ) : (
+          <AdminBoard />
+        )}
+      </div>
+    </PageShell>
+  )
+}
+
 const Attendance = () => {
   const roleName = useRoleName()
 
+  if (roleName === 'Supervisor') return <SupervisorAttendance />
   if (hasFullAccess(roleName)) return <AdminAttendance />
 
   return <StaffAttendance />

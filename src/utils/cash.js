@@ -39,6 +39,17 @@ export const countedTotal = (denominations, quantities) =>
     0
   )
 
+export const countedBreakdown = (denominations, quantities) =>
+  denominations.reduce(
+    (counts, denomination) => {
+      const quantity = quantityOf(quantities, denomination)
+      counts.units += quantity
+      counts[denomination >= 20 ? 'bills' : 'coins'] += quantity
+      return counts
+    },
+    { units: 0, bills: 0, coins: 0 }
+  )
+
 export const countedRows = (rows, quantities) =>
   rows.reduce(
     (sum, item) => sum + item.value * quantityOf(quantities, item.value),
