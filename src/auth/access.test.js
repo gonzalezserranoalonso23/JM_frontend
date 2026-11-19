@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canVisit, compareRoles } from './access'
+import { canVisit, compareRoles, routeRules } from './access'
 
 describe('acceso por rol', () => {
   it('un rol no reconocido no entra a las rutas protegidas', () => {
@@ -17,18 +17,20 @@ describe('acceso por rol', () => {
     expect(canVisit('Staff', '/cash')).toBe(false)
     expect(canVisit('Staff', '/reports')).toBe(false)
     expect(canVisit('Staff', '/low-stock')).toBe(false)
-    expect(canVisit('Staff', '/orders')).toBe(false)
-    expect(canVisit('Staff', '/promotions')).toBe(false)
     expect(canVisit('Staff', '/daily-information')).toBe(false)
     expect(canVisit('Staff', '/catalogs')).toBe(false)
     expect(canVisit('Staff', '/users')).toBe(false)
+  })
+
+  it('no registra las rutas retiradas de promociones ni órdenes', () => {
+    expect(routeRules.some(({ path }) => path === '/promotions')).toBe(false)
+    expect(routeRules.some(({ path }) => path === '/orders')).toBe(false)
   })
 
   it('sudo entra a las mismas rutas que un administrador y también a usuarios', () => {
     expect(canVisit('Sudo', '/reports')).toBe(true)
     expect(canVisit('Sudo', '/users')).toBe(true)
     expect(canVisit('Sudo', '/roles')).toBe(true)
-    expect(canVisit('Sudo', '/orders')).toBe(true)
     expect(canVisit('Sudo', '/ruta-desconocida')).toBe(true)
   })
 

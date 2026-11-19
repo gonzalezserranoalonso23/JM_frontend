@@ -9,7 +9,6 @@ import { toast } from 'react-hot-toast'
 import {
   getProductLookup,
   getProductsPage,
-  getPromotionProductsPage,
   createProduct,
   updateProduct,
   deleteProduct
@@ -22,23 +21,6 @@ import {
   withRelations
 } from '@/features/liveCache'
 import { searchTokens } from '@/utils/productSearch'
-
-export const useGetPromotionPages = (search = '', category = '') =>
-  useInfiniteQuery({
-    queryKey: ['Products', 'promotions', search, category],
-    queryFn: ({ pageParam, signal }) =>
-      getPromotionProductsPage({
-        page: pageParam,
-        limit: 20,
-        search,
-        category,
-        signal
-      }),
-    placeholderData: keepPreviousData,
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNextPage ? lastPage.page + 1 : undefined
-  })
 
 // A save updates the list at once. Between visits it is not requested again.
 export const useGetProductPages = (search = '') =>

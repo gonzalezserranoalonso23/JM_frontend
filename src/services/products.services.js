@@ -5,25 +5,6 @@ export const getProduct = async (id) => {
   return data
 }
 
-export const getPromotionProductsPage = async ({
-  page,
-  limit,
-  search,
-  category,
-  signal
-}) => {
-  const { data } = await axios.get('/api/products/promotions', {
-    signal,
-    params: {
-      page,
-      limit,
-      ...(search ? { search } : {}),
-      ...(category ? { category } : {})
-    }
-  })
-  return data
-}
-
 export const getProductLookup = async ({
   search = '',
   activeOnly = false,
@@ -63,16 +44,6 @@ const collectPages = async (loadPage) => {
 
 export const getAllProducts = (search = '') =>
   collectPages((page) => getProductsPage({ page, limit: EXPORT_LIMIT, search }))
-
-export const getAllPromotionProducts = (search = '', category = '') =>
-  collectPages((page) =>
-    getPromotionProductsPage({
-      page,
-      limit: EXPORT_LIMIT,
-      search,
-      category
-    })
-  )
 
 export const createProduct = async (body) => {
   const { data } = await axios.post('/api/products', body)

@@ -16,6 +16,7 @@ import {
   desktopLinkAlignment,
   getNavLinks,
   isNavPathActive,
+  NAV_ICONS,
   splitMobileTabs
 } from '@/components/organisms/navLinks'
 import {
@@ -39,12 +40,12 @@ const menuItemClass = (isActive) => {
   let tone = 'text-foreground hover:bg-accent hover:text-accent-foreground'
   if (isActive) tone = 'bg-accent text-accent-foreground'
   return cn(
-    'flex min-h-10 items-center rounded-md px-3 text-sm font-medium',
+    'flex min-h-10 items-center gap-2 rounded-md px-3 text-sm font-medium',
     tone
   )
 }
 
-const NavGroup = ({ label, items }) => {
+const NavGroup = ({ label, items, icon: Icon }) => {
   const [open, setOpen] = useState(false)
   const [menuPos, setMenuPos] = useState(null)
   const { pathname } = useLocation()
@@ -96,7 +97,8 @@ const NavGroup = ({ label, items }) => {
         aria-haspopup="menu"
         onClick={() => setOpen((value) => !value)}
       >
-        {label}
+        {Icon && <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />}
+        <span>{label}</span>
         <ChevronDown
           className={cn('h-4 w-4 transition-transform', open && 'rotate-180')}
           aria-hidden="true"
@@ -109,19 +111,23 @@ const NavGroup = ({ label, items }) => {
           style={{ top: menuPos.top, left: menuPos.left }}
           className="fixed z-[60] min-w-40 rounded-md border bg-background p-1 shadow-md"
         >
-          {items.map(({ to, label: childLabel, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              role="menuitem"
-              className={({ isActive }) => menuItemClass(isActive)}
-              onPointerEnter={() => prefetchRoute(to)}
-              onFocus={() => prefetchRoute(to)}
-            >
-              {childLabel}
-            </NavLink>
-          ))}
+          {items.map(({ to, label: childLabel, end }) => {
+            const ItemIcon = NAV_ICONS[to]
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                role="menuitem"
+                className={({ isActive }) => menuItemClass(isActive)}
+                onPointerEnter={() => prefetchRoute(to)}
+                onFocus={() => prefetchRoute(to)}
+              >
+                <ItemIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>{childLabel}</span>
+              </NavLink>
+            )
+          })}
         </div>
       )}
     </div>
@@ -156,8 +162,12 @@ const NotifyButton = ({ show, onRequest }) => {
 
 const DesktopLink = ({ link, pendingCount }) => {
   if (link.children) {
-    return <NavGroup label={link.label} items={link.children} />
+    return (
+      <NavGroup label={link.label} items={link.children} icon={link.icon} />
+    )
   }
+
+  const Icon = NAV_ICONS[link.to]
 
   return (
     <NavLink
@@ -167,7 +177,8 @@ const DesktopLink = ({ link, pendingCount }) => {
       onPointerEnter={() => prefetchRoute(link.to)}
       onFocus={() => prefetchRoute(link.to)}
     >
-      {link.label}
+      <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+      <span>{link.label}</span>
       {link.badge && pendingCount > 0 && (
         <Badge variant="secondary" className="pointer-events-none px-1.5">
           {pendingCount}

@@ -7,7 +7,6 @@ const loaders = {
   '/entries/:id': () => import('@/pages/entries/EntryDetails'),
   '/issues': () => import('@/pages/issues/Issues'),
   '/issues/:id': () => import('@/pages/issues/IssueDetails'),
-  '/orders': () => import('@/pages/orders/Orders'),
   '/reports': () => import('@/pages/reports/Reports'),
   '/low-stock': () => import('@/pages/low-stock/LowStock'),
   '/todolist': () => import('@/pages/todolist/ToDoList'),
@@ -21,7 +20,6 @@ const loaders = {
   '/users': () => import('@/pages/users/Users'),
   '/daily-information': () =>
     import('@/pages/daily-information/DailyInformation'),
-  '/promotions': () => import('@/pages/promotions/Promotions'),
   '/cash': () => import('@/pages/cash/Cash')
 }
 

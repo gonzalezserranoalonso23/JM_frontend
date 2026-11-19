@@ -1,21 +1,14 @@
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import {
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  ChevronDown,
-  Home,
-  ListTodo,
-  Banknote,
-  Ellipsis,
-  Clock3,
-  Package,
-  Truck
-} from 'lucide-react'
+import { ChevronDown, Ellipsis } from 'lucide-react'
 import { Badge } from '@/components/atoms/badge'
 import { Button } from '@/components/atoms/button'
 import { cn } from '@/lib/utils'
-import { isNavPathActive, tabGridClass } from '@/components/organisms/navLinks'
+import {
+  isNavPathActive,
+  NAV_ICONS,
+  tabGridClass
+} from '@/components/organisms/navLinks'
 import { prefetchRoute } from '@/auth/appRoutes'
 
 const tabClass = (isActive) => {
@@ -31,7 +24,7 @@ const sheetLinkClass = (isActive) => {
   let tone = 'text-foreground'
   if (isActive) tone = 'bg-accent text-accent-foreground'
   return cn(
-    'flex min-h-11 min-w-0 items-center rounded-lg px-3 text-base font-medium',
+    'flex min-h-11 min-w-0 items-center gap-3 rounded-lg px-3 text-base font-medium',
     tone
   )
 }
@@ -40,20 +33,9 @@ const sheetRowClass = (isActive) => {
   let tone = 'text-foreground'
   if (isActive) tone = 'bg-accent text-accent-foreground'
   return cn(
-    'flex min-h-12 items-center justify-between rounded-lg px-3 text-base font-medium',
+    'flex min-h-12 items-center justify-between gap-3 rounded-lg px-3 text-base font-medium',
     tone
   )
-}
-
-const TAB_ICONS = {
-  '/home': Home,
-  '/issues': ArrowUpFromLine,
-  '/entries': ArrowDownToLine,
-  '/todolist': ListTodo,
-  '/attendance': Clock3,
-  '/products': Package,
-  '/suppliers': Truck,
-  '/cash': Banknote
 }
 
 const toggleGroup = (current, label) => {
@@ -70,6 +52,7 @@ const MoreLink = ({
 }) => {
   if (link.children) {
     const groupOpen = openGroup === link.label
+    const Icon = link.icon
     return (
       <div>
         <button
@@ -80,7 +63,10 @@ const MoreLink = ({
             setOpenGroup((current) => toggleGroup(current, link.label))
           }
         >
-          <span className="truncate">{link.label}</span>
+          <span className="flex min-w-0 items-center gap-3">
+            {Icon && <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />}
+            <span className="truncate">{link.label}</span>
+          </span>
           <ChevronDown
             className={cn(
               'h-4 w-4 shrink-0 transition-transform',
@@ -91,25 +77,30 @@ const MoreLink = ({
         </button>
         {groupOpen && (
           <div className="grid gap-1 pb-1 pl-3">
-            {link.children.map(({ to, label, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                onClick={onNavigate}
-                onPointerEnter={() => prefetchRoute(to)}
-                onFocus={() => prefetchRoute(to)}
-                className={({ isActive }) => sheetLinkClass(isActive)}
-              >
-                <span className="truncate">{label}</span>
-              </NavLink>
-            ))}
+            {link.children.map(({ to, label, end }) => {
+              const Icon = NAV_ICONS[to]
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  onClick={onNavigate}
+                  onPointerEnter={() => prefetchRoute(to)}
+                  onFocus={() => prefetchRoute(to)}
+                  className={({ isActive }) => sheetLinkClass(isActive)}
+                >
+                  <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                  <span className="truncate">{label}</span>
+                </NavLink>
+              )
+            })}
           </div>
         )}
       </div>
     )
   }
 
+  const Icon = NAV_ICONS[link.to]
   return (
     <NavLink
       to={link.to}
@@ -119,7 +110,10 @@ const MoreLink = ({
       onFocus={() => prefetchRoute(link.to)}
       className={({ isActive }) => sheetRowClass(isActive)}
     >
-      {link.label}
+      <span className="flex min-w-0 items-center gap-3">
+        <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+        <span className="truncate">{link.label}</span>
+      </span>
       {link.badge && pendingCount > 0 && (
         <Badge variant="secondary">{pendingCount}</Badge>
       )}
@@ -222,7 +216,7 @@ const MobileTabBar = ({
           )}
         >
           {primary.map(({ to, label, end, badge }) => {
-            const Icon = TAB_ICONS[to]
+            const Icon = NAV_ICONS[to]
             const active = isNavPathActive(pathname, to, end)
             let countLabel = pendingCount
             if (pendingCount > 99) countLabel = '99+'

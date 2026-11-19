@@ -125,19 +125,6 @@ const toProductRow = (product) => [
   textCell(product?.isActive === false ? 'Desactivado' : 'Activado')
 ]
 
-const toPromotionRow = (product) => [
-  textCell(product?.productName),
-  textCell(product?.productDescription),
-  textCell(categoryName(product)),
-  moneyCell(product?.purchasePrice),
-  moneyCell(product?.productPrice),
-  {
-    value: roundTo(product?.margin, 2),
-    type: Number,
-    format: '#,##0.00'
-  }
-]
-
 const writeSheet = async (titles, rows, columns, fileName) => {
   const { default: writeExcelFile } = await import('write-excel-file/browser')
   await writeExcelFile([titles.map(headerCell), ...rows], { columns }).toFile(
@@ -170,23 +157,6 @@ export const exportProductsToExcel = async (products, fileName) => {
       { width: 24 },
       { width: 20 },
       { width: 14 }
-    ],
-    fileName
-  )
-}
-
-export const exportPromotionsToExcel = async (products, fileName) => {
-  const rows = await mapInChunks(products, toPromotionRow)
-  await writeSheet(
-    ['Producto', 'Descripción', 'Categoría', 'Compra', 'Venta', 'Margen %'],
-    rows,
-    [
-      { width: 30 },
-      { width: 36 },
-      { width: 20 },
-      { width: 12 },
-      { width: 12 },
-      { width: 12 }
     ],
     fileName
   )

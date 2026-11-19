@@ -9,7 +9,6 @@ const PAGE_TITLES = {
   '/home': 'Inicio',
   '/entries': 'Entradas',
   '/issues': 'Salidas',
-  '/orders': 'Órdenes',
   '/reports': 'Ventas',
   '/low-stock': 'Bajo stock',
   '/todolist': 'Pendientes',
@@ -21,14 +20,12 @@ const PAGE_TITLES = {
   '/categories': 'Categorías',
   '/payment-types': 'Métodos de pago',
   '/daily-information': 'Información diaria',
-  '/promotions': 'Promociones',
   '/cash': 'Caja'
 }
 
 const DETAIL_PAGE_TITLES = {
   '/entries/': 'Detalle de entrada',
   '/issues/': 'Detalle de salida',
-  '/orders/': 'Detalle de orden',
   '/reports/': 'Detalle de reporte',
   '/todolist/': 'Detalle de pendiente',
   '/users/': 'Detalle de usuario',

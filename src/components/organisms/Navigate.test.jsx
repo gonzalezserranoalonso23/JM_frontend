@@ -1,8 +1,9 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import Navigate from './Navigate'
+import { getNavLinks } from './navLinks'
 
 const auth = vi.hoisted(() => ({
   haveSchedule: true,
@@ -72,6 +73,62 @@ describe('Navigate de administrador', () => {
       screen.getByRole('link', { name: 'JM Cash-out' })
     ).toBeInTheDocument()
     expect(screen.getByText('JM Cash-out')).toHaveClass('sr-only')
+  })
+
+  it('muestra Reportes entre Caja y Catálogo', () => {
+    const labels = getNavLinks('Manager').map((link) => link.label)
+    const cashIndex = labels.indexOf('Caja')
+
+    expect(labels.slice(cashIndex, cashIndex + 3)).toEqual([
+      'Caja',
+      'Reportes',
+      'Catálogo'
+    ])
+  })
+
+  it('muestra iconos en los enlaces de escritorio y el menú Reportes', async () => {
+    const user = userEvent.setup({ pointerEventsCheck: 0 })
+    renderNav()
+
+    const navigation = screen.getByRole('navigation', {
+      name: 'Navegación principal'
+    })
+    expect(
+      within(navigation)
+        .getByRole('link', { name: 'Caja' })
+        .querySelector('svg')
+    ).toBeInTheDocument()
+
+    const reportsButton = within(navigation).getByRole('button', {
+      name: 'Reportes'
+    })
+    expect(reportsButton.querySelector('svg')).toBeInTheDocument()
+    await user.click(reportsButton)
+    expect(
+      screen.getByRole('menuitem', { name: 'Ventas' }).querySelector('svg')
+    ).toBeInTheDocument()
+  })
+
+  it('muestra iconos en las opciones del menú móvil', async () => {
+    const user = userEvent.setup({ pointerEventsCheck: 0 })
+    renderNav()
+
+    await user.click(screen.getByRole('button', { name: 'Más' }))
+    const moreMenu = screen.getByRole('dialog', { name: 'Más opciones' })
+    expect(
+      within(moreMenu).getByRole('link', { name: 'Caja' }).querySelector('svg')
+    ).toBeInTheDocument()
+
+    const reportsButton = within(moreMenu).getByRole('button', {
+      name: 'Reportes'
+    })
+    expect(reportsButton.querySelector('svg')).toBeInTheDocument()
+    await user.click(reportsButton)
+    expect(
+      within(moreMenu)
+        .getByRole('link', { name: 'Ventas' })
+        .querySelector('svg')
+    ).toBeInTheDocument()
   })
 
   it('Reportes abre Ventas y Asistencias', async () => {

@@ -1,4 +1,33 @@
 import { canVisit, hasFullAccess } from '@/auth/access'
+import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Banknote,
+  CalendarDays,
+  ChartColumn,
+  Clock3,
+  Home,
+  ListTodo,
+  Package,
+  PackageSearch,
+  Tags,
+  Truck
+} from 'lucide-react'
+
+export const NAV_ICONS = {
+  '/home': Home,
+  '/issues': ArrowUpFromLine,
+  '/entries': ArrowDownToLine,
+  '/todolist': ListTodo,
+  '/attendance': Clock3,
+  '/products': Package,
+  '/suppliers': Truck,
+  '/cash': Banknote,
+  '/daily-information': CalendarDays,
+  '/reports': ChartColumn,
+  '/low-stock': PackageSearch,
+  '/catalogs': Tags
+}
 
 const STAFF_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
@@ -21,19 +50,18 @@ const ADMIN_LINKS = [
   { to: '/home', label: 'Inicio', end: true },
   { to: '/issues', label: 'Salidas' },
   { to: '/entries', label: 'Entradas' },
-  { to: '/orders', label: 'Órdenes' },
   { to: '/todolist', label: 'Pendientes', badge: true },
+  { to: '/daily-information', label: 'Información diaria' },
+  { to: '/cash', label: 'Caja' },
   {
     label: 'Reportes',
+    icon: NAV_ICONS['/reports'],
     children: [
       { to: '/reports', label: 'Ventas' },
       { to: '/attendance', label: 'Asistencias' },
       { to: '/low-stock', label: 'Bajo stock' }
     ]
   },
-  { to: '/daily-information', label: 'Información diaria' },
-  { to: '/promotions', label: 'Promociones' },
-  { to: '/cash', label: 'Caja' },
   { to: '/catalogs', label: 'Catálogo' }
 ]
 
