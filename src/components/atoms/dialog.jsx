@@ -21,6 +21,7 @@ const DialogContent = React.forwardRef(
   (
     {
       className,
+      closeClassName,
       children,
       onInteractOutside,
       onEscapeKeyDown,
@@ -200,15 +201,18 @@ const DialogContent = React.forwardRef(
             const listOpen = content?.querySelector('[aria-expanded="true"]')
             if (listOpen || !canDiscard()) event.preventDefault()
           }}
-          aria-describedby={undefined}
           {...props}
         >
           {children}
           <DialogPrimitive.Close
+            data-slot="dialog-close"
             onClick={(event) => {
               if (!canDiscard()) event.preventDefault()
             }}
-            className="absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground opacity-80 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none max-sm:right-1 max-sm:top-[calc(0.25rem+env(safe-area-inset-top,0px))]"
+            className={cn(
+              'absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground opacity-80 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none max-sm:right-1 max-sm:top-[calc(0.25rem+env(safe-area-inset-top,0px))]',
+              closeClassName
+            )}
           >
             <X className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Cerrar</span>

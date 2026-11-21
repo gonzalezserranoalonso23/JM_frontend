@@ -3,6 +3,13 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { ChevronDown, Ellipsis } from 'lucide-react'
 import { Badge } from '@/components/atoms/badge'
 import { Button } from '@/components/atoms/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/atoms/dialog'
 import { cn } from '@/lib/utils'
 import {
   isNavPathActive,
@@ -13,30 +20,42 @@ import { prefetchRoute } from '@/auth/appRoutes'
 
 const tabClass = (isActive) => {
   let tone = 'text-muted-foreground'
-  if (isActive) tone = 'text-primary'
+  if (isActive) {
+    tone = 'rounded-lg bg-[#fff2f3] font-semibold text-primary dark:bg-transparent'
+  }
   return cn(
-    'relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1.5 text-[11px] font-medium',
+    'relative flex min-h-11 min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-1.5 text-xs font-medium',
     tone
   )
 }
 
 const sheetLinkClass = (isActive) => {
-  let tone = 'text-foreground'
-  if (isActive) tone = 'bg-accent text-accent-foreground'
+  let tone =
+    'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+  if (isActive) tone = 'bg-accent text-primary'
   return cn(
-    'flex min-h-11 min-w-0 items-center gap-3 rounded-lg px-3 text-base font-medium',
+    'flex min-h-11 min-w-0 items-center gap-3 rounded-lg px-3 text-base font-medium transition-colors',
     tone
   )
 }
 
 const sheetRowClass = (isActive) => {
-  let tone = 'text-foreground'
-  if (isActive) tone = 'bg-accent text-accent-foreground'
+  let tone =
+    'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+  if (isActive) tone = 'bg-accent text-primary'
   return cn(
-    'flex min-h-12 items-center justify-between gap-3 rounded-lg px-3 text-base font-medium',
+    'flex min-h-12 items-center justify-between gap-3 rounded-lg px-3 text-base font-medium transition-colors',
     tone
   )
 }
+
+const sheetIconClass = (isActive) =>
+  cn(
+    'flex size-8 shrink-0 items-center justify-center rounded-lg',
+    isActive
+      ? 'bg-[#ffe2e4] text-primary ring-1 ring-inset ring-primary/30 dark:bg-accent dark:text-primary dark:ring-0'
+      : 'text-muted-foreground'
+  )
 
 const toggleGroup = (current, label) => {
   if (current === label) return null
@@ -53,24 +72,34 @@ const MoreLink = ({
   if (link.children) {
     const groupOpen = openGroup === link.label
     const Icon = link.icon
+    const groupTone = groupOpen
+      ? 'bg-accent text-primary'
+      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
     return (
       <div>
         <button
           type="button"
-          className="flex min-h-12 w-full min-w-0 items-center justify-between gap-3 rounded-lg px-3 text-base font-medium text-foreground"
+          className={cn(
+            'flex min-h-12 w-full min-w-0 items-center justify-between gap-3 rounded-lg px-3 text-base font-medium transition-colors',
+            groupTone
+          )}
           aria-expanded={groupOpen}
           onClick={() =>
             setOpenGroup((current) => toggleGroup(current, link.label))
           }
         >
           <span className="flex min-w-0 items-center gap-3">
-            {Icon && <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />}
+            {Icon && (
+              <span className={sheetIconClass(groupOpen)}>
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </span>
+            )}
             <span className="truncate">{link.label}</span>
           </span>
           <ChevronDown
             className={cn(
               'h-4 w-4 shrink-0 transition-transform',
-              groupOpen && 'rotate-180'
+              groupOpen && 'rotate-180 text-primary'
             )}
             aria-hidden="true"
           />
@@ -89,8 +118,14 @@ const MoreLink = ({
                   onFocus={() => prefetchRoute(to)}
                   className={({ isActive }) => sheetLinkClass(isActive)}
                 >
-                  <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                  <span className="truncate">{label}</span>
+                  {({ isActive }) => (
+                    <>
+                      <span className={sheetIconClass(isActive)}>
+                        <Icon className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <span className="truncate">{label}</span>
+                    </>
+                  )}
                 </NavLink>
               )
             })}
@@ -110,12 +145,18 @@ const MoreLink = ({
       onFocus={() => prefetchRoute(link.to)}
       className={({ isActive }) => sheetRowClass(isActive)}
     >
-      <span className="flex min-w-0 items-center gap-3">
-        <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-        <span className="truncate">{link.label}</span>
-      </span>
-      {link.badge && pendingCount > 0 && (
-        <Badge variant="secondary">{pendingCount}</Badge>
+      {({ isActive }) => (
+        <>
+          <span className="flex min-w-0 items-center gap-3">
+            <span className={sheetIconClass(isActive)}>
+              <Icon className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <span className="truncate">{link.label}</span>
+          </span>
+          {link.badge && pendingCount > 0 && (
+            <Badge variant="secondary">{pendingCount}</Badge>
+          )}
+        </>
       )}
     </NavLink>
   )
@@ -137,7 +178,10 @@ const MobileTabBar = ({
   )
   const moreActive = !onPrimaryTab
   let moreTone = 'text-muted-foreground'
-  if (moreOpen || moreActive) moreTone = 'text-primary'
+  if (moreOpen || moreActive) {
+    moreTone =
+      'rounded-lg bg-[#fff2f3] font-semibold text-primary dark:bg-transparent'
+  }
 
   useEffect(() => {
     if (!moreOpen) return
@@ -151,37 +195,43 @@ const MobileTabBar = ({
 
   return (
     <>
-      {moreOpen && (
-        <div className="fixed inset-0 z-40 xl:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/50"
-            aria-label="Cerrar menú"
-            onClick={() => setMoreOpen(false)}
-          />
+      <Dialog open={moreOpen} onOpenChange={setMoreOpen}>
+        <DialogContent
+          id="mobile-more-dialog"
+          closeClassName="bg-transparent text-primary hover:bg-transparent focus-visible:bg-transparent"
+          className="max-sm:pb-[max(1rem,var(--app-safe-bottom))]"
+        >
+          <DialogTitle className="sr-only">Más opciones</DialogTitle>
+          <DialogDescription className="sr-only">
+            Enlaces de navegación y acciones de la aplicación.
+          </DialogDescription>
           <div
-            role="dialog"
-            aria-label="Más opciones"
-            className="dialog-card absolute inset-x-0 bottom-[var(--app-tab-height)] max-h-[calc(100dvh-var(--app-tab-height)-env(safe-area-inset-top,0px))] overflow-y-auto rounded-t-2xl border-t bg-background p-4 pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] shadow-lg"
+            aria-hidden="true"
+            className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted"
+          />
+          <nav aria-label="Más opciones de navegación" className="grid min-w-0 gap-1">
+            {links.map((link) => (
+              <MoreLink
+                key={link.to || link.label}
+                link={link}
+                openGroup={openGroup}
+                setOpenGroup={setOpenGroup}
+                pendingCount={pendingCount}
+                onNavigate={() => setMoreOpen(false)}
+              />
+            ))}
+          </nav>
+          <div
+            className={cn(
+              'mt-3 grid gap-2',
+              showNotifications ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'
+            )}
           >
-            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
-            <nav className="grid min-w-0 gap-1">
-              {links.map((link) => (
-                <MoreLink
-                  key={link.to || link.label}
-                  link={link}
-                  openGroup={openGroup}
-                  setOpenGroup={setOpenGroup}
-                  pendingCount={pendingCount}
-                  onNavigate={() => setMoreOpen(false)}
-                />
-              ))}
-            </nav>
             {showNotifications && (
               <Button
                 type="button"
                 variant="outline"
-                className="mt-3 h-12 w-full"
+                className="h-10 w-full"
                 onClick={() => {
                   requestPermission()
                   setMoreOpen(false)
@@ -193,7 +243,7 @@ const MobileTabBar = ({
             <Button
               type="button"
               variant="destructive"
-              className="mt-2 h-12 w-full"
+              className="h-10 w-full"
               onClick={() => {
                 setMoreOpen(false)
                 onLogout()
@@ -202,74 +252,76 @@ const MobileTabBar = ({
               Cerrar sesión
             </Button>
           </div>
-        </div>
-      )}
-
-      <nav
-        aria-label="Navegación inferior"
-        className="app-tab-bar fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] backdrop-blur-md xl:hidden"
-      >
-        <div
-          className={cn(
-            'grid h-[3.25rem] px-1',
-            tabGridClass(primary.length, links.length > 0)
-          )}
+        </DialogContent>
+        <nav
+          aria-label="Navegación inferior"
+          className="app-tab-bar fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] backdrop-blur-md xl:hidden"
         >
-          {primary.map(({ to, label, end, badge }) => {
-            const Icon = NAV_ICONS[to]
-            const active = isNavPathActive(pathname, to, end)
-            let countLabel = pendingCount
-            if (pendingCount > 99) countLabel = '99+'
-            return (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                onClick={() => setMoreOpen(false)}
-                onPointerEnter={() => prefetchRoute(to)}
-                onFocus={() => prefetchRoute(to)}
-                className={tabClass(active)}
-              >
-                <span
-                  className={cn(
-                    'relative flex h-6 w-6 items-center justify-center rounded-lg',
-                    active && 'bg-accent text-primary'
-                  )}
+          <div
+            className={cn(
+              'grid h-[3.25rem] px-1',
+              tabGridClass(primary.length, links.length > 0)
+            )}
+          >
+            {primary.map(({ to, label, end, badge }) => {
+              const Icon = NAV_ICONS[to]
+              const active = isNavPathActive(pathname, to, end)
+              let countLabel = pendingCount
+              if (pendingCount > 99) countLabel = '99+'
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  onClick={() => setMoreOpen(false)}
+                  onPointerEnter={() => prefetchRoute(to)}
+                  onFocus={() => prefetchRoute(to)}
+                  className={tabClass(active)}
                 >
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                  {badge && pendingCount > 0 && (
-                    <span className="absolute -right-2 -top-1.5 z-10 min-w-4 rounded-full bg-destructive px-1 text-center text-[10px] leading-4 text-white">
-                      {countLabel}
-                    </span>
+                  <span
+                    className={cn(
+                      'relative flex h-6 w-6 items-center justify-center rounded-lg',
+                      active &&
+                        'bg-[#ffe2e4] text-primary ring-1 ring-inset ring-primary/30 dark:bg-accent dark:text-primary dark:ring-0'
+                    )}
+                  >
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                    {badge && pendingCount > 0 && (
+                      <span className="absolute -right-2 -top-1.5 z-10 min-w-4 rounded-full bg-destructive px-1 text-center text-[10px] leading-4 text-white">
+                        {countLabel}
+                      </span>
+                    )}
+                  </span>
+                  <span className="w-full truncate text-center">{label}</span>
+                </NavLink>
+              )
+            })}
+            {links.length > 0 && (
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    'flex min-h-11 flex-col items-center justify-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium',
+                    moreTone
                   )}
-                </span>
-                <span className="w-full truncate text-center">{label}</span>
-              </NavLink>
-            )
-          })}
-          {links.length > 0 && (
-            <button
-              type="button"
-              className={cn(
-                'flex flex-col items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-medium',
-                moreTone
-              )}
-              aria-expanded={moreOpen}
-              onClick={() => setMoreOpen((open) => !open)}
-            >
-              <span
-                className={cn(
-                  'flex h-6 w-6 items-center justify-center rounded-lg',
-                  (moreOpen || moreActive) && 'bg-accent text-primary'
-                )}
-              >
-                <Ellipsis className="h-5 w-5" aria-hidden="true" />
-              </span>
-              Más
-            </button>
-          )}
-        </div>
-      </nav>
+                  aria-controls="mobile-more-dialog"
+                >
+                  <span
+                    className={cn(
+                      'flex h-6 w-6 items-center justify-center rounded-lg',
+                      (moreOpen || moreActive) &&
+                        'bg-[#ffe2e4] text-primary ring-1 ring-inset ring-primary/30 dark:bg-accent dark:text-primary dark:ring-0'
+                    )}
+                  >
+                    <Ellipsis className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  Más
+                </button>
+              </DialogTrigger>
+            )}
+          </div>
+        </nav>
+      </Dialog>
     </>
   )
 }

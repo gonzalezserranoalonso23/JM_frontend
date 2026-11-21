@@ -21,7 +21,7 @@ import {
   useVaultUpdatedAt
 } from '@/features/denominations.features'
 import { hasFullAccess } from '@/auth/access'
-import { useRoleName } from '@/features/users.features'
+import { useGetCurrentUser, useRoleName } from '@/features/users.features'
 import {
   DENOMINATIONS,
   countedBreakdown,
@@ -35,7 +35,7 @@ import {
 } from '@/utils/cash'
 
 const CashColumnHeadings = () => (
-  <div className="cash-column-headings grid grid-cols-[minmax(0,1fr)_8rem_minmax(3.5rem,0.6fr)] items-center gap-2 border-y border-border py-2.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground sm:gap-3">
+  <div className="cash-column-headings grid grid-cols-[minmax(0,1fr)_9.5rem_minmax(3.5rem,0.6fr)] items-center gap-2 border-y border-border py-2.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground sm:gap-3">
     <span>Denominación</span>
     <span className="text-center">Cantidad</span>
     <span className="text-right">Subtotal</span>
@@ -50,7 +50,7 @@ const CashDenominationRow = ({
   onChange,
   onStep
 }) => (
-  <div className="cash-denomination-row grid grid-cols-[minmax(0,1fr)_8rem_minmax(3.5rem,0.6fr)] items-center gap-2 py-3 sm:gap-3">
+  <div className="cash-denomination-row grid grid-cols-[minmax(0,1fr)_9.5rem_minmax(3.5rem,0.6fr)] items-center gap-2 py-3 sm:gap-3">
     <div className="flex min-w-0 items-center gap-2.5">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-[9px] bg-accent text-accent-foreground">
         {denomination >= 20 ? (
@@ -68,10 +68,10 @@ const CashDenominationRow = ({
         </small>
       </span>
     </div>
-    <div className="cash-quantity-control flex h-8 items-center justify-between rounded-[8px] border border-input bg-input/30">
+    <div className="cash-quantity-control flex h-11 items-center justify-between rounded-[8px] border border-input bg-input/30">
       <button
         type="button"
-        className="cash-step-button flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        className="cash-step-button flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
         aria-label={`Quitar uno de ${formatDenomination(denomination)}`}
         disabled={count === 0}
         onClick={() => onStep(-1)}
@@ -84,14 +84,14 @@ const CashDenominationRow = ({
         min="0"
         step="1"
         placeholder="0"
-        className="cash-quantity-input h-7 w-[60px] min-w-[60px] border-0 bg-transparent px-0 py-0 text-center text-base tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 dark:bg-transparent"
+        className="cash-quantity-input h-10 w-[60px] min-w-[60px] border-0 bg-transparent px-0 py-0 text-center text-sm tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 dark:bg-transparent"
         aria-label={inputLabel}
         value={quantity}
         onChange={(event) => onChange(event.target.value)}
       />
       <button
         type="button"
-        className="cash-step-button flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary"
+        className="cash-step-button flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-primary"
         aria-label={`Agregar uno de ${formatDenomination(denomination)}`}
         onClick={() => onStep(1)}
       >
@@ -106,9 +106,14 @@ const CashDenominationRow = ({
 
 const Calculator = () => {
   const [quantities, setQuantities] = useState({})
+  const [isDownloading, setIsDownloading] = useState(false)
+  const { data: currentUser } = useGetCurrentUser()
+  const userName =
+    currentUser?.fullName || currentUser?.username || 'Usuario no identificado'
 
-  const handleChange = (denomination, value) =>
+  const handleChange = (denomination, value) => {
     setQuantities((prev) => ({ ...prev, [denomination]: value }))
+  }
 
   const handleStep = (denomination, difference) => {
     setQuantities((prev) => {
@@ -120,6 +125,81 @@ const Calculator = () => {
 
   const total = countedTotal(DENOMINATIONS, quantities)
   const breakdown = countedBreakdown(DENOMINATIONS, quantities)
+  const printDate = new Intl.DateTimeFormat('es-MX', {
+    dateStyle: 'long',
+    timeStyle: 'short'
+  }).format(new Date())
+
+  const handleDownload = async () => {
+    setIsDownloading(true)
+    try {
+      const { jsPDF } = await import('jspdf')
+      const pdf = new jsPDF()
+      const now = new Date()
+      const filename = `JM-Cash-out-${now.toISOString().slice(0, 10)}.pdf`
+
+      pdf.setFillColor(228, 49, 58)
+      pdf.rect(0, 0, 210, 36, 'F')
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(19)
+      pdf.text('JM Cash-out', 14, 17)
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(10)
+      pdf.text('Desglose de efectivo / MXN', 14, 27)
+
+      pdf.setTextColor(55, 55, 55)
+      pdf.setFontSize(10)
+      pdf.text(`Fecha: ${printDate}`, 14, 48)
+      pdf.text(`Usuario: ${userName}`, 14, 54)
+      pdf.setFont('helvetica', 'bold')
+      pdf.text('CANTIDAD CONTADA', 14, 62)
+      pdf.setFontSize(18)
+      pdf.text(formatAmount(total), 14, 72)
+
+      let y = 88
+      pdf.setFillColor(38, 38, 38)
+      pdf.rect(14, y - 6, 182, 10, 'F')
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(9)
+      pdf.text('DENOMINACIÓN', 18, y)
+      pdf.text('CANTIDAD', 118, y, { align: 'right' })
+      pdf.text('SUBTOTAL', 192, y, { align: 'right' })
+
+      pdf.setFont('helvetica', 'normal')
+      pdf.setTextColor(55, 55, 55)
+      y += 12
+
+      DENOMINATIONS.forEach((denomination) => {
+        const count = quantityOf(quantities, denomination)
+        if (!count) return
+
+        pdf.text(formatDenomination(denomination), 18, y)
+        pdf.text(String(count), 118, y, { align: 'right' })
+        pdf.text(formatAmount(denomination * count), 192, y, {
+          align: 'right'
+        })
+        y += 9
+      })
+
+      pdf.setDrawColor(220, 220, 220)
+      pdf.line(14, y, 196, y)
+      y += 9
+      pdf.setFont('helvetica', 'bold')
+      pdf.text(
+        `Piezas: ${breakdown.units}  |  Billetes: ${breakdown.bills}  |  Monedas: ${breakdown.coins}`,
+        18,
+        y
+      )
+
+      pdf.save(filename)
+      toast.success('PDF descargado')
+    } catch {
+      toast.error('No se pudo generar el PDF')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   return (
     <div className="cash-calculator-layout grid items-start gap-4 sm:grid-cols-[minmax(0,1.4fr)_minmax(17rem,1fr)]">
@@ -204,16 +284,16 @@ const Calculator = () => {
             </div>
           ))}
         </dl>
-        <Button
-          type="button"
-          variant={breakdown.units ? 'default' : 'secondary'}
-          disabled={!breakdown.units}
-          className="mt-[17px] h-[42px] w-full rounded-[9px] font-bold disabled:bg-[#303030] disabled:text-[#888] disabled:opacity-100"
-          onClick={() => window.print()}
-        >
-          <Download aria-hidden="true" />
-          Exportar PDF
-        </Button>
+          <Button
+            type="button"
+            variant="default"
+            className="mt-[17px] h-[42px] w-full rounded-[9px] bg-[#ed0011] font-bold text-white hover:bg-[#cf0010] disabled:opacity-80 dark:bg-[#ed0011] dark:hover:bg-[#cf0010]"
+            onClick={handleDownload}
+            disabled={!breakdown.units || isDownloading}
+          >
+            <Download aria-hidden="true" />
+            {isDownloading ? 'Generando PDF...' : 'Descargar PDF'}
+          </Button>
       </Card>
     </div>
   )

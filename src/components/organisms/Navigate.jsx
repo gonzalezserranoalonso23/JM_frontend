@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Bell, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/atoms/button'
@@ -28,17 +28,21 @@ import ProductLookup from '@/pages/home/components/ProductLookup'
 import AccountProfile from '@/components/organisms/AccountProfile'
 
 const navItemClass = (active) => {
-  let tone = 'text-muted-foreground'
-  if (active) tone = 'bg-accent text-accent-foreground'
+  let tone =
+    'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+  if (active) {
+    tone =
+      "font-semibold text-primary after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:content-['']"
+  }
   return cn(
-    'relative inline-flex min-h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 2xl:px-2.5',
+    'relative inline-flex min-h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 2xl:px-2.5',
     tone
   )
 }
 
 const menuItemClass = (isActive) => {
   let tone = 'text-foreground hover:bg-accent hover:text-accent-foreground'
-  if (isActive) tone = 'bg-accent text-accent-foreground'
+  if (isActive) tone = 'font-semibold text-primary'
   return cn(
     'flex min-h-10 items-center gap-2 rounded-md px-3 text-sm font-medium',
     tone
@@ -48,6 +52,7 @@ const menuItemClass = (isActive) => {
 const NavGroup = ({ label, items, icon: Icon }) => {
   const [open, setOpen] = useState(false)
   const [menuPos, setMenuPos] = useState(null)
+  const menuId = useId()
   const { pathname } = useLocation()
   const menuRef = useRef(null)
   const buttonRef = useRef(null)
@@ -77,7 +82,10 @@ const NavGroup = ({ label, items, icon: Icon }) => {
       if (!menuRef.current?.contains(event.target)) setOpen(false)
     }
     const closeOnEscape = (event) => {
-      if (event.key === 'Escape') setOpen(false)
+      if (event.key === 'Escape') {
+        setOpen(false)
+        buttonRef.current?.focus()
+      }
     }
     document.addEventListener('pointerdown', closeOnOutside)
     document.addEventListener('keydown', closeOnEscape)
@@ -94,7 +102,7 @@ const NavGroup = ({ label, items, icon: Icon }) => {
         type="button"
         className={navItemClass(active || open)}
         aria-expanded={open}
-        aria-haspopup="menu"
+        aria-controls={menuId}
         onClick={() => setOpen((value) => !value)}
       >
         {Icon && <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />}
@@ -106,8 +114,7 @@ const NavGroup = ({ label, items, icon: Icon }) => {
       </button>
       {open && menuPos && (
         <div
-          role="menu"
-          aria-label={label}
+          id={menuId}
           style={{ top: menuPos.top, left: menuPos.left }}
           className="fixed z-[60] min-w-40 rounded-md border bg-background p-1 shadow-md"
         >
@@ -118,7 +125,6 @@ const NavGroup = ({ label, items, icon: Icon }) => {
                 key={to}
                 to={to}
                 end={end}
-                role="menuitem"
                 className={({ isActive }) => menuItemClass(isActive)}
                 onPointerEnter={() => prefetchRoute(to)}
                 onFocus={() => prefetchRoute(to)}

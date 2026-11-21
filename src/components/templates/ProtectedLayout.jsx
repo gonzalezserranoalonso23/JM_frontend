@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Navigate from '@/components/organisms/Navigate'
 import ListSkeleton from '@/components/molecules/ListSkeleton'
@@ -34,6 +34,7 @@ const DETAIL_PAGE_TITLES = {
 
 const ProtectedLayout = () => {
   const { pathname } = useLocation()
+  const [announcement, setAnnouncement] = useState('')
 
   useEffect(() => {
     const pageTitle =
@@ -44,6 +45,7 @@ const ProtectedLayout = () => {
       'Panel'
 
     document.title = `${pageTitle} | JM Panel`
+    setAnnouncement(`Página ${pageTitle}`)
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute(
@@ -54,8 +56,21 @@ const ProtectedLayout = () => {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-background">
+      <a
+        href="#main-content"
+        className="sr-only fixed left-4 top-[var(--app-nav-height)] z-[100] rounded-md bg-background px-4 py-3 text-foreground shadow-lg focus:not-sr-only focus:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+      >
+        Saltar al contenido principal
+      </a>
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
       <Navigate />
-      <main className="app-page-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-[var(--app-nav-height)] pb-[var(--app-tab-height)] [-webkit-overflow-scrolling:touch]">
+      <main
+        id="main-content"
+        tabIndex="-1"
+        className="app-page-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-[var(--app-nav-height)] pb-[var(--app-tab-height)] [-webkit-overflow-scrolling:touch] focus:outline-none"
+      >
         <RouteErrorBoundary resetKey={pathname}>
           <Suspense
             fallback={

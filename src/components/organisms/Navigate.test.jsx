@@ -105,7 +105,7 @@ describe('Navigate de administrador', () => {
     expect(reportsButton.querySelector('svg')).toBeInTheDocument()
     await user.click(reportsButton)
     expect(
-      screen.getByRole('menuitem', { name: 'Ventas' }).querySelector('svg')
+      screen.getByRole('link', { name: 'Ventas' }).querySelector('svg')
     ).toBeInTheDocument()
   })
 
@@ -139,15 +139,15 @@ describe('Navigate de administrador', () => {
 
     await user.click(screen.getByRole('button', { name: 'Reportes' }))
 
-    expect(screen.getByRole('menuitem', { name: 'Ventas' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Ventas' })).toHaveAttribute(
       'href',
       '/reports'
     )
     expect(
-      screen.getByRole('menuitem', { name: 'Asistencias' })
+      screen.getByRole('link', { name: 'Asistencias' })
     ).toHaveAttribute('href', '/attendance')
     expect(
-      screen.getByRole('menuitem', { name: 'Bajo stock' })
+      screen.getByRole('link', { name: 'Bajo stock' })
     ).toHaveAttribute('href', '/low-stock')
   })
 
@@ -158,13 +158,27 @@ describe('Navigate de administrador', () => {
 
     await user.click(screen.getByRole('button', { name: 'Reportes' }))
 
-    expect(screen.getByRole('menuitem', { name: 'Ventas' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Ventas' })).toBeTruthy()
     expect(
-      screen.getByRole('menuitem', { name: 'Asistencias' })
+      screen.getByRole('link', { name: 'Asistencias' })
     ).toHaveAttribute('href', '/attendance')
     expect(
-      screen.getByRole('menuitem', { name: 'Bajo stock' })
+      screen.getByRole('link', { name: 'Bajo stock' })
     ).toHaveAttribute('href', '/low-stock')
+  })
+
+  it('cierra el diálogo móvil con Escape y devuelve el foco al activador', async () => {
+    const user = userEvent.setup({ pointerEventsCheck: 0 })
+    renderNav()
+
+    const trigger = screen.getByRole('button', { name: 'Más' })
+    await user.click(trigger)
+    expect(screen.getByRole('dialog', { name: 'Más opciones' })).toBeVisible()
+
+    await user.keyboard('{Escape}')
+
+    expect(screen.queryByRole('dialog', { name: 'Más opciones' })).toBeNull()
+    expect(trigger).toHaveFocus()
   })
 
   it('staff ve inicio, pendientes, entradas, salidas, productos y proveedores', () => {

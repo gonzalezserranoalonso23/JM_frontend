@@ -294,17 +294,27 @@ body::-webkit-scrollbar {
 
 .section-card,
 .dialog-card {
-  --section-ring: rgb(217 47 57 / 0.045);
+  --section-ring: rgb(217 47 57 / 0.14);
 }
 
 .dialog-card {
   isolation: isolate;
 }
 
+.section-card > *,
+.dialog-card > :not([data-slot='dialog-close']) {
+  position: relative;
+  z-index: 1;
+}
+
+.dialog-card > [data-slot='dialog-close'] {
+  z-index: 1;
+}
+
 .section-card::before,
 .dialog-card::before {
   position: absolute;
-  z-index: -1;
+  z-index: 0;
   top: 0;
   right: 0;
   width: min(8rem, 100%);
@@ -312,20 +322,20 @@ body::-webkit-scrollbar {
   background:
     radial-gradient(
       circle at 100% 0%,
-      transparent 39%,
-      var(--section-ring) 40%,
+      transparent 37%,
+      var(--section-ring) 39%,
       transparent 41%
     ),
     radial-gradient(
       circle at 100% 0%,
-      transparent 55%,
-      var(--section-ring) 56%,
+      transparent 53%,
+      var(--section-ring) 55%,
       transparent 57%
     ),
     radial-gradient(
       circle at 100% 0%,
-      transparent 71%,
-      var(--section-ring) 72%,
+      transparent 69%,
+      var(--section-ring) 71%,
       transparent 73%
     );
   content: '';
@@ -358,7 +368,7 @@ body::-webkit-scrollbar {
 
 .dark .section-card,
 .dark .dialog-card {
-  --section-ring: rgb(228 49 58 / 0.075);
+  --section-ring: rgb(228 49 58 / 0.11);
 }
 
 .dark .app-nav {
@@ -473,17 +483,6 @@ body::-webkit-scrollbar {
   }
 }
 
-.cash-page-shell {
-  padding-top: var(--app-nav-height);
-}
-
-@media (min-width: 640px) {
-  .page-content-shell.cash-page-shell {
-    padding-inline: 1.875rem;
-    padding-top: var(--app-nav-height);
-  }
-}
-
 .app-nav {
   padding-top: env(safe-area-inset-top, 0px);
   padding-left: env(safe-area-inset-left, 0px);
@@ -493,6 +492,7 @@ body::-webkit-scrollbar {
 .app-tab-bar {
   padding-bottom: var(--app-safe-bottom);
 }
+
 
 /* La fecha deja el icono a la derecha. El texto no se centra encima de él. */
 input[type='date'],
@@ -582,27 +582,34 @@ html body[data-scroll-locked] .width-before-scroll-bar {
   margin-right: 0 !important;
 }
 
-/* iOS/Android auto-zoom on focus triggers when a field's font-size is below
-   16px, which breaks the layout. Force 16px on mobile/tablet to prevent it. */
 @media (max-width: 1279px) {
   input,
   select,
   textarea,
-  [contenteditable='true'] {
+  [contenteditable='true'],
+  [data-slot='select-trigger'],
+  [data-slot='select-item'] {
     font-size: 16px !important;
     line-height: 1.25;
   }
 
   input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  textarea {
+    min-height: 2.5rem;
+  }
+
   select,
   [data-slot='select-trigger'] {
-    min-height: 2.25rem;
+    min-height: 2.75rem;
   }
 
   button:not([data-slot='button']):not([data-slot='select-trigger']),
   [data-slot='button'][data-size='default'],
   [data-slot='button'][data-size='sm'],
-  [data-slot='button'][data-size='lg'] {
+  [data-slot='button'][data-size='lg'],
+  [role='button'],
+  [role='tab'],
+  [role='option'] {
     min-height: 2.75rem;
   }
 
@@ -613,6 +620,11 @@ html body[data-scroll-locked] .width-before-scroll-bar {
   button[data-size^='icon'] {
     min-width: 2.75rem;
     min-height: 2.75rem;
+  }
+
+  button[aria-label],
+  a[aria-label] {
+    min-width: 2.75rem;
   }
 
   .cash-column-headings,
@@ -637,8 +649,8 @@ html body[data-scroll-locked] .width-before-scroll-bar {
   .cash-quantity-input {
     width: 3.75rem;
     min-width: 3.75rem;
-    height: 2.75rem;
-    min-height: 2.75rem;
+    height: 2.5rem;
+    min-height: 2.5rem;
   }
 
   .app-tab-bar a,
