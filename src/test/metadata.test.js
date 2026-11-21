@@ -34,7 +34,9 @@ describe('metadatos', () => {
       )
     ]
     for (const src of sources) {
-      expect(existsSync(`public${src}`), src).toBe(true)
+      const path = new URL(src, 'https://jm-panel.local').pathname
+      expect(existsSync(`public${path}`), src).toBe(true)
+      if (path.endsWith('.png')) expect(src).toMatch(/\?v=\d+$/)
     }
     expect(existsSync('public/apple-touch-icon.png')).toBe(true)
   })

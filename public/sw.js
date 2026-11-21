@@ -1,4 +1,4 @@
-const CACHE = 'jm-shell-v9'
+const CACHE = 'jm-shell-v10'
 
 const fetchWithDeadline = (request, ms) => {
   const controller = new AbortController()
@@ -11,9 +11,14 @@ const SHELL = [
   '/offline.html',
   '/manifest.webmanifest',
   '/favicon.svg',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/icon-192.png?v=2',
+  '/icon-512.png?v=2',
+  '/icon-maskable-192.png?v=2',
+  '/icon-maskable-512.png?v=2'
 ]
+const SHELL_PATHS = new Set(
+  SHELL.map((path) => new URL(path, self.location.origin).pathname)
+)
 
 self.addEventListener('install', (event) => {
   self.skipWaiting()
@@ -61,7 +66,7 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  if (SHELL.includes(url.pathname)) {
+  if (SHELL_PATHS.has(url.pathname)) {
     event.respondWith(
       caches.match(request).then(
         (cached) => cached || fetchWithDeadline(request, 4000)
@@ -101,8 +106,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title, {
       body: payload.body,
-      icon: payload.icon || '/icon-192.png',
-      badge: '/icon-192.png',
+      icon: payload.icon || '/icon-192.png?v=2',
+      badge: '/icon-192.png?v=2',
       tag: payload.tag || 'jm-push',
       data: { url: payload.url || '/todolist' }
     })

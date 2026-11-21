@@ -145,7 +145,7 @@ const useTaskNotifications = (pendingTasks) => {
     fresh.forEach((task) => {
       const notification = new window.Notification('Pendiente asignado', {
         body: task.title,
-        icon: '/icon-192.png',
+        icon: '/icon-192.png?v=2',
         tag: task._id
       })
       notification.onclick = () => {
