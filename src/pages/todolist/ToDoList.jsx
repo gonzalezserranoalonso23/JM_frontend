@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils'
 import { taskUserId } from './task'
 
 const selectClass =
-  'h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-popover [&>option]:text-popover-foreground'
+  'h-10 min-w-0 max-w-full w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 [&>option]:bg-popover [&>option]:text-popover-foreground'
 
 const priorityLabel = { low: 'Baja', medium: 'Media', high: 'Alta' }
 const priorityBorder = {
@@ -139,17 +139,17 @@ export const TaskBoard = () => {
   }
 
   return (
-    <Card as="section" aria-labelledby="tasks-title">
-      <CardHeader>
+    <Card as="section" className="min-w-0 overflow-hidden" aria-labelledby="tasks-title">
+      <CardHeader className="min-w-0 px-4 pt-4 sm:px-6 sm:pt-6">
         <h1 id="tasks-title" className="text-2xl font-semibold">
           Pendientes
         </h1>
         <CardDescription>Gestiona los pendientes</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-6">
+      <CardContent className="flex min-w-0 flex-col gap-4 px-4 sm:gap-6 sm:px-6">
         {/* Create task form */}
         <section
-          className="rounded-lg border p-4"
+          className="min-w-0 rounded-lg border p-3 sm:p-4"
           aria-labelledby="new-task-title"
         >
           <h2 id="new-task-title" className="mb-3 text-sm font-semibold">
@@ -158,7 +158,7 @@ export const TaskBoard = () => {
           <form onSubmit={handleCreateTask} className="flex flex-col gap-3">
             <div
               className={cn(
-                'grid grid-cols-1 gap-3',
+                'grid min-w-0 grid-cols-1 gap-3',
                 fullAccess
                   ? 'lg:grid-cols-[2fr_1fr_1fr_auto]'
                   : 'lg:grid-cols-[2fr_1fr_auto]'
@@ -204,6 +204,8 @@ export const TaskBoard = () => {
 
             <Textarea
               placeholder="Descripción del pendiente (opcional)"
+              aria-label="Descripción del pendiente"
+              className="min-h-20 resize-y text-sm placeholder:text-muted-foreground"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows="2"
@@ -215,16 +217,18 @@ export const TaskBoard = () => {
         {/* Tabs */}
         <nav
           aria-label="Estado de los pendientes"
-          className="flex gap-2 border-b pb-2"
+          className="flex min-w-0 flex-wrap gap-2 border-b pb-2"
         >
           <Button
             variant={activeTab === 'pending' ? 'secondary' : 'ghost'}
+            className="min-w-0 flex-1 px-2 text-xs sm:flex-none sm:px-4 sm:text-sm"
             onClick={() => setActiveTab('pending')}
           >
             Pendientes ({pendingCount})
           </Button>
           <Button
             variant={activeTab === 'completed' ? 'secondary' : 'ghost'}
+            className="min-w-0 flex-1 px-2 text-xs sm:flex-none sm:px-4 sm:text-sm"
             onClick={() => setActiveTab('completed')}
           >
             Completadas{completedTasks ? ` (${completedCount})` : ''}
@@ -301,14 +305,14 @@ export const TaskBoard = () => {
                         </p>
                       )}
 
-                      <div className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-                        <small>
+                      <div className="mt-4 grid gap-3 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:items-center sm:gap-4">
+                        <small className="min-w-0">
                           Por:{' '}
                           <strong>
                             {task.createdBy?.username || 'Usuario'}
                           </strong>
                         </small>
-                        <small className="flex items-center gap-2">
+                        <small className="flex min-w-0 flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
                           Asignada a:{' '}
                           {fullAccess && canManageTask(task) ? (
                             <select
@@ -316,7 +320,10 @@ export const TaskBoard = () => {
                               onChange={(e) =>
                                 handleAssignTask(task._id, e.target.value)
                               }
-                              className={cn(selectClass, 'h-8 w-auto')}
+                              className={cn(
+                                selectClass,
+                                'w-full sm:h-8 sm:w-auto sm:max-w-[15rem]'
+                              )}
                               aria-label="Reasignar pendiente"
                             >
                               <option value="">Sin asignar</option>
@@ -334,7 +341,7 @@ export const TaskBoard = () => {
                             </strong>
                           )}
                         </small>
-                        <small>
+                        <small className="min-w-0">
                           {new Date(task.createdAt).toLocaleDateString()}
                         </small>
                       </div>
@@ -398,20 +405,20 @@ export const TaskBoard = () => {
                         </p>
                       )}
 
-                      <div className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:gap-4">
-                        <small>
+                      <div className="mt-4 grid gap-3 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:gap-4">
+                        <small className="min-w-0">
                           Por:{' '}
                           <strong>
                             {task.createdBy?.username || 'Usuario'}
                           </strong>
                         </small>
                         {task.assignedTo && (
-                          <small>
+                          <small className="min-w-0">
                             Asignada a:{' '}
                             <strong>{task.assignedTo.username}</strong>
                           </small>
                         )}
-                        <small>
+                        <small className="min-w-0">
                           Completada por:{' '}
                           <strong>
                             {task.completedBy?.username || 'Usuario'}
