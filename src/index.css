@@ -1,0 +1,692 @@
+@import 'tailwindcss';
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ===== shadcn/ui theme (neutral) ===== */
+:root {
+  --radius: 0.6875rem;
+  --background: oklch(0.975 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #d92f39;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.955 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.955 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: #fff0f1;
+  --accent-foreground: #b8202a;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: #d92f39;
+
+  --app-nav-height: calc(3.5rem + env(safe-area-inset-top, 0px));
+  --app-safe-bottom: min(env(safe-area-inset-bottom, 0px), 0.5rem);
+  --app-tab-height: calc(3.25rem + var(--app-safe-bottom));
+  --app-page-space-y: 0.75rem;
+  /* main.jsx lo reescribe midiendo 100dvh; 1dvh cubre el primer render. */
+  --app-vh: 1dvh;
+}
+
+.dark {
+  --background: #080808;
+  --foreground: #f4f4f4;
+  --card: #111111;
+  --card-foreground: #f4f4f4;
+  --popover: #111111;
+  --popover-foreground: #f4f4f4;
+  --primary: #e4313a;
+  --primary-foreground: #ffffff;
+  --secondary: #191919;
+  --secondary-foreground: #eeeeee;
+  --muted: #191919;
+  --muted-foreground: #929292;
+  --accent: #281416;
+  --accent-foreground: #ff5b64;
+  --destructive: #e4313a;
+  --border: #262626;
+  --input: #333333;
+  --ring: #e4313a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+html {
+  background-color: var(--background);
+  overscroll-behavior-y: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  /* auto on the document: a long press can copy in the browser, the PWA, and a webview. */
+  touch-action: auto;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  height: -webkit-fill-available;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --app-page-space-y: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --app-nav-height: calc(4rem + env(safe-area-inset-top, 0px));
+    --app-tab-height: 0px;
+  }
+
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+
+/* Instant tap on controls. Content links stay on auto so a long press can copy. */
+a,
+button,
+[role='button'],
+[role='tab'],
+[role='option'],
+[role='combobox'],
+[data-slot='select-trigger'],
+[data-slot='select-item'],
+label,
+summary,
+input,
+textarea,
+select {
+  touch-action: manipulation;
+}
+
+main a,
+[data-slot='dialog-content'] a {
+  touch-action: auto;
+}
+
+button,
+[role='button'],
+[role='tab'],
+[role='option'],
+[data-slot='select-trigger'],
+[data-slot='select-item'],
+.app-nav,
+.app-tab-bar {
+  -webkit-touch-callout: none;
+}
+
+/* En pantalla táctil el :hover se queda pegado y el primer toque no cuenta.
+   El :active responde en cuanto el dedo toca, sin esperar la animación. */
+@media (hover: none) and (pointer: coarse) {
+  a,
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='option'],
+  [data-slot='select-trigger'],
+  [data-slot='select-item'],
+  label,
+  summary {
+    transition: none;
+  }
+
+  [data-slot='dialog-body'] {
+    cursor: pointer;
+  }
+
+  a:active,
+  button:active,
+  [role='button']:active,
+  [role='tab']:active,
+  [role='option']:active,
+  [data-slot='select-trigger']:active,
+  [data-slot='select-item']:active {
+    opacity: 0.65;
+  }
+}
+
+button,
+[role='button'],
+[role='tab'],
+[role='option'],
+[data-slot='select-trigger'],
+[data-slot='select-item'],
+.app-nav,
+.app-tab-bar {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Page and dialog text can be selected. Dialogs render outside main. */
+main,
+[data-slot='dialog-content'],
+main :where(a, h1, h2, h3, h4, p, span, li, td, th, dd, dt),
+[data-slot='dialog-content'] :where(a, h1, h2, h3, h4, p, span, li, td, th, dd, dt) {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+main :is(
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='option'],
+  [data-slot='select-trigger'],
+  [data-slot='select-item']
+) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+img,
+svg {
+  -webkit-user-drag: none;
+}
+
+/* Keep scrolling functional but hide the scrollbar visually across browsers */
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.app-page-scroll {
+  scrollbar-width: thin;
+}
+
+.page-content-shell {
+  box-sizing: border-box;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1760px;
+  padding-top: var(--app-page-space-y);
+  padding-bottom: var(--app-page-space-y);
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+  min-height: 100%;
+}
+
+.app-brand-logo {
+  box-shadow: 0 4px 14px rgb(228 49 58 / 0.2);
+}
+
+.section-card,
+.calculator-summary-card,
+.dialog-card {
+  border-color: #f0c4c6;
+  background-image: linear-gradient(145deg, #fff2f3 0%, #ffffff 100%);
+  box-shadow: 0 9px 22px rgb(85 20 24 / 0.08);
+}
+
+.section-card,
+.calculator-summary-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.section-card,
+.dialog-card {
+  --section-ring: rgb(217 47 57 / 0.14);
+}
+
+.dialog-card {
+  isolation: isolate;
+}
+
+.section-card > *,
+.dialog-card > :not([data-slot='dialog-close']) {
+  position: relative;
+  z-index: 1;
+}
+
+.dialog-card > [data-slot='dialog-close'] {
+  z-index: 1;
+}
+
+.section-card::before,
+.dialog-card::before {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  width: min(8rem, 100%);
+  height: min(8rem, 100%);
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 37%,
+      var(--section-ring) 39%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 53%,
+      var(--section-ring) 55%,
+      transparent 57%
+    ),
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 69%,
+      var(--section-ring) 71%,
+      transparent 73%
+    );
+  content: '';
+  pointer-events: none;
+}
+
+.app-nav {
+  border-bottom-color: rgb(217 47 57 / 0.22);
+}
+
+.dark [data-slot='card'] {
+  box-shadow: 0 3px 16px rgb(0 0 0 / 0.2);
+}
+
+.dark .app-nav button:not(:disabled) {
+  color: var(--muted-foreground);
+}
+
+.dark .app-nav button:not(:disabled):hover {
+  color: var(--primary);
+}
+
+.dark .section-card,
+.dark .calculator-summary-card,
+.dark .dialog-card {
+  border-color: #442124;
+  background-image: linear-gradient(145deg, #1d1112 0%, #111111 100%);
+  box-shadow: 0 9px 22px rgb(85 20 24 / 0.16);
+}
+
+.dark .section-card,
+.dark .dialog-card {
+  --section-ring: rgb(228 49 58 / 0.11);
+}
+
+.dark .app-nav {
+  border-bottom-color: rgb(228 49 58 / 0.24);
+}
+
+.cash-total-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.cash-total-card::before {
+  position: absolute;
+  z-index: -1;
+  top: -3.8rem;
+  right: -2.7rem;
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      transparent 39%,
+      rgb(217 47 57 / 0.055) 40%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle,
+      transparent 55%,
+      rgb(217 47 57 / 0.045) 56%,
+      transparent 57%
+    ),
+    radial-gradient(
+      circle,
+      transparent 71%,
+      rgb(217 47 57 / 0.035) 72%,
+      transparent 73%
+    );
+  content: '';
+  pointer-events: none;
+}
+
+.dark .cash-total-card::before {
+  background:
+    radial-gradient(
+      circle,
+      transparent 39%,
+      rgb(255 255 255 / 0.04) 40%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle,
+      transparent 55%,
+      rgb(255 255 255 / 0.035) 56%,
+      transparent 57%
+    ),
+    radial-gradient(
+      circle,
+      transparent 71%,
+      rgb(255 255 255 / 0.03) 72%,
+      transparent 73%
+    );
+}
+
+@media (min-width: 640px) {
+  .page-content-shell {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media print {
+  html,
+  body,
+  #root {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .app-nav,
+  .app-tab-bar {
+    display: none !important;
+  }
+
+  .app-page-scroll {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .page-content-shell {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .cash-calculator-layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(17rem, 1fr) !important;
+    break-inside: avoid;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+@media (min-width: 1280px) {
+  .page-content-shell {
+    padding-inline: 2rem;
+  }
+}
+
+.app-nav {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.app-tab-bar {
+  padding-bottom: var(--app-safe-bottom);
+}
+
+
+/* La fecha deja el icono a la derecha. El texto no se centra encima de él. */
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
+input[type='month'] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: min(100%, 12.75rem);
+  max-width: 100%;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0.75rem;
+  padding-right: 2.5rem;
+  line-height: normal;
+  text-align: start;
+}
+
+input[type='date']::-webkit-date-and-time-value,
+input[type='time']::-webkit-date-and-time-value,
+input[type='datetime-local']::-webkit-date-and-time-value {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  line-height: normal;
+  text-align: start;
+}
+
+input[type='date']::-webkit-datetime-edit,
+input[type='time']::-webkit-datetime-edit,
+input[type='datetime-local']::-webkit-datetime-edit,
+input[type='date']::-webkit-datetime-edit-fields-wrapper,
+input[type='time']::-webkit-datetime-edit-fields-wrapper,
+input[type='datetime-local']::-webkit-datetime-edit-fields-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: normal;
+  text-align: start;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator,
+input[type='month']::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2.5rem;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  transform: none;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* The scrollbar is hidden, so Radix's scroll-lock compensation (padding/margin
+   on body while a Dialog/Select is open) only makes the layout jump. */
+html body[data-scroll-locked] {
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+html body[data-scroll-locked] .right-scroll-bar-position {
+  right: 0 !important;
+}
+
+html body[data-scroll-locked] .width-before-scroll-bar {
+  margin-right: 0 !important;
+}
+
+@media (max-width: 1279px) {
+  input,
+  select,
+  textarea,
+  [contenteditable='true'],
+  [data-slot='select-trigger'],
+  [data-slot='select-item'] {
+    font-size: 16px !important;
+    line-height: 1.25;
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  textarea {
+    min-height: 2.5rem;
+  }
+
+  select,
+  [data-slot='select-trigger'] {
+    min-height: 2.75rem;
+  }
+
+  button:not([data-slot='button']):not([data-slot='select-trigger']),
+  [data-slot='button'][data-size='default'],
+  [data-slot='button'][data-size='sm'],
+  [data-slot='button'][data-size='lg'],
+  [role='button'],
+  [role='tab'],
+  [role='option'] {
+    min-height: 2.75rem;
+  }
+
+  [data-slot='button'][data-size='icon'],
+  [data-slot='button'][data-size='icon-sm'],
+  [data-slot='button'][data-size='icon-lg'],
+  [data-slot='button'][data-size='icon-xs'],
+  button[data-size^='icon'] {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  button[aria-label],
+  a[aria-label] {
+    min-width: 2.75rem;
+  }
+
+  .cash-column-headings,
+  .cash-denomination-row {
+    grid-template-columns: minmax(0, 1fr) 9.375rem minmax(3.5rem, 0.6fr);
+  }
+
+  .cash-quantity-control {
+    display: grid;
+    grid-template-columns: 2.75rem 3.75rem 2.75rem;
+    width: 9.375rem;
+    height: 2.75rem;
+  }
+
+  .cash-step-button {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .cash-quantity-input {
+    width: 3.75rem;
+    min-width: 3.75rem;
+    height: 2.5rem;
+    min-height: 2.5rem;
+  }
+
+  .app-tab-bar a,
+  .app-tab-bar button {
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 359px) {
+  .cash-column-headings,
+  .cash-denomination-row {
+    grid-template-columns: minmax(0, 1fr) 9.375rem;
+  }
+
+  .cash-column-headings > :last-child,
+  .cash-denomination-row > :last-child {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

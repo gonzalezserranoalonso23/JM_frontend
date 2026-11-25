@@ -1,0 +1,28 @@
+{
+  "name": "JM Panel | Mini Super JM",
+  "short_name": "JM Panel",
+  "description": "Panel administrativo de control de inventario para tienda de abarrotes: información diaria, productos, proveedores, pendientes, caja, asistencia y reportes.",
+  "categories": ["business", "productivity"],
+  "lang": "es-MX",
+  "start_url": "/home?source=pwa",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen"],
+  "prefer_related_applications": false,
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "shortcuts": [
+    { "name": "Inicio", "url": "/home", "icons": [{ "src": "/icon-192.png?v=2", "sizes": "192x192" }] },
+    { "name": "Pendientes", "url": "/todolist", "icons": [{ "src": "/icon-192.png?v=2", "sizes": "192x192" }] },
+    { "name": "Información", "url": "/daily-information", "icons": [{ "src": "/icon-192.png?v=2", "sizes": "192x192" }] },
+    { "name": "Caja", "url": "/cash", "icons": [{ "src": "/icon-192.png?v=2", "sizes": "192x192" }] }
+  ],
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-192.png?v=2", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png?v=2", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-192.png?v=2", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-maskable-512.png?v=2", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,296 @@
+import * as React from 'react'
+import { Dialog as DialogPrimitive } from 'radix-ui'
+import { X } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+const Dialog = DialogPrimitive.Root
+const DialogTrigger = DialogPrimitive.Trigger
+const DialogPortal = DialogPrimitive.Portal
+const DialogClose = DialogPrimitive.Close
+
+const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
+  <DialogPrimitive.Overlay
+    ref={ref}
+    className={cn('fixed inset-0 z-[60] bg-black/80', className)}
+    {...props}
+  />
+))
+DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
+
+const DialogContent = React.forwardRef(
+  (
+    {
+      className,
+      closeClassName,
+      children,
+      onInteractOutside,
+      onEscapeKeyDown,
+      hasUnsavedChanges = false,
+      trackChanges = true,
+      ...props
+    },
+    ref
+  ) => {
+    const [content, setContent] = React.useState(null)
+    const dirtyRef = React.useRef(false)
+
+    // Ask only after the user has typed something. true means the dialog can close.
+    const canDiscard = () =>
+      !(dirtyRef.current || hasUnsavedChanges) ||
+      window.confirm('Hay cambios sin guardar. ¿Deseas cerrar y descartarlos?')
+
+    React.useEffect(() => {
+      if (!content) return
+
+      let frameId
+
+      dirtyRef.current = false
+      const markDirty = () => {
+        dirtyRef.current = true
+      }
+      if (trackChanges) {
+        content.addEventListener('input', markDirty)
+        content.addEventListener('change', markDirty)
+      }
+
+      const revealFocusedField = () => {
+        window.cancelAnimationFrame(frameId)
+        frameId = window.requestAnimationFrame(() => {
+          const focused = document.activeElement
+          const HTMLElementConstructor =
+            content.ownerDocument.defaultView?.HTMLElement
+          if (
+            !HTMLElementConstructor ||
+            !(focused instanceof HTMLElementConstructor) ||
+            !content.contains(focused) ||
+            focused.getAttribute('role') === 'combobox' ||
+            !focused.matches(
+              'input, textarea, select, [contenteditable="true"]'
+            )
+          ) {
+            return
+          }
+
+          let scrollArea = focused.parentElement
+          while (scrollArea && scrollArea !== content) {
+            const { overflowY } = window.getComputedStyle(scrollArea)
+            if (
+              /(auto|scroll)/.test(overflowY) &&
+              scrollArea.scrollHeight > scrollArea.clientHeight
+            ) {
+              break
+            }
+            scrollArea = scrollArea.parentElement
+          }
+
+          if (!scrollArea || scrollArea === content) return
+
+          const viewportTop = window.visualViewport?.offsetTop || 0
+          const viewportBottom =
+            viewportTop + (window.visualViewport?.height || window.innerHeight)
+          const areaBounds = scrollArea.getBoundingClientRect()
+          const fieldBounds = focused.getBoundingClientRect()
+          const visibleTop = Math.max(areaBounds.top, viewportTop) + 12
+          const visibleBottom = Math.min(areaBounds.bottom, viewportBottom) - 12
+
+          if (fieldBounds.bottom > visibleBottom) {
+            scrollArea.scrollTop += fieldBounds.bottom - visibleBottom
+          } else if (fieldBounds.top < visibleTop) {
+            scrollArea.scrollTop -= visibleTop - fieldBounds.top
+          }
+        })
+      }
+
+      const isMobile = window.matchMedia('(max-width: 639px)').matches
+      const { body } = document
+      const previousBody = {
+        position: body.style.position,
+        top: body.style.top,
+        width: body.style.width
+      }
+      const lockedScrollY = window.scrollY
+      // Height stays on the screen. Following the keyboard lifts Close and Save
+      // over the combobox in Safari, Chrome, and the installed app.
+      let sheetHeight = 0
+      let sheetWidth = 0
+      const syncHeight = () => {
+        const height = Math.round(
+          document.documentElement.clientHeight || window.innerHeight
+        )
+        const width = window.innerWidth
+        if (width !== sheetWidth || height > sheetHeight) {
+          sheetWidth = width
+          sheetHeight = height
+          content.style.setProperty('--dialog-h', `${sheetHeight}px`)
+          content.style.setProperty('--dialog-top', '0px')
+        }
+      }
+      syncHeight()
+      let resizeTimer
+      const handleResize = () => {
+        window.clearTimeout(resizeTimer)
+        resizeTimer = window.setTimeout(revealFocusedField, 150)
+      }
+      if (isMobile) {
+        body.style.position = 'fixed'
+        body.style.top = `-${lockedScrollY}px`
+        body.style.width = '100%'
+        window.visualViewport?.addEventListener('resize', handleResize)
+        window.visualViewport?.addEventListener('scroll', handleResize)
+        window.addEventListener('resize', syncHeight)
+        window.addEventListener('orientationchange', syncHeight)
+      }
+
+      return () => {
+        if (trackChanges) {
+          content.removeEventListener('input', markDirty)
+          content.removeEventListener('change', markDirty)
+        }
+        if (isMobile) {
+          window.visualViewport?.removeEventListener('resize', handleResize)
+          window.removeEventListener('resize', syncHeight)
+          window.removeEventListener('orientationchange', syncHeight)
+          window.visualViewport?.removeEventListener('scroll', handleResize)
+          body.style.position = previousBody.position
+          body.style.top = previousBody.top
+          body.style.width = previousBody.width
+          window.scrollTo(0, lockedScrollY)
+        }
+        window.cancelAnimationFrame(frameId)
+        window.clearTimeout(resizeTimer)
+      }
+    }, [content, trackChanges])
+
+    const setContentRef = React.useCallback(
+      (node) => {
+        setContent(node)
+        if (typeof ref === 'function') ref(node)
+        else if (ref) ref.current = node
+      },
+      [ref]
+    )
+
+    return (
+      <DialogPortal>
+        <DialogOverlay />
+        <DialogPrimitive.Content
+          ref={setContentRef}
+          data-slot="dialog-content"
+          className={cn(
+            'dialog-card fixed z-[60] flex flex-col bg-background text-foreground shadow-lg',
+            'left-1/2 top-1/2 w-full max-w-lg sm:max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-lg border max-h-[90vh] overflow-hidden',
+            // Mobile: static full-screen sheet; no animations or movement
+            'max-sm:inset-x-0 max-sm:bottom-auto max-sm:top-0 max-sm:h-[var(--dialog-h,100dvh)]! max-sm:max-h-[var(--dialog-h,100dvh)]! max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:overscroll-contain max-sm:pt-[env(safe-area-inset-top,0px)] max-sm:pl-[env(safe-area-inset-left,0px)] max-sm:pr-[env(safe-area-inset-right,0px)]',
+            className
+          )}
+          onInteractOutside={(event) => {
+            const target = event.target
+            if (
+              target instanceof window.Element &&
+              target.closest('[data-slot="select-content"]')
+            ) {
+              event.preventDefault()
+              return
+            }
+            onInteractOutside?.(event)
+            event.preventDefault()
+          }}
+          onEscapeKeyDown={(event) => {
+            onEscapeKeyDown?.(event)
+            // Escape closes the open combobox instead of the dialog.
+            const listOpen = content?.querySelector('[aria-expanded="true"]')
+            if (listOpen || !canDiscard()) event.preventDefault()
+          }}
+          {...props}
+        >
+          {children}
+          <DialogPrimitive.Close
+            data-slot="dialog-close"
+            onClick={(event) => {
+              if (!canDiscard()) event.preventDefault()
+            }}
+            className={cn(
+              'absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground opacity-80 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none max-sm:right-1 max-sm:top-[calc(0.25rem+env(safe-area-inset-top,0px))]',
+              closeClassName
+            )}
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+            <span className="sr-only">Cerrar</span>
+          </DialogPrimitive.Close>
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    )
+  }
+)
+DialogContent.displayName = DialogPrimitive.Content.displayName
+
+const DialogHeader = ({ className, ...props }) => (
+  <header
+    className={cn(
+      'flex shrink-0 flex-col gap-1.5 border-b p-5 pr-14 max-sm:p-4 max-sm:pr-14',
+      className
+    )}
+    {...props}
+  />
+)
+DialogHeader.displayName = 'DialogHeader'
+
+const DialogBody = ({ className, ...props }) => (
+  <div
+    data-slot="dialog-body"
+    onTouchStart={() => {}}
+    className={cn(
+      'min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-5 [overflow-anchor:none] max-sm:p-4',
+      // Grid and flex children must not grow the column past the screen.
+      // Space between each label and its field.
+      '[&_label]:mb-2',
+      '[&_.grid>*]:min-w-0 [&_.flex>*]:min-w-0 [&_input]:max-w-full [&_textarea]:max-w-full [&_button[role=combobox]]:max-w-full',
+      className
+    )}
+    {...props}
+  />
+)
+DialogBody.displayName = 'DialogBody'
+
+const DialogFooter = ({ className, ...props }) => (
+  <footer
+    className={cn(
+      'flex shrink-0 flex-row justify-end gap-3 border-t p-5 max-sm:gap-2 max-sm:px-3 max-sm:pt-3 max-sm:[&_button]:flex-1 max-sm:pb-[max(0.75rem,var(--app-safe-bottom))] max-sm:[&_button]:h-12',
+      className
+    )}
+    {...props}
+  />
+)
+DialogFooter.displayName = 'DialogFooter'
+
+const DialogTitle = React.forwardRef(({ className, ...props }, ref) => (
+  <DialogPrimitive.Title
+    ref={ref}
+    className={cn('text-lg font-semibold leading-none', className)}
+    {...props}
+  />
+))
+DialogTitle.displayName = DialogPrimitive.Title.displayName
+
+const DialogDescription = React.forwardRef(({ className, ...props }, ref) => (
+  <DialogPrimitive.Description
+    ref={ref}
+    className={cn('text-sm text-muted-foreground', className)}
+    {...props}
+  />
+))
+DialogDescription.displayName = DialogPrimitive.Description.displayName
+
+export {
+  Dialog,
+  DialogPortal,
+  DialogOverlay,
+  DialogTrigger,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription
+}

@@ -1,0 +1,45 @@
+import axios from '@/libs/axios'
+import publicApi from '@/libs/publicApi'
+
+export const login = (values) => publicApi.post('/api/users/login', values)
+
+export const logout = () => axios.post('/api/users/logout')
+
+export const revokeUserSessions = async (id) => {
+  const { data } = await axios.post(`/api/users/${id}/logout`)
+  return data
+}
+
+export const getAssignableUsers = async () => {
+  const { data } = await axios.get('/api/users/assignable')
+  return data
+}
+
+export const getCurrentUser = async () => {
+  const { data } = await axios.get('/api/users/me')
+  return data
+}
+
+export const getUsersPage = async ({ page, limit, search }) => {
+  const { data } = await axios.get('/api/users', {
+    params: { page, limit, ...(search ? { search } : {}) }
+  })
+  return data
+}
+
+const withoutEmail = ({ email, ...user }) => user
+
+export const registerUser = async (userData) => {
+  const { data } = await axios.post('/api/users/register', withoutEmail(userData))
+  return data
+}
+
+export const updateUser = async (id, userData) => {
+  const { data } = await axios.put(`/api/users/${id}`, withoutEmail(userData))
+  return data
+}
+
+export const deleteUser = async (id) => {
+  const { data } = await axios.delete(`/api/users/${id}`)
+  return data
+}
